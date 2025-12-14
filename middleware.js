@@ -50,7 +50,7 @@ export default async function middleware(req) {
   
   if (!pathname.startsWith("/_next") && !pathname.match(/\.(jpg|jpeg|png|gif|svg|ico|webp)$/)) {
     if (!checkRateLimit(ip)) {
-      console.warn(`🚨 Rate limit dépassé: ${ip}`);
+      console.warn(`🚨 Rate limit: ${ip}`);
       return new NextResponse("Too Many Requests", { 
         status: 429,
         headers: { "Retry-After": "60" }
@@ -59,7 +59,7 @@ export default async function middleware(req) {
   }
 
   // ============================================================
-  // 🔒 SÉCURITÉ 2 : VALIDATION URL (Anti-injection)
+  // 🔒 SÉCURITÉ 2 : VALIDATION URL
   // ============================================================
   const suspiciousPatterns = [
     /<script/i,
@@ -79,7 +79,7 @@ export default async function middleware(req) {
   }
 
   // ============================================================
-  // 🔒 SÉCURITÉ 3 : HEADERS DE SÉCURITÉ
+  // 🔒 SÉCURITÉ 3 : HEADERS
   // ============================================================
   const response = NextResponse.next();
   
@@ -102,23 +102,23 @@ export default async function middleware(req) {
   response.headers.set("Content-Security-Policy", cspHeader);
 
   // ============================================================
-  // 1. GESTION DU DOMAINE
+  // 1. HOSTNAME & CONFIG
   // ============================================================
   let hostname = req.headers.get("host") || "";
-  hostname = hostname.replace(":3000", "").replace(":3001", "");
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "bookzy.io";
+  const JWT_SECRET = process.env.JWT_SECRET;
 
   console.log(`🌐 ${hostname}${pathname}`);
 
   // ============================================================
-  // 2. EXCLUSION DES ROUTES API
+  // 2. API ROUTES - PASS THROUGH
   // ============================================================
   if (pathname.startsWith("/api")) {
     return response;
   }
 
   // ============================================================
-  // 3. PAGES PUBLIQUES
+  // 3. PUBLIC PAGES
   // ============================================================
   const publicPaths = [
     "/", "/auth/login", "/auth/register", "/auth/forgot-password", 
@@ -128,94 +128,106 @@ export default async function middleware(req) {
   const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
 
   // ============================================================
-  // 4. PROTECTION ZONES PRIVÉES (Auth Check)
+  // 4. FONCTION HELPER : Vérification JWT
   // ============================================================
-  if (!isPublicPath && (pathname.startsWith("/admin") || pathname.startsWith("/dashboard"))) {
+  async function verifyToken(token) {
+    if (!token || !JWT_SECRET) return null;
+    try {
+      const encoder = new TextEncoder();
+      return await jwtVerify(token, encoder.encode(JWT_SECRET));
+    } catch (err) {
+      console.warn(`⚠️ JWT error:`, err.message);
+      return null;
+    }
+  }
+
+  // ============================================================
+  // 5. PROTECTION AUTH (Admin & Dashboard)
+  // ============================================================
+  async function checkAuth() {
+    if (isPublicPath) return null;
+    if (!pathname.startsWith("/admin") && !pathname.startsWith("/dashboard")) return null;
+
     const userToken = req.cookies.get("bookzy_token")?.value;
     const adminToken = req.cookies.get("admin_token")?.value;
-    const JWT_SECRET = process.env.JWT_SECRET;
 
     if (!JWT_SECRET) {
       console.error("❌ JWT_SECRET manquant");
       return NextResponse.redirect(new URL("/auth/login", req.url));
     }
 
-    // Si pas de token → login
     if (!userToken && !adminToken) {
-      console.log(`🚫 No token (${ip}) - redirect to login`);
+      console.log(`🚫 No token (${ip})`);
       return NextResponse.redirect(new URL("/auth/login", req.url));
     }
 
-    // Vérification JWT pour admin
-    if (pathname.startsWith("/admin") && adminToken) {
-      const encoder = new TextEncoder();
-      try {
-        const decoded = await jwtVerify(adminToken, encoder.encode(JWT_SECRET));
-        if (!decoded || !["admin", "super_admin"].includes(decoded.payload.role)) {
-          console.warn(`🚫 Token admin invalide (${ip})`);
-          return NextResponse.redirect(new URL("/auth/login", req.url));
-        }
-        console.log(`✅ Admin access granted (${ip})`);
-      } catch (err) {
-        console.warn(`⚠️ JWT error (${ip}):`, err.message);
+    // Protection ADMIN
+    if (pathname.startsWith("/admin")) {
+      if (!adminToken) {
+        console.warn(`🚫 Admin denied - no admin token`);
         return NextResponse.redirect(new URL("/auth/login", req.url));
       }
+      const decoded = await verifyToken(adminToken);
+      if (!decoded || !["admin", "super_admin"].includes(decoded.payload.role)) {
+        console.warn(`🚫 Admin denied - invalid role`);
+        return NextResponse.redirect(new URL("/auth/login", req.url));
+      }
+      console.log(`✅ Admin: ${decoded.payload.email}`);
     }
+
+    // Protection DASHBOARD
+    if (pathname.startsWith("/dashboard")) {
+      const token = userToken || adminToken;
+      const verified = await verifyToken(token);
+      if (!verified) {
+        console.warn(`🚫 Dashboard denied - invalid token`);
+        return NextResponse.redirect(new URL("/auth/login", req.url));
+      }
+      console.log(`✅ Dashboard: ${verified.payload.email}`);
+    }
+
+    return null;
   }
 
   // ============================================================
-  // 5. ROUTAGE MULTI-DOMAINES
+  // 6. LOCALHOST : Logique simplifiée
   // ============================================================
-  
-  // --- SCÉNARIO A : Sous-domaine "app" (app.bookzy.io) ---
-  if (hostname === `app.${rootDomain}`) {
-    console.log(`📱 App subdomain`);
-    
-    // Si racine → redirect dashboard
-    if (pathname === "/") {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
-    }
-
-    // ✅ NE PAS rewriter /auth (accès direct à app/(platform)/auth/)
-    if (pathname.startsWith('/auth')) {
-      console.log(`✅ Auth page - direct access`);
-      return response;
-    }
-
-    // Rewrite dashboard et admin vers (platform)
-    if (pathname.startsWith('/dashboard') || pathname.startsWith('/admin')) {
-      if (!pathname.startsWith('/(platform)')) {
-        console.log(`↪️ Rewrite to (platform)${pathname}`);
-        return NextResponse.rewrite(new URL(`/(platform)${pathname}`, req.url));
-      }
-    }
-
+  if (hostname.includes("localhost") || hostname.includes("127.0.0.1")) {
+    console.log(`🏠 Localhost mode`);
+    const authRedirect = await checkAuth();
+    if (authRedirect) return authRedirect;
     return response;
   }
 
-  // --- SCÉNARIO B : Domaine Principal (bookzy.io / www.bookzy.io) ---
-  if (hostname === rootDomain || hostname === `www.${rootDomain}`) {
-    console.log(`🌍 Main domain`);
+  // ============================================================
+  // 7. PRODUCTION : Multi-domaines
+  // ============================================================
+
+  // SUBDOMAIN: app.bookzy.io
+  if (hostname.includes("app.")) {
+    console.log(`📱 App subdomain`);
     
-    // Redirect admin/dashboard vers app.bookzy.io
-    if (pathname.startsWith("/admin") || pathname.startsWith("/dashboard")) {
-      const appUrl = new URL(req.url);
-      appUrl.hostname = `app.${rootDomain}`;
-      console.log(`↪️ Redirect to app subdomain`);
-      return NextResponse.redirect(appUrl);
-    }
-
-    // Rewrite vers (marketing)
     if (pathname === "/") {
-      if (!pathname.startsWith('/(marketing)')) {
-        return NextResponse.rewrite(new URL(`/(marketing)`, req.url));
-      }
+      return NextResponse.redirect(new URL("/dashboard", req.url));
     }
-
-    if (!pathname.startsWith('/(marketing)') && !pathname.startsWith('/auth')) {
-      return NextResponse.rewrite(new URL(`/(marketing)${pathname}`, req.url));
-    }
+    
+    const authRedirect = await checkAuth();
+    if (authRedirect) return authRedirect;
+    
+    return response;
   }
 
+  // MAIN DOMAIN: www.bookzy.io or bookzy.io
+  console.log(`🌍 Main domain`);
+  
+  if (pathname.startsWith("/admin") || pathname.startsWith("/dashboard")) {
+    const appUrl = new URL(req.url);
+    appUrl.hostname = hostname.includes("www.") 
+      ? hostname.replace("www.", "app.")
+      : `app.${hostname}`;
+    console.log(`↪️ Redirect to ${appUrl.hostname}`);
+    return NextResponse.redirect(appUrl);
+  }
+  
   return response;
 }
