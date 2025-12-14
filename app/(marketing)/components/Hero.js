@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { ArrowRight, Zap, Wand2, CheckCircle2, FileText, Download, Sparkles } from 'lucide-react';
+import { ArrowRight, Wand2, CheckCircle2, FileText, Download } from 'lucide-react';
 
 export default function Hero() {
   
@@ -13,62 +13,64 @@ export default function Hero() {
   ];
 
   return (
-    <section className="relative pt-24 pb-16 lg:pt-36 lg:pb-32 overflow-hidden bg-white">
+    <section className="relative pt-32 pb-24 lg:pt-36 lg:pb-32 overflow-hidden bg-white">
       
-      {/* FOND AURORA */}
-      <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-blue-50/80 rounded-full blur-[120px] pointer-events-none z-0 mix-blend-multiply"></div>
-      <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-violet-50/80 rounded-full blur-[120px] pointer-events-none z-0 mix-blend-multiply"></div>
+      {/* FOND DÉGRADÉ STYLE STRIPE */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-violet-50 lg:from-blue-50 lg:via-white lg:to-violet-50"></div>
       
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* LUEURS BLEU-VIOLET - Style Stripe */}
+      <div className="absolute top-[-15%] right-[-15%] w-[700px] h-[700px] lg:w-[900px] lg:h-[900px] bg-gradient-to-br from-blue-400/20 via-indigo-400/15 to-transparent rounded-full blur-[120px] pointer-events-none z-0 animate-pulse-slow"></div>
+      <div className="absolute bottom-[-15%] left-[-15%] w-[600px] h-[600px] lg:w-[800px] lg:h-[800px] bg-gradient-to-tr from-violet-400/20 via-purple-400/15 to-transparent rounded-full blur-[120px] pointer-events-none z-0 animate-pulse-slow" style={{animationDelay: '2s'}}></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-indigo-400/10 to-transparent rounded-full blur-[100px] pointer-events-none z-0"></div>
+      
+      <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           
           {/* COLONNE GAUCHE */}
-          <div className="flex flex-col items-center text-center lg:items-start lg:text-left relative">
+          <div className="flex flex-col items-center text-center lg:items-start lg:text-left relative max-w-2xl mx-auto lg:mx-0">
             
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm mb-8 mx-auto lg:mx-0">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
-              </span>
-              <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
-                IA Générative v2.0
+            {/* Badge - Minimaliste */}
+            <div className="inline-flex items-center gap-2.5 px-0 lg:px-4 py-0 lg:py-1.5 rounded-full bg-transparent lg:bg-white border-0 lg:border lg:border-slate-200 shadow-none lg:shadow-sm mb-10 lg:mb-8">
+              <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+              <span className="text-sm lg:text-xs font-bold text-slate-900 lg:text-slate-600 uppercase tracking-wider">
+                IA GÉNÉRATIVE V2.0
               </span>
             </div>
 
-            {/* Titre optimisé */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-slate-900 tracking-tighter mb-6 leading-[1.05]">
-              Générer votre eBook pro <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600">en 1 min</span>
+            {/* Titre - TRÈS GRAND et IMPOSANT comme dans l'artifact */}
+            <h1 className="text-[3.5rem] leading-[1.05] sm:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight mb-10 lg:mb-6 lg:tracking-tighter lg:leading-[1.05]">
+              Générer votre eBook pro{" "}
+              <span className="text-blue-600 lg:text-transparent lg:bg-clip-text lg:bg-gradient-to-r lg:from-blue-600 lg:via-indigo-600 lg:to-violet-600">
+                en 1 min
+              </span>
             </h1>
 
-            {/* Description */}
-            <p className="text-lg sm:text-xl text-slate-600 mb-10 max-w-lg leading-relaxed font-medium mx-auto lg:mx-0">
-               Notre IA ne génère pas seulement du texte brut .
-Elle structure, rédige, met en page et prépare le kit marketing.
-Vous obtenez un produit digital fini,  <strong className="text-slate-900 bg-blue-50 px-1.5 py-0.5 rounded">prêt à vendre</strong>, sans attendre.
+            {/* Description - Grande et lisible */}
+            <p className="text-xl leading-relaxed lg:text-xl text-slate-700 lg:text-slate-600 mb-12 lg:mb-10 max-w-2xl font-normal lg:font-medium">
+               Notre IA ne génère pas seulement du texte brut . Elle structure, rédige, met en page et prépare le kit marketing. Vous obtenez un produit digital fini,  <strong className="text-slate-900 font-bold">prêt à vendre</strong>, sans attendre.
             </p>
 
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mb-12 justify-center lg:justify-start">
+            {/* CTAs - Grands et espacés */}
+            <div className="flex flex-col gap-4 lg:flex-row lg:gap-4 w-full lg:w-auto mb-16 lg:mb-12">
               <Link
                 href="/auth/register"
-                className="group h-14 px-8 bg-slate-900 text-white text-base font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-xl shadow-slate-900/10 hover:shadow-2xl hover:shadow-slate-900/20 hover:-translate-y-1 hover:scale-105"
+                className="h-16 lg:h-14 px-12 lg:px-8 bg-slate-900 text-white text-lg lg:text-base font-bold rounded-2xl lg:rounded-xl transition-all flex items-center justify-center gap-2 shadow-xl shadow-slate-900/10 hover:shadow-2xl hover:-translate-y-1"
               >
                 <span>Essayer gratuitement</span>
               </Link>
 
               <button
                 onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
-                className="group h-14 px-8 bg-white text-slate-700 border-2 border-slate-200 text-base font-bold rounded-xl hover:border-slate-300 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 shadow-sm"
+                className="group h-16 lg:h-14 px-12 lg:px-8 bg-white text-slate-900 lg:text-slate-700 border-2 border-slate-200 text-lg lg:text-base font-bold rounded-2xl lg:rounded-xl hover:border-slate-300 hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
               >
                 <span>Voir la démo</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
 
-            {/* Preuve sociale améliorée */}
-            <div className="flex items-center gap-4 justify-center lg:justify-start">
-               <div className="flex -space-x-3">
+            {/* Preuve sociale - Simple et clean */}
+            <div className="flex items-center gap-4">
+               <div className="flex -space-x-2">
                   {users.map((user, index) => (
                       <img 
                           key={index}
@@ -88,7 +90,7 @@ Vous obtenez un produit digital fini,  <strong className="text-slate-900 bg-blue
 
           </div>
 
-          {/* COLONNE DROITE : VISUEL */}
+          {/* COLONNE DROITE : VISUEL PC - Inchangé */}
           <div className="relative h-[600px] w-full hidden lg:flex items-center justify-center perspective-1000">
              
              {/* Halo */}
