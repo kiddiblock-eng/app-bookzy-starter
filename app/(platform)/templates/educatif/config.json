@@ -1,0 +1,15 @@
+{
+  "id": "educatif",
+  "name": "Éducatif",
+  "description": "Template pédagogique, clair et académique. Idéal pour ebooks de formation et guides.",
+  "fonts": {
+    "primary": "Inter",
+    "secondary": "Merriweather"
+  },
+  "colors": {
+    "primary": "#0A6847",
+    "secondary": "#127C56",
+    "text": "#1F1F1F",
+    "background": "#FFFFFF"
+  }
+}

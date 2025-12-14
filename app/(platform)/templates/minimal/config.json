@@ -1,0 +1,14 @@
+{
+  "id": "minimal",
+  "name": "Minimaliste",
+  "description": "Template ultra épuré, blanc, lisible, inspiré du style Apple / Notion.",
+  "fonts": {
+    "primary": "Inter",
+    "secondary": "Poppins"
+  },
+  "colors": {
+    "primary": "#111111",
+    "text": "#1A1A1A",
+    "background": "#FFFFFF"
+  }
+}

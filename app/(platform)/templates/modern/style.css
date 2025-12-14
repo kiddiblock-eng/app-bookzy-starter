@@ -1,0 +1,114 @@
+/* TEMPLATE MODERNE */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@500;600&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: #1F2937;
+  background: #ffffff;
+  margin: 0;
+  padding: 0;
+}
+
+/* PAGE */
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 25mm;
+  margin: auto;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+/* COUVERTURE */
+.cover {
+  background: linear-gradient(135deg, #1E3A8A, #2563EB);
+  color: white;
+  text-align: center;
+  padding: 60mm 20mm;
+  border: none;
+}
+
+.cover h1 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 46px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  letter-spacing: -1px;
+}
+
+.cover h2 {
+  font-size: 20px;
+  opacity: 0.85;
+  margin-top: 5px;
+}
+
+.cover .author {
+  margin-top: 45px;
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+
+/* TITRES SECTIONS */
+h1 {
+  font-size: 30px;
+  color: #2563EB;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #1F2937;
+  font-weight: 600;
+}
+
+/* TEXTE */
+p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #374151;
+  margin-bottom: 12px;
+  text-align: justify;
+}
+
+/* LISTES */
+ul {
+  margin: 15px 0;
+  padding-left: 20px;
+}
+
+li {
+  margin-bottom: 8px;
+}
+
+/* CITATION */
+blockquote {
+  border-left: 4px solid #2563EB;
+  padding-left: 15px;
+  font-style: italic;
+  margin: 20px 0;
+  color: #374151;
+  background: #eff6ff;
+  padding: 10px 15px;
+  border-radius: 4px;
+}
+
+/* TABLEAU */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+table td, table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+table th {
+  background: #2563EB;
+  color: white;
+  font-weight: 600;
+}

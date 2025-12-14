@@ -1,0 +1,38 @@
+{
+  "name": "Énergique",
+  "style": {
+    "font": "Poppins",
+    "primaryColor": "#dc2626",
+    "accentColor": "#f97316",
+    "emoji": "⚡"
+  },
+  "sections": [
+    {
+      "type": "cover",
+      "title": "{titre_ebook}",
+      "subtitle": "{auteur}"
+    },
+    {
+      "type": "intro",
+      "title": "Prêt à tout casser ? ⚡",
+      "content": "Ce guide va droit au but : motivation, exécution, résultats."
+    },
+    {
+      "type": "chapter",
+      "title": "Chapitre 1 : {titre_chapitre_1}",
+      "content": "{contenu_chapitre_1}",
+      "highlight": "🔥 Astuce rapide : agis avant d’attendre la perfection."
+    },
+    {
+      "type": "chapter",
+      "title": "Chapitre 2 : {titre_chapitre_2}",
+      "content": "{contenu_chapitre_2}",
+      "highlight": "💪 Challenge : applique une idée dès aujourd’hui."
+    },
+    {
+      "type": "conclusion",
+      "title": "Plan 7 Jours 🚀",
+      "content": "Chaque jour, une petite action. En 7 jours, ton mindset change complètement."
+    }
+  ]
+}

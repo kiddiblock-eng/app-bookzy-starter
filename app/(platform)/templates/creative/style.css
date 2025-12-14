@@ -1,0 +1,105 @@
+/* TEMPLATE CRÉATIF */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@300;400;600&display=swap');
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #ffffff;
+  margin: 0;
+  padding: 0;
+  color: #1A1A1A;
+}
+
+/* PAGE */
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 25mm;
+  margin: auto;
+  background: white;
+  box-sizing: border-box;
+}
+
+/* COUVERTURE CRÉATIVE */
+.cover {
+  background: linear-gradient(135deg, #A855F7, #EC4899, #F97316);
+  color: white;
+  padding: 60mm 20mm;
+  text-align: center;
+}
+
+.cover h1 {
+  font-size: 46px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 12px;
+}
+
+.cover h2 {
+  font-size: 20px;
+  font-weight: 300;
+  opacity: 0.95;
+}
+
+.cover .author {
+  margin-top: 40px;
+  font-size: 17px;
+  font-weight: 300;
+  opacity: 0.9;
+}
+
+/* TITRES */
+h1 { font-size: 30px; color: #A855F7; margin-bottom: 12px; }
+h2 { font-size: 22px; color: #EC4899; margin-bottom: 10px; }
+h3 { font-size: 18px; color: #F97316; margin-bottom: 8px; }
+
+/* TEXTE */
+p {
+  font-size: 15px;
+  line-height: 1.8;
+  text-align: justify;
+  margin-bottom: 14px;
+}
+
+/* LISTES */
+ul {
+  padding-left: 18px;
+  margin: 14px 0;
+}
+
+li {
+  margin-bottom: 7px;
+}
+
+/* CITATION ARTISTIQUE */
+blockquote {
+  background: linear-gradient(90deg, #f3e8ff, #fce7f3);
+  border-left: 5px solid #A855F7;
+  padding: 14px 18px;
+  font-style: italic;
+  color: #A855F7;
+  margin: 20px 0;
+  border-radius: 6px;
+}
+
+/* TABLEAU ART DESIGN */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+table th {
+  background: #f3e8ff;
+  color: #A855F7;
+  font-weight: 600;
+  padding: 10px;
+}
+
+table td {
+  background: #fff;
+  padding: 10px;
+  border: 1px solid #f5d0fe;
+}

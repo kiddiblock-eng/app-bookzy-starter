@@ -1,0 +1,14 @@
+{
+  "id": "modern",
+  "name": "Moderne",
+  "description": "Template moderne bleu, professionnel, épuré et parfaitement lisible.",
+  "fonts": {
+    "primary": "Inter",
+    "secondary": "Poppins"
+  },
+  "colors": {
+    "primary": "#2563EB",
+    "text": "#1F2937",
+    "background": "#FFFFFF"
+  }
+}

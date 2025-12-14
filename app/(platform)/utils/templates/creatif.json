@@ -1,0 +1,38 @@
+{
+  "name": "Créatif",
+  "style": {
+    "font": "Poppins",
+    "primaryColor": "#ec4899",
+    "accentColor": "#f472b6",
+    "emoji": "🎨"
+  },
+  "sections": [
+    {
+      "type": "cover",
+      "title": "{titre_ebook}",
+      "subtitle": "Créé par {auteur}"
+    },
+    {
+      "type": "intro",
+      "title": "Une histoire inspirante ✨",
+      "content": "Tout commence avec une idée... puis l’énergie de la transformer en quelque chose d’incroyable."
+    },
+    {
+      "type": "chapter",
+      "title": "Chapitre 1 : {titre_chapitre_1}",
+      "content": "{contenu_chapitre_1}",
+      "highlight": "💡 Exemple concret : applique ceci à ton prochain projet."
+    },
+    {
+      "type": "chapter",
+      "title": "Chapitre 2 : {titre_chapitre_2}",
+      "content": "{contenu_chapitre_2}",
+      "highlight": "❌ Erreur fréquente : ne pas passer à l’action."
+    },
+    {
+      "type": "conclusion",
+      "title": "En résumé",
+      "content": "Crée, teste, échoue, recommence. C’est comme ça qu’on réussit 🎯."
+    }
+  ]
+}

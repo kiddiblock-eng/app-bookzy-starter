@@ -1,0 +1,38 @@
+{
+  "name": "Éducatif",
+  "style": {
+    "font": "Lora",
+    "primaryColor": "#d97706",
+    "accentColor": "#fbbf24",
+    "emoji": "📚"
+  },
+  "sections": [
+    {
+      "type": "cover",
+      "title": "{titre_ebook}",
+      "subtitle": "{auteur}"
+    },
+    {
+      "type": "intro",
+      "title": "Objectifs du guide 🎯",
+      "content": "Dans ce eBook, tu apprendras les bases essentielles pour progresser étape par étape."
+    },
+    {
+      "type": "chapter",
+      "title": "{titre_chapitre_1}",
+      "content": "{contenu_chapitre_1}",
+      "highlight": "✅ À retenir : note les points clés après chaque chapitre."
+    },
+    {
+      "type": "chapter",
+      "title": "{titre_chapitre_2}",
+      "content": "{contenu_chapitre_2}",
+      "highlight": "🧠 Mini quiz : que retiens-tu de cette partie ?"
+    },
+    {
+      "type": "conclusion",
+      "title": "Récapitulatif",
+      "content": "Bravo ! Tu maîtrises maintenant les fondamentaux. Continue ta progression avec Bookzy."
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "platform": {
+    "name": "Bookzy",
+    "description": "Bookzy est une plateforme intelligente qui permet de créer, personnaliser et générer des eBooks professionnels en quelques minutes grâce à l’intelligence artificielle."
+  },
+
+  "features": {
+    "projects": {
+      "title": "Projets",
+      "description": "L’espace où les utilisateurs créent et gèrent leurs eBooks. Chaque projet contient le contenu, la couverture et les visuels générés par l’IA."
+    },
+    "templates": {
+      "title": "Templates",
+      "description": "Bibliothèque de modèles d’eBooks prêts à l’emploi. L’utilisateur choisit un style, un thème ou une mise en page avant de commencer."
+    },
+    "ai_generation": {
+      "title": "Génération IA",
+      "description": "L’IA de Bookzy aide à générer le texte, la structure, les titres et les chapitres de l’eBook selon les instructions de l’utilisateur."
+    },
+    "cover_generator": {
+      "title": "Créateur de couverture",
+      "description": "Permet de créer automatiquement la couverture de l’eBook avec le titre, le sous-titre, le nom de l’auteur et un visuel généré."
+    },
+    "kit_marketing": {
+      "title": "Kit marketing complet",
+      "description": "Une fois l’eBook terminé, Bookzy permet de générer un kit contenant le livre final, les visuels, les bannières et les textes promotionnels."
+    },
+    "historique": {
+      "title": "Historique",
+      "description": "Montre tous les eBooks et kits déjà créés ou téléchargés par l’utilisateur."
+    },
+    "support": {
+      "title": "Support",
+      "description": "Un espace où les utilisateurs discutent directement avec l’assistant BookzyBot pour résoudre leurs problèmes ou obtenir de l’aide."
+    },
+    "settings": {
+      "title": "Paramètres",
+      "description": "Page pour gérer son compte, son profil, sa langue et ses préférences sur Bookzy."
+    }
+  },
+
+  "workflow": [
+    "Étape 1 : Aller sur 'Projets' et cliquer sur 'Nouveau projet'",
+    "Étape 2 : Choisir un modèle (template) dans la bibliothèque",
+    "Étape 3 : Laisser l’IA générer le contenu ou rédiger manuellement les chapitres",
+    "Étape 4 : Personnaliser la couverture et le design",
+    "Étape 5 : Télécharger l’eBook ou le Kit complet (ebook + visuels + textes)",
+    "Étape 6 : Retrouver tous les projets dans l’Historique"
+  ],
+
+  "tone": {
+    "style": "humain, moderne, professionnel et chaleureux",
+    "examples": [
+      "Super choix ! Ce modèle est parfait pour un ebook professionnel et impactant.",
+      "Tu es sur la bonne voie. On va créer ensemble quelque chose de vraiment unique.",
+      "Parfait, ton ebook sera prêt en quelques clics. Veux-tu que je t’explique comment améliorer la couverture ?"
+    ]
+  }
+}

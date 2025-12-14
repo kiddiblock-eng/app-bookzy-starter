@@ -1,0 +1,104 @@
+/* TEMPLATE ÉDUCATIF */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Merriweather:wght@300;400;700&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #ffffff;
+  color: #1F1F1F;
+  margin: 0;
+  padding: 0;
+}
+
+/* PAGE */
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 25mm;
+  margin: auto;
+  background: white;
+  box-sizing: border-box;
+}
+
+/* COUVERTURE */
+.cover {
+  background: #0A6847;
+  color: white;
+  padding: 65mm 20mm;
+  text-align: center;
+}
+
+.cover h1 {
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 10px;
+}
+
+.cover h2 {
+  font-size: 18px;
+  opacity: 0.85;
+  font-weight: 400;
+  margin-top: 10px;
+}
+
+.cover .author {
+  margin-top: 35px;
+  font-size: 15px;
+  opacity: 0.9;
+}
+
+/* TITRES */
+h1 { font-size: 28px; color: #0A6847; margin-bottom: 12px; }
+h2 { font-size: 20px; color: #127C56; margin-bottom: 10px; }
+h3 { font-size: 17px; color: #127C56; margin-bottom: 8px; }
+
+/* PARAGRAPHES */
+p {
+  font-size: 15px;
+  line-height: 1.75;
+  text-align: justify;
+  margin-bottom: 12px;
+}
+
+/* LISTES */
+ul {
+  padding-left: 18px;
+  margin: 10px 0;
+}
+
+li {
+  margin-bottom: 6px;
+}
+
+/* BLOCKQUOTE */
+blockquote {
+  margin: 18px 0;
+  border-left: 4px solid #0A6847;
+  padding-left: 12px;
+  font-style: italic;
+  color: #0A6847;
+  background: #f2fbf7;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+/* TABLEAU */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0;
+}
+
+table th {
+  background: #e5f4ee;
+  color: #0A6847;
+  font-weight: 600;
+  padding: 8px;
+  border: 1px solid #cde8dd;
+}
+
+table td {
+  padding: 8px;
+  border: 1px solid #dfeee7;
+}

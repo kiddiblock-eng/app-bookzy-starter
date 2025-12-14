@@ -1,0 +1,16 @@
+{
+  "id": "creative",
+  "name": "Créatif",
+  "description": "Template vibrant, artistique et moderne basé sur des dégradés violets, roses et oranges.",
+  "fonts": {
+    "primary": "Poppins",
+    "secondary": "Inter"
+  },
+  "colors": {
+    "primary": "#A855F7",
+    "secondary": "#EC4899",
+    "accent": "#F97316",
+    "text": "#1A1A1A",
+    "background": "#FFFFFF"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "luxe",
+  "name": "Luxe",
+  "description": "Template haut-de-gamme avec dorures, typographie élégante, design premium.",
+  "fonts": {
+    "primary": "Poppins",
+    "secondary": "Playfair Display"
+  },
+  "colors": {
+    "primary": "#D4AF37",
+    "text": "#111111",
+    "background": "#ffffff"
+  }
+}

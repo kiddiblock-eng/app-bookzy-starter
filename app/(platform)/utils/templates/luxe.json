@@ -1,0 +1,37 @@
+{
+  "name": "Luxe",
+  "style": {
+    "font": "Playfair Display",
+    "primaryColor": "#000000",
+    "accentColor": "#FFD700",
+    "emoji": "💎"
+  },
+  "sections": [
+    {
+      "type": "cover",
+      "title": "{titre_ebook}",
+      "subtitle": "Par {auteur}",
+      "bgColor": "#0a0a0a",
+      "textColor": "#FFD700"
+    },
+    {
+      "type": "intro",
+      "title": "L’art du succès 💼",
+      "content": "Ce guide révèle des stratégies puissantes, inspirées des plus grands entrepreneurs du monde."
+    },
+    {
+      "type": "chapter",
+      "title": "Le secret du luxe 💎",
+      "content": "{contenu_chapitre_1}"
+    },
+    {
+      "type": "chapter",
+      "title": "Créer une marque haut de gamme 🏛️",
+      "content": "{contenu_chapitre_2}"
+    },
+    {
+      "type": "quote",
+      "content": "“L’élégance est la seule beauté qui ne se fane jamais.” – Audrey Hepburn"
+    }
+  ]
+}

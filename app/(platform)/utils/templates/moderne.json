@@ -1,0 +1,57 @@
+{
+  "id": "moderne",
+  "name": "Moderne",
+  "description": "Design épuré et professionnel pour guides business et productivité",
+  "preview": "https://sucesspro.io/wp-content/uploads/2025/11/idees-art-creatif-conception-mot-concept-scaled.jpg",
+  
+  "style": {
+    "fonts": {
+      "primary": {
+        "name": "Helvetica-Bold",
+        "regular": "Helvetica",
+        "weights": {
+          "light": "Helvetica-Light",
+          "regular": "Helvetica",
+          "bold": "Helvetica-Bold"
+        }
+      }
+    },
+    
+    "colors": {
+      "primary": "#2563eb",
+      "secondary": "#1e40af",
+      "accent": "#3b82f6",
+      "text": "#374151",
+      "textLight": "#6b7280",
+      "background": "#ffffff",
+      "backgroundLight": "#f9fafb",
+      "highlight": "#eff6ff"
+    },
+    
+    "layout": {
+      "pageSize": "A4",
+      "margins": { "top": 60, "bottom": 60, "left": 60, "right": 60 },
+      "spacing": { "section": 40, "paragraph": 16 }
+    }
+  },
+  
+  "aiInstructions": {
+    "tone": "professionnel, actionnable, motivant",
+    "contentLength": { "intro": "250 mots", "chapter": "700 mots" },
+    "formatting": "utilise bullet points, highlights, emojis (💡🎯✅🚀)"
+  },
+  
+  "dalleInstructions": {
+    "cover": "Modern professional book cover, blue gradient, geometric shapes, minimalist, business theme",
+    "poster": "Professional marketing poster, blue design, 3D book mockup, bold text",
+    "box": "3D product box, modern blue gradient, professional packaging"
+  },
+  
+  "sections": [
+    { "type": "cover", "title": "{titre}", "author": "{auteur}" },
+    { "type": "intro", "title": "Introduction", "icon": "🚀" },
+    { "type": "chapter", "number": 1, "title": "{ch1_titre}", "icon": "💡" },
+    { "type": "chapter", "number": 2, "title": "{ch2_titre}", "icon": "🎯" },
+    { "type": "conclusion", "title": "Conclusion", "icon": "✅" }
+  ]
+}

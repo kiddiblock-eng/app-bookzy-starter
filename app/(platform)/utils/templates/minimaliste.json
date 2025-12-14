@@ -1,0 +1,35 @@
+{
+  "name": "Minimaliste",
+  "style": {
+    "font": "Inter",
+    "primaryColor": "#111827",
+    "accentColor": "#6b7280",
+    "emoji": "📘"
+  },
+  "sections": [
+    {
+      "type": "cover",
+      "title": "{titre_ebook}",
+      "subtitle": "{auteur}"
+    },
+    {
+      "type": "summary",
+      "title": "Résumé",
+      "content": "Découvre les points essentiels de ce guide, pour comprendre l’essentiel en quelques pages."
+    },
+    {
+      "type": "chapter",
+      "title": "Introduction",
+      "content": "{introduction}"
+    },
+    {
+      "type": "chapter",
+      "title": "{titre_chapitre_1}",
+      "content": "{contenu_chapitre_1}"
+    },
+    {
+      "type": "quote",
+      "content": "“La simplicité est la sophistication suprême.” – Léonard de Vinci"
+    }
+  ]
+}
