@@ -3,11 +3,11 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
-import { dbConnect } from "../../../../lib/db";
-import User from "../../../../models/User";
+import { dbConnect } from "@/lib/db";
+import User from "@/models/User";
 import { Resend } from "resend";
-import { welcomeEmailTemplate } from "../../../../lib/emailTemplates/welcomeEmailTemplate";
-import { verifyEmailTemplate } from "../../../../lib/emailTemplates/verifyEmailTemplate";
+import { welcomeEmailTemplate } from "@/lib/emailTemplates/welcomeEmailTemplate";
+import { verifyEmailTemplate } from "@/lib/emailTemplates/verifyEmailTemplate";
 
 // ⚠️ ON RETIRE L'IMPORT DE BCRYPT ICI CAR LE MODEL S'EN OCCUPE
 // import bcrypt from "bcryptjs"; 

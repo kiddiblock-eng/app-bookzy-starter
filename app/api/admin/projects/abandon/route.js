@@ -1,6 +1,6 @@
-import { dbConnect } from "../../../../../lib/db";
-import Projet from "../../../../../models/Projet";
-import { verifyAdmin } from "../../../../../lib/auth";
+import { dbConnect } from "@/lib/db";
+import Projet from "@/models/Projet";
+import { verifyAdmin } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
 export async function GET(req) {

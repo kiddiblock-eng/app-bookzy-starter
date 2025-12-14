@@ -1,7 +1,7 @@
 // api/auth/reset-password/route.js
 
-import { dbConnect } from "../../../../lib/db";
-import User from "../../../../models/User";
+import { dbConnect } from "@/lib/db";
+import User from "@/models/User";
 import jwt from "jsonwebtoken";
 
 export async function POST(req) {

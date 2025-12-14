@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../lib/db";
-import User from "../../../../models/User";
+import { dbConnect } from "@/lib/db";
+import User from "@/models/User";
 import jwt from "jsonwebtoken";
 import speakeasy from "speakeasy";
 

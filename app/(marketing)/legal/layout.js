@@ -10,23 +10,31 @@ export default function LegalLayout({ children }) {
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <img src="/images/logo.svg" alt="Bookzy" className="h-8" />
+          {/* Logo noir */}
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-9 h-9 rounded-lg bg-slate-900 flex items-center justify-center shadow-lg shadow-slate-900/20 transition-transform group-hover:scale-105">
+              <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+            </div>
+            <span className="text-xl font-extrabold tracking-tight text-slate-900">
+              Bookzy
+            </span>
           </Link>
 
           {/* Navigation légale */}
           <nav className="hidden md:flex items-center gap-4 text-sm">
-            <Link href="/legal/confidentialite" className="text-gray-600 hover:text-purple-600 transition-colors">
+            <Link href="/legal/confidentialite" className="text-gray-600 hover:text-slate-900 transition-colors font-semibold">
               Confidentialité
             </Link>
-            <Link href="/legal/terms" className="text-gray-600 hover:text-purple-600 transition-colors">
-              UGC
+            <Link href="/legal/terms" className="text-gray-600 hover:text-slate-900 transition-colors font-semibold">
+              CGU
             </Link>
-            <Link href="/legal/refund" className="text-gray-600 hover:text-purple-600 transition-colors">
+            <Link href="/legal/refund" className="text-gray-600 hover:text-slate-900 transition-colors font-semibold">
               Remboursement
             </Link>
-            <Link href="/legal/cookies" className="text-gray-600 hover:text-purple-600 transition-colors">
+            <Link href="/legal/cookies" className="text-gray-600 hover:text-slate-900 transition-colors font-semibold">
               Cookies
             </Link>
           </nav>
@@ -34,7 +42,7 @@ export default function LegalLayout({ children }) {
           {/* Retour */}
           <Link 
             href="/"
-            className="text-purple-600 hover:text-purple-700 font-semibold text-sm"
+            className="text-slate-900 hover:text-slate-700 font-bold text-sm transition-colors"
           >
             ← Retour
           </Link>
@@ -53,13 +61,13 @@ export default function LegalLayout({ children }) {
             © 2024 Bookzy. Tous droits réservés.
           </p>
           <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
-            <Link href="/legal/confidentialite" className="hover:text-purple-600">Confidentialité</Link>
+            <Link href="/legal/confidentialite" className="hover:text-slate-900 font-medium">Confidentialité</Link>
             <span>•</span>
-            <Link href="/legal/terms" className="hover:text-purple-600">UGC</Link>
+            <Link href="/legal/terms" className="hover:text-slate-900 font-medium">CGU</Link>
             <span>•</span>
-            <Link href="/legal/refund" className="hover:text-purple-600">Remboursement</Link>
+            <Link href="/legal/refund" className="hover:text-slate-900 font-medium">Remboursement</Link>
             <span>•</span>
-            <Link href="/legal/cookies" className="hover:text-purple-600">Cookies</Link>
+            <Link href="/legal/cookies" className="hover:text-slate-900 font-medium">Cookies</Link>
           </div>
         </div>
       </footer>

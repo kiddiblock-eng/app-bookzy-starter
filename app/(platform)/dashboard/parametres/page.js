@@ -26,7 +26,7 @@ import {
   Tooltip,
 } from "recharts";
 
-import countriesJson from "../../../utils/countries.json";
+import countriesJson from "../../utils/countries.json";
 
 /* ──────────────────────────────────────────────
    Utils & Composants UI

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../lib/db";
-import Blog from "../../../../models/Blog";
-// import { verifyAuthAdmin } from "../../../../lib/authAdmin"; // Décommente si tu as l'auth
+import { dbConnect } from "@/lib/db";
+import Blog from "@/models/Blog";
+ import { verifyAdmin } from "../../../../lib/auth"; // Décommente si tu as l'auth
 
 // GET — Liste des blogs
 export async function GET() {
@@ -24,10 +24,10 @@ export async function POST(req) {
     await dbConnect();
 
     // Vérification admin (décommente si nécessaire)
-    // const admin = await verifyAuthAdmin(req);
-    // if (!admin) {
-    //   return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
-    // }
+     const admin = await verifyAdmin(req);
+    if (!admin) {
+      return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
+     }
 
     const body = await req.json();
 

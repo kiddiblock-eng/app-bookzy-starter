@@ -1,5 +1,5 @@
-import Blog from "../../../models/Blog";
-import { dbConnect } from "../../../lib/db";
+import Blog from "@/models/Blog";
+import { dbConnect } from "@/lib/db";
 
 export async function GET() {
   await dbConnect();

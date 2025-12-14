@@ -1,6 +1,6 @@
-import { dbConnect } from "../../../../../../lib/db";
-import Trend from "../../../../../../models/Trend";
-import { verifyAdmin } from "../../../../../../lib/auth";
+import { dbConnect } from "@/lib/db";
+import Trend from "@/models/Trend";
+import { verifyAdmin } from "@/lib/auth";
 import mongoose from "mongoose";
 
 export async function DELETE(req, { params }) {

@@ -1,9 +1,12 @@
-import { dbConnect} from "../../../../lib/db.js";
-import User from "../../../../models/User.js";
+import { dbConnect} from "@/lib/db.js";
+import User from "@/models/User.js";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
 // 🔹 Génère un avatar dynamique avec UI-Avatars
+
+export const dynamic = 'force-dynamic';
+
 const generateAvatar = (user) => {
   const baseName =
     `${user?.firstName || ""} ${user?.lastName || ""}`.trim() ||

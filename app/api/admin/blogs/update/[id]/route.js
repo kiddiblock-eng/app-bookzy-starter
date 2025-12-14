@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../../lib/db";
-import Blog from "../../../../../models/blog";
-import { verifyAuthAdmin } from "../../../../../lib/authAdmin";
+import { dbConnect } from "@/lib/db";
+import Blog from "@/models/Blog";
+import { verifyAdmin } from "@/lib/auth";
 
 export async function PUT(req, { params }) {
   try {
     await dbConnect();
 
-    const admin = await verifyAuthAdmin(req);
+    const admin = await verifyAdmin(req);
     if (!admin) {
       return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
     }

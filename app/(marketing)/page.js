@@ -1,30 +1,30 @@
 // app/(marketing)/page.js
 "use client";
 
-import Hero from "./components/Hero";
-import Demo from "./components/Demo";
-import FeaturesSection from "./components/FeaturesSection";
-import ExamplesSection from "./components/Exemplesection";
-import HowItWorks from "./components/HowitWork";
-import Pricing from "./components/Pricing";
-import PourquoiBookzy from "./components/PourquoiBookzy";
-import FAQ from "./components/FAQ";
-import Testimonials from "./components/Testimonials";
-import CTA from "./components/CTA";
+import Hero from "@/app/(marketing)/components/Hero";
+import Demo from "@/app/(marketing)/components/Demo";
+import FeaturesSection from "@/app/(marketing)/components/FeaturesSection";
+import Exemplesection from "@/app/(marketing)/components/Exemplesection";
+import HowitWork from "@/app/(marketing)/components/HowitWork";
+import Pricing from "@/app/(marketing)/components/Pricing";
+import PourquoiBookzy from "@/app/(marketing)/components/PourquoiBookzy";
+import FAQ from "@/app/(marketing)/components/FAQ";
+import Testimonials from "@/app/(marketing)/components/Testimonials";
+import CTA from "@/app/(marketing)/components/CTA";
+
 export default function HomePage() {
   return (
     <>
       <Hero />
       <Demo />
       <FeaturesSection />
-      <ExamplesSection />
-      <HowItWorks />
+      <Exemplesection />
+      <HowitWork />
       <PourquoiBookzy />
-       <Testimonials />
+      <Testimonials />
       <Pricing />
-     
       <FAQ />
-     <CTA/>
+      <CTA />
     </>
   );
 }

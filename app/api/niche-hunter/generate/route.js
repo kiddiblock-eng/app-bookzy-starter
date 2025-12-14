@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../lib/db.js";
-import NicheAnalysis from "../../../../models/NicheAnalysis.js";
-import { verifyAuth } from "../../../../lib/auth.js";
-import { getAIText } from "../../../../lib/ai.js";
+import { dbConnect } from "@/lib/db.js";
+import NicheAnalysis from "@/models/NicheAnalysis.js";
+import { verifyAuth } from "@/lib/auth.js";
+import { getAIText } from "@/lib/ai.js";
 
 export const dynamic = 'force-dynamic';
 
@@ -26,7 +26,7 @@ export async function POST(req) {
       );
     }
 
-    // Limite journalière : 3 recherches
+    // Limite journalière : 6 recherches
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -47,107 +47,108 @@ export async function POST(req) {
     }
 
     // ----------------------------------------------------------
-    // 🔥 PROMPT FLEXIBLE - ADAPTÉ AU THÈME (pas que argent)
+    // 🔥 NOUVEAU PROMPT - TITRES SÉRIEUX ET CRÉDIBLES
     // ----------------------------------------------------------
-    const basePrompt = `Tu es un créateur d'eBooks à SUCCÈS en Afrique francophone.
+    const basePrompt = `Tu es un expert en création d'eBooks à succès pour l'Afrique francophone.
 
-🎯 MISSION : Trouve 1 idée d'eBook sur le thème "${theme}" que les gens vont ACHETER massivement.
+🎯 GÉNÈRE 1 TITRE D'EBOOK PROFESSIONNEL sur : "${theme}"
 
-📍 CONTEXTE AFRIQUE FRANCOPHONE :
-- Budget moyen eBook : 1000-5000 FCFA
-- Moyens : WhatsApp, Mobile Money, Facebook
-- Besoin : Solutions CONCRÈTES, pas de théorie
+✅ RÈGLES D'OR :
+1. Le titre doit sonner SÉRIEUX et CRÉDIBLE (pas spam/arnaque)
+2. Évite les chiffres trop précis genre "50 000 FCFA" ou "21 jours"
+3. Utilise des mots-clés que les gens recherchent vraiment
+4. Promets un résultat RÉALISTE et ATTEIGNABLE
+5. Adapté au contexte africain francophone
 
-🚫 INTERDIT :
-- Titres génériques : "Guide de...", "Les bases de..."
-- Théorie pure sans application
-- Promesses irréalistes
-- Idées hors du thème "${theme}"
+🔥 EXEMPLES DE BONS TITRES (SÉRIEUX) :
 
-✅ FORMULE D'UN TITRE QUI SE VEND :
-[RÉSULTAT PRÉCIS] + [MÉTHODE/DÉLAI] + [CONTEXTE APPLICABLE]
+BUSINESS/ARGENT :
+✓ "Monétiser ses compétences sur Internet : Guide pratique pour l'Afrique"
+✓ "Créer et vendre un produit digital rentable"
+✓ "Business en ligne : Les stratégies qui marchent vraiment"
+✓ "Freelance en Afrique : Trouver ses premiers clients"
 
-💡 EXEMPLES SELON LE TYPE DE THÈME :
+BEAUTÉ/SANTÉ :
+✓ "Soins naturels pour une peau éclatante"
+✓ "Perdre du poids durablement : Méthode adaptée à l'Afrique"
+✓ "Cheveux crépus : Routine complète pour une pousse saine"
+✓ "Alimentation saine avec les produits locaux africains"
 
-📈 Si thème = BUSINESS/ARGENT :
-- "Gagner 100k FCFA/mois avec WhatsApp Business (0 capital)"
-- "7 business rentables à lancer avec moins de 50k FCFA"
+AMOUR/RELATIONS :
+✓ "Construire une relation amoureuse épanouie"
+✓ "Reconquérir son ex : Stratégies psychologiques efficaces"
+✓ "Trouver l'amour après 30 ans : Guide moderne"
+✓ "Communication de couple : Les clés d'une relation durable"
 
-💊 Si thème = SANTÉ/BIEN-ÊTRE :
-- "Peau sans taches en 30 jours (méthodes naturelles africaines)"
-- "Perdre 10kg en 60 jours sans salle de sport"
+VISA/VOYAGE :
+✓ "Dossier visa Schengen : Guide complet 2024"
+✓ "Partir étudier au Canada : Démarches et conseils"
+✓ "Voyager avec un budget limité : Destinations accessibles"
+✓ "Obtenir son visa étudiant : Stratégies éprouvées"
 
-❤️ Si thème = RELATIONS/AMOUR :
-- "Reconquérir son ex en 21 jours (méthode psychologique)"
-- "Se marier en moins d'un an : 12 secrets (spécial 30+)"
+COMPÉTENCES/FORMATION :
+✓ "Maîtriser Excel pour booster sa carrière"
+✓ "Apprendre l'anglais efficacement en autodidacte"
+✓ "Devenir développeur web : Parcours complet"
+✓ "Marketing digital : Les bases pour entrepreneurs africains"
 
-✈️ Si thème = VOYAGE/VISA :
-- "Visa Schengen du 1er coup : dossier parfait 2024"
-- "7 pays faciles d'accès pour Africains (visa garanti)"
+🚫 À ÉVITER ABSOLUMENT :
+- Chiffres trop précis : "50 000 FCFA", "73 techniques", "21 jours"
+- Superlatifs exagérés : "RÉVOLUTIONNAIRE", "JAMAIS VU", "SECRET"
+- Promesses irréalistes : "Devenir millionnaire", "Sans effort"
+- Titres trop longs : max 60 caractères
+- Style clickbait spam
 
-📚 Si thème = ÉDUCATION/COMPÉTENCES :
-- "Apprendre l'anglais en 90 jours sans prof (gratuit)"
-- "Maîtriser Excel en 21 jours pour décrocher un job"
+✅ PRÉFÈRE :
+- Titres informatifs et directs
+- Promesses réalistes
+- Mots-clés naturels
+- Ton professionnel mais accessible
 
-🎯 GÉNÈRE EXACTEMENT 1 IDÉE ULTRA-VENDABLE sur "${theme}" :
-
-RÈGLES :
-1. Titre PRÉCIS avec chiffres/délais
-2. Résout un VRAI problème
-3. Méthode APPLICABLE
-4. Budget ACCESSIBLE
-5. Résultat RÉALISTE mais attractif
-
-Format JSON STRICT :
+📋 FORMAT JSON STRICT :
 {
-  "niches": [
-    {
-      "title": "Titre ultra-vendeur (max 60 caractères)",
-      "description": "Pitch vendeur en 1 phrase (max 120 caractères)",
-      "difficulty": 3,
-      "competition": 4,
-      "potential": 9,
-      "formatRecommande": "ebook",
-      "keywords": ["mot-clé 1", "mot-clé 2", "mot-clé 3", "mot-clé 4", "mot-clé 5"],
-      "why_sells": "Raison concrète pourquoi ça cartonne (1 phrase max)"
-    }
-  ]
+  "niches": [{
+    "title": "Titre professionnel et crédible (max 60 caractères)",
+    "description": "Explication en 1 phrase de ce qu'apporte l'ebook",
+    "difficulty": Nombre entier de 1 à 10,
+    "competition": Nombre entier de 1 à 10,
+    "potential": Nombre entier de 1 à 10,
+    "formatRecommande": "ebook",
+    "keywords": ["mot-clé 1", "mot-clé 2", "mot-clé 3", "mot-clé 4", "mot-clé 5"],
+    "why_sells": "Pourquoi ce sujet intéresse les gens (ton naturel)"
+  }]
 }
 
-⚠️ IMPORTANT : Génère EXACTEMENT 1 idée, pas plus, pas moins.
-
-GÉNÈRE MAINTENANT 1 idée pour "${theme}" :`;
+⚡ GÉNÈRE 1 TITRE SÉRIEUX ET VENDEUR pour "${theme}" :`;
 
     // ----------------------------------------------------------
-    // 🚀 OPTIMISATION : 10 APPELS EN PARALLÈLE (1 idée chacun = 10 total)
+    // 🚀 10 APPELS EN PARALLÈLE AVEC ANGLES VARIÉS
     // ----------------------------------------------------------
-    console.log(`🚀 Génération de niches pour "${theme}" - 10 appels parallèles (1 idée/appel)...`);
+    console.log(`🚀 Génération de niches pour "${theme}" - 10 appels parallèles...`);
     
     const startTime = Date.now();
 
-    // 10 prompts avec angles différents
     const prompts = [
       basePrompt,
-      basePrompt + "\n\n💡 Focus : Angle DIFFÉRENT et ORIGINAL.",
-      basePrompt + "\n\n💡 Focus : Solution ULTRA-CONCRÈTE et actionnable.",
-      basePrompt + "\n\n💡 Focus : Sous-niche PRÉCISE et ciblée.",
-      basePrompt + "\n\n💡 Focus : Problème URGENT que les gens veulent résoudre MAINTENANT.",
-      basePrompt + "\n\n💡 Focus : Méthode RAPIDE avec résultats visibles.",
-      basePrompt + "\n\n💡 Focus : Budget TRÈS ACCESSIBLE (0-20k FCFA).",
-      basePrompt + "\n\n💡 Focus : Angle NOVATEUR que personne ne fait encore.",
-      basePrompt + "\n\n💡 Focus : Solution adaptée au QUOTIDIEN africain.",
-      basePrompt + "\n\n💡 Focus : Promesse RÉALISTE mais très ATTRACTIVE."
+      basePrompt + "\n\n💡 Focus : Guide pratique et actionnable",
+      basePrompt + "\n\n💡 Focus : Méthode pas-à-pas pour débutants",
+      basePrompt + "\n\n💡 Focus : Stratégies éprouvées et réalistes",
+      basePrompt + "\n\n💡 Focus : Formation complète sur le sujet",
+      basePrompt + "\n\n💡 Focus : Solutions adaptées au contexte africain",
+      basePrompt + "\n\n💡 Focus : Conseils d'experts accessibles à tous",
+      basePrompt + "\n\n💡 Focus : Erreurs à éviter + bonnes pratiques",
+      basePrompt + "\n\n💡 Focus : Tendances 2024-2025 dans ce domaine",
+      basePrompt + "\n\n💡 Focus : Cas pratiques et exemples concrets"
     ];
 
     const calls = prompts.map(prompt => getAIText("nicheGenerate", prompt, 1200));
-
     const results = await Promise.all(calls);
     
     const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
     console.log(`⚡ 10 appels terminés en ${totalTime}s`);
 
     // ----------------------------------------------------------
-    // 📦 EXTRACTION + MERGE DES RÉSULTATS
+    // 📦 EXTRACTION + MERGE
     // ----------------------------------------------------------
     let allNiches = [];
 
@@ -183,26 +184,24 @@ GÉNÈRE MAINTENANT 1 idée pour "${theme}" :`;
     console.log(`📦 Total niches avant déduplication : ${allNiches.length}`);
 
     // ----------------------------------------------------------
-    // 🔍 DÉDUPLICATION intelligente (garder exactement 10)
+    // 🔍 DÉDUPLICATION (garder 10 meilleurs)
     // ----------------------------------------------------------
     const uniqueNiches = [];
     const seenTitles = new Set();
 
-    // Trier par potentiel décroissant
     allNiches.sort((a, b) => (b.potential || 0) - (a.potential || 0));
 
     for (const niche of allNiches) {
       const normalizedTitle = niche.title
         .toLowerCase()
         .trim()
-        .replace(/[^a-z0-9]/g, ''); // Enlever ponctuation pour comparaison
+        .replace(/[^a-z0-9]/g, '');
       
       if (!seenTitles.has(normalizedTitle)) {
         seenTitles.add(normalizedTitle);
         uniqueNiches.push(niche);
       }
       
-      // ✅ EXACTEMENT 10 idées
       if (uniqueNiches.length >= 10) break;
     }
 
@@ -238,7 +237,7 @@ GÉNÈRE MAINTENANT 1 idée pour "${theme}" :`;
       generationTime: totalTime
     });
 
-    console.log(`✅ ${nichesWithIds.length} niches sauvegardées en ${totalTime}s pour l'utilisateur ${user.id}`);
+    console.log(`✅ ${nichesWithIds.length} niches sauvegardées en ${totalTime}s`);
 
     return NextResponse.json({
       success: true,
@@ -247,7 +246,7 @@ GÉNÈRE MAINTENANT 1 idée pour "${theme}" :`;
         theme: nicheAnalysis.theme,
         niches: nichesWithIds,
         generationTime: totalTime,
-        message: `${nichesWithIds.length} idées d'eBooks générées en ${totalTime}s`
+        message: `${nichesWithIds.length} idées d'eBooks générées`
       }
     });
 

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../lib/db";
+import { dbConnect } from "@/lib/db";
 
-import User from "../../../../models/User";
-import Ebook from "../../../../models/Ebook";
-import Transaction from "../../../../models/Transaction";
-import UserActivity from "../../../../models/UserActivity";
+import User from "@/models/User";
+import Ebook from "@/models/Ebook";
+import Transaction from "@/models/Transaction";
+import UserActivity from "@/models/UserActivity";
 
 const SEED_FLAG = { seed: true }; // pour nettoyer facilement
 

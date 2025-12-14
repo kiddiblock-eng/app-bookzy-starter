@@ -1,5 +1,5 @@
-import { dbConnect } from "../../../../lib/db.js";
-import User from "../../../../models/User.js";
+import { dbConnect } from "@/lib/db.js";
+import User from "@/models/User.js";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 

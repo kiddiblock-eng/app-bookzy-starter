@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import TrendCard from "../../../../../components/TrendCard";
+import TrendCard from "../../../components/TrendCard";
 import { Heart, Loader2, ArrowLeft, Sparkles, FolderOpen } from "lucide-react";
 
 export default function FavorisPage() {

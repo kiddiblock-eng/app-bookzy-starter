@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import TrendCard from "../../../../components/TrendCard"; 
+import TrendCard from '@/app/(platform)/components/TrendCard';
 import { 
   Search, Filter, Calendar, Tag, Network, Target, 
   Loader2, AlertCircle, Zap, Flame, TrendingUp, CheckCircle, 

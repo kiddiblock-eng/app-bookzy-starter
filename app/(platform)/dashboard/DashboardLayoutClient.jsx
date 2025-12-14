@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import DashboardSidebar from "../../components/DashboardSidebar";
-import DashboardHeader from "../../components/DashboardHeader";
-import FloatingCreateButton from "../../components/FloatingCreateButton";
+import DashboardSidebar from "@/components/DashboardSidebar";
+import DashboardHeader from "@/components/DashboardHeader";
+import FloatingCreateButton from "@/components/FloatingCreateButton";
 
 export default function DashboardLayoutClient({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);

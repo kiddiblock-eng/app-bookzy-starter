@@ -19,9 +19,7 @@ import jwt from "jsonwebtoken";
 import puppeteer from "puppeteer";
 
 // Augmentation du temps max pour Vercel (5 minutes)
-export const config = {
-  maxDuration: 300, 
-};
+export const maxDuration = 300;
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const delay = (ms) => new Promise(res => setTimeout(res, ms));

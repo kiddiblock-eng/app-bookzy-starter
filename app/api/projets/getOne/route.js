@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../lib/db.js";
-import Projet from "../../../../models/Projet.js";
+import { dbConnect } from "@/lib/db.js";
+import Projet from "@/models/Projet.js";
+
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
   try {

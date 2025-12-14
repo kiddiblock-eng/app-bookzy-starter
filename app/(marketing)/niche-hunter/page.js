@@ -769,9 +769,7 @@ export default function NicheHunterPage() {
             
             <div className="col-span-2 md:col-span-1">
               <Link href="/" className="flex items-center gap-3 mb-6 group">
-                <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                    <span className="text-xl font-bold">B</span>
-                </div>
+              
                 <span className="text-2xl font-black tracking-tight">Bookzy</span>
               </Link>
               <p className="text-slate-400 text-sm leading-relaxed mb-6">

@@ -1,7 +1,7 @@
-import { dbConnect } from "../../../../lib/db.js";
+import { dbConnect } from "@/lib/db.js";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
-import Projet from "../../../../models/Projet.js";
+import Projet from "@/models/Projet.js";
 
 export async function POST(req) {
   try {

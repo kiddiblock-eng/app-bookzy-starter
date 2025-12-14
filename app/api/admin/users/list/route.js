@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import User from "../../../../../models/User";
-import { dbConnect } from "../../../../../lib/db";
-import { verifyAdmin } from "../../../../../lib/auth";
+import User from "@/models/User";
+import { dbConnect } from "@/lib/db";
+import { verifyAdmin } from "@/lib/auth";
 
 export async function GET(req) {
   await dbConnect();

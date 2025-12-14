@@ -2,9 +2,9 @@
 // ✅ VERSION CORRIGÉE - Utilise Projet avec aggregate
 
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../../lib/db";
-import User from "../../../../../models/User";
-import Projet from "../../../../../models/Projet"; // ✅ CHANGÉ
+import { dbConnect } from "@/lib/db";
+import User from "@/models/User";
+import Projet from "@/models/Projet"; // ✅ CHANGÉ
 
 export async function GET(req) {
   try {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../../lib/db";
-import Projet from "../../../../../models/Projet";
+import { dbConnect } from "@/lib/db";
+import Projet from "@/models/Projet";
 
 export async function POST(req, { params }) {
   try {

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
-import { dbConnect } from "../../../../lib/db";
-import Transaction from "../../../../models/Transaction";
+import { dbConnect } from "@/lib/db";
+import Transaction from "@/models/Transaction";
 
 export async function GET(req) {
   try {

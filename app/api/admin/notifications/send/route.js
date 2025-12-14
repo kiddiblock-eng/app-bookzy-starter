@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../../lib/db";
-import Notification from "../../../../../models/Notification";
-import User from "../../../../../models/User";
-import { verifyAdmin } from "../../../../../lib/auth";
-import { pushNotificationToClients } from "../../../notifications/stream/route";
+import { dbConnect } from "@/lib/db";
+import Notification from "@/models/Notification";
+import User from "@/models/User";
+import { verifyAdmin } from "@/lib/auth";
+import { pushNotificationToClients } from '@/app/api/notifications/stream/route';
 
 export async function POST(req) {
   try {

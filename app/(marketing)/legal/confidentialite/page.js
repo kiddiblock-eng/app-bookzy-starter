@@ -1,4 +1,4 @@
-// app/(legal)/privacy/page.jsx
+// app/legal/confidentialite/page.jsx
 
 import Link from "next/link";
 
@@ -14,10 +14,25 @@ export default function PrivacyPolicy() {
         
         {/* Header */}
         <div className="bg-white rounded-2xl p-8 md:p-12 mb-8 shadow-lg">
-          <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
+          {/* Logo Bookzy */}
+          <div className="flex justify-center mb-8">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-11 h-11 rounded-lg bg-slate-900 flex items-center justify-center shadow-lg shadow-slate-900/20 transition-transform group-hover:scale-105">
+                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+              </div>
+              <span className="text-2xl font-extrabold tracking-tight text-slate-900">
+                Bookzy
+              </span>
+            </Link>
+          </div>
+
+          <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-4 text-center">
             Politique de Confidentialité
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-center">
             Dernière mise à jour : 26 novembre 2024
           </p>
         </div>
@@ -45,7 +60,6 @@ export default function PrivacyPolicy() {
               <p><strong>Nom de l'entreprise :</strong> Blinko </p>
               <p><strong>Adresse :</strong> 675 E 140TH ST APT 3CC BRONX, NY 10454</p>
               <p><strong>Email :</strong> privacy@bookzy.io</p>
-
             </div>
           </section>
 
@@ -290,7 +304,7 @@ export default function PrivacyPolicy() {
             <p className="text-gray-700 mb-3">
               Nous utilisons des cookies pour améliorer votre expérience. 
               Pour plus d'informations, consultez notre{" "}
-              <Link href="/cookies" className="text-purple-600 hover:underline font-semibold">
+              <Link href="/legal/cookies" className="text-purple-600 hover:underline font-semibold">
                 Politique des Cookies
               </Link>.
             </p>
@@ -315,14 +329,14 @@ export default function PrivacyPolicy() {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
               12. Contact
             </h2>
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200">
+            <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl p-6 border-2 border-slate-200">
               <p className="font-bold text-gray-900 mb-4">
                 Pour toute question concernant cette politique :
               </p>
               <div className="space-y-2 text-gray-700">
-                <p>📧 <strong>Email :</strong> <a href="mailto:privacy@bookzy.io" className="text-purple-600 hover:underline">privacy@bookzy.io</a></p>
-                <p>💬 <strong>Support :</strong> <a href="mailto:support@bookzy.io" className="text-purple-600 hover:underline">support@bookzy.io</a></p>
-                <p>🌐 <strong>Site :</strong> <a href="https://bookzy.io" className="text-purple-600 hover:underline">www.bookzy.io</a></p>
+                <p>📧 <strong>Email :</strong> <a href="mailto:privacy@bookzy.io" className="text-slate-900 hover:underline">privacy@bookzy.io</a></p>
+                <p>💬 <strong>Support :</strong> <a href="mailto:support@bookzy.io" className="text-slate-900 hover:underline">support@bookzy.io</a></p>
+                <p>🌐 <strong>Site :</strong> <a href="https://bookzy.io" className="text-slate-900 hover:underline">www.bookzy.io</a></p>
               </div>
             </div>
           </section>
@@ -333,7 +347,7 @@ export default function PrivacyPolicy() {
         <div className="mt-8 text-center">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold transition-colors"
+            className="inline-flex items-center gap-2 text-slate-900 hover:text-slate-700 font-semibold transition-colors"
           >
             ← Retour à l'accueil
           </Link>

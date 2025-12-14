@@ -1,5 +1,5 @@
-import { dbConnect } from "../../../../lib/db";
-import User from "../../../../models/User";
+import { dbConnect } from "@/lib/db";
+import User from "@/models/User";
 import jwt from "jsonwebtoken";
 
 // GET - Récupérer les favoris

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../../lib/db";
-import UserActivity from "../../../../../models/UserActivity";
+import { dbConnect } from "@/lib/db";
+import UserActivity from "@/models/UserActivity";
 
 export async function GET(req) {
   try {

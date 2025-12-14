@@ -2,12 +2,12 @@
 // ✅ VERSION PRODUCTION avec noreply@bookzy.io
 
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../lib/db";
-import User from "../../../../models/User";
+import { dbConnect } from "@/lib/db";
+import User from "@/models/User";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { Resend } from "resend";
-import { verifyEmailTemplate } from "../../../../lib/emailTemplates/verifyEmailTemplate";
+import { verifyEmailTemplate } from "@/lib/emailTemplates/verifyEmailTemplate";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

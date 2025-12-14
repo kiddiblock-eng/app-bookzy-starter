@@ -2,11 +2,11 @@
 // ✅ VERSION CORRIGÉE - Utilise Projet au lieu de Ebook
 
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../../lib/db";
-import { verifyAdmin } from "../../../../../lib/auth";
-import User from "../../../../../models/User";
-import Projet from "../../../../../models/Projet"; // ✅ CHANGÉ
-import Transaction from "../../../../../models/Transaction";
+import { dbConnect } from "@/lib/db";
+import { verifyAdmin } from "@/lib/auth";
+import User from "@/models/User";
+import Projet from "@/models/Projet"; // ✅ CHANGÉ
+import Transaction from "@/models/Transaction";
 
 // Helper pour formater l'ID date de l'aggregation
 function mapDailyAgg(rows) {

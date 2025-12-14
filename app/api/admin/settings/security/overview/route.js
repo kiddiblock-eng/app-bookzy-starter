@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../../../lib/db";
-import User from "../../../../../../models/User";
-import UserActivity from "../../../../../../models/UserActivity";
-import { verifyAdmin } from "../../../../../../lib/auth";
+import { dbConnect } from "@/lib/db";
+import User from "@/models/User";
+import UserActivity from "@/models/UserActivity";
+import { verifyAdmin } from "@/lib/auth";
 
 export async function GET(req) {
   try {

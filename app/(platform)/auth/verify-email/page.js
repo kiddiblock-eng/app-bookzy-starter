@@ -1,5 +1,5 @@
 "use client";
-
+import { Suspense } from "react";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -32,7 +32,7 @@ function BookOpenSVG(props) {
     );
 }
 
-export default function VerifyEmailPage() {
+function VerifyEmailPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -278,5 +278,12 @@ export default function VerifyEmailPage() {
 
       </div>
     </main>
+  );
+}
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="text-lg">Chargement...</div></div>}>
+      <VerifyEmailPageContent />
+    </Suspense>
   );
 }

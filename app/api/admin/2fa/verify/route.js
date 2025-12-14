@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../../lib/db";
-import User from "../../../../../models/User";
-import { verifyAdmin } from "../../../../../lib/auth";
+import { dbConnect } from "@/lib/db";
+import User from "@/models/User";
+import { verifyAdmin } from "@/lib/auth";
 import speakeasy from "speakeasy";
 
 export async function POST(req) {

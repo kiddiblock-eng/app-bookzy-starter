@@ -2,12 +2,12 @@
 // ✅ VERSION CORRIGÉE : Détection automatique du provider actif
 
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../lib/db";
-import Transaction from "../../../../models/Transaction";
-import Settings from "../../../../models/settings"; 
-import User from "../../../../models/User";
-import { verifyAuth } from "../../../../lib/auth";
-import PaymentProviderService from "../../../../lib/payment/PaymentProviderService";
+import { dbConnect } from "@/lib/db";
+import Transaction from "@/models/Transaction";
+import Settings from "@/models/settings"; 
+import User from "@/models/User";
+import { verifyAuth } from "@/lib/auth";
+import PaymentProviderService from "@/lib/payment/PaymentProviderService";
 
 export async function POST(req) {
   try {

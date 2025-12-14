@@ -1,8 +1,8 @@
 // app/api/admin/analytics/ebooks-distribution/route.js
 // ✅ VERSION CORRIGÉE - Utilise Projet au lieu de Ebook
 
-import { dbConnect } from "../../../../../lib/db";
-import Projet from "../../../../../models/Projet"; // ✅ CHANGÉ
+import { dbConnect } from "@/lib/db";
+import Projet from "@/models/Projet"; // ✅ CHANGÉ
 import { NextResponse } from "next/server";
 
 export async function GET() {

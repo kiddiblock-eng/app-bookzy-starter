@@ -1,9 +1,9 @@
 // app/api/admin/analytics/hourly/route.js
 // ✅ VERSION CORRIGÉE - Utilise Projet au lieu de Ebook
 
-import { dbConnect } from "../../../../../lib/db";
-import User from "../../../../../models/User";
-import Projet from "../../../../../models/Projet"; // ✅ CHANGÉ
+import { dbConnect } from "@/lib/db";
+import User from "@/models/User";
+import Projet from "@/models/Projet"; // ✅ CHANGÉ
 import { NextResponse } from "next/server";
 
 export async function GET() {

@@ -1,4 +1,4 @@
-// app/(legal)/terms/page.jsx
+// app/legal/terms/page.jsx
 
 import Link from "next/link";
 
@@ -14,10 +14,25 @@ export default function TermsOfService() {
         
         {/* Header */}
         <div className="bg-white rounded-2xl p-8 md:p-12 mb-8 shadow-lg">
-          <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
+          {/* Logo Bookzy */}
+          <div className="flex justify-center mb-8">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-11 h-11 rounded-lg bg-slate-900 flex items-center justify-center shadow-lg shadow-slate-900/20 transition-transform group-hover:scale-105">
+                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+              </div>
+              <span className="text-2xl font-extrabold tracking-tight text-slate-900">
+                Bookzy
+              </span>
+            </Link>
+          </div>
+
+          <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-4 text-center">
             Conditions Générales d'Utilisation
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-center">
             Dernière mise à jour : 26 novembre 2024
           </p>
         </div>
@@ -168,13 +183,13 @@ export default function TermsOfService() {
             </h2>
             <p className="text-gray-700 mb-3">
               Pour les détails complets sur notre politique de remboursement, consultez notre{" "}
-              <Link href="/refund" className="text-purple-600 hover:underline font-semibold">
+              <Link href="/legal/refund" className="text-slate-900 hover:underline font-semibold">
                 Politique de Remboursement
               </Link>.
             </p>
             <div className="bg-blue-50 rounded-lg p-4">
               <p className="text-blue-900 text-sm">
-                <strong>Résumé :</strong> Les remboursements sont possibles dans les 7 jours suivant 
+                <strong>Résumé :</strong> Les remboursements sont possibles dans les 24 heures suivant 
                 l'achat si vous n'avez pas utilisé les crédits. Contactez support@bookzy.io pour 
                 toute demande.
               </p>
@@ -245,7 +260,7 @@ export default function TermsOfService() {
             </h2>
             <p className="text-gray-700 mb-3">
               L'utilisation de vos données personnelles est régie par notre{" "}
-              <Link href="/privacy" className="text-purple-600 hover:underline font-semibold">
+              <Link href="/legal/confidentialite" className="text-slate-900 hover:underline font-semibold">
                 Politique de Confidentialité
               </Link>, qui fait partie intégrante des présentes CGU.
             </p>
@@ -256,8 +271,8 @@ export default function TermsOfService() {
               12. Loi applicable et juridiction
             </h2>
             <p className="text-gray-700">
-              Les présentes CGU sont régies par les lois de [Votre pays]. Tout litige sera soumis 
-              à la compétence exclusive des tribunaux de [Votre ville/région].
+              Les présentes CGU sont régies par les lois en vigueur. Tout litige sera soumis 
+              à la compétence exclusive des tribunaux compétents.
             </p>
           </section>
 
@@ -265,14 +280,14 @@ export default function TermsOfService() {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
               13. Contact
             </h2>
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200">
+            <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl p-6 border-2 border-slate-200">
               <p className="font-bold text-gray-900 mb-4">
                 Pour toute question concernant ces conditions :
               </p>
               <div className="space-y-2 text-gray-700">
-                <p>📧 <strong>Email :</strong> <a href="mailto:legal@bookzy.io" className="text-purple-600 hover:underline">legal@bookzy.io</a></p>
-                <p>💬 <strong>Support :</strong> <a href="mailto:support@bookzy.io" className="text-purple-600 hover:underline">support@bookzy.io</a></p>
-                <p>🌐 <strong>Site :</strong> <a href="https://bookzy.io" className="text-purple-600 hover:underline">www.bookzy.io</a></p>
+                <p>📧 <strong>Email :</strong> <a href="mailto:legal@bookzy.io" className="text-slate-900 hover:underline">legal@bookzy.io</a></p>
+                <p>💬 <strong>Support :</strong> <a href="mailto:support@bookzy.io" className="text-slate-900 hover:underline">support@bookzy.io</a></p>
+                <p>🌐 <strong>Site :</strong> <a href="https://bookzy.io" className="text-slate-900 hover:underline">www.bookzy.io</a></p>
               </div>
             </div>
           </section>
@@ -283,7 +298,7 @@ export default function TermsOfService() {
         <div className="mt-8 text-center">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold transition-colors"
+            className="inline-flex items-center gap-2 text-slate-900 hover:text-slate-700 font-semibold transition-colors"
           >
             ← Retour à l'accueil
           </Link>

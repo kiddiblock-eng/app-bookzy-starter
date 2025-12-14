@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../../lib/db";
-import Settings from "../../../../../models/settings";
-import { verifyAdmin } from "../../../../../lib/auth";
+import { dbConnect } from "@/lib/db";
+import Settings from "@/models/settings";
+import { verifyAdmin } from "@/lib/auth";
 
 // FIX: Force le rendu dynamique pour éviter la mise en cache de l'API
 export const dynamic = 'force-dynamic';

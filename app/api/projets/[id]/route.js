@@ -1,5 +1,5 @@
-import { dbConnect } from "../../../../lib/db.js";
-import Projet from "../../../../models/Projet.js";
+import { dbConnect } from "@/lib/db.js";
+import Projet from "@/models/Projet.js";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";

@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../lib/db";
-import Transaction from "../../../../models/Transaction";
-import Settings from "../../../../models/settings";
-import Projet from "../../../../models/Projet";
-import User from "../../../../models/User";
+import { dbConnect } from "@/lib/db";
+import Transaction from "@/models/Transaction";
+import Settings from "@/models/settings";
+import Projet from "@/models/Projet";
+import User from "@/models/User";
 import { Resend } from "resend";
-import { paymentSuccessTemplate } from "../../../../lib/emailTemplates/paymentSuccessTemplate";
-import KkiaPayProvider from "../../../../lib/payment/providers/KkiaPayProvider";
+import { paymentSuccessTemplate } from "@/lib/emailTemplates/paymentSuccessTemplate";
+import KkiaPayProvider from "@/lib/payment/providers/KkiaPayProvider";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

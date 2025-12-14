@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import DashboardSidebar from "../../../components/DashboardSidebar";
-import DashboardHeader from "../../../components/DashboardHeader";
-import EmailVerificationBanner from "../../../components/EmailVerificationBanner";
+import DashboardSidebar from "@/app/(platform)/components/DashboardSidebar";
+import DashboardHeader from "@/app/(platform)/components/DashboardHeader";
+import EmailVerificationBanner from "@/app/(platform)/components/EmailVerificationBanner";
 
 // ✅ Hook de tracking des utilisateurs actifs (Inchangé)
 function useActiveUserPing() {

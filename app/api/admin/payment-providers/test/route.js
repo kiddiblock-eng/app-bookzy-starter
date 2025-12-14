@@ -1,10 +1,10 @@
 // app/api/admin/payment-providers/test/route.js
 
 import { NextResponse } from 'next/server';
-import { dbConnect } from '../../../../../lib/db';
-import Settings from '../../../../../models/settings';
-import { verifyAdmin } from '../../../../../lib/auth';
-import PaymentProviderService from '../../../../../lib/payment/PaymentProviderService';
+import { dbConnect } from '@/lib/db';
+import Settings from '@/models/settings';
+import { verifyAdmin } from '@/lib/auth';
+import PaymentProviderService from '@/lib/payment/PaymentProviderService';
 
 export async function POST(req) {
   try {

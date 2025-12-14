@@ -1,5 +1,5 @@
-import { dbConnect } from "../../../../lib/db";
-import Notification from "../../../../models/Notification";
+import { dbConnect } from "@/lib/db";
+import Notification from "@/models/Notification";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {

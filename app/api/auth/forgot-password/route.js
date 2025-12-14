@@ -1,11 +1,11 @@
 // api/auth/forgot-password/route.js
 // ✅ VERSION PRODUCTION avec noreply@bookzy.io
 
-import { dbConnect } from "../../../../lib/db";
-import User from "../../../../models/User";
+import { dbConnect } from "@/lib/db";
+import User from "@/models/User";
 import { Resend } from "resend";
 import jwt from "jsonwebtoken";
-import { resetPasswordTemplate } from "../../../../lib/emailTemplates/resetPasswordTemplate";
+import { resetPasswordTemplate } from "@/lib/emailTemplates/resetPasswordTemplate";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

@@ -1,10 +1,13 @@
-import { dbConnect } from "../../../../lib/db.js";
+import { dbConnect } from "@/lib/db";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
-import Vente from "../../../../models/Vente.js";
-import Projet from "../../../../models/Projet.js";
+import Vente from "@/models/vente";
+import Projet from "@/models/Projet";
 
 // Fonction utilitaire pour bornes de dates
+
+export const dynamic = 'force-dynamic';
+
 function getMonthRange(offset = 0) {
   const now = new Date();
   const start = new Date(now.getFullYear(), now.getMonth() + offset, 1);

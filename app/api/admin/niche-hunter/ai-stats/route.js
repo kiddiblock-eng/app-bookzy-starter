@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../../lib/db";
-import NicheAnalysis from "../../../../../models/NicheAnalysis";
-import User from "../../../../../models/User";
+import { dbConnect } from "@/lib/db";
+import NicheAnalysis from "@/models/NicheAnalysis";
+import User from "@/models/User";
 
 // ========================================
 // FONCTIONS HELPERS

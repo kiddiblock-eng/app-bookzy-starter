@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../../lib/db";
-import Blog from "../../../../../models/blog";
-import { verifyAuthAdmin } from "../../../../../lib/authAdmin"; // si tu utilises auth admin
+import { dbConnect } from "@/lib/db";
+import Blog from "@/models/Blog";
+import { verifyAdmin } from "@/lib/auth"; // si tu utilises auth admin
 
 export async function GET(req, { params }) {
   try {
     await dbConnect();
 
     // Auth admin (si tu utilises un middleware)
-    const admin = await verifyAuthAdmin(req);
+    const admin = await verifyAdmin(req);
     if (!admin) {
       return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
     }

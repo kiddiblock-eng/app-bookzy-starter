@@ -1,6 +1,6 @@
-import { dbConnect } from "../../../lib/db";
-import Notification from "../../../models/Notification";
-import { verifyAuth } from "../../../lib/auth";
+import { dbConnect } from "@/lib/db";
+import Notification from "@/models/Notification";
+import { verifyAuth } from "@/lib/auth";
 
 export async function GET(req) {
   try {

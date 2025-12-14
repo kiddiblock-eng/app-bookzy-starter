@@ -2,9 +2,32 @@
 
 import Link from "next/link";
 import { Mail, Facebook, Instagram, Send } from "lucide-react";
+import { usePathname } from 'next/navigation'; // <-- AJOUTÉ : Importation de usePathname
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const pathname = usePathname(); // <-- AJOUTÉ : Récupère la route actuelle
+
+  // ====================================================================
+  // LOGIQUE D'EXCLUSION : Le Footer B (partagé) se masquera tout seul
+  // ====================================================================
+  const EXCLUDE_PATHS = [
+    '/niche-hunter',
+    '/tendances',
+    '/blog',
+    '/legal',
+    '/auth',
+    '/dashboard',
+    // Ajoutez ici toutes les routes qui ont un Footer intégré (Footer A)
+  ];
+
+  // Si la route actuelle commence par l'un des chemins à exclure, retourne null (masqué).
+  const isExcluded = EXCLUDE_PATHS.some(path => pathname.startsWith(path));
+
+  if (isExcluded) {
+    return null; 
+  }
+  // ====================================================================
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
@@ -72,6 +95,7 @@ export default function Footer() {
                 <li><button onClick={() => scrollToSection("howitWorks")} className="hover:text-blue-400 transition-colors">Comment ça marche</button></li>
               </ul>
             </div>
+            
 
             {/* Column 3: Outils */}
             <div>
@@ -88,6 +112,7 @@ export default function Footer() {
               <h4 className="font-bold text-white mb-6">Légal</h4>
               <ul className="space-y-3 text-sm text-slate-400">
                 <li><Link href="/legal/terms" className="hover:text-white transition-colors">CGU / CGV</Link></li>
+               <li><Link href="/legal/cookies" className="hover:text-white transition-colors">cookies</Link></li>
                 <li><Link href="/legal/confidentialite" className="hover:text-white transition-colors">Confidentialité</Link></li>
                 <li><Link href="/legal/refund" className="hover:text-white transition-colors">Remboursement</Link></li>
               </ul>

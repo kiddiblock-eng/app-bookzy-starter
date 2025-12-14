@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../lib/db";
-import NicheAnalysis from "../../../../models/NicheAnalysis";
-import { verifyAuth } from "../../../../lib/auth";
-import { getAIText } from "../../../../lib/ai";
+import { dbConnect } from "@/lib/db";
+import NicheAnalysis from "@/models/NicheAnalysis";
+import { verifyAuth } from "@/lib/auth";
+import { getAIText } from "@/lib/ai";
 
 export const dynamic = 'force-dynamic';
 
@@ -109,80 +109,133 @@ export async function POST(req) {
     // ------------------------------------------------------
     // CONTEXTE DE BASE
     // ------------------------------------------------------
-    const base = `Tu es un expert en analyse de niches pour eBooks & formations digitales,
-spécialisé dans le marché AFRICAIN francophone.
+    const base = `Tu es un expert africain en marketing digital qui aide les créateurs d'eBooks.
 
-Niche à analyser :
+📚 L'eBook à analyser :
 - Titre : "${niche.title}"
 - Description : "${niche.description}"
 - Mots-clés : ${niche.keywords.join(", ")}
-- Potentiel estimé : ${niche.potential}/10
-${niche.why_sells ? `- Pourquoi ça vend : ${niche.why_sells}` : ''}
+${niche.why_sells ? `- Pourquoi ça peut marcher : ${niche.why_sells}` : ''}
 
-Contexte : Afrique francophone uniquement (Sénégal, Côte d'Ivoire, Cameroun, etc.)
+🌍 Contexte : Afrique francophone (Sénégal, Côte d'Ivoire, Cameroun, etc.)
+
+⚠️ RÈGLES D'OR :
+- Parle comme un humain, pas comme une IA
+- Utilise des expressions africaines naturelles
+- Sois direct et concret
+- Zéro jargon marketing compliqué
+- Donne des conseils actionnables, pas de la théorie
 `;
 
     // ------------------------------------------------------
-    // 🚀 OPTIMISATION : 4 APPELS EN PARALLÈLE (au lieu de 3)
+    // 🚀 4 APPELS EN PARALLÈLE AVEC TON HUMAIN
     // ------------------------------------------------------
     console.log(`🚀 Analyse de "${niche.title}" - 4 appels parallèles...`);
     const startTime = Date.now();
 
     const prompt1 = `${base}
 
-ÉTAPE 1 — Forces et Risques (marché africain)
+💪 Dis-moi franchement : POURQUOI cet eBook peut cartonner en Afrique ?
 
-Réponds en JSON STRICT :
+Liste 3 points forts concrets et 3 trucs à surveiller.
+
+Écris comme si tu expliquais ça à un ami autour d'un café. Pas de phrases trop longues.
+
+JSON STRICT :
 {
-  "forces": ["Force 1 adaptée au marché africain", "Force 2", "Force 3"],
-  "pointsAttention": ["Risque réaliste 1", "Risque 2", "Risque 3"]
+  "forces": [
+    "Point fort 1 expliqué simplement",
+    "Point fort 2 expliqué simplement", 
+    "Point fort 3 expliqué simplement"
+  ],
+  "pointsAttention": [
+    "Risque 1 expliqué clairement",
+    "Risque 2 expliqué clairement",
+    "Risque 3 expliqué clairement"
+  ]
 }
 
-Focus : Ce qui marche EN AFRIQUE, pas en Europe/USA.`;
+Exemples de TON à utiliser :
+✓ "Les gens cherchent vraiment ça sur WhatsApp"
+✓ "Le problème c'est que beaucoup promettent la même chose"
+✓ "Ça marche si tu cibles bien les jeunes de 20-35 ans"
+
+❌ PAS DE :
+- "Cette niche présente un potentiel intéressant..."
+- "Il convient de noter que..."
+- "Dans le contexte actuel..."`;
 
     const prompt2 = `${base}
 
-ÉTAPE 2 — Stratégies de différenciation
+🎯 Comment se démarquer pour que les gens achètent CET eBook et pas celui du voisin ?
 
-Réponds en JSON STRICT :
+Donne 3 stratégies concrètes qu'on peut appliquer dès aujourd'hui.
+
+JSON STRICT :
 {
-  "conseilsDiff": ["Stratégie concrète 1 pour se démarquer", "Stratégie 2", "Stratégie 3"]
+  "conseilsDiff": [
+    "Stratégie 1 ultra-concrète",
+    "Stratégie 2 ultra-concrète",
+    "Stratégie 3 ultra-concrète"
+  ]
 }
 
-Donne des stratégies ACTIONNABLES, pas de théorie.`;
+Exemples de TON à utiliser :
+✓ "Ajoute des témoignages vidéo de vrais Africains qui ont testé"
+✓ "Offre une garantie satisfait ou remboursé 7 jours"
+✓ "Fais une version courte gratuite pour donner envie"
+✓ "Utilise des exemples 100% africains, pas des trucs d'Europe"
+
+❌ PAS DE :
+- "Optimiser le positionnement stratégique..."
+- "Développer une proposition de valeur unique..."`;
 
     const prompt3 = `${base}
 
-ÉTAPE 3 — Données marché (estimations africaines)
+📊 Donne-moi les chiffres du marché en Afrique francophone.
 
-Réponds en JSON STRICT :
+Pas besoin d'être hyper précis, juste une idée réaliste.
+
+JSON STRICT :
 {
-  "volumeEstime": "Fourchette de recherches mensuelles ex: '5k-8k'",
-  "tendance": "Évolution ex: '↗️ +25%' ou '↘️ -10%' ou '→ stable'",
+  "volumeEstime": "Combien de gens cherchent ça par mois (ex: '2k-5k' ou '10k+' ou 'Peu')",
+  "tendance": "Est-ce que ça monte ou ça descend ? (ex: '↗️ Ça monte fort' ou '→ Stable' ou '↘️ Ça baisse')",
   "difficulteSEO": 4,
-  "cpcMoyen": "Coût par clic estimé ex: '0.20€' ou 'N/A'"
+  "cpcMoyen": "Prix pub Google si on voulait en faire (ex: '0.30€' ou 'Quasi gratuit')"
 }
 
-Donne des chiffres RÉALISTES pour l'Afrique francophone.`;
+TON naturel attendu :
+✓ "Les recherches explosent depuis 6 mois"
+✓ "C'est stable toute l'année"
+✓ "Ça baisse un peu mais reste correct"`;
 
     const prompt4 = `${base}
 
-ÉTAPE 4 — Optimisation titre & cible
+✍️ Améliore le titre pour qu'il donne ENCORE PLUS envie d'acheter.
 
-Réponds en JSON STRICT :
+Et dis-moi exactement à QUI vendre cet eBook.
+
+JSON STRICT :
 {
-  "titreOptimise": "Titre ultra-vendeur optimisé pour l'Afrique (max 60 car)",
-  "publicCible": "Description du public cible en 2-3 phrases max"
+  "titreOptimise": "Titre ultra-vendeur (max 60 caractères)",
+  "publicCible": "À qui vendre exactement (2-3 phrases max, ton naturel)"
 }
 
-Le titre doit être encore PLUS vendeur et adapté au contexte africain.`;
+Exemples de bon public cible :
+✓ "Les jeunes de 20-30 ans qui veulent se lancer mais ont peur de se planter"
+✓ "Les mamans au foyer qui cherchent à arrondir les fins de mois"
+✓ "Les étudiants qui veulent partir à l'étranger mais galèrent avec les dossiers"
+
+❌ PAS DE :
+- "La cible démographique principale se compose de..."
+- "Les individus âgés de 25 à 35 ans présentant un intérêt pour..."`;
 
     // ✅ LANCER LES 4 EN PARALLÈLE
     const [raw1, raw2, raw3, raw4] = await Promise.all([
-      getAIText("nicheAnalyze", prompt1, 1200),
-      getAIText("nicheAnalyze", prompt2, 1000),
+      getAIText("nicheAnalyze", prompt1, 1500),
+      getAIText("nicheAnalyze", prompt2, 1200),
       getAIText("nicheAnalyze", prompt3, 1200),
-      getAIText("nicheAnalyze", prompt4, 1000)
+      getAIText("nicheAnalyze", prompt4, 1200)
     ]);
 
     const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);

@@ -1,11 +1,11 @@
-import { connectDB } from "../../../../lib/db.js";
-import User from "../../../../models/User.js";
+import { dbConnect } from "@/lib/db";
+import User from "@/models/User";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 
 export async function PUT(req) {
   try {
-    await connectDB();
+    await dbConnect();
 
     const token = cookies().get("bookzy_token")?.value;
     if (!token) {

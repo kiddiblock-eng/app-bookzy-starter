@@ -126,9 +126,9 @@ export default function ProjetsPage() {
         {/* --- STATS BAR (Compact & Clean) --- */}
         {projets.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-             <StatBox label="Ouvrages" value={statsApi.total} />
-             <StatBox label="Publiés" value={statsApi.kits} highlight />
-             <StatBox label="En rédaction" value={statsApi.enCours} />
+             <StatBox label="eBooks" value={statsApi.total} />
+             <StatBox label="Prêts" value={statsApi.kits} highlight />
+             <StatBox label="En cours" value={statsApi.enCours} />
              {/* Search intégré aux stats sur Desktop pour alignement */}
              <div className="bg-white p-1 rounded-xl border border-slate-200 shadow-sm flex items-center px-3 focus-within:ring-2 focus-within:ring-indigo-100 transition-all col-span-2 md:col-span-1">
                 <Search className="w-4 h-4 text-slate-400 mr-2" />

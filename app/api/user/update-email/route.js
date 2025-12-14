@@ -1,8 +1,8 @@
-import { dbConnect } from "../../../../lib/db";
-import User from "../../../../models/User";
+import { dbConnect } from "@/lib/db";
+import User from "@/models/User";
 import jwt from "jsonwebtoken";
 import { Resend } from "resend";
-import { confirmEmailTemplate } from "../../../../lib/emailTemplates/confirmEmailTemplate";
+import { confirmEmailTemplate } from "@/lib/emailTemplates/confirmEmailTemplate";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

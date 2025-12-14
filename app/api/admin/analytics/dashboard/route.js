@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../../lib/db";
-import { verifyAdmin } from "../../../../../lib/auth";
+import { dbConnect } from "@/lib/db";
+import { verifyAdmin } from "@/lib/auth";
 
-import User from "../../../../../models/User";
-import Projet from "../../../../../models/Projet";
-import Transaction from "../../../../../models/Transaction";
-import UserActivity from "../../../../../models/UserActivity";
+import User from "@/models/User";
+import Projet from "@/models/Projet";
+import Transaction from "@/models/Transaction";
+import UserActivity from "@/models/UserActivity";
 
 export async function GET(req) {
   try {

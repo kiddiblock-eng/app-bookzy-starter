@@ -1,5 +1,5 @@
-import { dbConnect } from "../../../../lib/db";
-import Notification from "../../../../models/Notification";
+import { dbConnect } from "@/lib/db";
+import Notification from "@/models/Notification";
 import jwt from "jsonwebtoken";
 
 export async function GET(req) {

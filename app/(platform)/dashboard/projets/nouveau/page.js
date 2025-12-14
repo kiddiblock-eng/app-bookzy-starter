@@ -1,5 +1,5 @@
 "use client";
-
+import { Suspense } from "react";
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
@@ -25,7 +25,7 @@ const TONES = [
   { value: "inspirant", label: "Inspirant", icon: "✨" },
 ];
 
-const AUDIENCES = ["Débutants", "Étudiants", "Freelances", "Pros", "Entrepreneurs", "Parents"];
+const AUDIENCES = ["Débutants", "Étudiants", "Freelances", "Grand public", "Entrepreneurs", "Parents"];
 
 /* --- LIVRE 3D (DESIGN FINAL) --- */
 const LiveBookPreview = ({ title, templateId, small = false }) => {
@@ -79,7 +79,7 @@ const LiveBookPreview = ({ title, templateId, small = false }) => {
   );
 };
 
-export default function NouveauProjetPage() {
+function NouveauProjetPageContent() {
   const router = useRouter();
   const params = useSearchParams();
   const hasProcessedPayment = useRef(false);
@@ -622,4 +622,11 @@ function DownloadKitModal({ kit, router }) {
             </div>
         </div>
     )
+}
+export default function NouveauProjetPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="text-lg">Chargement...</div></div>}>
+      <NouveauProjetPageContent />
+    </Suspense>
+  );
 }

@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "../../../../../../lib/db";
-import Blog from "../../../../../../models/Blog";
-import { verifyAuthAdmin } from "../../../../../../lib/auth";
+import { dbConnect } from "@/lib/db";
+import Blog from "@/models/Blog";
+import { verifyAdmin } from "@/lib/auth";
 
 export async function DELETE(req, { params }) {
   try {
     await dbConnect();
 
-    const admin = await verifyAuthAdmin(req);
+    const admin = await verifyAdmin(req);
     if (!admin) {
       return NextResponse.json(
         { success: false, message: "Non autorisé" },
