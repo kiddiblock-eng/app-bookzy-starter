@@ -18,13 +18,22 @@ export default async function middleware(req) {
   }
 
   // ============================================================
-  // SUBDOMAIN APP : app.bookzy.io
+  // SUBDOMAIN APP : app.bookzy.io + localhost (dev)
   // ============================================================
-  if (hostname.includes("app.")) {
-    console.log(`📱 App subdomain`);
+  // ✅ En dev local, traiter localhost SEULEMENT pour les routes dashboard/auth
+  const isAppSubdomain = hostname.includes("app.") || 
+    (hostname.startsWith("localhost") && (
+      pathname.startsWith("/dashboard") || 
+      pathname.startsWith("/admin") || 
+      pathname.startsWith("/auth")
+    ));
+  
+  if (isAppSubdomain) {
+    console.log(`📱 App subdomain (or localhost dashboard)`);
 
     // Pages autorisées sur app.bookzy.io
     const appAllowedPaths = [
+      "/",
       "/auth/login",
       "/auth/register",
       "/auth/forgot-password",
@@ -42,11 +51,22 @@ export default async function middleware(req) {
       return NextResponse.rewrite(new URL("/404", req.url));
     }
 
+    // ✅ FIX : Vérifier les tokens AVANT de protéger les routes
+    const userToken = req.cookies.get("bookzy_token")?.value;
+    const adminToken = req.cookies.get("admin_token")?.value;
+
+    // ✅ FIX : Si sur une page d'auth ET déjà connecté → redirect dashboard
+    if (pathname.startsWith("/auth/")) {
+      if (userToken || adminToken) {
+        console.log(`✅ Already logged in - redirect to dashboard`);
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+      // ✅ Sinon laisser passer (afficher la page de login)
+      return NextResponse.next();
+    }
+
     // Protection dashboard
     if (pathname.startsWith("/dashboard")) {
-      const userToken = req.cookies.get("bookzy_token")?.value;
-      const adminToken = req.cookies.get("admin_token")?.value;
-
       if (!userToken && !adminToken) {
         console.log(`🚫 No token - redirect to login`);
         return NextResponse.redirect(new URL("/auth/login", req.url));
@@ -55,17 +75,19 @@ export default async function middleware(req) {
 
     // Protection admin
     if (pathname.startsWith("/admin")) {
-      const adminToken = req.cookies.get("admin_token")?.value;
-
       if (!adminToken) {
-        console.log(`🚫 No admin token - redirect to login`);
+        console.log(`🚫 No admin token - redirect to admin login`);
         return NextResponse.redirect(new URL("/auth/login", req.url));
       }
     }
 
-    // Racine de app.bookzy.io → redirect dashboard
+    // Racine de app.bookzy.io → redirect selon état de connexion
     if (pathname === "/") {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
+      if (userToken || adminToken) {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      } else {
+        return NextResponse.redirect(new URL("/auth/login", req.url));
+      }
     }
 
     return NextResponse.next();
@@ -76,7 +98,7 @@ export default async function middleware(req) {
   // ============================================================
   console.log(`🌍 Main domain`);
 
-  // Si on essaie d'accéder à dashboard/admin sur www → redirect vers app
+  // Si on essaie d'accéder à dashboard/admin/auth sur www → redirect vers app
   if (pathname.startsWith("/dashboard") || pathname.startsWith("/admin") || pathname.startsWith("/auth")) {
     const appUrl = new URL(req.url);
     appUrl.hostname = hostname.includes("www.") 

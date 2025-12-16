@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import useSWR from "swr";
 import {
   Folder,
   FileText,
@@ -18,70 +19,51 @@ import {
   Loader2
 } from "lucide-react";
 
+// ✅ Fetcher pour SWR
+const fetcher = (url) => fetch(url, { 
+  credentials: "include",
+  headers: { "Content-Type": "application/json" }
+}).then(r => r.ok ? r.json() : null);
+
 export default function ProjetsPage() {
-  const [projets, setProjets] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState("grid");
-  const [statsApi, setStatsApi] = useState({ total: 0, kits: 0, enCours: 0 });
 
-  useEffect(() => {
-    let mounted = true;
+  // ✅ SWR pour ebooks (cache 1 min)
+  const { data: ebooksData, isLoading: loading } = useSWR("/api/ebooks/user", fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 60000,
+  });
 
-    async function fetchEbooks() {
-      try {
-        const res = await fetch("/api/ebooks/user", {
-          cache: "no-store",
-          headers: { "Content-Type": "application/json" }
-        });
+  const ebooks = ebooksData?.ebooks || [];
 
-        if (res.status === 401) {
-          if (mounted) { setProjets([]); setStatsApi({ total: 0, kits: 0, enCours: 0 }); }
-          return;
-        }
+  // ✅ OPTIMISATION: useMemo pour éviter recalcul à chaque render
+  const { projets, statsApi } = useMemo(() => {
+    const completed = ebooks.filter(e => e.fileUrl || e.status === "COMPLETED");
+    const enCours = ebooks.filter(e => !e.fileUrl && e.status !== "COMPLETED");
 
-        const data = await res.json();
-        if (!mounted) return;
+    const stats = {
+      total: ebooks.length,
+      kits: completed.length,
+      enCours: enCours.length
+    };
 
-        if (Array.isArray(data.ebooks)) {
-          const completed = data.ebooks.filter(e => e.status === "COMPLETED");
-          const processing = data.ebooks.filter(e => e.status === "processing" || e.status === "generated_text");
-          
-          const ebooksMapped = data.ebooks.map((e) => ({
-            _id: e._id,
-            titre: e.title || "Livre sans titre",
-            description: e.description,
-            pages: e.pages,
-            createdAt: e.createdAt,
-            fileUrl: e.fileUrl,
-            // On utilise une couleur aléatoire stable basée sur l'ID si pas d'image
-            colorSeed: e._id.substring(0, 6), 
-            statut: e.status === "COMPLETED" ? "terminé" : 
-                    e.status === "ERROR" ? "erreur" : 
-                    "en cours"
-          }));
+    const mapped = ebooks.map((e) => ({
+      _id: e._id,
+      titre: e.title || "Livre sans titre",
+      description: e.description,
+      pages: e.pages,
+      createdAt: e.createdAt,
+      fileUrl: e.fileUrl,
+      colorSeed: e._id.substring(0, 6), 
+      statut: e.status === "COMPLETED" || e.fileUrl ? "terminé" : 
+              e.status === "ERROR" ? "erreur" : 
+              "en cours"
+    }));
 
-          setProjets(ebooksMapped);
-          setStatsApi({
-            total: ebooksMapped.length,
-            kits: completed.length,
-            enCours: processing.length
-          });
-        } else {
-          setProjets([]);
-        }
-      } catch (error) {
-        console.error("Erreur:", error);
-        setProjets([]);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    }
-
-    fetchEbooks();
-    return () => { mounted = false; };
-  }, []);
+    return { projets: mapped, statsApi: stats };
+  }, [ebooks]);
 
   const filteredProjets = projets.filter((p) => {
     const titre = (p.titre || "").toLowerCase();
@@ -102,7 +84,6 @@ export default function ProjetsPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-20 font-sans text-slate-900">
       
-      {/* --- HEADER --- */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -123,13 +104,11 @@ export default function ProjetsPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         
-        {/* --- STATS BAR (Compact & Clean) --- */}
         {projets.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
              <StatBox label="eBooks" value={statsApi.total} />
              <StatBox label="Prêts" value={statsApi.kits} highlight />
              <StatBox label="En cours" value={statsApi.enCours} />
-             {/* Search intégré aux stats sur Desktop pour alignement */}
              <div className="bg-white p-1 rounded-xl border border-slate-200 shadow-sm flex items-center px-3 focus-within:ring-2 focus-within:ring-indigo-100 transition-all col-span-2 md:col-span-1">
                 <Search className="w-4 h-4 text-slate-400 mr-2" />
                 <input 
@@ -143,7 +122,6 @@ export default function ProjetsPage() {
           </div>
         )}
 
-        {/* --- FILTRES & VUE --- */}
         {projets.length > 0 && (
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
              <div className="flex gap-1 bg-slate-100 p-1 rounded-lg overflow-x-auto max-w-full no-scrollbar">
@@ -165,7 +143,6 @@ export default function ProjetsPage() {
           </div>
         )}
 
-        {/* --- GRILLE DE PROJETS --- */}
         {filteredProjets.length > 0 ? (
           <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
             {filteredProjets.map((projet) => (
@@ -173,22 +150,19 @@ export default function ProjetsPage() {
             ))}
           </div>
         ) : (
-          /* EMPTY STATE */
           <div className="text-center py-20 bg-white border border-dashed border-slate-200 rounded-3xl">
              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Folder className="w-8 h-8 text-slate-300" />
              </div>
              <h3 className="text-lg font-bold text-slate-900">Aucun livre trouvé</h3>
              <p className="text-slate-500 text-sm mb-6">Lancez une nouvelle rédaction par IA.</p>
-             <a href="/dashboard/projets/nouveau" className="text-indigo-600 font-bold text-sm hover:underline">Commencer un projet &rarr;</a>
+             <a href="/dashboard/projets/nouveau" className="text-indigo-600 font-bold text-sm hover:underline">Commencer un projet</a>
           </div>
         )}
       </main>
     </div>
   );
 }
-
-/* --- COMPOSANTS UI --- */
 
 function StatBox({ label, value, highlight = false }) {
     return (
@@ -200,8 +174,6 @@ function StatBox({ label, value, highlight = false }) {
 }
 
 function ProjectCard({ projet, viewMode }) {
-  // Génération d'une fausse couverture "Jolie" si pas d'image
-  // On utilise l'ID pour avoir toujours la même couleur pour le même livre
   const gradients = [
       "from-blue-500 to-indigo-600",
       "from-emerald-500 to-teal-600",
@@ -217,13 +189,10 @@ function ProjectCard({ projet, viewMode }) {
   return (
     <div className={`group relative bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 ${isList ? 'flex items-center p-4' : 'flex flex-col'}`}>
       
-      {/* --- ZONE COUVERTURE --- */}
       <div className={`relative overflow-hidden ${isList ? 'w-16 h-20 rounded-lg flex-shrink-0 mr-6' : 'h-48 w-full'}`}>
-         {/* Background */}
          <div className={`absolute inset-0 bg-gradient-to-br ${bgGradient}`}></div>
          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
          
-         {/* Titre sur la couverture (Simulation Livre) */}
          <div className="absolute inset-0 p-4 flex flex-col justify-center text-white">
             <div className="text-[8px] opacity-70 uppercase tracking-widest border-b border-white/20 pb-1 mb-2 w-fit">Ebook</div>
             <h3 className={`font-black leading-tight break-words ${isList ? 'text-[8px] line-clamp-3' : 'text-lg line-clamp-3'}`} style={{textShadow: '0 2px 4px rgba(0,0,0,0.2)'}}>
@@ -231,13 +200,11 @@ function ProjectCard({ projet, viewMode }) {
             </h3>
          </div>
 
-         {/* Overlay Status */}
          <div className="absolute top-2 right-2">
             <StatusBadge status={projet.statut} mini={isList} />
          </div>
       </div>
 
-      {/* --- ZONE INFOS --- */}
       <div className={`flex-1 ${isList ? '' : 'p-5'}`}>
          {!isList && (
             <div className="flex justify-between items-start mb-3">
@@ -253,7 +220,6 @@ function ProjectCard({ projet, viewMode }) {
             <span className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-md border border-slate-100"><FileText className="w-3 h-3 text-slate-400"/> {projet.pages} pages</span>
          </div>
 
-         {/* --- ACTIONS --- */}
          <div className="flex items-center gap-2 mt-auto">
             {projet.statut === "terminé" && projet.fileUrl ? (
                 <a href={projet.fileUrl} download className="flex-1 flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-lg text-xs font-bold transition-all shadow-md group-hover:shadow-lg">
@@ -269,7 +235,6 @@ function ProjectCard({ projet, viewMode }) {
                 </div>
             )}
             
-            {/* Menu Contextuel (Optionnel) */}
             <button className="p-2.5 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-50">
                 <MoreVertical className="w-4 h-4"/>
             </button>

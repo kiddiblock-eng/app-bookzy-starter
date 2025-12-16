@@ -10,12 +10,14 @@ import {
 } from "lucide-react";
 
 /* =========================================
-   1. COMPOSANTS UTILITAIRES & UI
+   1. COMPOSANTS UTILITAIRES & UI - OPTIMISÉS
    ========================================= */
 
-// Vidéo Premium avec cadre (Style Clean)
-function PremiumVideoPlayer({ src }) {
+// Vidéo Premium avec Cloudinary (OPTIMISÉ)
+function PremiumVideoPlayer({ videoId }) {
   const videoRef = useRef(null);
+  const cloudName = "dcmlw5hak";
+  const videoUrl = `https://res.cloudinary.com/${cloudName}/video/upload/q_auto,f_auto,w_1200/${videoId}.mp4`;
   
   useEffect(() => {
     const video = videoRef.current;
@@ -33,22 +35,20 @@ function PremiumVideoPlayer({ src }) {
 
   return (
     <div className="relative group mx-auto max-w-5xl mt-12">
-      {/* Glow effect derrière la vidéo */}
-      <div className="absolute -inset-2 bg-gradient-to-r from-blue-200 to-pink-200 rounded-[24px] blur-xl opacity-40 group-hover:opacity-60 transition duration-1000"></div>
+      {/* Glow simplifié */}
+      <div className="absolute -inset-2 bg-gradient-to-r from-blue-200 to-pink-200 rounded-[24px] opacity-20 group-hover:opacity-30 transition duration-500"></div>
       
       {/* Cadre de la vidéo */}
-      <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-blue-900/10 border-[8px] border-white bg-white aspect-video">
+      <div className="relative rounded-2xl overflow-hidden shadow-2xl border-[8px] border-white bg-white aspect-video">
         <video 
           ref={videoRef} 
-          src={src} 
+          src={videoUrl} 
           className="w-full h-full object-cover" 
           muted 
           loop 
           playsInline 
           preload="metadata" 
         />
-        {/* Overlay léger */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-black/5 to-transparent pointer-events-none" />
       </div>
     </div>
   );
@@ -64,11 +64,11 @@ function SocialProofAvatars() {
   ];
 
   return (
-    <div className="flex items-center gap-4 mt-8 justify-center animate-fade-in-up">
+    <div className="flex items-center gap-4 mt-8 justify-center">
       <div className="flex -space-x-4">
         {avatars.map((src, i) => (
           <div key={i} className="w-12 h-12 rounded-full border-4 border-white shadow-md overflow-hidden relative">
-             <img src={src} alt={`User ${i}`} className="w-full h-full object-cover" />
+             <img src={src} alt={`User ${i}`} className="w-full h-full object-cover" loading="lazy" />
           </div>
         ))}
       </div>
@@ -100,7 +100,6 @@ function NavbarNicheHunter() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // --- FONCTION DE SCROLL SANS HASH DANS L'URL ---
   const smoothScrollTo = (e, id) => {
     e.preventDefault();
     setIsMobileMenuOpen(false);
@@ -124,9 +123,8 @@ function NavbarNicheHunter() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between">
           
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/10 group-hover:scale-105 transition-all">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-violet-600 to-indigo-600 flex items-center justify-center shadow-lg group-hover:scale-105 transition-all">
               <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
             </div>
             <div className="flex flex-col">
@@ -135,7 +133,6 @@ function NavbarNicheHunter() {
             </div>
           </Link>
 
-          {/* Menu Desktop */}
           <div className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
               <a 
@@ -150,24 +147,21 @@ function NavbarNicheHunter() {
             ))}
           </div>
 
-          {/* CTA */}
           <div className="hidden lg:flex items-center gap-4">
             <Link href="/auth/login" className="text-sm font-bold text-slate-600 hover:text-slate-900 px-4 py-2">
                 Connexion
             </Link>
-            <Link href="/auth/register" className="group relative px-6 py-2.5 bg-slate-900 text-white font-bold rounded-xl overflow-hidden shadow-lg hover:shadow-slate-500/20 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+            <Link href="/auth/register" className="group relative px-6 py-2.5 bg-slate-900 text-white font-bold rounded-xl shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2">
                 <span className="relative z-10 text-sm">Analyser gratuitement</span>
                 <ArrowRight className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform"/>
             </Link>
           </div>
 
-          {/* Mobile Button */}
           <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 text-slate-700 hover:bg-slate-50 rounded-lg">
             {isMobileMenuOpen ? <X /> : <Menu />}
           </button>
         </div>
 
-        {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="absolute top-full left-0 right-0 bg-white border-b border-slate-100 p-6 shadow-2xl flex flex-col gap-4 lg:hidden">
             {navLinks.map((link) => (
@@ -198,13 +192,11 @@ export default function NicheHunterPage() {
   const [mounted, setMounted] = useState(false);
   const [openFaq, setOpenFaq] = useState(0);
   
-  // --- ÉTATS DU CALCULATEUR ROI ---
   const [ebookPrice, setEbookPrice] = useState(15);
   const [salesPerMonth, setSalesPerMonth] = useState(100);
 
   useEffect(() => { setMounted(true); }, []);
 
-  // Logique Métier Calculateur
   const monthlyRevenue = ebookPrice * salesPerMonth;
   const yearlyRevenue = monthlyRevenue * 12;
   const cost = 3; 
@@ -216,7 +208,6 @@ export default function NicheHunterPage() {
       return "👍 Bon début pour tester !";
   };
 
-  // --- FONCTION SCROLL REUTILISABLE ---
   const smoothScrollTo = (id) => {
     const element = document.getElementById(id);
     if (element) {
@@ -226,7 +217,6 @@ export default function NicheHunterPage() {
     }
   };
 
-  // --- DONNÉES ---
   const successStories = [
     { 
       name: "Amadou S.", 
@@ -289,50 +279,42 @@ export default function NicheHunterPage() {
   if (!mounted) return <div className="min-h-screen bg-white" />;
 
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-pink-100 selection:text-pink-900 overflow-x-hidden">
+    <div className="min-h-screen bg-white font-sans text-slate-900 overflow-x-hidden">
       
       <NavbarNicheHunter />
       
-      {/* =========================================
-          HERO SECTION (CLEAN & LUMINEUX) - OPTIMISÉ
-         ========================================= */}
+      {/* HERO SECTION - OPTIMISÉ */}
       <section id="home" className="relative pt-32 pb-24 lg:pt-48 lg:pb-32 overflow-hidden bg-white">
         
-        {/* --- Background Effects --- */}
+        {/* Background simplifié */}
         <div className="absolute inset-0 pointer-events-none">
-           {/* Grille de points */}
            <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:20px_20px]"></div>
-           {/* Halo central */}
-           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-gradient-to-b from-blue-50/80 via-purple-50/30 to-transparent blur-[120px]" />
+           <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 via-white to-purple-50/30"></div>
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
           
-          {/* Badge urgence */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-orange-50 to-red-50 border-2 border-orange-200 shadow-sm text-orange-700 mb-8 animate-pulse cursor-default">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-orange-50 to-red-50 border-2 border-orange-200 shadow-sm text-orange-700 mb-8">
             <Flame className="w-4 h-4" />
             <span className="text-xs sm:text-sm font-bold tracking-wide">
               <span className="text-orange-900">147 niches</span> analysées aujourd'hui
             </span>
           </div>
 
-          {/* Titre Principal - OPTIMISÉ */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-slate-900 tracking-tight leading-[1.1] mb-8 max-w-6xl mx-auto animate-in slide-in-from-bottom-4 duration-1000">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-slate-900 tracking-tight leading-[1.1] mb-8 max-w-6xl mx-auto">
             L'IA qui trouve <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-violet-600 to-pink-500 animate-gradient-x">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-violet-600 to-pink-500">
               VOTRE niche à 10k€/mois
             </span>
             <br/>en 30 secondes.
           </h1>
 
-          {/* Sous-titre - OPTIMISÉ */}
-          <p className="text-xl md:text-2xl text-slate-500 mb-12 max-w-3xl mx-auto leading-relaxed font-medium animate-in slide-in-from-bottom-6 duration-1000 delay-100">
+          <p className="text-xl md:text-2xl text-slate-500 mb-12 max-w-3xl mx-auto leading-relaxed font-medium">
             Arrêtez de deviner. Notre IA analyse <strong className="text-slate-900">10 000 marchés</strong> et vous révèle les niches les plus rentables avec un score de potentiel sur 100.
           </p>
 
-          {/* Boutons CTA */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-5 mb-12 animate-in slide-in-from-bottom-8 duration-1000 delay-200">
-            <Link href="/auth/register" className="group relative inline-flex items-center justify-center gap-3 px-10 py-5 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white text-lg font-bold rounded-2xl overflow-hidden transition-all hover:scale-105 shadow-xl shadow-blue-500/30">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-5 mb-12">
+            <Link href="/auth/register" className="group relative inline-flex items-center justify-center gap-3 px-10 py-5 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white text-lg font-bold rounded-2xl transition-all hover:scale-105 shadow-xl">
               <Target className="w-5 h-5" />
               <span>Trouver ma niche (Gratuit)</span>
             </Link>
@@ -344,15 +326,13 @@ export default function NicheHunterPage() {
 
           <SocialProofAvatars />
 
-          {/* Image/Vidéo Démo */}
-          <PremiumVideoPlayer src="/images/nichehunter.mp4" />
+          {/* Vidéo Cloudinary */}
+          <PremiumVideoPlayer videoId="nichehunternew_psydjb" />
 
         </div>
       </section>
 
-      {/* =========================================
-          2. TRUST BAR (Light)
-         ========================================= */}
+      {/* TRUST BAR */}
       <div className="py-10 border-y border-slate-100 bg-slate-50/50">
         <div className="max-w-7xl mx-auto px-6 text-center">
             <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-8">Sources de données en temps réel</p>
@@ -365,9 +345,7 @@ export default function NicheHunterPage() {
         </div>
       </div>
 
-      {/* =========================================
-          3. FEATURES / STEPS - OPTIMISÉ
-         ========================================= */}
+      {/* FEATURES */}
       <section id="features" className="py-24 bg-white relative">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-20">
@@ -381,7 +359,6 @@ export default function NicheHunterPage() {
 
           <div className="grid lg:grid-cols-3 gap-8">
             
-            {/* Step 1 - ANALYSE */}
             <div className="group relative p-10 bg-white rounded-[2.5rem] border-2 border-blue-200 shadow-xl hover:-translate-y-2 transition-all duration-300">
               <div className="absolute -top-4 -right-4 w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center font-black text-2xl shadow-lg">
                 1
@@ -394,7 +371,6 @@ export default function NicheHunterPage() {
                 Entrez un mot-clé (ex: "Fitness"). L'IA scanne TikTok, Google, Amazon et vous donne <strong className="text-blue-600">10 niches rentables</strong> avec leur score.
               </p>
               
-              {/* Preview résultat */}
               <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-semibold text-slate-700">Yoga pour seniors</span>
@@ -410,7 +386,6 @@ export default function NicheHunterPage() {
               </div>
             </div>
 
-            {/* Step 2 - VALIDATION */}
             <div className="group relative p-10 bg-white rounded-[2.5rem] border-2 border-violet-200 shadow-xl hover:-translate-y-2 transition-all duration-300">
               <div className="absolute -top-4 -right-4 w-16 h-16 bg-violet-600 text-white rounded-full flex items-center justify-center font-black text-2xl shadow-lg">
                 2
@@ -443,12 +418,10 @@ export default function NicheHunterPage() {
               </ul>
             </div>
 
-            {/* Step 3 - CRÉATION (Optionnelle) */}
             <div className="group relative p-10 bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2.5rem] shadow-2xl hover:-translate-y-2 transition-all duration-300 text-white overflow-hidden border-2 border-slate-700">
               <div className="absolute -top-4 -right-4 w-16 h-16 bg-gradient-to-br from-blue-500 to-violet-500 text-white rounded-full flex items-center justify-center font-black text-2xl shadow-lg">
                 3
               </div>
-              <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-600 rounded-full blur-[80px] opacity-20" />
               
               <div className="relative z-10">
                 <div className="mb-6">
@@ -489,9 +462,7 @@ export default function NicheHunterPage() {
         </div>
       </section>
 
-      {/* =========================================
-          4. DÉMO INTERACTIVE - NOUVEAU
-         ========================================= */}
+      {/* DÉMO INTERACTIVE */}
       <section id="demo" className="py-24 bg-gradient-to-br from-blue-50 to-violet-50">
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-16">
@@ -506,7 +477,6 @@ export default function NicheHunterPage() {
             </p>
           </div>
 
-          {/* Mini démo interactive */}
           <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border-2 border-slate-200">
             <div className="flex flex-col md:flex-row gap-4 mb-8">
               <input 
@@ -522,7 +492,6 @@ export default function NicheHunterPage() {
               </Link>
             </div>
 
-            {/* Preview des résultats */}
             <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200">
               <div className="text-sm font-bold text-slate-400 uppercase mb-4">Exemple de résultats :</div>
               <div className="space-y-3">
@@ -559,9 +528,7 @@ export default function NicheHunterPage() {
         </div>
       </section>
 
-      {/* =========================================
-          5. TABLEAU COMPARATIF - OPTIMISÉ
-         ========================================= */}
+      {/* COMPARATIF */}
       <section id="comparaison" className="py-24 bg-white">
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-16">
@@ -569,7 +536,7 @@ export default function NicheHunterPage() {
             <p className="text-slate-500 mt-4 text-lg">La méthode intelligente vs méthode manuelle</p>
           </div>
           
-          <div className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden ring-1 ring-slate-900/5">
+          <div className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr>
@@ -613,9 +580,7 @@ export default function NicheHunterPage() {
         </div>
       </section>
 
-      {/* =========================================
-          6. SUCCESS STORIES
-         ========================================= */}
+      {/* SUCCESS STORIES */}
       <section id="results" className="py-24 bg-slate-50 border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-20">
@@ -627,7 +592,7 @@ export default function NicheHunterPage() {
             {successStories.map((story, i) => (
               <div key={i} className="group bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-2xl hover:border-blue-300 hover:-translate-y-1 transition-all duration-300">
                 <div className="flex items-center gap-4 mb-6">
-                  <img src={story.avatar} alt={story.name} className="w-14 h-14 rounded-full object-cover border-2 border-slate-100 shadow-sm" />
+                  <img src={story.avatar} alt={story.name} className="w-14 h-14 rounded-full object-cover border-2 border-slate-100 shadow-sm" loading="lazy" />
                   <div>
                     <div className="font-bold text-slate-900 text-lg">{story.name}</div>
                     <div className="text-sm text-slate-500 font-medium">{story.country}</div>
@@ -664,9 +629,7 @@ export default function NicheHunterPage() {
         </div>
       </section>
 
-      {/* =========================================
-          7. FAQ
-         ========================================= */}
+      {/* FAQ */}
       <section id="faq" className="py-24 bg-white">
         <div className="max-w-3xl mx-auto px-6">
           <div className="text-center mb-16">
@@ -698,15 +661,11 @@ export default function NicheHunterPage() {
         </div>
       </section>
 
-      {/* =========================================
-          8. CTA FINAL - OPTIMISÉ
-         ========================================= */}
+      {/* CTA FINAL */}
       <section className="py-32 bg-slate-900 text-center px-6 relative overflow-hidden border-t border-white/5">
-        {/* Effets */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.1)_0%,transparent_100%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-blue-950/20 to-slate-900"></div>
         
         <div className="max-w-4xl mx-auto relative z-10">
-          {/* Timer urgence */}
           <div className="inline-flex items-center gap-2 px-6 py-3 bg-orange-500/20 border-2 border-orange-500/50 rounded-full text-orange-400 mb-8">
             <Clock className="w-5 h-5" />
             <span className="font-bold">
@@ -732,44 +691,39 @@ export default function NicheHunterPage() {
             ✓ Gratuit · ✓ Sans carte bancaire · ✓ Résultats en 30 sec
           </p>
 
-          {/* Social proof final */}
-          {/* Social proof final */}
-<div className="mt-12 flex items-center justify-center gap-6">
-  <div className="flex -space-x-2">
-    {[
-      "/images/garcon1.jpg",
-      "/images/filleblanche1.jpg",
-      "/images/garcon2.jpg",
-      "/images/fillenoir.jpg",
-      "/images/garcon3.jpg"
-    ].map((src, i) => (
-      <div key={i} className="w-10 h-10 rounded-full border-2 border-slate-900 overflow-hidden">
-        <img src={src} alt={`User ${i + 1}`} className="w-full h-full object-cover" />
-      </div>
-    ))}
-  </div>
-  <div className="text-left">
-    <div className="flex items-center gap-1">
-      {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />)}
-    </div>
-    <p className="text-sm text-slate-400 mt-1">
-      <strong className="text-white">2,450+</strong> niches découvertes cette semaine
-    </p>
-  </div>
-</div>
+          <div className="mt-12 flex items-center justify-center gap-6">
+            <div className="flex -space-x-2">
+              {[
+                "/images/garcon1.jpg",
+                "/images/filleblanche1.jpg",
+                "/images/garcon2.jpg",
+                "/images/fillenoir.jpg",
+                "/images/garcon3.jpg"
+              ].map((src, i) => (
+                <div key={i} className="w-10 h-10 rounded-full border-2 border-slate-900 overflow-hidden">
+                  <img src={src} alt={`User ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                </div>
+              ))}
+            </div>
+            <div className="text-left">
+              <div className="flex items-center gap-1">
+                {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />)}
+              </div>
+              <p className="text-sm text-slate-400 mt-1">
+                <strong className="text-white">2,450+</strong> niches découvertes cette semaine
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* =========================================
-          9. FOOTER SPÉCIFIQUE
-         ========================================= */}
+      {/* FOOTER */}
       <footer className="bg-slate-950 text-white pt-24 pb-12 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-20">
             
             <div className="col-span-2 md:col-span-1">
               <Link href="/" className="flex items-center gap-3 mb-6 group">
-              
                 <span className="text-2xl font-black tracking-tight">Bookzy</span>
               </Link>
               <p className="text-slate-400 text-sm leading-relaxed mb-6">

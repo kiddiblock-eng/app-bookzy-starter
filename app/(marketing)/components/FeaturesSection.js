@@ -1,60 +1,68 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { Sparkles, TrendingUp, Target, ArrowRight, Check, Search, BarChart3, Users, FileText, Zap } from "lucide-react";
+import { Sparkles, TrendingUp, Target, ArrowRight, Check, BarChart3, Users, FileText } from "lucide-react";
 import Link from "next/link";
 
-/* 🎥 Vidéo autoplay intelligente */
-function AutoPlayVideo({ src, className, alt = "Feature video" }) {
+/* 🎥 Cloudinary Video avec autoplay intelligent */
+function CloudinaryVideo({ publicId, className, alt = "Feature video" }) {
   const ref = useRef(null);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (el.tagName === 'VIDEO') {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) el.play().catch(() => {});
-          else el.pause();
-        },
-        { threshold: 0.4 }
-      );
-      observer.observe(el);
-      return () => observer.disconnect();
-    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) el.play().catch(() => {});
+        else el.pause();
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
-  if (src.endsWith('.mp4')) {
-    return (
-      <video ref={ref} src={src} className={className} muted loop playsInline preload="metadata" title={alt} />
-    );
-  }
-  return <img src={src} alt={alt} className={className} />;
+  // URL Cloudinary avec transformations optimales
+  const cloudName = "dcmlw5hak";
+  const videoUrl = `https://res.cloudinary.com/${cloudName}/video/upload/q_auto,f_auto,w_1200/${publicId}.mp4`;
+
+  return (
+    <video 
+      ref={ref} 
+      src={videoUrl} 
+      className={className} 
+      muted 
+      loop 
+      playsInline 
+      preload="metadata" 
+      title={alt}
+    />
+  );
 }
 
-/* 💎 Bloc Premium Épuré */
+/* 💎 Bloc Premium OPTIMISÉ */
 function PremiumBlock({ children, color = "blue" }) {
   const gradients = {
-    blue: "from-blue-500/30 to-cyan-500/30",
-    orange: "from-orange-500/30 to-red-500/30",
-    purple: "from-purple-500/30 to-pink-500/30"
+    blue: "from-blue-400/20 to-cyan-400/20",
+    orange: "from-orange-400/20 to-red-400/20",
+    purple: "from-purple-400/20 to-pink-400/20"
   };
 
   const borderColors = {
-    blue: "group-hover:border-blue-300/50",
-    orange: "group-hover:border-orange-300/50",
-    purple: "group-hover:border-purple-300/50"
+    blue: "group-hover:border-blue-200",
+    orange: "group-hover:border-orange-200",
+    purple: "group-hover:border-purple-200"
   };
 
   return (
-    <div className="relative group perspective-1000">
-      <div className={`absolute -inset-1 bg-gradient-to-r ${gradients[color]} rounded-[2rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
-      <div className={`relative rounded-[1.5rem] overflow-hidden bg-white shadow-2xl border border-gray-100 ${borderColors[color]} transition-all duration-500 group-hover:scale-[1.02]`}>
+    <div className="relative group">
+      <div className={`absolute -inset-1 bg-gradient-to-r ${gradients[color]} rounded-[2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+      <div className={`relative rounded-[1.5rem] overflow-hidden bg-white shadow-xl border border-gray-100 ${borderColors[color]} transition-all duration-300 group-hover:scale-[1.01]`}>
         <div className="p-2 bg-white">
-          <div className="relative rounded-xl overflow-hidden bg-gray-900 aspect-video shadow-inner">
+          <div className="relative rounded-xl overflow-hidden bg-gray-900 aspect-video">
             {children}
-            <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-30 pointer-events-none transition-opacity duration-500" />
-            <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] pointer-events-none" />
+            <div className="absolute inset-0 shadow-[inset_0_0_15px_rgba(0,0,0,0.3)] pointer-events-none" />
           </div>
         </div>
       </div>
@@ -66,22 +74,20 @@ export default function MainFeaturesSection() {
   return (
     <section id="features" className="bg-white py-24 relative overflow-hidden">
       
-      {/* BACKGROUND EFFECTS */}
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
-      <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.5))] bg-[length:40px_40px]" />
-      <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-gray-200 to-transparent hidden lg:block -translate-x-1/2" />
+      {/* BACKGROUND SIMPLIFIÉ */}
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-50 via-white to-slate-50"></div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
 
         {/* ========== HEADER ========== */}
         <div className="text-center mb-24 relative">
-          <div className="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-1.5 rounded-full mb-6 shadow-lg shadow-blue-500/20 text-sm font-medium">
+          <div className="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-1.5 rounded-full mb-6 shadow-lg text-sm font-medium">
             <span>L'outil Tout-en-Un</span>
           </div>
 
           <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter mb-6 leading-[1.1]">
             Plus qu'un simple générateur,<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-violet-600 to-blue-600">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600">
               votre plume automatisée.
             </span>
           </h2>
@@ -91,14 +97,18 @@ export default function MainFeaturesSection() {
           </p>
         </div>
 
-        {/* ========== FEATURE 1 - LE COEUR DU RÉACTEUR ========== */}
+        {/* ========== FEATURE 1 - GÉNÉRATEUR ========== */}
         <div className="mb-32 relative group">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             
             {/* VISUEL */}
             <div className="order-1 lg:order-2 relative">
               <PremiumBlock color="blue">
-                <AutoPlayVideo src="/images/generator.mp4" className="w-full h-full object-cover" />
+                <CloudinaryVideo 
+                  publicId="generator_bsjysh" 
+                  className="w-full h-full object-cover" 
+                  alt="Générateur eBook" 
+                />
               </PremiumBlock>
             </div>
 
@@ -114,8 +124,8 @@ export default function MainFeaturesSection() {
                 <span className="text-blue-600">prêt à être vendu.</span>
               </h4>
 
-              {/* SOCIAL PROOF CARD - Version améliorée */}
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 p-5 rounded-2xl shadow-lg mb-8 transform hover:scale-105 transition-all cursor-default">
+              {/* SOCIAL PROOF CARD */}
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 p-5 rounded-2xl shadow-lg mb-8 hover:scale-105 transition-transform">
                 <div className="flex items-center gap-4">
                   <div className="bg-green-500 p-3 rounded-full shadow-lg">
                     <Check className="w-6 h-6 text-white" />
@@ -146,7 +156,7 @@ export default function MainFeaturesSection() {
 
               <Link href="/auth/register" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all hover:scale-105 shadow-lg shadow-blue-500/30">
                 Commencer la rédaction 
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
@@ -156,14 +166,19 @@ export default function MainFeaturesSection() {
         <div className="mb-32 relative group">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             
-            {/* VISUEL */}
+            {/* VISUEL - Image statique car c'est une capture */}
             <div className="order-1 relative">
               <PremiumBlock color="orange">
-                <AutoPlayVideo src="/images/tendance.png" className="w-full h-full object-cover" />
+                <img 
+                  src="/images/tendance.png" 
+                  alt="Module Tendances" 
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
               </PremiumBlock>
 
-              {/* Stat card flottante - Version optimisée */}
-              <div className="absolute -right-6 -bottom-6 bg-white p-4 rounded-xl shadow-2xl border-2 border-orange-200 hidden md:block animate-bounce-slow">
+              {/* Stat card flottante */}
+              <div className="absolute -right-6 -bottom-6 bg-white p-4 rounded-xl shadow-2xl border-2 border-orange-200 hidden md:block">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center shadow-lg">
                     <TrendingUp className="w-5 h-5 text-white" />
@@ -206,7 +221,7 @@ export default function MainFeaturesSection() {
               
               <Link href="/auth/register" className="inline-flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-semibold transition-all hover:scale-105 shadow-lg shadow-orange-500/30">
                 Explorer les tendances
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
@@ -219,7 +234,11 @@ export default function MainFeaturesSection() {
             {/* VISUEL */}
             <div className="order-1 lg:order-2 relative">
               <PremiumBlock color="purple">
-                <AutoPlayVideo src="/images/nichehunter.mp4" className="w-full h-full object-cover" />
+                <CloudinaryVideo 
+                  publicId="nichehunternew_psydjb" 
+                  className="w-full h-full object-cover" 
+                  alt="Niche Hunter" 
+                />
               </PremiumBlock>
             </div>
 
@@ -239,7 +258,7 @@ export default function MainFeaturesSection() {
                 Entrez un simple mot-clé (ex: "Freelance") et laissez l'IA générer 10 idées uniques, rentables et peu concurrentielles.
               </p>
 
-              {/* Card analyse - Version améliorée avec icônes */}
+              {/* Card analyse */}
               <div className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-2xl p-6 shadow-lg">
                 <p className="font-bold text-slate-900 mb-4 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-purple-600" />
@@ -253,7 +272,7 @@ export default function MainFeaturesSection() {
                     { icon: FileText, text: "Plan de contenu suggéré" }
                   ].map((feat, i) => (
                     <div key={i} className="flex items-center gap-3 text-sm group/item">
-                      <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center border border-purple-200 group-hover/item:scale-110 group-hover/item:bg-purple-50 transition-all">
+                      <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center border border-purple-200 group-hover/item:scale-110 transition-transform">
                         <feat.icon className="w-4 h-4 text-purple-600" />
                       </div>
                       <span className="text-slate-700 font-medium">{feat.text}</span>
@@ -265,7 +284,7 @@ export default function MainFeaturesSection() {
               <div className="mt-8">
                 <Link href="/auth/register" className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold transition-all hover:scale-105 shadow-lg shadow-purple-500/30">
                   Découvrir ma niche
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>
@@ -273,16 +292,6 @@ export default function MainFeaturesSection() {
         </div>
 
       </div>
-
-      <style jsx>{`
-        .animate-bounce-slow {
-          animation: bounce 3s infinite;
-        }
-        @keyframes bounce {
-          0%, 100% { transform: translateY(-5%); }
-          50% { transform: translateY(5%); }
-        }
-      `}</style>
     </section>
   );
 }

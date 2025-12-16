@@ -3,8 +3,6 @@ import User from "@/models/User.js";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
-// 🔹 Génère un avatar dynamique avec UI-Avatars
-
 export const dynamic = 'force-dynamic';
 
 const generateAvatar = (user) => {
@@ -21,50 +19,52 @@ export async function GET() {
   try {
     await dbConnect();
 
-    // 🔐 Lire le token JWT depuis les cookies
     const token = cookies().get("bookzy_token")?.value;
     if (!token) {
       return new Response(JSON.stringify({ error: "Non connecté" }), { status: 401 });
     }
 
-    // 🧠 Décoder le token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.id;
 
-    // 🔍 Récupérer le profil utilisateur
-    const user = await User.findById(userId).select(
-      "firstName lastName name email avatar country lang"
-    );
+    // ✅ OPTIMISATION: .lean() + .select()
+    const user = await User.findById(userId)
+      .select("firstName lastName name email avatar country lang")
+      .lean()
+      .exec();
 
     if (!user) {
       return new Response(JSON.stringify({ error: "Utilisateur non trouvé" }), { status: 404 });
     }
 
-    // ✅ Utiliser 'avatar' au lieu de 'photo'
     let photo = user.avatar;
 
-    // 🧩 Si pas d'avatar → avatar dynamique
     if (!photo) {
       photo = generateAvatar(user);
     }
 
-    // ✅ Préparer la réponse avec les bons champs
     const responseUser = {
       _id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
       name: user.name,
       email: user.email,
-      photo: photo, // ← Pour le frontend qui attend 'photo'
-      avatar: photo, // ← Pour la cohérence
-      displayName: user.name, // ← Mapper 'name' vers 'displayName'
+      photo: photo,
+      avatar: photo,
+      displayName: user.name,
       country: user.country,
       lang: user.lang
     };
 
-    console.log('✅ Profil chargé:', responseUser.name, responseUser.country);
-
-    return new Response(JSON.stringify({ success: true, user: responseUser }), { status: 200 });
+    return new Response(
+      JSON.stringify({ success: true, user: responseUser }), 
+      { 
+        status: 200,
+        headers: {
+          'Cache-Control': 'private, max-age=300',
+        }
+      }
+    );
   } catch (error) {
     console.error("❌ Erreur GET profil :", error);
     return new Response(

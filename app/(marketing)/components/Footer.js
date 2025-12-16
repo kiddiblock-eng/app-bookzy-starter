@@ -2,15 +2,12 @@
 
 import Link from "next/link";
 import { Mail, Facebook, Instagram, Send } from "lucide-react";
-import { usePathname } from 'next/navigation'; // <-- AJOUTÉ : Importation de usePathname
+import { usePathname } from 'next/navigation';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  const pathname = usePathname(); // <-- AJOUTÉ : Récupère la route actuelle
+  const pathname = usePathname();
 
-  // ====================================================================
-  // LOGIQUE D'EXCLUSION : Le Footer B (partagé) se masquera tout seul
-  // ====================================================================
   const EXCLUDE_PATHS = [
     '/niche-hunter',
     '/tendances',
@@ -18,16 +15,13 @@ export default function Footer() {
     '/legal',
     '/auth',
     '/dashboard',
-    // Ajoutez ici toutes les routes qui ont un Footer intégré (Footer A)
   ];
 
-  // Si la route actuelle commence par l'un des chemins à exclure, retourne null (masqué).
   const isExcluded = EXCLUDE_PATHS.some(path => pathname.startsWith(path));
 
   if (isExcluded) {
     return null; 
   }
-  // ====================================================================
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
@@ -42,12 +36,8 @@ export default function Footer() {
   return (
     <footer className="relative bg-slate-950 text-white overflow-hidden border-t border-slate-900">
 
-      {/* Background Simplifié (Lueurs très subtiles) */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent opacity-50" />
-        <div className="absolute top-[-20%] right-0 w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-20%] left-0 w-[500px] h-[500px] bg-violet-900/10 rounded-full blur-[120px]" />
-      </div>
+      {/* BACKGROUND SIMPLIFIÉ */}
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-950 to-blue-950/20"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
@@ -59,8 +49,7 @@ export default function Footer() {
             <div className="lg:col-span-2">
               <Link href="/" className="inline-block mb-6 group">
                 <div className="flex items-center gap-3">
-                  {/* --- LE LOGO ORIGINAL (Gradient) --- */}
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-violet-600 to-blue-600 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all group-hover:scale-110">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-violet-600 to-blue-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                     <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
                       <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
@@ -123,16 +112,16 @@ export default function Footer() {
               <h4 className="font-bold text-white mb-6">Suivez-nous</h4>
               <div className="flex flex-col gap-3">
                 {/* Telegram */}
-                <a href="https://t.me/+Yad7Hj17d445Mzdk" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-2 rounded-lg bg-white/5 hover:bg-blue-600 transition-all group border border-white/5 hover:border-blue-500">
+                <a href="https://t.me/+Yad7Hj17d445Mzdk" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-2 rounded-lg bg-white/5 hover:bg-blue-600 transition-all border border-white/5 hover:border-blue-500">
                   <Send className="w-4 h-4 text-slate-400 group-hover:text-white" />
                   <span className="text-sm text-slate-300 group-hover:text-white">Telegram</span>
                 </a>
                 
                 {/* Autres Réseaux */}
                 <div className="flex gap-2">
-                  <a href="https://facebook.com/profile.php?id=61550897802074&mibextid=wwXIfr" target="_blank" className="p-2 rounded-lg bg-white/5 hover:bg-blue-700 transition-colors text-slate-400 hover:text-white"><Facebook className="w-4 h-4"/></a>
-                  <a href="https://instagram.com/bookzy_ai?igsh=MWlmdG05cjc1cGY1Zg==" target="_blank" className="p-2 rounded-lg bg-white/5 hover:bg-pink-600 transition-colors text-slate-400 hover:text-white"><Instagram className="w-4 h-4"/></a>
-                  <a href="https://www.tiktok.com/@bookzy4?_r=1&_t=ZM-925gFDO9zey" target="_blank" className="p-2 rounded-lg bg-white/5 hover:bg-black hover:border-slate-600 border border-transparent transition-colors text-slate-400 hover:text-white">
+                  <a href="https://facebook.com/profile.php?id=61550897802074&mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white/5 hover:bg-blue-700 transition-colors text-slate-400 hover:text-white"><Facebook className="w-4 h-4"/></a>
+                  <a href="https://instagram.com/bookzy_ai?igsh=MWlmdG05cjc1cGY1Zg==" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white/5 hover:bg-pink-600 transition-colors text-slate-400 hover:text-white"><Instagram className="w-4 h-4"/></a>
+                  <a href="https://www.tiktok.com/@bookzy4?_r=1&_t=ZM-925gFDO9zey" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white/5 hover:bg-black hover:border-slate-600 border border-transparent transition-colors text-slate-400 hover:text-white">
                     <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
                   </a>
                 </div>
@@ -153,7 +142,6 @@ export default function Footer() {
           </p>
           <div className="flex items-center gap-6">
              <div className="flex gap-3 grayscale opacity-30 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
-                {/* Icônes Mobile Money (CSS pur) */}
                 <div className="h-4 w-8 bg-orange-500 rounded-sm" title="Orange Money"></div>
                 <div className="h-4 w-8 bg-yellow-400 rounded-sm" title="MTN"></div>
                 <div className="h-4 w-8 bg-blue-400 rounded-sm" title="Moov"></div>

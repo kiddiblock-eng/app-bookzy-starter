@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { ArrowRight, Wand2, CheckCircle2, FileText, Download } from 'lucide-react';
+import { ArrowRight, Wand2, CheckCircle2, FileText, Download, Sparkles } from 'lucide-react';
 
 export default function Hero() {
   
@@ -13,15 +13,20 @@ export default function Hero() {
   ];
 
   return (
-    <section className="relative pt-32 pb-24 lg:pt-36 lg:pb-32 overflow-hidden bg-white">
+    <section className="relative pt-28 pb-20 lg:pt-36 lg:pb-32 overflow-hidden bg-white">
       
-      {/* FOND DÉGRADÉ STYLE STRIPE */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-violet-50 lg:from-blue-50 lg:via-white lg:to-violet-50"></div>
+      {/* FOND MOBILE - Plus vibrant */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-100 via-white to-violet-100 lg:from-blue-50 lg:via-white lg:to-violet-50"></div>
       
-      {/* LUEURS BLEU-VIOLET - Style Stripe */}
-      <div className="absolute top-[-15%] right-[-15%] w-[700px] h-[700px] lg:w-[900px] lg:h-[900px] bg-gradient-to-br from-blue-400/20 via-indigo-400/15 to-transparent rounded-full blur-[120px] pointer-events-none z-0 animate-pulse-slow"></div>
-      <div className="absolute bottom-[-15%] left-[-15%] w-[600px] h-[600px] lg:w-[800px] lg:h-[800px] bg-gradient-to-tr from-violet-400/20 via-purple-400/15 to-transparent rounded-full blur-[120px] pointer-events-none z-0 animate-pulse-slow" style={{animationDelay: '2s'}}></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-indigo-400/10 to-transparent rounded-full blur-[100px] pointer-events-none z-0"></div>
+      {/* LUEURS - Plus visibles sur mobile */}
+      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] lg:w-[900px] lg:h-[900px] bg-gradient-to-br from-blue-500/30 via-indigo-500/20 to-transparent lg:from-blue-400/20 lg:via-indigo-400/15 lg:to-transparent rounded-full blur-[80px] lg:blur-[120px] pointer-events-none z-0 animate-pulse-slow"></div>
+      <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] lg:w-[800px] lg:h-[800px] bg-gradient-to-tr from-violet-500/30 via-purple-500/20 to-transparent lg:from-violet-400/20 lg:via-purple-400/15 lg:to-transparent rounded-full blur-[80px] lg:blur-[120px] pointer-events-none z-0 animate-pulse-slow" style={{animationDelay: '2s'}}></div>
+      
+      {/* Particules décoratives mobile */}
+      <div className="absolute top-24 right-8 lg:hidden">
+      </div>
+      <div className="absolute bottom-32 left-6 lg:hidden">
+      </div>
       
       <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -29,63 +34,71 @@ export default function Hero() {
           {/* COLONNE GAUCHE */}
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left relative max-w-2xl mx-auto lg:mx-0">
             
-            {/* Badge - Minimaliste */}
-            <div className="inline-flex items-center gap-2.5 px-0 lg:px-4 py-0 lg:py-1.5 rounded-full bg-transparent lg:bg-white border-0 lg:border lg:border-slate-200 shadow-none lg:shadow-sm mb-10 lg:mb-8">
-              <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-              <span className="text-sm lg:text-xs font-bold text-slate-900 lg:text-slate-600 uppercase tracking-wider">
+            {/* Badge - Stylé sur mobile */}
+            <div className="inline-flex items-center gap-2.5 px-5 py-2.5 lg:px-4 lg:py-1.5 rounded-full bg-white/80 lg:bg-white backdrop-blur-xl lg:backdrop-blur-none border-2 border-blue-200/50 lg:border lg:border-slate-200 shadow-lg shadow-blue-500/20 lg:shadow-sm mb-8 lg:mb-8">
+              <span className="relative flex h-2.5 w-2.5 lg:h-2 lg:w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 lg:h-2 lg:w-2 bg-blue-600"></span>
+              </span>
+              <span className="text-xs lg:text-xs font-black lg:font-bold text-blue-700 lg:text-slate-600 uppercase tracking-wider">
                 IA GÉNÉRATIVE V2.0
               </span>
             </div>
 
-            {/* Titre - TRÈS GRAND et IMPOSANT comme dans l'artifact */}
-            <h1 className="text-[3.5rem] leading-[1.05] sm:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight mb-10 lg:mb-6 lg:tracking-tighter lg:leading-[1.05]">
+            {/* Titre - Style moderne mobile */}
+            <h1 className="text-[3rem] leading-[1.05] sm:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight mb-8 lg:mb-6 lg:tracking-tighter lg:leading-[1.05]">
               Générer votre eBook pro{" "}
-              <span className="text-blue-600 lg:text-transparent lg:bg-clip-text lg:bg-gradient-to-r lg:from-blue-600 lg:via-indigo-600 lg:to-violet-600">
-                en 1 min
+              <span className="relative inline-block">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600">
+                  en 1 min
+                </span>
+                {/* Effet de soulignement mobile */}
+                <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-violet-500 rounded-full lg:hidden"></div>
               </span>
             </h1>
 
-            {/* Description - Grande et lisible */}
-            <p className="text-xl leading-relaxed lg:text-xl text-slate-700 lg:text-slate-600 mb-12 lg:mb-10 max-w-2xl font-normal lg:font-medium">
-               Notre IA ne génère pas seulement du texte brut . Elle structure, rédige, met en page et prépare le kit marketing. Vous obtenez un produit digital fini,  <strong className="text-slate-900 font-bold">prêt à vendre</strong>, sans attendre.
+            {/* Description - Plus lisible mobile */}
+            <p className="text-lg leading-relaxed lg:text-xl text-slate-800 lg:text-slate-600 mb-10 lg:mb-10 max-w-2xl font-medium lg:font-medium">
+               Notre IA ne génère pas seulement du texte brut . Elle structure, rédige, met en page et prépare le kit marketing. Vous obtenez un produit digital fini,  <strong className="text-slate-900 bg-blue-50 px-2 py-0.5 rounded lg:bg-transparent lg:px-0 lg:py-0 font-bold">prêt à vendre</strong>, sans attendre.
             </p>
 
-            {/* CTAs - Grands et espacés */}
-            <div className="flex flex-col gap-4 lg:flex-row lg:gap-4 w-full lg:w-auto mb-16 lg:mb-12">
+            {/* CTAs - Stylés mobile */}
+            <div className="flex flex-col gap-3 lg:flex-row lg:gap-4 w-full lg:w-auto mb-12 lg:mb-12">
               <Link
                 href="/auth/register"
-                className="h-16 lg:h-14 px-12 lg:px-8 bg-slate-900 text-white text-lg lg:text-base font-bold rounded-2xl lg:rounded-xl transition-all flex items-center justify-center gap-2 shadow-xl shadow-slate-900/10 hover:shadow-2xl hover:-translate-y-1"
+                className="group relative h-16 lg:h-14 px-12 lg:px-8 overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 lg:bg-slate-900 text-white text-lg lg:text-base font-black lg:font-bold rounded-2xl lg:rounded-xl transition-all flex items-center justify-center gap-2.5 shadow-2xl shadow-blue-600/40 lg:shadow-xl lg:shadow-slate-900/10 hover:shadow-2xl hover:-translate-y-1 active:scale-95"
               >
-                <span>Essayer gratuitement</span>
+                {/* Brillance qui traverse (mobile) */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 lg:hidden"></div>
+                <span className="relative z-10">Essayer gratuitement</span>
+                <Sparkles className="w-5 h-5 relative z-10 lg:hidden" />
               </Link>
 
               <button
                 onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
-                className="group h-16 lg:h-14 px-12 lg:px-8 bg-white text-slate-900 lg:text-slate-700 border-2 border-slate-200 text-lg lg:text-base font-bold rounded-2xl lg:rounded-xl hover:border-slate-300 hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                className="group h-16 lg:h-14 px-12 lg:px-8 bg-white/80 lg:bg-white backdrop-blur-xl lg:backdrop-blur-none text-slate-900 lg:text-slate-700 border-2 border-slate-900/20 lg:border-slate-200 text-lg lg:text-base font-black lg:font-bold rounded-2xl lg:rounded-xl hover:border-slate-900/30 lg:hover:border-slate-300 hover:bg-white lg:hover:bg-slate-50 transition-all flex items-center justify-center gap-2.5 shadow-xl lg:shadow-sm"
               >
                 <span>Voir la démo</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
 
-            {/* Preuve sociale - Simple et clean */}
+            {/* Preuve sociale - Épuré */}
             <div className="flex items-center gap-4">
-               <div className="flex -space-x-2">
+              <div className="flex -space-x-2">
                   {users.map((user, index) => (
                       <img 
                           key={index}
                           src={user.src} 
                           alt={user.alt} 
-                          className="w-10 h-10 rounded-full border-2 border-white object-cover"
+                          className="w-11 h-11 lg:w-10 lg:h-10 rounded-full border-2 border-white object-cover shadow-md"
                       />
                   ))}
-               </div>
-               <div className="flex flex-col text-left">
-                  <div className="flex gap-0.5">
-                    {[1,2,3,4,5].map(i => <span key={i} className="text-orange-400 text-sm">★</span>)}
-                  </div>
-                  <span className="text-sm font-bold text-slate-900">+1,200 eBooks créés</span>
-               </div>
+              </div>
+              <div className="text-left">
+                  <span className="text-sm font-black text-slate-900">+1,200 eBooks créés</span>
+                  <p className="text-xs text-slate-500 font-medium">par nos utilisateurs</p>
+              </div>
             </div>
 
           </div>

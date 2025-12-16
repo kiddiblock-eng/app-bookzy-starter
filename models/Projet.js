@@ -73,5 +73,7 @@ const ProjetSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+ProjetSchema.index({ userId: 1, createdAt: -1 });
+ProjetSchema.index({ userId: 1, status: 1 });
 
 export default mongoose.models.Projet || mongoose.model("Projet", ProjetSchema);

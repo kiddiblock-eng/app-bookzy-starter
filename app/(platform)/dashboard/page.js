@@ -25,7 +25,9 @@ import {
   Package,
   Eye,
   Settings,
-  Target as TargetIcon
+  Target as TargetIcon,
+  Lightbulb,
+  AlertCircle
 } from "lucide-react";
 
 export default function DashboardHome() {
@@ -38,30 +40,30 @@ export default function DashboardHome() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 🕐 Définir le greeting
         const hour = new Date().getHours();
         if (hour < 12) setGreeting("Bonjour");
         else if (hour < 18) setGreeting("Bon après-midi");
         else setGreeting("Bonsoir");
 
-        // 👤 Récupérer l'utilisateur
-        const resUser = await fetch("/api/profile/get", { 
-          credentials: "include",
-          cache: "no-store",
-        });
+        // ✅ OPTIMISATION: Charger les 2 API EN PARALLÈLE
+        const [resUser, resEbooks] = await Promise.all([
+          fetch("/api/profile/get", { 
+            credentials: "include",
+            cache: "no-store",
+          }),
+          fetch("/api/ebooks/user", { 
+            cache: "no-store",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" }
+          })
+        ]);
+
         if (resUser.ok) {
           const userData = await resUser.json();
           if (userData.success && userData.user) {
             setUser(userData.user);
           }
         }
-
-        // 📚 Récupérer les eBooks
-        const resEbooks = await fetch("/api/ebooks/user", { 
-          cache: "no-store",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" }
-        });
 
         if (resEbooks.ok) {
           const data = await resEbooks.json();
@@ -114,10 +116,8 @@ export default function DashboardHome() {
     <div className="min-h-screen bg-slate-50 pb-20">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
         
-        {/* Hero Section - EXECUTIVE (Dark Background) */}
         <section className="relative bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-xl shadow-slate-900/50">
           
-          {/* Grid pattern + Glow */}
           <div className="absolute inset-0 opacity-10" 
              style={{ backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)', backgroundSize: '30px 30px' }}>
           </div>
@@ -126,7 +126,6 @@ export default function DashboardHome() {
           <div className="relative z-10">
             <div className="flex flex-col lg:flex-row justify-between gap-8">
               
-              {/* Left: Welcome + Main CTA */}
               <div className="flex-1 space-y-6">
                 <div>
                   <p className="text-sm text-slate-400 mb-1">{greeting},</p>
@@ -138,7 +137,6 @@ export default function DashboardHome() {
                   </p>
                 </div>
 
-                {/* Quick Access CTA */}
                 <div className="flex flex-col sm:flex-row gap-3">
                   <a
                     href="/dashboard/projets/nouveau"
@@ -158,7 +156,6 @@ export default function DashboardHome() {
                 </div>
               </div>
 
-              {/* Right: Progress Metric (Minimalist) */}
               <div className="lg:w-80 border border-slate-700 rounded-xl p-5 bg-slate-800 shadow-inner">
                 <div className="flex items-center justify-between mb-4">
                   <div>
@@ -181,14 +178,13 @@ export default function DashboardHome() {
                 </div>
                 <p className="text-xs text-slate-500 font-medium flex items-center gap-1.5">
                   <TargetIcon className="w-3 h-3 text-slate-500" />
-                  {stats.total < 5 ? `Encore ${5 - stats.total} projets pour atteindre le niveau Expert.` : "Félicitations, niveau Expert atteint ! 🎉"}
+                  {stats.total < 5 ? `Encore ${5 - stats.total} projets pour atteindre le niveau Expert.` : "Félicitations, niveau Expert atteint !"}
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Quick Links / Navigation Grid */}
         <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <QuickLink icon={BarChart3} title="Mes Projets" subtitle="Historique des créations" href="/dashboard/projets" color="text-indigo-600" />
           <QuickLink icon={TargetIcon} title="Analyseur de Niche" subtitle="Trouver des idées rentables" href="/dashboard/niche-hunter" color="text-emerald-600" />
@@ -196,10 +192,8 @@ export default function DashboardHome() {
           <QuickLink icon={Settings} title="Paramètres" subtitle="Gérer mon compte & facturation" href="/dashboard/parametres" color="text-slate-600" />
         </section>
 
-        {/* Main Content - Hiérarchie 2 Colonnes */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          {/* Projects Section (2/3 Largeur) */}
           <section className="lg:col-span-2 space-y-4 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
@@ -227,10 +221,8 @@ export default function DashboardHome() {
             )}
           </section>
 
-          {/* Sidebar / Stats Section (1/3 Largeur) */}
           <aside className="space-y-4">
             
-            {/* Stats Overview */}
             <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
               <h3 className="font-bold mb-3 flex items-center gap-2 text-base text-neutral-900">
                 <BarChart3 className="w-4 h-4 text-purple-600" />
@@ -243,7 +235,6 @@ export default function DashboardHome() {
               </div>
             </div>
 
-            {/* Tips Card */}
             <TipCard />
 
           </aside>
@@ -252,8 +243,6 @@ export default function DashboardHome() {
     </div>
   );
 }
-
-/* --- Composants UI --- */
 
 function QuickLink({ href, icon: Icon, title, subtitle, color }) {
   return (
@@ -331,12 +320,12 @@ function TipCard() {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
       <h3 className="font-bold mb-3 flex items-center gap-2 text-base text-neutral-900">
-        <Sparkles className="w-4 h-4 text-yellow-500" />
-        Conseil du jour
+        <Lightbulb className="w-4 h-4 text-yellow-500" />
+        Conseils stratégiques
       </h3>
       <div className="space-y-3">
-        <TipRow text="Utilise l'Analyseur de Niche pour garantir la rentabilité avant de commencer." icon={TargetIcon} color="text-blue-600"/>
-        <TipRow text="N'oublie pas de vérifier les scripts marketing générés (Page de Vente)." icon={FileText} color="text-green-600"/>
+        <TipRow text="Utilise l'Analyseur de Niche pour garantir la rentabilité avant de commencer." icon={Target} color="text-blue-600"/>
+        <TipRow text="Vérifie les scripts marketing générés pour maximiser tes conversions." icon={AlertCircle} color="text-green-600"/>
       </div>
     </div>
   );

@@ -4,8 +4,6 @@ import jwt from "jsonwebtoken";
 import Vente from "@/models/vente";
 import Projet from "@/models/Projet";
 
-// Fonction utilitaire pour bornes de dates
-
 export const dynamic = 'force-dynamic';
 
 function getMonthRange(offset = 0) {
@@ -19,7 +17,6 @@ export async function GET() {
   try {
     await dbConnect();
 
-    // Authentification
     const token = cookies().get("bookzy_token")?.value;
     if (!token)
       return new Response(JSON.stringify({ message: "Non connecté" }), { status: 401 });
@@ -27,35 +24,32 @@ export async function GET() {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.id;
 
-    // Mois courant & précédent
     const currentRange = getMonthRange(0);
     const previousRange = getMonthRange(-1);
 
-    // Récupération des ventes (mois courant & précédent)
-    const [currentSales, previousSales] = await Promise.all([
+    // ✅ OPTIMISATION: .lean() + .select()
+    const [currentSales, previousSales, currentProjets, previousProjets] = await Promise.all([
       Vente.find({
         userId,
         createdAt: { $gte: currentRange.start, $lte: currentRange.end },
-      }),
+      }).select('montant createdAt').lean().exec(),
+      
       Vente.find({
         userId,
         createdAt: { $gte: previousRange.start, $lte: previousRange.end },
-      }),
-    ]);
-
-    // Récupération des projets
-    const [currentProjets, previousProjets] = await Promise.all([
+      }).select('montant createdAt').lean().exec(),
+      
       Projet.find({
         userId,
         createdAt: { $gte: currentRange.start, $lte: currentRange.end },
-      }),
+      }).select('createdAt').lean().exec(),
+      
       Projet.find({
         userId,
         createdAt: { $gte: previousRange.start, $lte: previousRange.end },
-      }),
+      }).select('createdAt').lean().exec(),
     ]);
 
-    // 🧮 Calculs
     const currentTotal = currentSales.reduce((s, v) => s + (v.montant || 0), 0);
     const previousTotal = previousSales.reduce((s, v) => s + (v.montant || 0), 0);
 
@@ -65,7 +59,6 @@ export async function GET() {
     const currentDays = new Set(currentSales.map((v) => v.createdAt.toDateString())).size;
     const previousDays = new Set(previousSales.map((v) => v.createdAt.toDateString())).size;
 
-    // 📈 Calcul des variations (%)
     const calcVar = (curr, prev) => {
       if (prev === 0 && curr === 0) return 0;
       if (prev === 0) return 100;
@@ -78,7 +71,6 @@ export async function GET() {
       activity: calcVar(currentDays, previousDays),
     };
 
-    // 📊 Prépare la réponse
     return new Response(
       JSON.stringify({
         total: currentTotal,
@@ -86,7 +78,12 @@ export async function GET() {
         activity: currentDays,
         trends,
       }),
-      { status: 200 }
+      { 
+        status: 200,
+        headers: {
+          'Cache-Control': 'private, max-age=300',
+        }
+      }
     );
   } catch (error) {
     console.error("❌ Erreur /api/stats/global :", error);
