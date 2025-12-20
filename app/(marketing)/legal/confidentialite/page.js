@@ -1,359 +1,236 @@
-// app/legal/confidentialite/page.jsx
+"use client";
 
 import Link from "next/link";
+import { 
+  ShieldCheck, 
+  Lock, 
+  Eye, 
+  UserCheck, 
+  Mail, 
+  ArrowLeft,
+  ChevronRight,
+  Clock,
+  ExternalLink
+} from "lucide-react";
 
-export const metadata = {
-  title: "Politique de Confidentialité | Bookzy",
-  description: "Comment Bookzy protège vos données personnelles"
-};
+const sections = [
+  { id: "intro", title: "1. Introduction" },
+  { id: "responsable", title: "2. Responsable" },
+  { id: "collecte", title: "3. Données collectées" },
+  { id: "finalites", title: "4. Finalités" },
+  { id: "partage", title: "5. Partage" },
+  { id: "securite", title: "6. Sécurité" },
+  { id: "droits", title: "7. Vos droits" },
+  { id: "contact", title: "8. Contact" },
+];
 
 export default function PrivacyPolicy() {
+  
+  const scrollTo = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 100;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+      window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 py-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Header */}
-        <div className="bg-white rounded-2xl p-8 md:p-12 mb-8 shadow-lg">
-          {/* Logo Bookzy */}
-          <div className="flex justify-center mb-8">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-11 h-11 rounded-lg bg-slate-900 flex items-center justify-center shadow-lg shadow-slate-900/20 transition-transform group-hover:scale-105">
-                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                </svg>
-              </div>
-              <span className="text-2xl font-extrabold tracking-tight text-slate-900">
-                Bookzy
-              </span>
-            </Link>
-          </div>
-
-          <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-4 text-center">
-            Politique de Confidentialité
-          </h1>
-          <p className="text-gray-600 text-center">
-            Dernière mise à jour : 26 novembre 2024
-          </p>
-        </div>
-
-        {/* Content */}
-        <div className="bg-white rounded-2xl p-8 md:p-12 shadow-lg space-y-8">
-          
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              1. Introduction
-            </h2>
-            <p className="text-gray-700 leading-relaxed">
-              Bookzy (ci-après nous, notre ou nos) s'engage à protéger la confidentialité 
-              de vos données personnelles. Cette politique explique comment nous collectons, 
-              utilisons, stockons et protégeons vos informations conformément au Règlement Général 
-              sur la Protection des Données (RGPD).
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              2. Responsable du traitement
-            </h2>
-            <div className="bg-gray-50 rounded-xl p-6 text-gray-700 space-y-2">
-              <p><strong>Nom de l'entreprise :</strong> Blinko </p>
-              <p><strong>Adresse :</strong> 675 E 140TH ST APT 3CC BRONX, NY 10454</p>
-              <p><strong>Email :</strong> privacy@bookzy.io</p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              3. Données collectées
-            </h2>
-            <p className="text-gray-700 mb-4">
-              Nous collectons les données suivantes :
-            </p>
-            
-            <div className="space-y-4">
-              <div className="border-l-4 border-purple-500 pl-4">
-                <h3 className="font-bold text-gray-900 mb-2">3.1. Données d'identification</h3>
-                <ul className="list-disc pl-6 space-y-1 text-gray-700">
-                  <li>Nom et prénom</li>
-                  <li>Adresse email</li>
-                  <li>Mot de passe (crypté)</li>
-                </ul>
-              </div>
-
-              <div className="border-l-4 border-blue-500 pl-4">
-                <h3 className="font-bold text-gray-900 mb-2">3.2. Données de paiement</h3>
-                <ul className="list-disc pl-6 space-y-1 text-gray-700">
-                  <li>Informations de paiement mobile (via nos processeurs de paiement sécurisés)</li>
-                  <li>Historique des transactions</li>
-                  <li>Montants payés</li>
-                </ul>
-                <p className="text-sm text-gray-600 mt-2 italic">
-                  Note : Nous ne stockons JAMAIS vos données bancaires complètes. 
-                  Le paiement est géré par des processeurs certifiés PCI-DSS.
-                </p>
-              </div>
-
-              <div className="border-l-4 border-green-500 pl-4">
-                <h3 className="font-bold text-gray-900 mb-2">3.3. Données de création de contenu</h3>
-                <ul className="list-disc pl-6 space-y-1 text-gray-700">
-                  <li>Titres et descriptions d'ebooks créés</li>
-                  <li>Choix de templates et styles</li>
-                  <li>Fichiers générés (ebooks, couvertures, affiches)</li>
-                  <li>Historique de génération</li>
-                </ul>
-              </div>
-
-              <div className="border-l-4 border-orange-500 pl-4">
-                <h3 className="font-bold text-gray-900 mb-2">3.4. Données techniques</h3>
-                <ul className="list-disc pl-6 space-y-1 text-gray-700">
-                  <li>Adresse IP</li>
-                  <li>Type de navigateur et appareil</li>
-                  <li>Système d'exploitation</li>
-                  <li>Pages visitées et temps passé</li>
-                  <li>Cookies et identifiants de session</li>
-                </ul>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              4. Finalités du traitement
-            </h2>
-            <p className="text-gray-700 mb-4">
-              Nous utilisons vos données pour les finalités suivantes :
-            </p>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-purple-600 text-sm font-bold">✓</span>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">Fourniture du service</p>
-                  <p className="text-gray-600 text-sm">Création d'ebooks, génération de visuels, gestion de votre compte</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-purple-600 text-sm font-bold">✓</span>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">Traitement des paiements</p>
-                  <p className="text-gray-600 text-sm">Facturation, remboursements, prévention de la fraude</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-purple-600 text-sm font-bold">✓</span>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">Communication</p>
-                  <p className="text-gray-600 text-sm">Emails de confirmation, notifications importantes, support client</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-purple-600 text-sm font-bold">✓</span>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">Amélioration du service</p>
-                  <p className="text-gray-600 text-sm">Analyse d'utilisation, correction de bugs, développement de nouvelles fonctionnalités</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-purple-600 text-sm font-bold">✓</span>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">Marketing (avec consentement)</p>
-                  <p className="text-gray-600 text-sm">Newsletter, offres promotionnelles (vous pouvez vous désabonner à tout moment)</p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              5. Base légale du traitement
-            </h2>
-            <div className="space-y-3 text-gray-700">
-              <p><strong>• Exécution du contrat :</strong> Traitement nécessaire pour fournir nos services</p>
-              <p><strong>• Consentement :</strong> Pour les communications marketing et les cookies non essentiels</p>
-              <p><strong>• Intérêt légitime :</strong> Amélioration du service, sécurité, prévention de la fraude</p>
-              <p><strong>• Obligation légale :</strong> Conservation des données de facturation, lutte contre la fraude</p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              6. Partage des données
-            </h2>
-            <p className="text-gray-700 mb-4">
-              Nous ne vendons JAMAIS vos données. Nous les partageons uniquement avec :
-            </p>
-            <div className="space-y-3">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="font-semibold text-gray-900 mb-1">Processeurs de paiement</p>
-                <p className="text-gray-600 text-sm">Pour traiter vos transactions (ex: Stripe, Wave, Orange Money)</p>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="font-semibold text-gray-900 mb-1">Fournisseurs d'infrastructure</p>
-                <p className="text-gray-600 text-sm">Hébergement sécurisé </p>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="font-semibold text-gray-900 mb-1">Outils d'analyse</p>
-                <p className="text-gray-600 text-sm">Pour améliorer nos services (données anonymisées)</p>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="font-semibold text-gray-900 mb-1">Autorités légales</p>
-                <p className="text-gray-600 text-sm">Si requis par la loi ou pour protéger nos droits</p>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              7. Durée de conservation
-            </h2>
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-xl">
-              <ul className="space-y-2 text-gray-700">
-                <li><strong>Compte actif :</strong> Tant que votre compte existe</li>
-                <li><strong>Après suppression du compte :</strong> 30 jours (puis suppression complète)</li>
-                <li><strong>Données de facturation :</strong> 10 ans (obligation légale)</li>
-                <li><strong>Cookies :</strong> Maximum 13 mois</li>
-                <li><strong>Logs techniques :</strong> 12 mois maximum</li>
-              </ul>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              8. Sécurité des données
-            </h2>
-            <p className="text-gray-700 mb-4">
-              Nous mettons en œuvre des mesures de sécurité strictes :
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-green-50 rounded-lg p-4">
-                <p className="font-semibold text-green-900 mb-1">🔒 Cryptage SSL/TLS</p>
-                <p className="text-green-700 text-sm">Toutes les communications sont cryptées</p>
-              </div>
-              <div className="bg-green-50 rounded-lg p-4">
-                <p className="font-semibold text-green-900 mb-1">🔐 Mots de passe cryptés</p>
-                <p className="text-green-700 text-sm">Avec algorithme bcrypt</p>
-              </div>
-              <div className="bg-green-50 rounded-lg p-4">
-                <p className="font-semibold text-green-900 mb-1">🛡️ Pare-feu et monitoring</p>
-                <p className="text-green-700 text-sm">Protection contre les attaques</p>
-              </div>
-              <div className="bg-green-50 rounded-lg p-4">
-                <p className="font-semibold text-green-900 mb-1">💾 Sauvegardes régulières</p>
-                <p className="text-green-700 text-sm">Données sauvegardées quotidiennement</p>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              9. Vos droits (RGPD)
-            </h2>
-            <p className="text-gray-700 mb-4">
-              Conformément au RGPD, vous disposez des droits suivants :
-            </p>
-            <div className="space-y-3">
-              <div className="border-l-4 border-purple-500 pl-4 py-2">
-                <p className="font-bold text-gray-900">✓ Droit d'accès</p>
-                <p className="text-gray-600 text-sm">Obtenir une copie de vos données</p>
-              </div>
-              <div className="border-l-4 border-blue-500 pl-4 py-2">
-                <p className="font-bold text-gray-900">✓ Droit de rectification</p>
-                <p className="text-gray-600 text-sm">Corriger vos données inexactes</p>
-              </div>
-              <div className="border-l-4 border-red-500 pl-4 py-2">
-                <p className="font-bold text-gray-900">✓ Droit à l'effacement</p>
-                <p className="text-gray-600 text-sm">Supprimer vos données (droit à l'oubli)</p>
-              </div>
-              <div className="border-l-4 border-green-500 pl-4 py-2">
-                <p className="font-bold text-gray-900">✓ Droit à la portabilité</p>
-                <p className="text-gray-600 text-sm">Récupérer vos données dans un format lisible</p>
-              </div>
-              <div className="border-l-4 border-orange-500 pl-4 py-2">
-                <p className="font-bold text-gray-900">✓ Droit d'opposition</p>
-                <p className="text-gray-600 text-sm">Vous opposer au traitement de vos données</p>
-              </div>
-            </div>
-            
-            <div className="mt-6 bg-purple-50 rounded-xl p-6">
-              <p className="font-bold text-purple-900 mb-2">
-                Comment exercer vos droits ?
-              </p>
-              <p className="text-purple-700 mb-3">
-                Contactez-nous à <a href="mailto:privacy@bookzy.io" className="underline font-semibold">privacy@bookzy.io</a>
-              </p>
-              <p className="text-purple-600 text-sm">
-                Nous répondrons dans un délai maximum de 30 jours.
-              </p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              10. Cookies
-            </h2>
-            <p className="text-gray-700 mb-3">
-              Nous utilisons des cookies pour améliorer votre expérience. 
-              Pour plus d'informations, consultez notre{" "}
-              <Link href="/legal/cookies" className="text-purple-600 hover:underline font-semibold">
-                Politique des Cookies
-              </Link>.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              11. Mineurs
-            </h2>
-            <div className="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-xl">
-              <p className="text-red-900 font-bold mb-2">
-                ⚠️ Service réservé aux adultes
-              </p>
-              <p className="text-red-700">
-                Bookzy est destiné aux personnes de 18 ans et plus. Nous ne collectons pas 
-                sciemment de données auprès de mineurs.
-              </p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              12. Contact
-            </h2>
-            <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl p-6 border-2 border-slate-200">
-              <p className="font-bold text-gray-900 mb-4">
-                Pour toute question concernant cette politique :
-              </p>
-              <div className="space-y-2 text-gray-700">
-                <p>📧 <strong>Email :</strong> <a href="mailto:privacy@bookzy.io" className="text-slate-900 hover:underline">privacy@bookzy.io</a></p>
-                <p>💬 <strong>Support :</strong> <a href="mailto:support@bookzy.io" className="text-slate-900 hover:underline">support@bookzy.io</a></p>
-                <p>🌐 <strong>Site :</strong> <a href="https://bookzy.io" className="text-slate-900 hover:underline">www.bookzy.io</a></p>
-              </div>
-            </div>
-          </section>
-
-        </div>
-
-        {/* Back button */}
-        <div className="mt-8 text-center">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-slate-900 hover:text-slate-700 font-semibold transition-colors"
-          >
-            ← Retour à l'accueil
+    <div className="min-h-screen bg-[#FDFDFD] font-sans selection:bg-indigo-100">
+      
+      {/* --- MINI HEADER --- */}
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 group">
+             <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center transition-transform group-hover:scale-105">
+                <ShieldCheck className="w-4 h-4 text-white" />
+             </div>
+             <span className="font-bold text-slate-900">Bookzy <span className="text-slate-400 font-medium">Legal</span></span>
+          </Link>
+          <Link href="/" className="text-sm font-bold text-slate-500 hover:text-slate-900 flex items-center gap-1.5 transition-colors">
+            <ArrowLeft className="w-4 h-4" /> Retour
           </Link>
         </div>
+      </nav>
 
+      <div className="max-w-7xl mx-auto px-6 py-12 lg:py-20">
+        <div className="flex flex-col lg:flex-row gap-16">
+          
+          {/* --- SOMMAIRE (SIDEBAR) --- */}
+          <aside className="hidden lg:block w-64 flex-shrink-0 sticky top-32 h-fit">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">Sommaire</p>
+            <ul className="space-y-4">
+              {sections.map((s) => (
+                <li key={s.id}>
+                  <button 
+                    onClick={() => scrollTo(s.id)}
+                    className="text-sm font-semibold text-slate-500 hover:text-indigo-600 flex items-center gap-2 transition-colors group"
+                  >
+                    <div className="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover:bg-indigo-600 transition-colors"></div>
+                    {s.title}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-12 p-6 bg-slate-50 rounded-2xl border border-slate-100">
+               <Lock className="w-5 h-5 text-slate-400 mb-3" />
+               <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                  Vos données sont protégées par le chiffrement de bout en bout conforme au RGPD.
+               </p>
+            </div>
+          </aside>
+
+          {/* --- CONTENU PRINCIPAL --- */}
+          <main className="flex-1 max-w-3xl">
+            
+            {/* Header Content */}
+            <div className="mb-16">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-[10px] font-bold uppercase tracking-wider mb-6">
+                <Clock className="w-3 h-3" /> Mise à jour : 26 Nov. 2024
+              </div>
+              <h1 className="text-4xl lg:text-6xl font-black text-slate-900 tracking-tight mb-6">
+                Politique de <br /><span className="text-indigo-600">Confidentialité</span>
+              </h1>
+              <p className="text-xl text-slate-500 leading-relaxed font-medium">
+                Chez Bookzy, la protection de votre vie privée n'est pas une option. 
+                Voici comment nous traitons vos données avec transparence et respect.
+              </p>
+            </div>
+
+            <div className="prose prose-slate prose-lg max-w-none">
+              
+              <section id="intro" className="mb-16 scroll-mt-32">
+                <h2 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
+                   <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-900 text-sm">01</div>
+                   Introduction
+                </h2>
+                <p className="text-slate-600 font-medium leading-relaxed">
+                  Bookzy s'engage à protéger la confidentialité de vos données personnelles. 
+                  Cette politique explique comment nous collectons, utilisons et protégeons vos informations 
+                  conformément au <strong>Règlement Général sur la Protection des Données (RGPD)</strong>.
+                </p>
+              </section>
+
+              <section id="responsable" className="mb-16 scroll-mt-32">
+                <h2 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
+                   <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-900 text-sm">02</div>
+                   Responsable du traitement
+                </h2>
+                <div className="p-8 bg-white border border-slate-200 rounded-3xl shadow-sm space-y-4">
+                   <div className="flex justify-between items-center border-b border-slate-50 pb-4">
+                      <span className="text-sm font-bold text-slate-400">Entreprise</span>
+                      <span className="text-sm font-bold text-slate-900">Blinko LLC</span>
+                   </div>
+                   <div className="flex justify-between items-center border-b border-slate-50 pb-4">
+                      <span className="text-sm font-bold text-slate-400">Siège Social</span>
+                      <span className="text-sm font-bold text-slate-900 text-right">Bronx, NY 10454, USA</span>
+                   </div>
+                   <div className="flex justify-between items-center">
+                      <span className="text-sm font-bold text-slate-400">Délégué Protection</span>
+                      <span className="text-sm font-bold text-indigo-600 underline">privacy@bookzy.io</span>
+                   </div>
+                </div>
+              </section>
+
+              <section id="collecte" className="mb-16 scroll-mt-32">
+                <h2 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
+                   <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-900 text-sm">03</div>
+                   Données collectées
+                </h2>
+                <div className="grid gap-4">
+                   {[
+                     { title: "Identité", desc: "Nom, Email, Photo de profil", icon: UserCheck, color: "blue" },
+                     { title: "Paiement", desc: "Transactions sécurisées (PCI-DSS)", icon: ShieldCheck, color: "green" },
+                     { title: "Technique", desc: "Adresse IP, Navigateur, Session", icon: Eye, color: "indigo" }
+                   ].map((item, i) => (
+                      <div key={i} className="flex items-center gap-6 p-6 rounded-2xl bg-white border border-slate-100 hover:border-indigo-100 transition-colors">
+                         <div className={`w-12 h-12 rounded-xl bg-${item.color}-50 text-${item.color}-600 flex items-center justify-center flex-shrink-0`}>
+                            <item.icon className="w-6 h-6" />
+                         </div>
+                         <div>
+                            <h4 className="font-bold text-slate-900 text-base">{item.title}</h4>
+                            <p className="text-sm text-slate-500 font-medium">{item.desc}</p>
+                         </div>
+                      </div>
+                   ))}
+                </div>
+              </section>
+
+              <section id="finalites" className="mb-16 scroll-mt-32">
+                <h2 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
+                   <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-900 text-sm">04</div>
+                   Pourquoi vos données ?
+                </h2>
+                <ul className="space-y-4">
+                   {["Fourniture du service de génération IA", "Traitement sécurisé des transactions", "Amélioration continue des algorithmes", "Support technique personnalisé"].map((text, i) => (
+                      <li key={i} className="flex items-center gap-3 text-slate-600 font-medium">
+                         <div className="w-5 h-5 rounded-full bg-green-50 text-green-600 flex items-center justify-center flex-shrink-0">
+                            <span className="text-[10px] font-bold">✓</span>
+                         </div>
+                         {text}
+                      </li>
+                   ))}
+                </ul>
+              </section>
+
+              <section id="partage" className="mb-16 scroll-mt-32">
+                <h2 className="text-2xl font-black text-slate-900 mb-6">Partage et Vente</h2>
+                <div className="p-8 bg-indigo-900 rounded-3xl text-white relative overflow-hidden">
+                   <div className="absolute top-0 right-0 p-8 opacity-10">
+                      <ShieldCheck size={120} />
+                   </div>
+                   <h3 className="text-xl font-bold mb-4 relative z-10">Engagement Zéro Revente</h3>
+                   <p className="text-indigo-100 leading-relaxed font-medium relative z-10">
+                      Nous ne vendons <strong>JAMAIS</strong> vos données personnelles à des tiers. 
+                      Le partage de données se limite exclusivement aux prestataires techniques indispensables 
+                      (Hébergeur, Processeur de paiement) sous contrats de confidentialité stricts.
+                   </p>
+                </div>
+              </section>
+
+              <section id="droits" className="mb-16 scroll-mt-32">
+                 <h2 className="text-2xl font-black text-slate-900 mb-6">Vos droits fondamentaux</h2>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {["Droit d'accès", "Droit de suppression", "Portabilité des données", "Droit d'opposition"].map((droit, i) => (
+                      <div key={i} className="p-5 rounded-2xl border border-slate-100 flex items-center justify-between group hover:bg-slate-50 transition-all cursor-pointer">
+                         <span className="font-bold text-slate-700">{droit}</span>
+                         <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-600 transition-colors" />
+                      </div>
+                    ))}
+                 </div>
+              </section>
+
+              <section id="contact" className="mb-16 scroll-mt-32 p-8 rounded-3xl bg-slate-900 text-white">
+                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+                    <div>
+                       <h3 className="text-2xl font-bold mb-2">Une question ?</h3>
+                       <p className="text-slate-400 font-medium">Notre équipe DPO vous répond sous 48h.</p>
+                    </div>
+                    <a 
+                      href="mailto:privacy@bookzy.io" 
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold transition-all"
+                    >
+                       <Mail className="w-4 h-4" /> Nous écrire
+                    </a>
+                 </div>
+              </section>
+
+            </div>
+          </main>
+        </div>
       </div>
+      
+      {/* Footer minimal */}
+      <footer className="border-t border-slate-100 py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+           <p className="text-sm text-slate-400 font-medium">© 2024 Bookzy - Tous droits réservés.</p>
+           <div className="flex gap-8">
+              <Link href="/legal/cgu" className="text-sm font-bold text-slate-500 hover:text-slate-900">CGU</Link>
+              <Link href="/legal/mentions" className="text-sm font-bold text-slate-500 hover:text-slate-900">Mentions Légales</Link>
+           </div>
+        </div>
+      </footer>
     </div>
   );
 }

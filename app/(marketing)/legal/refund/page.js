@@ -1,312 +1,199 @@
-// app/legal/refund/page.jsx
+"use client";
 
 import Link from "next/link";
-
-export const metadata = {
-  title: "Politique de Remboursement | Bookzy",
-  description: "Conditions de remboursement sur Bookzy"
-};
+import { 
+  RefreshCcw, 
+  ShieldCheck, 
+  XCircle, 
+  CheckCircle2, 
+  HelpCircle, 
+  Mail, 
+  ArrowLeft,
+  FileText,
+  Smartphone,
+  Layout,
+  Clock,
+  Wallet
+} from "lucide-react";
 
 export default function RefundPolicy() {
+  
+  const scrollTo = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      window.scrollTo({ top: element.offsetTop - 100, behavior: "smooth" });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 py-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Header */}
-        <div className="bg-white rounded-2xl p-8 md:p-12 mb-8 shadow-lg">
-          {/* Logo Bookzy */}
-          <div className="flex justify-center mb-8">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-11 h-11 rounded-lg bg-slate-900 flex items-center justify-center shadow-lg shadow-slate-900/20 transition-transform group-hover:scale-105">
-                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                </svg>
-              </div>
-              <span className="text-2xl font-extrabold tracking-tight text-slate-900">
-                Bookzy
-              </span>
-            </Link>
-          </div>
-
-          <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-4 text-center">
-            Politique de Remboursement
-          </h1>
-          <p className="text-gray-600 text-center">
-            Dernière mise à jour : 26 novembre 2024
-          </p>
-        </div>
-
-        {/* Content */}
-        <div className="bg-white rounded-2xl p-8 md:p-12 shadow-lg space-y-8">
-          
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              1. Principe général
-            </h2>
-            <p className="text-gray-700 leading-relaxed">
-              Bookzy s'engage à fournir un service de qualité. Si vous n'êtes pas satisfait, 
-              nous proposons des remboursements sous certaines conditions détaillées ci-dessous.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              2. Tarification
-            </h2>
-            <div className="bg-blue-50 rounded-xl p-6 border-2 border-blue-200">
-              <p className="text-blue-900 font-bold mb-2">
-                💰 Prix par génération : 2 000 FCFA
-              </p>
-              <p className="text-blue-800 text-sm">
-                Chaque génération complète (ebook + couverture 3D + 2 affiches + textes marketing) 
-                coûte 2 000 FCFA. Le paiement est effectué avant la génération du contenu.
-              </p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              3. Conditions de remboursement
-            </h2>
-            
-            <div className="space-y-4">
-              <div className="bg-green-50 border-l-4 border-green-500 p-6 rounded-r-xl">
-                <p className="font-bold text-green-900 mb-3">✓ Vous pouvez demander un remboursement si :</p>
-                <ul className="list-disc pl-6 space-y-2 text-green-800">
-                  <li>La génération a échoué et vous n'avez reçu AUCUN fichier</li>
-                  <li>Vous avez été facturé deux fois pour la même génération (erreur système)</li>
-                  <li>La demande est faite dans les 24 heures suivant le paiement</li>
-                  <li>Vous rencontrez un problème technique majeur empêchant la génération</li>
-                  <li>Les fichiers générés sont corrompus ou impossibles à ouvrir</li>
-                </ul>
-              </div>
-
-              <div className="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-xl">
-                <p className="font-bold text-red-900 mb-3">✗ Aucun remboursement n'est possible si :</p>
-                <ul className="list-disc pl-6 space-y-2 text-red-800">
-                  <li>La génération a réussi et vous avez reçu tous les fichiers</li>
-                  <li>Vous êtes insatisfait de la qualité ou du style du contenu généré (subjectif)</li>
-                  <li>Vous avez changé d'avis après avoir téléchargé les fichiers</li>
-                  <li>La demande est faite après le délai de 24 heures</li>
-                  <li>Vous avez violé nos Conditions Générales d'Utilisation</li>
-                  <li>Votre compte a été suspendu pour non-respect des règles</li>
-                </ul>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              4. Délais et procédure
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="bg-blue-50 rounded-xl p-6 text-center">
-                <p className="text-4xl font-black text-blue-600 mb-2">24h</p>
-                <p className="text-blue-900 text-sm font-semibold">Délai pour demander</p>
-              </div>
-              <div className="bg-purple-50 rounded-xl p-6 text-center">
-                <p className="text-4xl font-black text-purple-600 mb-2">48h</p>
-                <p className="text-purple-900 text-sm font-semibold">Réponse de notre équipe</p>
-              </div>
-              <div className="bg-green-50 rounded-xl p-6 text-center">
-                <p className="text-4xl font-black text-green-600 mb-2">5-10 jours</p>
-                <p className="text-green-900 text-sm font-semibold">Remboursement effectif</p>
-              </div>
-            </div>
-
-            <div className="bg-gray-50 rounded-xl p-6">
-              <h3 className="font-bold text-gray-900 mb-4">Comment demander un remboursement :</h3>
-              <ol className="list-decimal pl-6 space-y-3 text-gray-700">
-                <li>
-                  <strong>Contactez notre support</strong> à{" "}
-                  <a href="mailto:support@bookzy.io" className="text-slate-900 hover:underline font-semibold">
-                    support@bookzy.io
-                  </a>
-                </li>
-                <li><strong>Indiquez votre numéro de transaction</strong> et la date de paiement</li>
-                <li><strong>Décrivez le problème rencontré</strong> (génération échouée, fichiers corrompus, etc.)</li>
-                <li><strong>Fournissez des preuves</strong> si possible (captures d'écran, messages d'erreur)</li>
-                <li><strong>Attendez notre réponse</strong> sous 48h maximum</li>
-                <li><strong>Recevez votre remboursement</strong> par le même moyen de paiement utilisé</li>
-              </ol>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              5. Montant du remboursement
-            </h2>
-            <div className="space-y-3 text-gray-700">
-              <p><strong>• Remboursement intégral (2 000 FCFA) :</strong> Si la génération a totalement échoué</p>
-              <p><strong>• Double paiement :</strong> Remboursement automatique de la transaction en double</p>
-              <p><strong>• Frais de transaction :</strong> Les frais de paiement mobile (si applicables) ne sont pas remboursables</p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              6. Cas spécifiques
-            </h2>
-            
-            <div className="space-y-4">
-              <div className="bg-blue-50 rounded-xl p-6">
-                <h3 className="font-bold text-blue-900 mb-3">📄 Fichiers corrompus ou impossibles à ouvrir</h3>
-                <p className="text-blue-800 mb-3">
-                  Si les fichiers générés sont corrompus :
-                </p>
-                <ol className="list-decimal pl-6 space-y-2 text-blue-700 text-sm">
-                  <li>Contactez-nous immédiatement avec captures d'écran de l'erreur</li>
-                  <li>Nous vérifierons les fichiers de notre côté</li>
-                  <li>Si confirmé, nous relancerons la génération GRATUITEMENT</li>
-                  <li>Si le problème persiste, remboursement intégral</li>
-                </ol>
-              </div>
-
-              <div className="bg-purple-50 rounded-xl p-6">
-                <h3 className="font-bold text-purple-900 mb-3">⚠️ Génération incomplète</h3>
-                <p className="text-purple-800 mb-3">
-                  Si vous avez reçu seulement une partie des fichiers (ex: ebook mais pas de couverture) :
-                </p>
-                <ol className="list-decimal pl-6 space-y-2 text-purple-700 text-sm">
-                  <li>Contactez support@bookzy.io avec les détails</li>
-                  <li>Nous générerons les fichiers manquants GRATUITEMENT</li>
-                  <li>Aucun remboursement si tous les fichiers sont finalement fournis</li>
-                </ol>
-              </div>
-
-              <div className="bg-orange-50 rounded-xl p-6">
-                <h3 className="font-bold text-orange-900 mb-3">🔄 Erreur de paiement</h3>
-                <p className="text-orange-800 mb-3">
-                  Si votre compte a été débité mais aucune génération n'a été lancée :
-                </p>
-                <ol className="list-decimal pl-6 space-y-2 text-orange-700 text-sm">
-                  <li>Vérifiez votre historique de transactions dans votre compte</li>
-                  <li>Si aucune génération ne correspond, contactez-nous</li>
-                  <li>Remboursement automatique sous 48h après vérification</li>
-                </ol>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              7. Moyens de remboursement
-            </h2>
-            <p className="text-gray-700 mb-4">
-              Le remboursement est effectué par le même moyen de paiement utilisé lors de l'achat :
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="font-semibold text-gray-900 mb-1">💳 Carte bancaire</p>
-                <p className="text-gray-600 text-sm">Remboursement sur votre carte sous 5-10 jours ouvrés</p>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="font-semibold text-gray-900 mb-1">📱 Mobile Money</p>
-                <p className="text-gray-600 text-sm">Remboursement sur votre compte sous 3-5 jours (Orange Money, Wave, etc.)</p>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              8. Exceptions (Pas de remboursement)
-            </h2>
-            <div className="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-r-xl">
-              <p className="font-bold text-yellow-900 mb-2">⚠️ Pas de remboursement dans ces cas :</p>
-              <ul className="list-disc pl-6 space-y-2 text-yellow-800">
-                <li><strong>Qualité subjective :</strong> Vous n'aimez pas le style, le ton ou le design généré</li>
-                <li><strong>Changement d'avis :</strong> Vous ne voulez plus de l'ebook après l'avoir téléchargé</li>
-                <li><strong>Erreur de votre part :</strong> Vous avez fait une faute dans le titre ou la description</li>
-                <li><strong>Alternative trouvée :</strong> Vous avez trouvé une autre solution ailleurs</li>
-                <li><strong>Fichiers téléchargés :</strong> Vous avez déjà téléchargé tous les fichiers avec succès</li>
-                <li><strong>Délai dépassé :</strong> Demande faite après 24 heures</li>
-                <li><strong>Compte banni :</strong> Violation des CGU</li>
-              </ul>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              9. Garantie de satisfaction
-            </h2>
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
-              <p className="font-bold text-green-900 mb-3">
-                🎯 Notre engagement qualité
-              </p>
-              <p className="text-green-800 mb-3">
-                Nous sommes confiants dans la qualité de notre service. Si la génération échoue 
-                techniquement et que vous respectez les conditions ci-dessus, nous vous rembourserons 
-                ou relancerons la génération gratuitement.
-              </p>
-              <p className="text-green-700 text-sm italic">
-                Notre objectif est votre satisfaction. Si un problème technique empêche la génération, 
-                nous le résolvons ou remboursons.
-              </p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              10. Alternative au remboursement
-            </h2>
-            <div className="bg-purple-50 rounded-xl p-6 border-2 border-purple-200">
-              <p className="font-bold text-purple-900 mb-3">
-                🔄 Relance de génération gratuite
-              </p>
-              <p className="text-purple-800 mb-3">
-                Dans la plupart des cas, au lieu d'un remboursement, nous proposons de relancer 
-                la génération gratuitement. Cela vous permet d'obtenir votre contenu sans attendre 
-                le délai de remboursement.
-              </p>
-              <p className="text-purple-700 text-sm">
-                Cette option est disponible pour : fichiers corrompus, génération incomplète, 
-                erreurs techniques.
-              </p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              11. Litiges
-            </h2>
-            <p className="text-gray-700">
-              En cas de désaccord concernant un remboursement, vous pouvez escalader votre demande à{" "}
-              <a href="mailto:legal@bookzy.io" className="text-slate-900 hover:underline font-semibold">
-                legal@bookzy.io
-              </a>. Nous nous engageons à traiter chaque cas de manière juste et transparente.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              12. Contact
-            </h2>
-            <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl p-6 border-2 border-slate-200">
-              <p className="font-bold text-gray-900 mb-4">
-                Pour toute demande de remboursement :
-              </p>
-              <div className="space-y-2 text-gray-700">
-                <p>📧 <strong>Email prioritaire :</strong> <a href="mailto:support@bookzy.io" className="text-slate-900 hover:underline">support@bookzy.io</a></p>
-                <p>⚖️ <strong>Litiges :</strong> <a href="mailto:legal@bookzy.io" className="text-slate-900 hover:underline">legal@bookzy.io</a></p>
-                <p>🌐 <strong>Site :</strong> <a href="https://bookzy.io" className="text-slate-900 hover:underline">www.bookzy.io</a></p>
-              </div>
-            </div>
-          </section>
-
-        </div>
-
-        {/* Back button */}
-        <div className="mt-8 text-center">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-slate-900 hover:text-slate-700 font-semibold transition-colors"
-          >
-            ← Retour à l'accueil
+    <div className="min-h-screen bg-[#FDFDFD] font-sans selection:bg-red-50">
+      
+      {/* --- MINI HEADER --- */}
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 group">
+             <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center transition-transform group-hover:scale-105">
+                <RefreshCcw className="w-4 h-4 text-white" />
+             </div>
+             <span className="font-bold text-slate-900">Bookzy <span className="text-slate-400 font-medium">Refund</span></span>
+          </Link>
+          <Link href="/" className="text-sm font-bold text-slate-500 hover:text-slate-900 flex items-center gap-1.5 transition-colors">
+            <ArrowLeft className="w-4 h-4" /> Retour
           </Link>
         </div>
+      </nav>
 
+      <div className="max-w-7xl mx-auto px-6 py-12 lg:py-20">
+        
+        {/* --- HERO SECTION --- */}
+        <div className="max-w-3xl mb-16">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-red-700 text-[10px] font-bold uppercase tracking-wider mb-6">
+                <ShieldCheck className="w-3 h-3" /> Garantie de Service
+            </div>
+            <h1 className="text-4xl lg:text-6xl font-black text-slate-900 tracking-tight mb-6 leading-tight">
+                Transparence sur <br /><span className="text-red-600">nos remboursements.</span>
+            </h1>
+            <p className="text-xl text-slate-500 leading-relaxed font-medium">
+                Notre priorité est votre succès. En raison de la nature numérique instantanée 
+                de nos produits (IA), voici les règles qui encadrent nos services.
+            </p>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-16">
+          
+          <div className="flex-1 max-w-4xl space-y-20">
+            
+            {/* 1. OFFRE COMPLÈTE */}
+            <section id="offre">
+                <h2 className="text-2xl font-black text-slate-900 mb-6">1. Ce que comprend votre achat</h2>
+                <div className="p-8 bg-slate-900 rounded-[32px] text-white">
+                    <p className="text-slate-400 text-sm font-bold mb-6 uppercase tracking-widest">Le Pack Bookzy à 2 000 FCFA :</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {[
+                            { icon: FileText, t: "Ebook Pro PDF", d: "Design & Contenu IA" },
+                            { icon: Layout, t: "Page de Vente", d: "Copywriting complet" },
+                            { icon: Smartphone, t: "Pack Réseaux", d: "Facebook & WhatsApp" },
+                            { icon: CheckCircle2, t: "Prêt à l'emploi", d: "Téléchargement immédiat" }
+                        ].map((item, i) => (
+                            <div key={i} className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
+                                <item.icon className="w-5 h-5 text-red-400" />
+                                <div>
+                                    <p className="font-bold text-sm">{item.t}</p>
+                                    <p className="text-[10px] text-slate-400 font-medium">{item.d}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* 2. CONDITIONS (VERTS / ROUGE) */}
+            <section id="conditions">
+                <h2 className="text-2xl font-black text-slate-900 mb-8">2. Conditions de remboursement</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* ÉLIGIBLE */}
+                    <div className="p-8 bg-emerald-50/50 border border-emerald-100 rounded-[32px]">
+                        <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mb-6">
+                            <CheckCircle2 className="w-6 h-6" />
+                        </div>
+                        <h3 className="text-lg font-black text-emerald-900 mb-4">Remboursement accepté</h3>
+                        <ul className="space-y-3">
+                            {["Échec technique de génération", "Double facturation système", "Fichiers corrompus/illisibles", "Demande sous 24h avant téléchargement"].map((t, i) => (
+                                <li key={i} className="flex items-start gap-2 text-sm text-emerald-700 font-semibold">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0"></div>
+                                    {t}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    {/* REFUSÉ */}
+                    <div className="p-8 bg-red-50/50 border border-red-100 rounded-[32px]">
+                        <div className="w-10 h-10 bg-red-100 text-red-600 rounded-xl flex items-center justify-center mb-6">
+                            <XCircle className="w-6 h-6" />
+                        </div>
+                        <h3 className="text-lg font-black text-red-900 mb-4">Remboursement refusé</h3>
+                        <ul className="space-y-3">
+                            {["Génération réussie", "Insatisfaction subjective du style", "Changement d'avis après téléchargement", "Erreur de titre/sujet par l'utilisateur"].map((t, i) => (
+                                <li key={i} className="flex items-start gap-2 text-sm text-red-700 font-semibold">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-shrink-0"></div>
+                                    {t}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            {/* 3. DÉLAIS (TIMELINE) */}
+            <section id="delais">
+                <h2 className="text-2xl font-black text-slate-900 mb-8">3. Délais et Procédure</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    {[
+                        { icon: Clock, t: "24 Heures", d: "Pour soumettre votre demande" },
+                        { icon: Mail, t: "48 Heures", d: "Temps moyen de réponse" },
+                        { icon: Wallet, t: "3 à 7 Jours", d: "Remboursement effectif" }
+                    ].map((item, i) => (
+                        <div key={i} className="p-6 bg-white border border-slate-100 rounded-3xl text-center">
+                            <div className="w-10 h-10 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <item.icon className="w-5 h-5" />
+                            </div>
+                            <p className="font-black text-slate-900 mb-1">{item.t}</p>
+                            <p className="text-xs text-slate-500 font-medium">{item.d}</p>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* 4. ALTERNATIVE */}
+            <section id="alternative">
+                <div className="p-10 bg-indigo-50 rounded-[40px] border border-indigo-100 flex flex-col md:flex-row items-center gap-8">
+                    <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-200">
+                        <RefreshCcw className="w-8 h-8 text-white" />
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-bold text-indigo-900 mb-2">Relance gratuite de génération</h3>
+                        <p className="text-indigo-700 font-medium leading-relaxed">
+                            Si votre ebook présente un défaut technique, nous relançons la génération 
+                            immédiatement et <strong>gratuitement</strong>. C'est l'option la plus rapide pour obtenir votre produit.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            {/* CONTACT */}
+            <section className="pt-12 border-t border-slate-100">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-8 p-10 bg-slate-50 rounded-[32px]">
+                    <div>
+                        <p className="text-xl font-black text-slate-900 mb-2">Besoin d'aide ?</p>
+                        <p className="text-slate-500 font-medium">Contactez notre support client dédié.</p>
+                    </div>
+                    <a 
+                      href="mailto:support@bookzy.io" 
+                      className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black shadow-xl hover:scale-105 transition-transform"
+                    >
+                        support@bookzy.io
+                    </a>
+                </div>
+            </section>
+
+          </div>
+
+          {/* --- SIDEBAR --- */}
+          <aside className="hidden lg:block w-72 flex-shrink-0 sticky top-32 h-fit">
+              <div className="p-8 bg-white border border-slate-100 rounded-[32px] shadow-sm">
+                  <HelpCircle className="w-6 h-6 text-slate-300 mb-4" />
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Juridique</p>
+                  <p className="text-sm font-black text-slate-900 mb-6">Mise à jour : Nov. 2024</p>
+                  
+                  <div className="space-y-4 pt-6 border-t border-slate-50">
+                      <Link href="/legal/confidentialite" className="text-xs font-bold text-slate-500 hover:text-slate-900 block">Politique de confidentialité</Link>
+                      <Link href="/legal/cookies" className="text-xs font-bold text-slate-500 hover:text-slate-900 block">Gestion des cookies</Link>
+                  </div>
+              </div>
+          </aside>
+
+        </div>
       </div>
     </div>
   );

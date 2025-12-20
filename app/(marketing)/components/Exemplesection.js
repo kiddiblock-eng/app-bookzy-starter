@@ -67,7 +67,7 @@ export default function ExamplesSection() {
   };
 
   return (
-    <section className="relative bg-slate-50 py-24 lg:py-32 overflow-hidden">
+    <section id="examples" className="relative bg-slate-50 py-24 lg:py-32 overflow-hidden">
       
       <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:20px_20px] opacity-50"></div>
       <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-transparent to-white/80"></div>
