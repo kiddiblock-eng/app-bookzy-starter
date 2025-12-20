@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react"; // ✅ Ajouté pour le blocage du scroll
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -18,6 +19,18 @@ import {
 
 export default function DashboardSidebar({ open, setOpen }) {
   const pathname = usePathname();
+
+  // ✅ BLOQUER LE SCROLL QUAND LE MENU EST OUVERT
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [open]);
 
   const menuItems = [
     { label: "Accueil", href: "/dashboard", icon: Home, exact: true },
@@ -38,8 +51,17 @@ export default function DashboardSidebar({ open, setOpen }) {
     return pathname === href || pathname.startsWith(href + "/");
   };
 
-  const handleLogout = () => {
-    window.location.href = "/auth/login"; 
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { 
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion", error);
+    } finally {
+      window.location.href = "/auth/login"; 
+    }
   };
 
   return (
@@ -49,7 +71,6 @@ export default function DashboardSidebar({ open, setOpen }) {
         className={`hidden lg:flex flex-col fixed left-0 top-0 z-40 h-screen w-[280px] 
         bg-white border-r border-slate-100 transition-all duration-300 shadow-[2px_0_20px_rgba(0,0,0,0.02)]`}
       >
-        {/* LOGO */}
         <div className="h-20 flex items-center px-8">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center shadow-md transition-all group-hover:scale-105">
@@ -59,7 +80,6 @@ export default function DashboardSidebar({ open, setOpen }) {
           </Link>
         </div>
 
-        {/* ACTION PRINCIPALE : TEXTE "GÉNÉRER" */}
         <div className="px-6 pb-2">
             <Link
                 href="/dashboard/projets/nouveau"
@@ -68,14 +88,11 @@ export default function DashboardSidebar({ open, setOpen }) {
                 <div className="bg-white/20 p-1 rounded-md group-hover:bg-white/30 transition-colors">
                     <Plus size={16} strokeWidth={3} />
                 </div>
-                {/* ✅ TEXTE MIS À JOUR */}
                 <span className="tracking-wide text-sm">Générer un ebook</span>
             </Link>
         </div>
 
-        {/* NAVIGATION */}
         <nav className="flex-1 px-4 py-6 overflow-y-auto flex flex-col gap-8 scrollbar-hide">
-          
           <div>
               <p className="px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">Menu Principal</p>
               <ul className="space-y-1">
@@ -135,7 +152,6 @@ export default function DashboardSidebar({ open, setOpen }) {
           </div>
         </nav>
 
-        {/* FOOTER SIMPLE */}
         <div className="p-4 border-t border-slate-50 mt-auto">
           <button
             onClick={handleLogout}
@@ -173,7 +189,6 @@ export default function DashboardSidebar({ open, setOpen }) {
              </div>
 
              <div className="p-6 pb-2">
-                 {/* ✅ TEXTE MIS À JOUR MOBILE */}
                  <Link href="/dashboard/projets/nouveau" onClick={() => setOpen(false)} className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg">
                     <Plus size={18} /> Générer un ebook
                  </Link>
