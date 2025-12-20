@@ -43,8 +43,13 @@ export default function FichiersPage() {
     pages: e.pages || 0,
     fileUrl: e.fileUrl || "",
     coverUrl: e.coverUrl || null,
-    hasAds: (e.adsTexts?.facebook || e.adsTexts?.whatsapp || e.marketingDescription),
-    hasImages: Array.isArray(e.adsImages) && e.adsImages.length > 0,
+    
+    // 🔥 C'EST ICI LA CORRECTION 🔥
+    // On utilise les indicateurs (Vrai/Faux) envoyés par ton API optimisée
+    // Au lieu de chercher le texte (qui est vide pour la vitesse)
+    hasAds: e.hasMarketing, 
+    hasImages: e.hasVisuels, 
+    
     hasPdf: !!e.fileUrl
   })).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
@@ -153,6 +158,8 @@ function FileCard({ kit }) {
                             <FileText className="w-3 h-3"/> PDF
                         </span>
                     )}
+                    
+                    {/* Les badges s'afficheront maintenant correctement 👇 */}
                     {kit.hasAds && (
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-[10px] font-bold border border-blue-100">
                             <MessageCircle className="w-3 h-3"/> Marketing

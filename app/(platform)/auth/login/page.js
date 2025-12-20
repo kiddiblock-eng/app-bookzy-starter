@@ -3,30 +3,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSWRConfig } from "swr"; // ✅ Ajout pour nettoyer le cache
 import { 
-  Loader2, 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  CheckCircle2, 
-  AlertCircle,
-  ArrowRight,
-  ShieldCheck
+  Loader2, Mail, Lock, Eye, EyeOff, CheckCircle2, 
+  AlertCircle, ArrowRight, ShieldCheck
 } from "lucide-react";
 
-/* --- LOGO SVG INTERNE (Pour un affichage parfait) --- */
+/* --- LOGO SVG --- */
 function BookOpenSVG(props) {
     return (
-        <svg 
-            {...props}
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2.5" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-        >
+        <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
         </svg>
@@ -35,8 +21,8 @@ function BookOpenSVG(props) {
 
 export default function LoginPage() {
   const router = useRouter();
-  
-  // --- ÉTATS (Ta logique) ---
+  const { mutate } = useSWRConfig(); // ✅ Pour gérer le cache
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -48,7 +34,6 @@ export default function LoginPage() {
   const [need2FA, setNeed2FA] = useState(false);
   const [twoFA, setTwoFA] = useState("");
 
-  // Error messages mapping
   const errorMessages = {
     'Invalid credentials': 'Email ou mot de passe incorrect',
     'User not found': 'Aucun compte avec cet email',
@@ -62,18 +47,15 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    // --- PETITE CORRECTION QUI CHANGE TOUT ---
-    // On nettoie l'email pour éviter le bug des espaces invisibles
     const cleanEmail = email.trim().toLowerCase();
 
     try {
-      // Appel à ton API existante
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          email: cleanEmail, // On envoie l'email nettoyé
+          email: cleanEmail,
           password,
           twoFA: need2FA ? twoFA : undefined,
         }),
@@ -81,7 +63,6 @@ export default function LoginPage() {
 
       const data = await res.json();
 
-      // Gestion 2FA
       if (data.require2FA) {
         setNeed2FA(true);
         setLoading(false);
@@ -96,10 +77,15 @@ export default function LoginPage() {
       localStorage.setItem("bookzyUserId", data.data.user.id);
       setSuccess(true);
 
-      // Redirection
+      // ✅ OPTIMISATION : On vide le cache SWR pour forcer le rechargement propre des données
+      // au cas où l'utilisateur se reconnecte avec un autre compte sur le même PC
+      await mutate(() => true, undefined, { revalidate: false });
+
+      // ✅ VITESSE : Redirection plus rapide (500ms au lieu de 800ms)
       setTimeout(() => {
-        router.push(data.redirectTo || "/dashboard");
-      }, 800);
+        // On utilise window.location.href pour un hard reload qui "nettoie" la mémoire JS
+        window.location.href = data.redirectTo || "/dashboard";
+      }, 500);
 
     } catch (err) {
       setError(errorMessages[err.message] || err.message || 'Une erreur est survenue.');
@@ -109,15 +95,15 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-50 relative overflow-hidden px-4 py-12">
+    // ✅ MOBILE SAFE : 'overflow-x-hidden' empêche le scroll horizontal
+    <main className="min-h-screen flex items-center justify-center bg-slate-50 relative overflow-x-hidden px-4 py-12">
       
-      {/* Background decoration (Clean style) */}
+      {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-indigo-50/50 rounded-full blur-3xl"></div>
         <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-blue-50/50 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Main Container */}
       <div className="relative w-full max-w-md z-10">
         
         {/* Card */}
@@ -140,7 +126,6 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Success Message */}
           {success && (
             <div className="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
               <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
@@ -148,7 +133,6 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Error Message */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
               <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
@@ -156,16 +140,11 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Form */}
           <form onSubmit={onSubmit} className="space-y-5">
-            
             {!need2FA ? (
               <>
-                {/* Email Input */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wide ml-1">
-                    Email
-                  </label>
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wide ml-1">Email</label>
                   <div className="relative group">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
                     <input
@@ -179,18 +158,10 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                {/* Password Input */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between ml-1">
-                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wide">
-                      Mot de passe
-                    </label>
-                    <Link 
-                      href="/auth/forgot-password"
-                      className="text-xs font-medium text-slate-400 hover:text-slate-900 transition-colors"
-                    >
-                      Oublié ?
-                    </Link>
+                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wide">Mot de passe</label>
+                    <Link href="/auth/forgot-password" className="text-xs font-medium text-slate-400 hover:text-slate-900 transition-colors">Oublié ?</Link>
                   </div>
                   <div className="relative group">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
@@ -202,22 +173,15 @@ export default function LoginPage() {
                       className="w-full pl-11 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium placeholder:text-slate-400 focus:bg-white focus:border-slate-900 focus:ring-0 transition-all"
                       placeholder="••••••••"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                    >
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
                 </div>
               </>
             ) : (
-              /* 2FA Input */
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 uppercase tracking-wide ml-1">
-                  Code Authenticator
-                </label>
+                <label className="text-xs font-bold text-slate-700 uppercase tracking-wide ml-1">Code Authenticator</label>
                 <div className="relative group">
                   <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
                   <input
@@ -233,7 +197,6 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading || success}
@@ -258,7 +221,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Footer / Register Link */}
           {!need2FA && (
             <div className="mt-8 text-center">
               <p className="text-sm text-slate-500">

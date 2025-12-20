@@ -23,16 +23,28 @@ export default function FichierDetailPage({ params }) {
 
     async function fetchData() {
       try {
-        const res = await fetch("/api/ebooks/user", {
-          method: "GET", headers: { "Content-Type": "application/json" },
+        // ✅ CORRECTION MAJEURE : On appelle l'API unique par ID
+        // C'est elle qui contient les textes marketing et les détails complets
+        const res = await fetch(`/api/ebooks/${id}`, {
+          method: "GET", 
+          headers: { "Content-Type": "application/json" },
         });
-        if (res.status === 401) return;
+
+        if (res.status === 401) {
+            // Redirection si non connecté (optionnel)
+            return;
+        }
+
         const data = await res.json();
         
         if (!mounted) return;
         
-        const found = (data.ebooks || []).find((e) => String(e._id) === String(id));
-        setEbook(found || null);
+        if (data.success && data.projet) {
+             setEbook(data.projet); // ✅ On récupère l'objet complet
+        } else {
+             setEbook(null);
+        }
+
       } catch (err) {
         console.error(err);
       } finally {
@@ -44,6 +56,7 @@ export default function FichierDetailPage({ params }) {
   }, [id]);
 
   const handleCopy = (text, key) => {
+    if (!text) return;
     navigator.clipboard.writeText(text);
     setCopiedStates(prev => ({ ...prev, [key]: true }));
     setTimeout(() => setCopiedStates(prev => ({ ...prev, [key]: false })), 2000);
@@ -52,14 +65,17 @@ export default function FichierDetailPage({ params }) {
   if (loading) return <LoadingSkeleton />;
   if (!ebook) return <NotFoundState router={router} />;
 
-  // --- DATA ---
+  // --- DATA (Sécurisée avec des valeurs par défaut) ---
   const ads = ebook.adsTexts || {};
+  
+  // On construit les sections dynamiquement
   const sections = [
     { id: "fb", label: "Facebook & Insta", icon: MessageCircle, content: ads.facebook, color: "text-blue-600", bg: "bg-blue-50" },
     { id: "whatsapp", label: "WhatsApp", icon: Smartphone, content: ads.whatsapp, color: "text-green-600", bg: "bg-green-50" },
-    { id: "landing", label: "Page de Vente", icon: FileText, content: ads.long, color: "text-indigo-600", bg: "bg-indigo-50" },
-    { id: "landing", label: "Page de Vente", icon: Layout, content: ads.landing || ebook.marketingDescription, color: "text-purple-600", bg: "bg-purple-50" },
-  ].filter(s => s.content && s.content.length > 5);
+    { id: "landing", label: "Page de Vente (Court)", icon: Layout, content: ads.landing || ebook.marketingDescription, color: "text-purple-600", bg: "bg-purple-50" },
+    { id: "email", label: "Email Marketing", icon: FileText, content: ads.email, color: "text-indigo-600", bg: "bg-indigo-50" },
+    // Tu peux ajouter d'autres champs si ton API en renvoie (ex: ads.long)
+  ].filter(s => s.content && s.content.length > 5); // On n'affiche que ce qui existe
 
   const filteredSections = activeTab === "tous" ? sections : sections.filter(s => s.id === activeTab);
   const adsImages = ebook.adsImages || [];
@@ -91,19 +107,15 @@ export default function FichierDetailPage({ params }) {
                     <Calendar className="w-3.5 h-3.5"/> {new Date(ebook.createdAt).toLocaleDateString()}
                 </span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 leading-tight mb-2">{ebook.title}</h1>
+            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 leading-tight mb-2">{ebook.titre || ebook.title}</h1>
         </div>
 
-        {/* 🔥 ASTUCE LAYOUT : 
-            Mobile = flex-col (Sidebar en premier)
-            Desktop = lg:flex-row-reverse (Sidebar à droite) 
-        */}
         <div className="flex flex-col lg:flex-row-reverse gap-8 lg:gap-12">
             
-            {/* --- 1. SIDEBAR FICHIERS (EN HAUT SUR MOBILE, A DROITE SUR PC) --- */}
+            {/* --- SIDEBAR --- */}
             <div className="lg:w-80 flex-shrink-0 space-y-6">
                 
-                {/* EBOOK CARD (HERO) */}
+                {/* PDF CARD */}
                 <div className="bg-white p-1 rounded-3xl border border-slate-200 shadow-xl">
                     <div className="bg-slate-900 rounded-[20px] p-6 text-white text-center relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
@@ -114,8 +126,8 @@ export default function FichierDetailPage({ params }) {
                             <h3 className="font-bold text-lg mb-1">Ebook Final</h3>
                             <p className="text-slate-400 text-xs mb-6">{ebook.pages} Pages • PDF Haute Qualité</p>
                             
-                            {ebook.fileUrl ? (
-                                <a href={ebook.fileUrl} download className="flex items-center justify-center gap-2 w-full py-3 bg-white text-slate-900 rounded-xl font-bold text-sm hover:bg-slate-50 transition-colors shadow-lg active:scale-95">
+                            {ebook.pdfUrl || ebook.fileUrl ? (
+                                <a href={ebook.pdfUrl || ebook.fileUrl} download className="flex items-center justify-center gap-2 w-full py-3 bg-white text-slate-900 rounded-xl font-bold text-sm hover:bg-slate-50 transition-colors shadow-lg active:scale-95">
                                     <Download className="w-4 h-4"/> Télécharger PDF
                                 </a>
                             ) : (
@@ -125,7 +137,7 @@ export default function FichierDetailPage({ params }) {
                     </div>
                 </div>
 
-                {/* VISUELS ADS */}
+                {/* IMAGES */}
                 {adsImages.length > 0 && (
                     <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
                         <div className="p-4 border-b border-slate-50 bg-slate-50/50">
@@ -166,7 +178,7 @@ export default function FichierDetailPage({ params }) {
                 )}
             </div>
 
-            {/* --- 2. CONTENU MARKETING (EN BAS SUR MOBILE, A GAUCHE SUR PC) --- */}
+            {/* --- CONTENU --- */}
             <div className="flex-1 min-w-0">
                 
                 {/* ONGLETS */}
@@ -207,7 +219,7 @@ export default function FichierDetailPage({ params }) {
                     ))}
                     {filteredSections.length === 0 && (
                         <div className="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                            <p className="text-slate-400 text-sm">Aucun contenu disponible.</p>
+                            <p className="text-slate-400 text-sm">Aucun texte marketing généré pour ce projet.</p>
                         </div>
                     )}
                 </div>
@@ -219,7 +231,7 @@ export default function FichierDetailPage({ params }) {
   );
 }
 
-/* --- PETITS COMPOSANTS UI --- */
+// --- SOUS-COMPOSANTS ---
 
 function TabButton({ label, icon: Icon, active, onClick }) {
     return (

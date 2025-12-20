@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr"; 
 import {
   Search,
   ChevronDown,
@@ -11,29 +11,47 @@ import {
   Settings,
   Menu,
 } from "lucide-react";
-import NotificationBell from "./NotificationBell"; // ✅ IMPORT
+import NotificationBell from "./NotificationBell";
 
+// ✅ Fetcher Standardisé (Exactement comme le Dashboard)
+// On retourne tout le JSON, pas juste user, pour partager le même cache.
 const fetcher = (url) =>
-  fetch(url, { credentials: "include" })
-    .then((r) => (r.ok ? r.json() : null))
-    .then((d) => d?.user || null);
+  fetch(url, { credentials: "include" }).then((r) => r.json());
 
 export default function DashboardHeader({ onMenuClick }) {
   const router = useRouter();
+  const { mutate } = useSWRConfig();
   const [showMenu, setShowMenu] = useState(false);
   const [visible, setVisible] = useState(false);
 
-  const { data: user } = useSWR("/api/profile/get", fetcher, {
+  // ✅ Utilisation du cache partagé
+  // SWR va voir que "/api/profile/get" est déjà chargé par le Dashboard -> Affichage Immédiat
+  const { data: userData } = useSWR("/api/profile/get", fetcher, {
     revalidateOnFocus: true,
+    dedupingInterval: 5000, // Ne pas refaire de requête si fait il y a moins de 5s
   });
+
+  // Extraction sécurisée (compatible si l'API renvoie {user: ...} ou juste {...})
+  const user = userData?.user || userData;
 
   const displayName =
     user?.displayName ||
     (user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() : "Invité");
 
+  // ✅ LOGOUT "NUCLÉAIRE" (Nettoie tout)
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
-    router.push("/auth/login");
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+      
+      // On vide le cache SWR
+      await mutate(() => true, undefined, { revalidate: false });
+      
+      // On force le rechargement complet
+      window.location.href = "/auth/login";
+    } catch (error) {
+      console.error("Erreur logout", error);
+      window.location.href = "/auth/login";
+    }
   };
 
   useEffect(() => {
@@ -49,9 +67,8 @@ export default function DashboardHeader({ onMenuClick }) {
     >
       <div className="w-full bg-white/95 backdrop-blur-xl border-b border-neutral-200 shadow-sm">
         <div className="h-16 px-4 md:px-6 flex items-center justify-between">
-          {/* LEFT SECTION - Menu burger tout à gauche */}
+          {/* LEFT SECTION */}
           <div className="flex items-center gap-3 flex-1">
-            {/* ✅ BOUTON MENU MOBILE - Tout à gauche */}
             <button
               onClick={onMenuClick}
               className="lg:hidden p-2.5 -ml-1 rounded-xl hover:bg-neutral-100 active:scale-95 transition-all"
@@ -60,7 +77,6 @@ export default function DashboardHeader({ onMenuClick }) {
               <Menu className="w-6 h-6 text-neutral-700" />
             </button>
 
-            {/* 🔍 Barre de recherche - Desktop seulement */}
             <div className="hidden md:block relative w-[260px] lg:w-[380px]">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
               <input
@@ -73,19 +89,19 @@ export default function DashboardHeader({ onMenuClick }) {
             </div>
           </div>
 
-          {/* RIGHT SECTION - Notifications + Avatar */}
+          {/* RIGHT SECTION */}
           <div className="flex items-center gap-2">
-            {/* ✅ COMPOSANT NOTIFICATION BELL */}
             <NotificationBell />
 
-            {/* Avatar + Menu */}
             <div className="relative">
               <button
                 onClick={() => setShowMenu(!showMenu)}
                 className="flex items-center gap-2 px-2 py-1.5 rounded-full hover:bg-neutral-100 transition-all"
               >
-                {/* Avatar */}
-                {user?.photo ? (
+                {/* AVATAR : On affiche un squelette gris si pas encore chargé pour éviter le "?" moche */}
+                {!user ? (
+                   <div className="w-9 h-9 rounded-full bg-neutral-200 animate-pulse"></div>
+                ) : user.photo ? (
                   <img
                     src={user.photo}
                     alt={displayName}
@@ -93,22 +109,24 @@ export default function DashboardHeader({ onMenuClick }) {
                   />
                 ) : (
                   <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white font-semibold text-sm shadow-md">
-                    {displayName?.charAt(0)?.toUpperCase() || "?"}
+                    {displayName?.charAt(0)?.toUpperCase()}
                   </div>
                 )}
 
-                {/* Nom - Desktop seulement */}
                 <div className="hidden md:flex flex-col items-start leading-tight">
-                  <span className="text-sm font-medium text-neutral-900 max-w-[140px] truncate">
-                    {displayName}
-                  </span>
+                  {!user ? (
+                      <div className="h-4 w-20 bg-neutral-200 rounded animate-pulse mb-1"></div>
+                  ) : (
+                      <span className="text-sm font-medium text-neutral-900 max-w-[140px] truncate">
+                        {displayName}
+                      </span>
+                  )}
                   <span className="text-[11px] text-neutral-400 flex items-center gap-1">
                     <span className="inline-block w-2 h-2 bg-green-500 rounded-full" />
                     En ligne
                   </span>
                 </div>
 
-                {/* Chevron - Tablette+ */}
                 <ChevronDown
                   className={`hidden sm:block w-4 h-4 text-neutral-400 transition-transform ${
                     showMenu ? "rotate-180" : ""
@@ -116,18 +134,14 @@ export default function DashboardHeader({ onMenuClick }) {
                 />
               </button>
 
-              {/* Menu déroulant */}
               {showMenu && (
                 <>
-                  {/* Backdrop */}
                   <div
                     className="fixed inset-0 z-10"
                     onClick={() => setShowMenu(false)}
                   />
                   
-                  {/* Dropdown */}
                   <div className="absolute right-0 mt-3 w-64 bg-white border border-neutral-200 rounded-2xl shadow-2xl overflow-hidden z-50 animate-slideDown">
-                    {/* Info user - Mobile */}
                     <div className="p-4 bg-gradient-to-br from-blue-50 to-purple-50 border-b border-neutral-200">
                       <div className="flex items-center gap-3">
                         {user?.photo ? (
@@ -152,7 +166,6 @@ export default function DashboardHeader({ onMenuClick }) {
                       </div>
                     </div>
 
-                    {/* Menu items */}
                     <div className="p-2">
                       <button
                         onClick={() => {
@@ -174,12 +187,11 @@ export default function DashboardHeader({ onMenuClick }) {
                       </button>
                     </div>
 
-                    {/* Logout */}
                     <div className="p-2 border-t border-neutral-200">
                       <button
-                        onClick={async () => {
-                          await handleLogout();
-                          setShowMenu(false);
+                        onClick={() => {
+                           handleLogout(); 
+                           setShowMenu(false);
                         }}
                         className="flex items-center w-full gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-all"
                       >
@@ -193,21 +205,9 @@ export default function DashboardHeader({ onMenuClick }) {
           </div>
         </div>
       </div>
-
       <style jsx global>{`
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-slideDown {
-          animation: slideDown 0.2s ease-out;
-        }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slideDown { animation: slideDown 0.2s ease-out; }
       `}</style>
     </header>
   );

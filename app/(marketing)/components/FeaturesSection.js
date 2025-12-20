@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { Sparkles, TrendingUp, Target, ArrowRight, Check, BarChart3, Users, FileText } from "lucide-react";
 import Link from "next/link";
 
-/* 🎥 Cloudinary Video avec autoplay intelligent */
+/* 🎥 Cloudinary Video avec autoplay intelligent + POSTER (Fix écran noir) */
 function CloudinaryVideo({ publicId, className, alt = "Feature video" }) {
   const ref = useRef(null);
 
@@ -23,15 +23,22 @@ function CloudinaryVideo({ publicId, className, alt = "Feature video" }) {
     return () => observer.disconnect();
   }, []);
 
-  // URL Cloudinary avec transformations optimales
   const cloudName = "dcmlw5hak";
+  
+  // 1. URL de la vidéo
   const videoUrl = `https://res.cloudinary.com/${cloudName}/video/upload/q_auto,f_auto,w_1200/${publicId}.mp4`;
+
+  // 2. ✅ URL de l'image "Poster" (Première frame de la vidéo)
+  // so_0 = Start Offset 0 (Première image)
+  // .jpg = On veut une image, pas une vidéo
+  const posterUrl = `https://res.cloudinary.com/${cloudName}/video/upload/q_auto,f_auto,w_1200,so_0/${publicId}.jpg`;
 
   return (
     <video 
       ref={ref} 
-      src={videoUrl} 
-      className={className} 
+      src={videoUrl}
+      poster={posterUrl} // 👈 C'est ça qui supprime l'écran noir
+      className={`${className} bg-slate-50`} // On met un fond clair au cas où
       muted 
       loop 
       playsInline 
@@ -40,7 +47,6 @@ function CloudinaryVideo({ publicId, className, alt = "Feature video" }) {
     />
   );
 }
-
 /* 💎 Bloc Premium OPTIMISÉ */
 function PremiumBlock({ children, color = "blue" }) {
   const gradients = {

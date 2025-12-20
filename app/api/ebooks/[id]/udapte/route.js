@@ -1,25 +1,17 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
-import Projet from "../../../../../models/Projet.js";
+import { cookies } from "next/headers"; // ✅ Gestion propre des cookies
+import { dbConnect } from "@/lib/db";   // ✅ Connexion optimisée centralisée
+import Projet from "@/models/Projet";   // (Adapte le chemin si nécessaire)
 import jwt from "jsonwebtoken";
-
-async function connectDB() {
-  if (mongoose.connection.readyState !== 1) {
-    await mongoose.connect(process.env.MONGODB_URI, { dbName: "bookzy" });
-  }
-}
 
 export async function PUT(req, { params }) {
   try {
-    await connectDB();
+    // 1. Connexion DB Rapide
+    await dbConnect();
 
-    // Auth
-    const cookie = req.headers.get("cookie") || "";
-    const token = cookie
-      .split(";")
-      .map(c => c.trim())
-      .find(c => c.startsWith("bookzy_token="))
-      ?.split("=")[1];
+    // 2. Auth standardisée (plus robuste)
+    const cookieStore = cookies();
+    const token = cookieStore.get("bookzy_token")?.value;
 
     if (!token) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
@@ -35,10 +27,12 @@ export async function PUT(req, { params }) {
     const projetId = params.id;
     const updateData = await req.json();
 
+    // 3. Mise à jour sécurisée
+    // On s'assure que le projet appartient bien au user (userId: decoded.id)
     const projet = await Projet.findOneAndUpdate(
       { _id: projetId, userId: decoded.id },
-      updateData,
-      { new: true }
+      { $set: updateData }, // $set est plus explicite pour dire "met à jour ces champs"
+      { new: true } // Renvoie la version mise à jour
     );
 
     if (!projet) {

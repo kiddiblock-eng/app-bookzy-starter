@@ -38,6 +38,10 @@ export default function DashboardSidebar({ open, setOpen }) {
     return pathname === href || pathname.startsWith(href + "/");
   };
 
+  const handleLogout = () => {
+    window.location.href = "/auth/login"; 
+  };
+
   return (
     <>
       {/* 🖥️ SIDEBAR DESKTOP */}
@@ -45,7 +49,7 @@ export default function DashboardSidebar({ open, setOpen }) {
         className={`hidden lg:flex flex-col fixed left-0 top-0 z-40 h-screen w-[280px] 
         bg-white border-r border-slate-100 transition-all duration-300 shadow-[2px_0_20px_rgba(0,0,0,0.02)]`}
       >
-        {/* ✅ TON LOGO ORIGINAL ICI */}
+        {/* LOGO */}
         <div className="h-20 flex items-center px-8">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center shadow-md transition-all group-hover:scale-105">
@@ -55,12 +59,25 @@ export default function DashboardSidebar({ open, setOpen }) {
           </Link>
         </div>
 
+        {/* ACTION PRINCIPALE : TEXTE "GÉNÉRER" */}
+        <div className="px-6 pb-2">
+            <Link
+                href="/dashboard/projets/nouveau"
+                className="group w-full flex items-center justify-center gap-2 py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold shadow-lg shadow-slate-200 hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-[0.98]"
+            >
+                <div className="bg-white/20 p-1 rounded-md group-hover:bg-white/30 transition-colors">
+                    <Plus size={16} strokeWidth={3} />
+                </div>
+                {/* ✅ TEXTE MIS À JOUR */}
+                <span className="tracking-wide text-sm">Générer un ebook</span>
+            </Link>
+        </div>
+
         {/* NAVIGATION */}
-        <nav className="flex-1 px-4 py-6 overflow-y-auto flex flex-col gap-8">
+        <nav className="flex-1 px-4 py-6 overflow-y-auto flex flex-col gap-8 scrollbar-hide">
           
-          {/* Menu Principal */}
           <div>
-              <p className="px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">Menu Principal</p>
+              <p className="px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">Menu Principal</p>
               <ul className="space-y-1">
                 {menuItems.map(({ label, href, icon: Icon, badge, exact }) => {
                   const isActive = isLinkActive(href, exact);
@@ -68,7 +85,7 @@ export default function DashboardSidebar({ open, setOpen }) {
                     <li key={href}>
                       <Link 
                         href={href} 
-                        className={`group flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200
+                        className={`group flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
                         ${isActive 
                             ? "bg-slate-50 text-slate-900 shadow-sm border border-slate-100" 
                             : "text-slate-500 hover:text-slate-900 hover:bg-slate-50/50"
@@ -76,17 +93,15 @@ export default function DashboardSidebar({ open, setOpen }) {
                       >
                         <div className="flex items-center gap-3">
                             <Icon 
-                                size={20} 
+                                size={18} 
                                 strokeWidth={isActive ? 2 : 1.5}
                                 className={isActive ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-600"} 
                             />
                             <span>{label}</span>
                         </div>
-                        
                         {isActive && <div className="w-1.5 h-1.5 rounded-full bg-indigo-600"></div>}
-                        
                         {badge === "HOT" && (
-                            <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full">HOT</span>
+                            <span className="text-[9px] font-extrabold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-100">HOT</span>
                         )}
                       </Link>
                     </li>
@@ -95,9 +110,8 @@ export default function DashboardSidebar({ open, setOpen }) {
               </ul>
           </div>
 
-          {/* Menu Secondaire */}
           <div>
-             <p className="px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">Autres</p>
+             <p className="px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">Autres</p>
              <ul className="space-y-1">
                 {bottomItems.map(({ label, href, icon: Icon }) => {
                     const isActive = pathname === href;
@@ -105,13 +119,13 @@ export default function DashboardSidebar({ open, setOpen }) {
                     <li key={label}>
                         <Link
                         href={href}
-                        className={`group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all
+                        className={`group flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all
                         ${isActive 
                             ? "bg-slate-50 text-slate-900 border border-slate-100" 
                             : "text-slate-500 hover:text-slate-900 hover:bg-slate-50/50"
                         }`}
                         >
-                        <Icon size={20} strokeWidth={1.5} className={isActive ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-600"} />
+                        <Icon size={18} strokeWidth={1.5} className={isActive ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-600"} />
                         <span>{label}</span>
                         </Link>
                     </li>
@@ -119,24 +133,15 @@ export default function DashboardSidebar({ open, setOpen }) {
                 })}
              </ul>
           </div>
-
         </nav>
 
-        {/* FOOTER ACTION */}
-        <div className="p-6 border-t border-slate-50">
-          <Link
-            href="/dashboard/projets/nouveau"
-            className="w-full flex items-center justify-center gap-2 py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold shadow-lg shadow-slate-200 hover:shadow-xl transition-all active:scale-[0.98] mb-4"
-          >
-            <Plus size={18} strokeWidth={2.5} />
-            <span className="tracking-wide">Nouveau Projet</span>
-          </Link>
-
+        {/* FOOTER SIMPLE */}
+        <div className="p-4 border-t border-slate-50 mt-auto">
           <button
-            onClick={() => alert("Déconnexion à coder")} 
-            className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-semibold text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all group"
           >
-            <LogOut size={14} />
+            <LogOut size={16} className="group-hover:stroke-red-600" />
             Se déconnecter
           </button>
         </div>
@@ -155,7 +160,6 @@ export default function DashboardSidebar({ open, setOpen }) {
               open ? "translate-x-0" : "-translate-x-full"
             }`}
           >
-             {/* ✅ TON LOGO ORIGINAL MOBILE ICI */}
              <div className="h-20 flex items-center justify-between px-6 border-b border-slate-50">
                 <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
                     <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center">
@@ -168,28 +172,39 @@ export default function DashboardSidebar({ open, setOpen }) {
                </button>
              </div>
 
-             <nav className="flex-1 overflow-y-auto p-6 space-y-8">
+             <div className="p-6 pb-2">
+                 {/* ✅ TEXTE MIS À JOUR MOBILE */}
+                 <Link href="/dashboard/projets/nouveau" onClick={() => setOpen(false)} className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg">
+                    <Plus size={18} /> Générer un ebook
+                 </Link>
+             </div>
+
+             <nav className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
                 <div>
-                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">Navigation</p>
-                    <ul className="space-y-2">
-                        {menuItems.map(({ label, href, icon: Icon }) => (
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">Menu Principal</p>
+                    <ul className="space-y-1">
+                        {menuItems.map(({ label, href, icon: Icon, badge }) => (
                             <li key={href}>
-                                <Link href={href} onClick={() => setOpen(false)} className="flex items-center gap-4 px-2 py-3 text-slate-600 font-medium">
-                                    <Icon size={22} strokeWidth={1.5} />
-                                    {label}
+                                <Link href={href} onClick={() => setOpen(false)} className="flex items-center justify-between px-2 py-3 text-slate-600 font-medium hover:bg-slate-50 rounded-lg">
+                                    <div className="flex items-center gap-4">
+                                        <Icon size={20} strokeWidth={1.5} />
+                                        {label}
+                                    </div>
+                                    {badge === "HOT" && (
+                                        <span className="text-[9px] font-extrabold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-100">HOT</span>
+                                    )}
                                 </Link>
                             </li>
                         ))}
                     </ul>
                 </div>
-                
                 <div>
-                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">Compte</p>
-                    <ul className="space-y-2">
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">Autres</p>
+                    <ul className="space-y-1">
                         {bottomItems.map(({ label, href, icon: Icon }) => (
                             <li key={href}>
-                                <Link href={href} onClick={() => setOpen(false)} className="flex items-center gap-4 px-2 py-3 text-slate-600 font-medium">
-                                    <Icon size={22} strokeWidth={1.5} />
+                                <Link href={href} onClick={() => setOpen(false)} className="flex items-center gap-4 px-2 py-3 text-slate-600 font-medium hover:bg-slate-50 rounded-lg">
+                                    <Icon size={20} strokeWidth={1.5} />
                                     {label}
                                 </Link>
                             </li>
@@ -198,11 +213,14 @@ export default function DashboardSidebar({ open, setOpen }) {
                 </div>
              </nav>
              
-             <div className="p-6 bg-slate-50">
-                 <Link href="/dashboard/projets/nouveau" onClick={() => setOpen(false)} className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold flex justify-center mb-3">
-                    Nouveau Projet
-                 </Link>
-                 <button className="w-full py-3 text-slate-500 font-medium text-sm">Déconnexion</button>
+             <div className="p-4 bg-slate-50 border-t border-slate-100">
+                <button 
+                    onClick={handleLogout}
+                    className="w-full py-3 flex items-center justify-center gap-2 text-red-500 font-bold bg-white border border-slate-200 rounded-xl hover:bg-red-50 transition-colors"
+                >
+                    <LogOut size={18} />
+                    Se déconnecter
+                </button>
              </div>
           </div>
         </>
@@ -211,7 +229,6 @@ export default function DashboardSidebar({ open, setOpen }) {
   );
 }
 
-/* --- COMPOSANT LOGO ORIGINAL --- */
 function BookOpenSVG(props) {
     return (
         <svg 

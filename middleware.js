@@ -109,14 +109,15 @@ export default async function middleware(req) {
     return NextResponse.redirect(appUrl);
   }
 
-  // Pages marketing autorisées sur www.bookzy.io
   const marketingPaths = [
-    "/",
-    "/niche-hunter",
-    "/tendances",
-    "/blog",
-    "/legal",
-  ];
+  "/",
+  "/niche-hunter",
+  "/tendances",
+  "/blog",
+  "/legal",
+  "/sitemap.xml",    // ← AJOUTE
+  "/robots.txt",     // ← AJOUTE
+];
 
   const isMarketingPath = marketingPaths.some(path => 
     pathname === path || pathname.startsWith(path + "/")

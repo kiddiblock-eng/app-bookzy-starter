@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import TrendCard from "../../../components/TrendCard";
+import TrendCard from "../../../components/TrendCard"; // ⚠️ Vérifie bien ton chemin d'import
 import { Heart, Loader2, ArrowLeft, Sparkles, FolderOpen } from "lucide-react";
 
 export default function FavorisPage() {
@@ -13,16 +13,14 @@ export default function FavorisPage() {
   useEffect(() => {
     async function loadFavorites() {
       try {
-        // Charger toutes les tendances (qui incluent déjà isFavorite)
-        const res = await fetch("/api/trends/get", {
+        // ✅ CORRECTION : Appel avec filtre "favorites" pour que le serveur renvoie TOUT
+        const res = await fetch("/api/trends/get?filter=favorites", {
           credentials: "include",
         });
         const data = await res.json();
 
         if (data.success) {
-          // Filtrer uniquement les favoris
-          const favs = data.trends.filter((t) => t.isFavorite);
-          setFavorites(favs);
+          setFavorites(data.trends || []);
         }
       } catch (error) {
         console.error("❌ Erreur favoris:", error);
@@ -48,11 +46,10 @@ export default function FavorisPage() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
       
-      {/* --- HEADER "COLLECTION PRIVÉE" --- */}
+      {/* HEADER */}
       <div className="bg-white border-b border-slate-200 shadow-sm pt-8 pb-12 mb-8">
         <div className="max-w-7xl mx-auto px-6">
           
-          {/* Bouton retour propre */}
           <button
             onClick={() => router.push("/dashboard/trends")}
             className="group inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition-all mb-6 active:scale-95 shadow-md"
@@ -61,7 +58,6 @@ export default function FavorisPage() {
             <span className="text-sm">Retour à l'Analyse</span>
           </button>
 
-          {/* Titre fort */}
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 bg-rose-600/10 border border-rose-300 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
               <Heart className="w-8 h-8 text-rose-600 fill-rose-600" />
@@ -80,7 +76,7 @@ export default function FavorisPage() {
 
       <div className="max-w-7xl mx-auto px-6 pb-12">
         {favorites.length === 0 ? (
-          /* EMPTY STATE SPÉCIFIQUE ET IMPACTANT */
+          /* EMPTY STATE */
           <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border-2 border-dashed border-rose-200 shadow-xl">
             <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mb-6">
               <FolderOpen className="w-10 h-10 text-rose-500" />
@@ -100,8 +96,8 @@ export default function FavorisPage() {
             </button>
           </div>
         ) : (
-          /* GRILLE DES RÉSULTATS */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          /* GRILLE */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {favorites.map((trend) => (
               <TrendCard key={trend.id} trend={trend} />
             ))}

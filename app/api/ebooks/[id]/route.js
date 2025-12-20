@@ -1,25 +1,20 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
-import Projet from "../../../../models/Projet.js";
+import { cookies } from "next/headers"; // Plus propre pour lire les cookies
+import { dbConnect } from "@/lib/db";   // ✅ On utilise ta connexion optimisée
+import Projet from "@/models/Projet";   // Vérifie que le chemin est bon
 import jwt from "jsonwebtoken";
 
-async function connectDB() {
-  if (mongoose.connection.readyState !== 1) {
-    await mongoose.connect(process.env.MONGODB_URI, { dbName: "bookzy" });
-  }
-}
+// Force le recalcul (pas de cache sur les détails, on veut les dernières infos)
+export const dynamic = "force-dynamic";
 
 export async function GET(req, { params }) {
   try {
-    await connectDB();
+    // 1. Connexion Optimisée (maxPoolSize: 1)
+    await dbConnect();
 
-    // Auth token
-    const cookie = req.headers.get("cookie") || "";
-    const token = cookie
-      .split(";")
-      .map(c => c.trim())
-      .find(c => c.startsWith("bookzy_token="))
-      ?.split("=")[1];
+    // 2. Vérification Auth (Standardisée)
+    const cookieStore = cookies();
+    const token = cookieStore.get("bookzy_token")?.value;
 
     if (!token) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
@@ -34,18 +29,20 @@ export async function GET(req, { params }) {
 
     const projetId = params.id;
 
+    // 3. Récupération COMPLÈTE (Pas de .select ici !)
     const projet = await Projet.findOne({
       _id: projetId,
-      userId: decoded.id
+      userId: decoded.id // Sécurité : on vérifie que c'est bien son projet
     }).lean();
 
     if (!projet) {
       return NextResponse.json({ error: "Projet introuvable" }, { status: 404 });
     }
 
+    // 4. On renvoie tout le paquet
     return NextResponse.json({
       success: true,
-      projet
+      projet // Contient pdfUrl, adsTexts, adsImages, etc.
     });
 
   } catch (e) {

@@ -1,74 +1,85 @@
-import { dbConnect} from "@/lib/db.js";
-import User from "@/models/User.js";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { dbConnect } from "@/lib/db.js";
+import User from "@/models/User.js";
 
-export const dynamic = 'force-dynamic';
-
-const generateAvatar = (user) => {
-  const baseName =
-    `${user?.firstName || ""} ${user?.lastName || ""}`.trim() ||
-    user?.name ||
-    (user?.email ? user.email.split("@")[0] : "Utilisateur");
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(
-    baseName
-  )}&background=3b82f6&color=fff&bold=true&size=256`;
-};
+// ✅ 1. Forcer le mode dynamique (Pas de cache serveur)
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
     await dbConnect();
 
-    const token = cookies().get("bookzy_token")?.value;
+    // Récupération des cookies
+    const userToken = cookies().get("bookzy_token")?.value;
+    const adminToken = cookies().get("admin_token")?.value;
+    const token = userToken || adminToken;
+
     if (!token) {
-      return new Response(JSON.stringify({ error: "Non connecté" }), { status: 401 });
+      return new Response(JSON.stringify({ message: "Token non trouvé." }), {
+        status: 401,
+      });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.id;
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return new Response(JSON.stringify({ message: "Token invalide." }), {
+        status: 403,
+      });
+    }
 
-    // ✅ OPTIMISATION: .lean() + .select()
-    const user = await User.findById(userId)
-      .select("firstName lastName name email avatar country lang")
-      .lean()
-      .exec();
-
+    const user = await User.findById(decoded.id).select("-password");
     if (!user) {
-      return new Response(JSON.stringify({ error: "Utilisateur non trouvé" }), { status: 404 });
+      return new Response(
+        JSON.stringify({ message: "Utilisateur introuvable." }),
+        { status: 404 }
+      );
     }
 
-    let photo = user.avatar;
+    // Auto-migration
+    let needsSave = false;
+    if (user.emailVerified === undefined) { user.emailVerified = false; needsSave = true; }
+    if (user.emailVerifiedAt === undefined) { user.emailVerifiedAt = null; needsSave = true; }
+    if (user.emailVerificationSentAt === undefined) { user.emailVerificationSentAt = null; needsSave = true; }
+    if (needsSave) { await user.save(); }
 
-    if (!photo) {
-      photo = generateAvatar(user);
-    }
-
-    const responseUser = {
-      _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      name: user.name,
-      email: user.email,
-      photo: photo,
-      avatar: photo,
-      displayName: user.name,
-      country: user.country,
-      lang: user.lang
-    };
-
+    // ✅ 2. Structure de réponse unifiée
     return new Response(
-      JSON.stringify({ success: true, user: responseUser }), 
+      JSON.stringify({
+        user: {
+            id: user._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            avatar: user.avatar || user.photo || "", 
+            photo: user.avatar || user.photo || "", 
+            emailVerified: user.emailVerified,
+            role: user.role,
+            
+            // 🔥 C'EST ICI LA CORRECTION 🔥
+            // On lit 'user.name' (base de données) et on l'envoie comme 'displayName'
+            displayName: user.name || user.displayName || "", 
+            
+            country: user.country || "",
+            lang: user.lang || "fr"
+        }
+      }),
       { 
         status: 200,
+        // ✅ 3. Headers anti-cache explicites
         headers: {
-          'Cache-Control': 'private, max-age=300',
+            "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0",
         }
       }
     );
   } catch (error) {
-    console.error("❌ Erreur GET profil :", error);
+    console.error("❌ Erreur /api/profile/get :", error);
     return new Response(
-      JSON.stringify({ error: "Erreur serveur" }),
+      JSON.stringify({ message: "Erreur serveur interne." }),
       { status: 500 }
     );
   }

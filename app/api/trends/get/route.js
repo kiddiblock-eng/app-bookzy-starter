@@ -3,20 +3,16 @@ import Trend from "@/models/Trend";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
 
-
+// ✅ Force le mode dynamique (Données toujours fraîches)
 export const dynamic = 'force-dynamic';
 
 export async function GET(request) {
   try {
     await dbConnect();
 
-    // 🔐 Token
+    // 1. Authentification
     const cookie = request.headers.get("cookie") || "";
-    const token = cookie
-      .split(";")
-      .map((c) => c.trim())
-      .find((c) => c.startsWith("bookzy_token="))
-      ?.split("=")[1];
+    const token = cookie.split(";").map(c => c.trim()).find(c => c.startsWith("bookzy_token="))?.split("=")[1];
 
     if (!token) {
       return Response.json({ success: false, error: "Non autorisé" }, { status: 401 });
@@ -25,49 +21,38 @@ export async function GET(request) {
     let decoded;
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log("🔍 GET /api/trends/get - Token décodé:", decoded);
     } catch {
       return Response.json({ success: false, error: "Session expirée" }, { status: 401 });
     }
 
-    // ✅ CORRECTION : Support de "id", "userId" ou "_id"
     const userId = decoded.userId || decoded.id || decoded._id;
 
-    console.log("🔍 GET /api/trends/get - userId:", userId);
+    // 2. 🚀 OPTIMISATION FAVORIS : On ne charge QUE le tableau favorites
+    // On utilise .lean() pour la vitesse
+    const user = await User.findById(userId).select("favorites").lean();
+    
+    // Transformation en Set pour une vérification instantanée O(1)
+    const favSet = new Set((user?.favorites || []).map(id => id.toString()));
 
-    if (!userId) {
-      return Response.json({ success: false, error: "userId manquant dans token" }, { status: 401 });
-    }
-
-    // ✅ CORRECTION : Retire .lean() pour avoir les defaults de Mongoose
-    const user = await User.findById(userId);
-
-    console.log("🔍 GET /api/trends/get - user trouvé:", !!user);
-    console.log("🔍 GET /api/trends/get - user.favorites:", user?.favorites);
-
-    // ✅ CORRECTION : Simplifie et ajoute fallback
-    const favArray = (user?.favorites || []).map((id) => id.toString());
-
-    console.log("🔍 GET /api/trends/get - favArray final:", favArray);
-    console.log("🔍 GET /api/trends/get - nombre de favoris:", favArray.length);
-
+    // 3. Paramètres URL
     const { searchParams } = new URL(request.url);
-
-    // 🔍 Filtres
     const filter = searchParams.get("filter") || "all";
     const network = searchParams.get("network") || "all";
-    const period = searchParams.get("period") || "all";
     const category = searchParams.get("category") || "all";
-    const region = searchParams.get("region") || "all";
     const difficulty = searchParams.get("difficulty") || "all";
+    const search = searchParams.get("search") || ""; // ✅ Mot-clé de recherche
 
-    // 🔍 Query Mongo
+    // 4. Construction de la Query
     let query = { isActive: true };
 
+    // 🔥 GESTION DES FAVORIS (Côté Serveur)
+    if (filter === "favorites") {
+        // On demande à Mongo de ne sortir QUE les items qui sont dans la liste des favoris
+        query._id = { $in: user?.favorites || [] };
+    }
+
     if (network !== "all") query.network = network;
-    if (period !== "all") query.period = period;
     if (category !== "all") query.categories = category;
-    if (region !== "all") query.region = region;
     if (difficulty !== "all") query.difficulty = difficulty;
 
     if (filter === "hot") query.isHot = true;
@@ -75,22 +60,26 @@ export async function GET(request) {
     if (filter === "easy") query.difficulty = "Facile";
     if (filter === "profitable") query.isProfitable = true;
 
+    // 🔥 RECHERCHE GLOBALE (Sur toute la DB)
+    if (search) {
+      const regex = new RegExp(search, 'i'); // Insensible à la casse
+      query.$or = [
+        { title: { $regex: regex } },
+        { description: { $regex: regex } },
+        { tags: { $in: [regex] } },
+        { network: { $regex: regex } }
+      ];
+    }
+
+    // 5. Exécution (Limitée à 50 pour la performance)
     const trends = await Trend.find(query)
       .sort({ priority: -1, createdAt: -1 })
-      .limit(50)
+      .limit(50) 
       .lean();
 
-    console.log("🔍 GET /api/trends/get - nombre de trends:", trends.length);
-
-    // 🎯 Formatter + inclure TOUTES les infos admin
+    // 6. Formatage
     const formattedTrends = trends.map((t) => {
       const id = t._id.toString();
-      const isFav = favArray.includes(id);
-      
-      // Log seulement les 3 premiers pour pas surcharger
-      if (trends.indexOf(t) < 3) {
-        console.log(`🔍 Trend "${t.title}" - ID: ${id} - isFavorite: ${isFav}`);
-      }
       
       return {
         id,
@@ -98,49 +87,31 @@ export async function GET(request) {
         description: t.description,
         emoji: t.emoji,
         gradient: t.gradient,
-
         network: t.network,
         potential: t.potential,
         difficulty: t.difficulty,
         searches: t.searches,
         competition: t.competition,
         growth: t.growth,
-
         isHot: t.isHot,
         isRising: t.isRising,
         isProfitable: t.isProfitable,
-
         categories: t.categories,
-        period: t.period,
-        region: t.region,
-
-        sources: t.sources,
-        tags: t.tags,
-
-        monetizationPotential: t.monetizationPotential,
-        monetizationMethods: t.monetizationMethods,
-        estimatedRevenue: t.estimatedRevenue,
-        contentType: t.contentType,
-        targetAudience: t.targetAudience,
-
         trendDate: t.trendDate,
-
-        // ❤️ FAVORI
-        isFavorite: isFav,
+        tags: t.tags || [],
+        
+        // Est-ce un favori ?
+        isFavorite: favSet.has(id),
       };
     });
 
-    // 📊 Stats
+    // 7. Stats Simples (Basées sur le résultat actuel)
     const stats = {
       total: formattedTrends.length,
       hot: formattedTrends.filter((t) => t.isHot).length,
       rising: formattedTrends.filter((t) => t.isRising).length,
-      easy: formattedTrends.filter((t) => t.difficulty === "Facile").length,
-      profitable: formattedTrends.filter((t) => t.isProfitable).length,
       favorites: formattedTrends.filter((t) => t.isFavorite).length,
     };
-
-    console.log("✅ GET /api/trends/get - stats.favorites:", stats.favorites);
 
     return Response.json({
       success: true,
