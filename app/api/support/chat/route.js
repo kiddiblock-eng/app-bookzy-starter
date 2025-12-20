@@ -249,35 +249,39 @@ Tu es un expert, un conseiller et un coach marketing en un seul assistant.
 
 Maintenant, réponds aux questions de l'utilisateur avec cette expertise et cette intelligence contextuelle !`;
 
-// ✅ Route principale - Gemini gère TOUT
+// ✅ Route principale - Utilise Gemini 2.5 Flash
 export async function POST(req) {
   try {
     const { message, history = [] } = await req.json();
     
     console.log("📨 Message reçu:", message);
 
-    // 🚀 Gemini 2.0 Flash avec configuration optimale
+    // 🚀 Utilisation de Gemini 2.5 Flash (Identique à Niche Hunter)
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-2.5-flash",
       systemInstruction: SYSTEM_PROMPT,
       generationConfig: {
         maxOutputTokens: 1200,
         temperature: 0.85,
         topP: 0.95,
-        topK: 40,
       },
     });
 
-    // Construire l'historique pour Gemini
-    // ⚠️ IMPORTANT : Gemini exige que le premier message soit "user"
-    let chatHistory = history.slice(-20).map((m) => ({
-      role: m.from === "user" ? "user" : "model",
-      parts: [{ text: m.text }],
-    }));
+    // ✅ Reconstruction sécurisée de l'historique
+    let chatHistory = [];
+    if (history && history.length > 0) {
+      chatHistory = history
+        .filter(m => m.text && m.text.length > 0) // Évite les messages vides
+        .map((m) => ({
+          role: m.from === "user" ? "user" : "model",
+          parts: [{ text: m.text }],
+        }))
+        .slice(-10); // Garde les 10 derniers échanges pour la performance en prod
 
-    // Si le premier message est "model" (bot), on le retire
-    if (chatHistory.length > 0 && chatHistory[0].role === "model") {
-      chatHistory = chatHistory.slice(1);
+      // Gemini exige impérativement que le premier message de l'historique soit "user"
+      if (chatHistory.length > 0 && chatHistory[0].role === "model") {
+        chatHistory.shift();
+      }
     }
 
     // Créer une session de chat avec historique
@@ -292,22 +296,22 @@ export async function POST(req) {
     let reply = response.text() || 
       "Je n'ai pas bien compris, peux-tu reformuler ta question ? 🤔";
 
-    // ✅ Nettoyer le markdown pour affichage propre dans le chat
+    // ✅ Nettoyer le markdown pour un affichage propre (Texte simple)
     reply = reply
-      .replace(/#{1,6}\s/g, '') // Supprimer # des titres
-      .replace(/\*\*\*(.+?)\*\*\*/g, '$1') // Convertir ***texte*** en texte
-      .replace(/\*\*(.+?)\*\*/g, '$1') // Convertir **texte** en texte  
-      .replace(/\*(.+?)\*/g, '$1') // Convertir *texte* en texte
-      .replace(/~~(.+?)~~/g, '$1') // Supprimer ~~barré~~
-      .replace(/`(.+?)`/g, '$1') // Supprimer `code`
-      .replace(/\[(.+?)\]\(.+?\)/g, '$1'); // Convertir [lien](url) en lien
+      .replace(/#{1,6}\s/g, '') // Supprimer #
+      .replace(/\*\*\*(.+?)\*\*\*/g, '$1') // ***texte*** -> texte
+      .replace(/\*\*(.+?)\*\*/g, '$1') // **texte** -> texte  
+      .replace(/\*(.+?)\*/g, '$1') // *texte* -> texte
+      .replace(/~~(.+?)~~/g, '$1') 
+      .replace(/`(.+?)`/g, '$1') 
+      .replace(/\[(.+?)\]\(.+?\)/g, '$1'); 
 
     console.log("✅ Réponse envoyée");
 
     return NextResponse.json({ reply });
 
   } catch (error) {
-    console.error("❌ Erreur API Support:", error);
+    console.error("❌ Erreur API Support (2.5 Flash):", error);
     return NextResponse.json(
       {
         reply: "Oups 😕 une erreur s'est produite. Peux-tu réessayer ? Si ça persiste, contacte support@bookzy.io",
