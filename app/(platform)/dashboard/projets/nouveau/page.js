@@ -25,7 +25,7 @@ const TONES = [
   { value: "inspirant", label: "Inspirant", icon: "✨" },
 ];
 
-const AUDIENCES = ["Débutants", "Étudiants", "Freelances", "Grand public", "Entrepreneurs", "Parents"];
+const AUDIENCES = ["Débutants", "Étudiants", "Freelances", "Grand Public", "Entrepreneurs", "Parents"];
 
 /* --- LIVRE 3D (DESIGN FINAL) --- */
 const LiveBookPreview = ({ title, templateId, small = false }) => {
