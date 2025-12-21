@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { waitUntil } from "@vercel/functions"; // ✅ AJOUTE
+import { waitUntil } from "@vercel/functions";
 import { dbConnect } from "../../../../lib/db";
 import Projet from "../../../../models/Projet";
 import User from "../../../../models/User";
@@ -19,7 +19,6 @@ import {
 import jwt from "jsonwebtoken";
 import puppeteer from "puppeteer";
 
-// ✅ RÉDUIT À 60s (limite PRO)
 export const maxDuration = 60;
 export const memory = 1024;    
 export const dynamic = 'force-dynamic';
@@ -55,22 +54,24 @@ async function getAIWithRetry(context, prompt, maxTokens, retries = 3) {
     }
 }
 
-// ✅ PHASE 1 : RAPIDE (< 60s) - Outline + Intro
 async function generatePhase1(projetId, userId, providedOutline) {
-  console.log(`🚀 [PHASE 1] Démarrage projet ${projetId}`);
+  console.log(`🚀 [PHASE 1] DÉMARRAGE projet ${projetId}`);
   
   try {
     await dbConnect();
+    console.log("✅ [PHASE 1] DB connectée");
+    
     const projet = await Projet.findById(projetId);
     
     if (!projet) {
-      console.error("❌ Projet introuvable");
+      console.error("❌ [PHASE 1] Projet introuvable");
       return;
     }
 
+    console.log(`✅ [PHASE 1] Projet chargé: ${projet.titre}`);
+
     const { titre, description, tone, audience, pages, chapters, template } = projet;
     
-    // Mise à jour statut
     projet.status = "processing";
     projet.progress = 10;
     await projet.save();
@@ -81,9 +82,12 @@ async function generatePhase1(projetId, userId, providedOutline) {
     const chapterWordsTotal = Math.floor(totalWordsTarget * 0.80);
     const wordsPerChapter = Math.floor(chapterWordsTotal / totalChapters);
 
+    console.log(`📊 [PHASE 1] Config: ${totalChapters} chapitres, ${wordsPerChapter} mots/chapitre`);
+
     // 1. SOMMAIRE
     let summaryText = "";
     if (providedOutline && Array.isArray(providedOutline) && providedOutline.length > 0) {
+        console.log("✅ [PHASE 1] Utilisation outline fourni");
         const cleanChapters = providedOutline.filter(line => 
           !line.toLowerCase().includes("introduction") && 
           !line.toLowerCase().includes("conclusion")
@@ -92,6 +96,7 @@ async function generatePhase1(projetId, userId, providedOutline) {
           line.toLowerCase().includes("chapitre") ? line : `Chapitre ${index + 1} : ${line}`
         ).join("\n");
     } else {
+        console.log("🤖 [PHASE 1] Génération outline par IA");
         const summaryPrompt = getSummaryPrompt({ title: titre, totalChapters: chapters, description });
         summaryText = await getAIWithRetry("ebook", `${EBOOK_SYSTEM_PROMPT}\n\n${summaryPrompt}`, 2000);
     }
@@ -99,8 +104,10 @@ async function generatePhase1(projetId, userId, providedOutline) {
     projet.summary = cleanMarkdown(summaryText);
     projet.progress = 20;
     await projet.save();
+    console.log("✅ [PHASE 1] Outline sauvegardé");
 
     // 2. INTRODUCTION
+    console.log("🤖 [PHASE 1] Génération introduction");
     const introWords = Math.floor(totalWordsTarget * 0.10);
     const introText = await getAIWithRetry(
       "ebook", 
@@ -111,30 +118,47 @@ async function generatePhase1(projetId, userId, providedOutline) {
     projet.introduction = cleanMarkdown(introText);
     projet.progress = 30;
     await projet.save();
+    console.log("✅ [PHASE 1] Introduction sauvegardée");
 
-    console.log("✅ [PHASE 1] Terminée - Lancement Phase 2");
+    console.log("✅ [PHASE 1] TERMINÉE - Lancement Phase 2 dans 100ms");
     
-    // ✅ LANCE PHASE 2 EN ARRIÈRE-PLAN (pas de waitUntil ici)
-    generatePhase2(projetId, userId, summaryText, wordsPerChapter, totalChapters)
-      .catch(err => console.error("❌ Phase 2 Error:", err));
+    // ✅ FORCE LE LANCEMENT DE PHASE 2
+    setTimeout(() => {
+      console.log("🚀 [TRIGGER] Lancement Phase 2");
+      generatePhase2(projetId, userId, summaryText, wordsPerChapter, totalChapters)
+        .catch(err => {
+          console.error("❌ [TRIGGER] Phase 2 Error:", err);
+          console.error("❌ [TRIGGER] Stack:", err.stack);
+        });
+    }, 100);
 
   } catch (err) {
-    console.error("❌ Erreur Phase 1:", err);
+    console.error("❌ [PHASE 1] Erreur:", err);
+    console.error("❌ [PHASE 1] Stack:", err.stack);
     try {
       await Projet.findByIdAndUpdate(projetId, { status: "ERROR", progress: 0 });
-    } catch(e) {}
+    } catch(e) {
+      console.error("❌ [PHASE 1] Erreur update projet:", e);
+    }
   }
 }
 
-// ✅ PHASE 2 : LONGUE (peut dépasser 60s) - Chapitres + PDF
 async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, totalChapters) {
-  console.log(`🚀 [PHASE 2] Démarrage projet ${projetId}`);
+  console.log(`🚀 [PHASE 2] DÉMARRAGE projet ${projetId}`);
+  console.log(`📊 [PHASE 2] Chapitres: ${totalChapters}, Mots/chapitre: ${wordsPerChapter}`);
   
   try {
     await dbConnect();
+    console.log("✅ [PHASE 2] DB connectée");
+    
     const projet = await Projet.findById(projetId);
     
-    if (!projet) return;
+    if (!projet) {
+      console.error("❌ [PHASE 2] Projet introuvable");
+      return;
+    }
+
+    console.log(`✅ [PHASE 2] Projet chargé: ${projet.titre}`);
 
     const { titre, description, template } = projet;
     const user = await User.findById(userId);
@@ -149,7 +173,8 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     3. INTERDIT : Pas de Markdown (*, #), pas de gras (**).
     `;
 
-    // GÉNÉRATION PARALLÈLE
+    console.log("🤖 [PHASE 2] Début génération parallèle (chapitres + conclusion + ads)");
+    
     const parallelCalls = [];
 
     // A. Chapitres
@@ -158,7 +183,9 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       const chapterTitle = chapterTitleMatch ? chapterTitleMatch[1].trim() : `Chapitre ${i}`;
       
       parallelCalls.push((async () => {
-        await delay(i * 500); // ✅ Réduit à 500ms
+        await delay(i * 300); // ✅ Réduit à 300ms
+        console.log(`🤖 [PHASE 2] Génération chapitre ${i}/${totalChapters}: ${chapterTitle}`);
+        
         const text = await getAIWithRetry(
           "ebook", 
           `${EBOOK_SYSTEM_PROMPT}\n\n${getChapterPrompt({ 
@@ -173,10 +200,10 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
           dynamicMaxTokens
         );
         
-        // ✅ Update progress après chaque chapitre
-        await Projet.findByIdAndUpdate(projetId, {
-          progress: 30 + Math.floor((i / totalChapters) * 40)
-        });
+        // Update progress
+        const newProgress = 30 + Math.floor((i / totalChapters) * 40);
+        await Projet.findByIdAndUpdate(projetId, { progress: newProgress });
+        console.log(`✅ [PHASE 2] Chapitre ${i} terminé - Progress: ${newProgress}%`);
         
         return { type: "chapter", index: i, content: cleanMarkdown(text) };
       })());
@@ -184,18 +211,21 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
 
     // B. Conclusion
     parallelCalls.push((async () => {
-      await delay((totalChapters + 1) * 500);
+      await delay((totalChapters + 1) * 300);
+      console.log("🤖 [PHASE 2] Génération conclusion");
       const text = await getAIWithRetry(
         "ebook", 
         `${EBOOK_SYSTEM_PROMPT}\n\n${getConclusionPrompt({ title: titre, description, summary: summaryText })}`, 
         1500
       );
+      console.log("✅ [PHASE 2] Conclusion terminée");
       return { type: "conclusion", content: cleanMarkdown(text) };
     })());
 
     // C. ADS
     parallelCalls.push((async () => {
-      await delay(300);
+      await delay(200);
+      console.log("🤖 [PHASE 2] Génération ads marketing");
       const promptAds = `
         Tu es un Copywriter Expert. Rédige 4 contenus marketing distincts pour vendre l'ebook : "${titre}".
         
@@ -223,11 +253,14 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       const long = raw.split("---LONG---")[1]?.split("---LANDING---")[0]?.trim() || "";
       const landing = raw.split("---LANDING---")[1]?.trim() || "";
       
+      console.log("✅ [PHASE 2] Ads marketing terminées");
       return { type: "ads", content: { facebook, whatsapp, long, landing } };
     })());
 
-    // Attente
+    // Attente de tous les appels
+    console.log("⏳ [PHASE 2] Attente fin de tous les appels parallèles...");
     const results = await Promise.all(parallelCalls);
+    console.log("✅ [PHASE 2] Tous les appels terminés");
 
     // Assemblage
     let conclusionText = "";
@@ -240,7 +273,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
         else if (result.type === "chapter") chaptersArray[result.index - 1] = result.content;
     });
     
-    // Sauvegarde
+    console.log("💾 [PHASE 2] Sauvegarde contenu texte");
     projet.chapters = chaptersArray.filter(Boolean).join("\n\n");
     projet.conclusion = conclusionText;
     projet.adsTexts = adsTexts;
@@ -249,7 +282,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     await projet.save();
 
     // PDF
-    console.log("📄 Génération PDF...");
+    console.log("📄 [PHASE 2] Génération PDF");
     const chaptersStruct = chaptersArray.map((c, i) => {
         const titleMatch = summaryText.match(new RegExp(`Chapitre ${i+1}\\s*[:：]\\s*(.+?)(?=\\n|$)`, 'i'));
         return { 
@@ -268,6 +301,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       coverImage: null 
     }, template || "minimal");
 
+    console.log("🌐 [PHASE 2] Lancement Puppeteer");
     const browser = await puppeteer.launch({
       headless: "new",
       args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
@@ -284,7 +318,9 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     });
 
     await browser.close();
+    console.log("✅ [PHASE 2] PDF généré");
 
+    console.log("☁️ [PHASE 2] Upload Cloudinary");
     const pdfUpload = await uploadBufferToCloudinary(pdfBuffer, {
       folder: "bookzy/ebooks",
       publicId: `${titre || "ebook"}-${projetId}`,
@@ -297,10 +333,12 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     projet.progress = 100;
     projet.completedAt = new Date();
     await projet.save();
+    console.log("✅ [PHASE 2] Projet marqué COMPLETED");
 
     // Email
     if (user?.email) {
        try {
+        console.log("📧 [PHASE 2] Envoi email à", user.email);
         await resend.emails.send({
           from: "Bookzy <no-reply@bookzy.io>",
           to: user.email,
@@ -311,18 +349,23 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
             projectId: projetId.toString() 
           }),
         });
+        console.log("✅ [PHASE 2] Email envoyé");
        } catch(e) {
-        console.error("❌ Email error:", e);
+        console.error("❌ [PHASE 2] Erreur email:", e);
        }
     }
 
-    console.log("✅ [PHASE 2] TERMINÉE");
+    console.log("🎉 [PHASE 2] TERMINÉE AVEC SUCCÈS");
 
   } catch (err) {
-    console.error("❌ Erreur Phase 2:", err);
+    console.error("❌ [PHASE 2] Erreur:", err);
+    console.error("❌ [PHASE 2] Stack:", err.stack);
     try {
       await Projet.findByIdAndUpdate(projetId, { status: "ERROR" });
-    } catch(e) {}
+      console.log("⚠️ [PHASE 2] Projet marqué ERROR");
+    } catch(e) {
+      console.error("❌ [PHASE 2] Erreur update projet:", e);
+    }
   }
 }
 
@@ -344,22 +387,29 @@ export async function POST(req) {
     let { projetId, transactionId, outline } = body;
     let userId = getUserIdFromCookie(req);
     
+    console.log("📥 [POST] Requête reçue - projetId:", projetId, "transactionId:", transactionId);
+    
     if (!userId && transactionId) {
         const tx = await Transaction.findById(transactionId);
         if (tx) userId = tx.userId;
     }
 
     if (!userId && !projetId) {
+      console.error("❌ [POST] Non authentifié");
       return NextResponse.json({ success: false, message: "Non authentifié" }, { status: 401 });
     }
+
+    console.log("✅ [POST] UserId:", userId);
 
     if (projetId) {
       projet = await Projet.findById(projetId).populate("userId");
       if (!projet) {
+        console.error("❌ [POST] Projet introuvable");
         return NextResponse.json({ success: false, message: "Introuvable" }, { status: 404 });
       }
       
       if (projet.status === "COMPLETED") {
+          console.log("✅ [POST] Projet déjà terminé");
           return NextResponse.json({ 
               success: true, 
               alreadyGenerated: true, 
@@ -369,6 +419,7 @@ export async function POST(req) {
       }
       
       if (projet.status === "processing") {
+        console.log("⏳ [POST] Projet déjà en cours");
         return NextResponse.json({ 
           success: true, 
           message: "Déjà en cours",
@@ -381,6 +432,7 @@ export async function POST(req) {
         if (transactionId) {
             const existing = await Projet.findOne({ transactionId });
             if (existing) {
+                console.log("✅ [POST] Projet existant trouvé");
                 return NextResponse.json({ 
                     success: true, 
                     alreadyGenerated: existing.status === "COMPLETED",
@@ -408,6 +460,7 @@ export async function POST(req) {
              }
         }
 
+        console.log("📝 [POST] Création nouveau projet:", titre);
         projet = await Projet.create({
             userId,
             transactionId,
@@ -424,9 +477,10 @@ export async function POST(req) {
         });
         
         projetId = projet._id.toString();
+        console.log("✅ [POST] Projet créé:", projetId);
     }
     
-    // ✅ LANCE PHASE 1 AVEC waitUntil (< 60s)
+    console.log("🚀 [POST] Lancement Phase 1 avec waitUntil");
     waitUntil(generatePhase1(projet._id, userId, outline));
     
     return NextResponse.json({ 
@@ -437,12 +491,15 @@ export async function POST(req) {
     });
 
   } catch (err) {
-    console.error("❌ Erreur POST:", err);
+    console.error("❌ [POST] Erreur:", err);
+    console.error("❌ [POST] Stack:", err.stack);
     if (projet) {
       try {
         projet.status = "ERROR";
         await projet.save();
-      } catch(e) {}
+      } catch(e) {
+        console.error("❌ [POST] Erreur save:", e);
+      }
     }
     return NextResponse.json({ 
       success: false, 
