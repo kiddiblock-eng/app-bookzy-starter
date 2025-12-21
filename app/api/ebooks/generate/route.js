@@ -122,7 +122,7 @@ async function generatePhase1(projetId, userId, providedOutline) {
 
     console.log("✅ [PHASE 1] TERMINÉE - Lancement Phase 2 dans 100ms");
     
-    // ✅ FORCE LE LANCEMENT DE PHASE 2
+    // LANCE PHASE 2
     setTimeout(() => {
       console.log("🚀 [TRIGGER] Lancement Phase 2");
       generatePhase2(projetId, userId, summaryText, wordsPerChapter, totalChapters)
@@ -161,8 +161,24 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     console.log(`✅ [PHASE 2] Projet chargé: ${projet.titre}`);
 
     const { titre, description, template } = projet;
-    const user = await User.findById(userId);
-    const authorName = user?.firstName || user?.nom || "Auteur";
+    
+    // ✅ FIX: Chargement user sécurisé
+    let authorName = "Auteur";
+    try {
+      if (userId) {
+        const user = await User.findById(userId);
+        if (user) {
+          authorName = user.firstName || user.nom || "Auteur";
+          console.log(`✅ [PHASE 2] User chargé: ${user.firstName || user.email}`);
+        } else {
+          console.warn(`⚠️ [PHASE 2] User ${userId} introuvable - Utilisation nom par défaut`);
+        }
+      } else {
+        console.warn(`⚠️ [PHASE 2] Pas d'userId fourni - Utilisation nom par défaut`);
+      }
+    } catch (userErr) {
+      console.error(`❌ [PHASE 2] Erreur chargement user:`, userErr.message);
+    }
     
     const dynamicMaxTokens = Math.min(3000, Math.floor(wordsPerChapter * 2));
 
@@ -183,7 +199,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       const chapterTitle = chapterTitleMatch ? chapterTitleMatch[1].trim() : `Chapitre ${i}`;
       
       parallelCalls.push((async () => {
-        await delay(i * 300); // ✅ Réduit à 300ms
+        await delay(i * 300);
         console.log(`🤖 [PHASE 2] Génération chapitre ${i}/${totalChapters}: ${chapterTitle}`);
         
         const text = await getAIWithRetry(
@@ -200,7 +216,6 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
           dynamicMaxTokens
         );
         
-        // Update progress
         const newProgress = 30 + Math.floor((i / totalChapters) * 40);
         await Projet.findByIdAndUpdate(projetId, { progress: newProgress });
         console.log(`✅ [PHASE 2] Chapitre ${i} terminé - Progress: ${newProgress}%`);
@@ -257,7 +272,6 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       return { type: "ads", content: { facebook, whatsapp, long, landing } };
     })());
 
-    // Attente de tous les appels
     console.log("⏳ [PHASE 2] Attente fin de tous les appels parallèles...");
     const results = await Promise.all(parallelCalls);
     console.log("✅ [PHASE 2] Tous les appels terminés");
@@ -336,23 +350,26 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     console.log("✅ [PHASE 2] Projet marqué COMPLETED");
 
     // Email
-    if (user?.email) {
-       try {
-        console.log("📧 [PHASE 2] Envoi email à", user.email);
-        await resend.emails.send({
-          from: "Bookzy <no-reply@bookzy.io>",
-          to: user.email,
-          subject: "🎉 Ton ebook est prêt !",
-          html: ebookReadyTemplate({ 
-            firstName: user.firstName, 
-            ebookTitle: titre, 
-            projectId: projetId.toString() 
-          }),
-        });
-        console.log("✅ [PHASE 2] Email envoyé");
-       } catch(e) {
-        console.error("❌ [PHASE 2] Erreur email:", e);
-       }
+    if (userId) {
+      try {
+        const user = await User.findById(userId);
+        if (user?.email) {
+          console.log("📧 [PHASE 2] Envoi email à", user.email);
+          await resend.emails.send({
+            from: "Bookzy <no-reply@bookzy.io>",
+            to: user.email,
+            subject: "🎉 Ton ebook est prêt !",
+            html: ebookReadyTemplate({ 
+              firstName: user.firstName || "cher utilisateur", 
+              ebookTitle: titre, 
+              projectId: projetId.toString() 
+            }),
+          });
+          console.log("✅ [PHASE 2] Email envoyé");
+        }
+      } catch(emailErr) {
+        console.error("❌ [PHASE 2] Erreur email:", emailErr.message);
+      }
     }
 
     console.log("🎉 [PHASE 2] TERMINÉE AVEC SUCCÈS");
