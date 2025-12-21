@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { dbConnect } from "../../../../lib/db";
 import Projet from "../../../../models/Projet";
@@ -18,7 +19,6 @@ import {
 import jwt from "jsonwebtoken";
 import puppeteer from "puppeteer";
 
-export const dynamic = 'force-dynamic';
 
 // const resend = new Resend(process.env.RESEND_API_KEY);
 const delay = (ms) => new Promise(res => setTimeout(res, ms));

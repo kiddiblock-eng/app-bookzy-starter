@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // api/auth/verify-email/route.js
 
 import { NextResponse } from "next/server";

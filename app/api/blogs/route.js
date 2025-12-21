@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import Blog from "@/models/Blog";
 import { dbConnect } from "@/lib/db";
 

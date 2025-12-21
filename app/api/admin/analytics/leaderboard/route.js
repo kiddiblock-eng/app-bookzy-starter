@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // app/api/admin/analytics/leaderboard/route.js
 // ✅ VERSION CORRIGÉE - Utilise Projet avec aggregate
 

@@ -1,10 +1,10 @@
+export const dynamic = "force-dynamic";
 import { dbConnect } from "@/lib/db";
 import Trend from "@/models/Trend";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
 
 // ✅ Force le mode dynamique (Données toujours fraîches)
-export const dynamic = 'force-dynamic';
 
 export async function GET(request) {
   try {

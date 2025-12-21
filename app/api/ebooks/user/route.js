@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { dbConnect } from "@/lib/db";
@@ -5,7 +6,6 @@ import Projet from "@/models/Projet";
 import jwt from "jsonwebtoken";
 
 // ✅ Force le recalcul à chaque appel (pas de cache serveur Next.js)
-export const dynamic = "force-dynamic";
 
 export async function GET(req) {
   try {

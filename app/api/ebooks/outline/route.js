@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // app/api/ebooks/outline/route.js
 import { NextResponse } from "next/server";
 import { getAIText } from "../../../../lib/ai"; // Utilise ton provider existant

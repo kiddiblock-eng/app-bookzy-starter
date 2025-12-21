@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // app/api/auth/logout/route.js
 
 import { cookies } from "next/headers";

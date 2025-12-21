@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { v2 as cloudinary } from "cloudinary";
 import { dbConnect } from "@/lib/db.js";
 import User from "@/models/User.js";

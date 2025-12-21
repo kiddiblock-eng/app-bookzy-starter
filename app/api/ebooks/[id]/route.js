@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers"; // Plus propre pour lire les cookies
 import { dbConnect } from "@/lib/db";   // ✅ On utilise ta connexion optimisée
@@ -5,7 +6,6 @@ import Projet from "@/models/Projet";   // Vérifie que le chemin est bon
 import jwt from "jsonwebtoken";
 
 // Force le recalcul (pas de cache sur les détails, on veut les dernières infos)
-export const dynamic = "force-dynamic";
 
 export async function GET(req, { params }) {
   try {

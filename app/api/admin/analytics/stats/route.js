@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // app/api/admin/analytics/stats/route.js
 // ✅ VERSION CORRIGÉE - Utilise Projet au lieu de Ebook
 

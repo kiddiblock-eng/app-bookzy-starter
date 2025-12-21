@@ -1,10 +1,10 @@
+export const dynamic = "force-dynamic";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { dbConnect } from "@/lib/db.js";
 import User from "@/models/User.js";
 
 // ✅ 1. Forcer le mode dynamique (Pas de cache serveur)
-export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {

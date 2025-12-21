@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { dbConnect } from "@/lib/db";
 import Trend from "@/models/Trend";
 import { verifyAdmin } from "@/lib/auth";

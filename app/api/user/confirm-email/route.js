@@ -1,9 +1,9 @@
+export const dynamic = "force-dynamic";
 import { dbConnect } from "@/lib/db";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
 
 
-export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
   try {

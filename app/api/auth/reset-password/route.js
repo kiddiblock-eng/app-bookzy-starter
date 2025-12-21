@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // api/auth/reset-password/route.js
 
 import { dbConnect } from "@/lib/db";

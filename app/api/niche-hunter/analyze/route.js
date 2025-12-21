@@ -1,10 +1,10 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import NicheAnalysis from "@/models/NicheAnalysis";
 import { verifyAuth } from "@/lib/auth";
 import { getAIText } from "@/lib/ai";
 
-export const dynamic = 'force-dynamic';
 
 // Nettoyage markdown (enlever les * et autres)
 function cleanMarkdown(text) {

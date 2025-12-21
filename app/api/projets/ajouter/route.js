@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { dbConnect } from "@/lib/db.js";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";

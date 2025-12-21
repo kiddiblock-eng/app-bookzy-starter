@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // app/api/payments/create/route.js
 // ✅ VERSION CORRIGÉE : Détection automatique du provider actif
 

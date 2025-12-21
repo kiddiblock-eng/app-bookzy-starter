@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { dbConnect } from "../../../../lib/db";
 import Ebook from "../../../../models/Ebook";
 import jwt from "jsonwebtoken";

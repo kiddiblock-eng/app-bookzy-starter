@@ -1,10 +1,10 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db.js";
 import NicheAnalysis from "@/models/NicheAnalysis.js";
 import { verifyAuth } from "@/lib/auth.js";
 import { getAIText } from "@/lib/ai.js";
 
-export const dynamic = 'force-dynamic';
 
 export async function POST(req) {
   try {

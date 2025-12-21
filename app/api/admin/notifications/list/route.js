@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { dbConnect } from "@/lib/db";
 import Notification from "@/models/Notification";
 import jwt from "jsonwebtoken";

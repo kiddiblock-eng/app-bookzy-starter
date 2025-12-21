@@ -1,10 +1,10 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // ✅ CONFIGURATION PRODUCTION (Évite les coupures sur les réponses longues)
 export const runtime = "edge";
 export const maxDuration = 60; 
-export const dynamic = "force-dynamic"; 
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 

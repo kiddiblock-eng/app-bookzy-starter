@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // app/api/ebooks/progress/[id]/route.js
 
 import { NextResponse } from "next/server";

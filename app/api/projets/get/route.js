@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { dbConnect} from "@/lib/db.js";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
@@ -5,7 +6,6 @@ import mongoose from "mongoose";
 import Projet from "@/models/Projet.js";
 
 
-export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {

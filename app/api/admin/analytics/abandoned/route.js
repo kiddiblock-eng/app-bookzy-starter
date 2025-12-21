@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { dbConnect } from "@/lib/db";
 import Projet from "@/models/Projet";
 import { verifyAdmin } from "@/lib/auth";

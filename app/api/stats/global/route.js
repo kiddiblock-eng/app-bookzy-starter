@@ -1,10 +1,10 @@
+export const dynamic = "force-dynamic";
 import { dbConnect } from "@/lib/db";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import Vente from "@/models/vente";
 import Projet from "@/models/Projet";
 
-export const dynamic = 'force-dynamic';
 
 function getMonthRange(offset = 0) {
   const now = new Date();

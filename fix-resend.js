@@ -10,42 +10,25 @@ function walk(dir) {
         if (fs.statSync(fullPath).isDirectory()) {
             walk(fullPath);
         } else if (file === 'route.js') {
-            fixFile(fullPath);
+            fixDynamicRoute(fullPath);
         }
     });
 }
 
-function fixFile(filePath) {
+function fixDynamicRoute(filePath) {
     let content = fs.readFileSync(filePath, 'utf8');
     
-    if (!content.includes('Resend')) return;
+    // 1. On retire toute ancienne déclaration de dynamic pour éviter les doublons
+    content = content.replace(/^export const dynamic = .*;?\n?/gm, '');
 
-    console.log(`🧹 Nettoyage des doublons : ${filePath}`);
+    // 2. On ajoute 'force-dynamic' tout en haut
+    // C'est l'instruction magique pour que Next.js ignore ce fichier au build
+    content = `export const dynamic = "force-dynamic";\n` + content;
 
-    // 1. On s'assure que dynamic force-dynamic est là une seule fois
-    if (!content.includes('force-dynamic')) {
-        content = `export const dynamic = "force-dynamic";\n` + content;
-    }
-
-    // 2. On supprime TOUTES les lignes "const resend =" qui ne sont pas commentées
-    // Cela va nettoyer les doublons créés précédemment
-    content = content.replace(/^[ ]*const resend = new Resend\(process\.env\.RESEND_API_KEY\);/gm, '');
-
-    // 3. On injecte la ligne proprement UNE SEULE FOIS au début des fonctions
-    const methods = ['POST', 'PUT', 'PATCH', 'GET'];
-    methods.forEach(method => {
-        const regex = new RegExp(`export async function ${method}\\(.*?\\) {`, 'g');
-        if (regex.test(content)) {
-            content = content.replace(regex, `$& \n  const resend = new Resend(process.env.RESEND_API_KEY);`);
-        }
-    });
-
-    // 4. On nettoie les sauts de ligne excessifs que le script pourrait avoir créés
-    content = content.replace(/\n\s*\n\s*\n/g, '\n\n');
-
+    console.log(`✅ Dynamisé : ${filePath.replace(process.cwd(), '')}`);
     fs.writeFileSync(filePath, content);
 }
 
-console.log("🚀 Lancement du nettoyage final...");
+console.log("🚀 Forçage du mode dynamique sur toutes les routes API...");
 walk(apiDir);
-console.log("✅ Terminé ! Les doublons ont été supprimés.");
+console.log("✨ Terminé ! Next.js ne bloquera plus sur MongoDB au build.");
