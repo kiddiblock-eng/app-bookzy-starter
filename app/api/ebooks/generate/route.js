@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { waitUntil } from "@vercel/functions";
 import { dbConnect } from "../../../../lib/db";
 import Projet from "../../../../models/Projet";
 import User from "../../../../models/User";
@@ -17,11 +16,8 @@ import {
   EBOOK_SYSTEM_PROMPT
 } from "../../../../lib/prompts/ebookPrompts";
 import jwt from "jsonwebtoken";
-import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
+import puppeteer from "puppeteer";
 
-export const maxDuration = 300;
-export const memory = 1024;    
 export const dynamic = 'force-dynamic';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -290,7 +286,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     await projet.save();
     console.log("💾 [PHASE 2] Texte sauvegardé");
 
-    // PDF avec Chromium REMOTE v131.0.1
+    // PDF avec Puppeteer NORMAL (Railway)
     console.log("📄 [PHASE 2] Génération PDF");
     const chaptersStruct = chaptersArray.map((c, i) => {
         const titleMatch = summaryText.match(new RegExp(`Chapitre ${i+1}\\s*[:：]\\s*(.+?)(?=\\n|$)`, 'i'));
@@ -310,23 +306,22 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       coverImage: null 
     }, template || "minimal");
 
-    console.log("🌐 [PHASE 2] Lancement Puppeteer (REMOTE CHROMIUM v131)");
+    console.log("🌐 [PHASE 2] Lancement Puppeteer");
     
     let browser;
     try {
-      // ✅ URL EXACTE POUR LA VERSION 131.0.1
-      const CHROMIUM_PACK_URL = "https://github.com/sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.tar";
-      
-      console.log("🔍 [PHASE 2] Téléchargement Chromium depuis GitHub...");
-      
       browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(CHROMIUM_PACK_URL),
-        headless: chromium.headless,
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-gpu'
+        ],
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium'
       });
 
-      console.log("✅ [PHASE 2] Browser lancé avec succès");
+      console.log("✅ [PHASE 2] Browser lancé");
 
       const page = await browser.newPage();
       
@@ -335,7 +330,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
         timeout: 30000 
       });
       
-      console.log("✅ [PHASE 2] HTML chargé dans le browser");
+      console.log("✅ [PHASE 2] HTML chargé");
 
       const pdfBuffer = await page.pdf({
         format: "A4",
@@ -344,9 +339,9 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       });
 
       await browser.close();
-      console.log("✅ [PHASE 2] PDF généré avec succès");
+      console.log("✅ [PHASE 2] PDF généré");
 
-      console.log("☁️ [PHASE 2] Upload vers Cloudinary...");
+      console.log("☁️ [PHASE 2] Upload Cloudinary");
       const pdfUpload = await uploadBufferToCloudinary(pdfBuffer, {
         folder: "bookzy/ebooks",
         publicId: `${titre || "ebook"}-${projetId}`,
@@ -359,19 +354,15 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       projet.progress = 100;
       projet.completedAt = new Date();
       await projet.save();
-      console.log("✅ [PHASE 2] Projet marqué COMPLETED");
-      console.log("🎉 [PHASE 2] PDF disponible:", pdfUpload.secure_url);
+      console.log("✅ [PHASE 2] Projet COMPLETED");
+      console.log("🎉 [PHASE 2] PDF:", pdfUpload.secure_url);
 
     } catch (pdfError) {
       console.error("❌ [PHASE 2] Erreur PDF:", pdfError.message);
       console.error("❌ [PHASE 2] Stack:", pdfError.stack);
       
       if (browser) {
-        try { 
-          await browser.close(); 
-        } catch(e) {
-          console.error("❌ Erreur fermeture browser:", e.message);
-        }
+        try { await browser.close(); } catch(e) {}
       }
       
       throw new Error(`Erreur génération PDF: ${pdfError.message}`);
@@ -510,7 +501,7 @@ export async function POST(req) {
         projetId = projet._id.toString();
     }
     
-    waitUntil(generatePhase1(projet._id, userId, outline));
+    generatePhase1(projet._id, userId, outline);
     
     return NextResponse.json({ 
       success: true, 
