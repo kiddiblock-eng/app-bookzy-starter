@@ -9,9 +9,9 @@ import { Resend } from "resend";
 // ⚠️ AUCUNE INITIALISATION DE RESEND ICI (C'est ce qui bloquait le build)
 
 export async function PUT(req) { 
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  const resend = new Resend(process.env.RESEND_API_KEY); 
+
   // ✅ INITIALISATION UNIQUEMENT ICI (À l'intérieur de la fonction)
-  const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
     await dbConnect();
