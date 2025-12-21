@@ -1,8 +1,9 @@
-FROM node:18-slim
+# Utilisation de Node 20 pour une meilleure compatibilité avec Next 14
+FROM node:20-bullseye-slim
 
+# Installation complète des dépendances Chromium
 RUN apt-get update && apt-get install -y \
     chromium \
-    chromium-driver \
     fonts-liberation \
     libnss3 \
     libatk-bridge2.0-0 \
@@ -14,20 +15,26 @@ RUN apt-get update && apt-get install -y \
     libxcomposite1 \
     libxdamage1 \
     libxrandr2 \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+# Variables d'environnement pour Puppeteer
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
+    PORT=8080 \
+    NODE_ENV=production
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+# Utilisation de npm install pour s'assurer que toutes les dépendances sont là
+RUN npm install
 
 COPY . .
 
 RUN npm run build
 
-EXPOSE 3000
+# Railway utilise souvent le port 8080 par défaut
+EXPOSE 8080
 
 CMD ["npm", "start"]

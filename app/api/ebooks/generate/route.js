@@ -286,7 +286,9 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     await projet.save();
     console.log("💾 [PHASE 2] Texte sauvegardé");
 
-    // PDF avec Puppeteer NORMAL (Railway)
+    // ============================================================================
+    // 🔧 PDF avec Puppeteer OPTIMISÉ (Railway)
+    // ============================================================================
     console.log("📄 [PHASE 2] Génération PDF");
     const chaptersStruct = chaptersArray.map((c, i) => {
         const titleMatch = summaryText.match(new RegExp(`Chapitre ${i+1}\\s*[:：]\\s*(.+?)(?=\\n|$)`, 'i'));
@@ -310,32 +312,42 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     
     let browser;
     try {
+      // ✅ FIX 1 : Timeouts augmentés + flags optimisés
       browser = await puppeteer.launch({
         headless: true,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-gpu'
+          '--disable-dev-shm-usage',  // ← CRITIQUE pour Railway (évite les problèmes de mémoire partagée)
+          '--disable-gpu',
+          '--disable-software-rasterizer',  // ← AJOUTÉ
+          '--disable-extensions',  // ← AJOUTÉ
+          '--disable-background-networking',  // ← AJOUTÉ
+          '--disable-default-apps',  // ← AJOUTÉ
+          '--disable-sync',  // ← AJOUTÉ
         ],
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium'
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
+        timeout: 120000  // ← 2 minutes pour lancer le browser
       });
 
       console.log("✅ [PHASE 2] Browser lancé");
 
       const page = await browser.newPage();
       
+      // ✅ FIX 2 : Utiliser "domcontentloaded" au lieu de "networkidle0" pour ne pas attendre les Google Fonts
       await page.setContent(html, { 
-        waitUntil: "networkidle0",
-        timeout: 30000 
+        waitUntil: "domcontentloaded",  // ← Plus rapide que "networkidle0"
+        timeout: 120000  // ← 2 minutes au lieu de 30 secondes
       });
       
       console.log("✅ [PHASE 2] HTML chargé");
 
+      // ✅ FIX 3 : Timeout augmenté pour la génération PDF
       const pdfBuffer = await page.pdf({
         format: "A4",
         printBackground: true,
-        margin: { top: "0mm", bottom: "0mm" }
+        margin: { top: "0mm", bottom: "0mm" },
+        timeout: 120000  // ← 2 minutes pour générer le PDF
       });
 
       await browser.close();
@@ -373,6 +385,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       try {
         const user = await User.findById(userId);
         if (user?.email) {
+          const resend = new Resend(process.env.RESEND_API_KEY);
           await resend.emails.send({
             from: "Bookzy <no-reply@bookzy.io>",
             to: user.email,
