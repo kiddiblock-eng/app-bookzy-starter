@@ -16,6 +16,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@google/generative-ai": "^0.24.1",
     "@tailwindcss/typography": "^0.5.19",
+    "@vercel/functions": "^3.3.4",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "canvas": "^3.2.0",
