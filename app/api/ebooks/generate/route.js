@@ -20,7 +20,8 @@ import puppeteer from "puppeteer";
 
 // Augmentation du temps max pour Vercel (5 minutes)
 export const maxDuration = 300;
-
+export const memory = 1024;    
+export const dynamic = 'force-dynamic';
 const resend = new Resend(process.env.RESEND_API_KEY);
 const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
