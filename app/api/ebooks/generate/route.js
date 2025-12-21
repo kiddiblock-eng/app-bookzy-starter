@@ -20,7 +20,6 @@ import jwt from "jsonwebtoken";
 import puppeteer from "puppeteer";
 
 
-// const resend = new Resend(process.env.RESEND_API_KEY);
 const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
 function cleanMarkdown(text) {
@@ -171,8 +170,9 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     3. INTERDIT : Pas de Markdown (*, #), pas de gras (**).
     `;
 
-    console.log("🤖 [PHASE 2] Début génération parallèle");
+    console.log("🤖 [PHASE 2] Début génération parallèle PAR BATCH");
     
+    // ✅ OPTIMISATION : Préparation des appels (pas d'exécution immédiate)
     const parallelCalls = [];
 
     // Chapitres
@@ -180,8 +180,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       const chapterTitleMatch = summaryText.match(new RegExp(`Chapitre ${i}\\s*[:：]\\s*(.+?)(?=\\n|$)`, 'i'));
       const chapterTitle = chapterTitleMatch ? chapterTitleMatch[1].trim() : `Chapitre ${i}`;
       
-      parallelCalls.push((async () => {
-        await delay(i * 300);
+      parallelCalls.push(async () => {
         console.log(`🤖 [PHASE 2] Génération chapitre ${i}/${totalChapters}`);
         
         const text = await getAIWithRetry(
@@ -203,15 +202,11 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
         console.log(`✅ [PHASE 2] Chapitre ${i} terminé - ${newProgress}%`);
         
         return { type: "chapter", index: i, content: cleanMarkdown(text) };
-      })().catch(err => {
-        console.error(`❌ [PHASE 2] Erreur chapitre ${i}:`, err.message);
-        return null;
-      }));
+      });
     }
 
     // Conclusion
-    parallelCalls.push((async () => {
-      await delay((totalChapters + 1) * 300);
+    parallelCalls.push(async () => {
       console.log("🤖 [PHASE 2] Génération conclusion");
       const text = await getAIWithRetry(
         "ebook", 
@@ -220,14 +215,10 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       );
       console.log("✅ [PHASE 2] Conclusion terminée");
       return { type: "conclusion", content: cleanMarkdown(text) };
-    })().catch(err => {
-      console.error("❌ [PHASE 2] Erreur conclusion:", err.message);
-      return null;
-    }));
+    });
 
     // ADS
-    parallelCalls.push((async () => {
-      await delay(200);
+    parallelCalls.push(async () => {
       console.log("🤖 [PHASE 2] Génération ads");
       const promptAds = `
         Tu es un Copywriter Expert. Rédige 4 contenus marketing distincts pour vendre l'ebook : "${titre}".
@@ -258,12 +249,30 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       
       console.log("✅ [PHASE 2] Ads terminées");
       return { type: "ads", content: { facebook, whatsapp, long, landing } };
-    })().catch(err => {
-      console.error("❌ [PHASE 2] Erreur ads:", err.message);
-      return { type: "ads", content: { facebook: "", whatsapp: "", long: "", landing: "" } };
-    }));
+    });
 
-    const results = await Promise.all(parallelCalls);
+    // ============================================================================
+    // ✅ OPTIMISATION GEMINI : Exécution par BATCH de 3 (évite de surcharger)
+    // ============================================================================
+    const results = [];
+    const batchSize = 3;
+    
+    console.log(`📦 [PHASE 2] Exécution par batch de ${batchSize}`);
+    
+    for (let i = 0; i < parallelCalls.length; i += batchSize) {
+      const batch = parallelCalls.slice(i, i + batchSize);
+      console.log(`📦 Batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(parallelCalls.length/batchSize)}`);
+      
+      const batchResults = await Promise.all(
+        batch.map(fn => fn().catch(err => {
+          console.error("❌ Erreur batch:", err.message);
+          return null;
+        }))
+      );
+      
+      results.push(...batchResults);
+    }
+    
     console.log("✅ [PHASE 2] Génération texte terminée");
 
     // Assemblage
@@ -287,7 +296,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     console.log("💾 [PHASE 2] Texte sauvegardé");
 
     // ============================================================================
-    // 🔧 PDF avec Puppeteer OPTIMISÉ (Railway)
+    // 🚀 PDF ULTRA-OPTIMISÉ (Gemini + Railway best practices combinés)
     // ============================================================================
     console.log("📄 [PHASE 2] Génération PDF");
     const chaptersStruct = chaptersArray.map((c, i) => {
@@ -308,46 +317,45 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       coverImage: null 
     }, template || "minimal");
 
-    console.log("🌐 [PHASE 2] Lancement Puppeteer");
+    console.log("🌐 [PHASE 2] Lancement Puppeteer ULTRA-OPTIMISÉ");
     
     let browser;
     try {
-      // ✅ FIX 1 : Timeouts augmentés + flags optimisés
+      // ✅ FIXES COMBINÉS : Gemini + Railway
       browser = await puppeteer.launch({
         headless: true,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',  // ← CRITIQUE pour Railway (évite les problèmes de mémoire partagée)
+          '--disable-dev-shm-usage',  // ← CRITIQUE Railway (mémoire partagée)
           '--disable-gpu',
-          '--disable-software-rasterizer',  // ← AJOUTÉ
-          '--disable-extensions',  // ← AJOUTÉ
-          '--disable-background-networking',  // ← AJOUTÉ
-          '--disable-default-apps',  // ← AJOUTÉ
-          '--disable-sync',  // ← AJOUTÉ
+          '--no-zygote',  // ← Gemini (moins de processus)
+          '--single-process',  // ← Gemini (réduit RAM)
+          '--disable-software-rasterizer',
+          '--disable-extensions',
         ],
         executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
-        timeout: 120000  // ← 2 minutes pour lancer le browser
+        timeout: 90000  // ← 1min30 pour lancer (compromis Gemini)
       });
 
       console.log("✅ [PHASE 2] Browser lancé");
 
       const page = await browser.newPage();
       
-      // ✅ FIX 2 : Utiliser "domcontentloaded" au lieu de "networkidle0" pour ne pas attendre les Google Fonts
+      // ✅ GEMINI FIX : domcontentloaded + timeout 60s
       await page.setContent(html, { 
-        waitUntil: "domcontentloaded",  // ← Plus rapide que "networkidle0"
-        timeout: 120000  // ← 2 minutes au lieu de 30 secondes
+        waitUntil: "domcontentloaded",  // ← N'attend PAS networkidle (fonts externes)
+        timeout: 60000  // ← 1 minute (recommandation Gemini)
       });
       
       console.log("✅ [PHASE 2] HTML chargé");
 
-      // ✅ FIX 3 : Timeout augmenté pour la génération PDF
+      // ✅ Timeout PDF réduit à 60s
       const pdfBuffer = await page.pdf({
         format: "A4",
         printBackground: true,
         margin: { top: "0mm", bottom: "0mm" },
-        timeout: 120000  // ← 2 minutes pour générer le PDF
+        timeout: 60000  // ← 1 minute
       });
 
       await browser.close();
