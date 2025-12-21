@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { dbConnect } from "@/lib/db";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
@@ -7,6 +8,7 @@ import { confirmEmailTemplate } from "@/lib/emailTemplates/confirmEmailTemplate"
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function PUT(req) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     await dbConnect();
 

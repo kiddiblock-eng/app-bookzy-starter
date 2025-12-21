@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // api/auth/forgot-password/route.js
 // ✅ VERSION PRODUCTION avec noreply@bookzy.io
 
@@ -10,6 +11,7 @@ import { resetPasswordTemplate } from "@/lib/emailTemplates/resetPasswordTemplat
 // const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     await dbConnect();
     const { email } = await req.json();

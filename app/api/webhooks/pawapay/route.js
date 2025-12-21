@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import Transaction from "@/models/Transaction";
@@ -11,6 +12,7 @@ import PawaPayProvider from "@/lib/payment/providers/PawaPayProvider";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     await dbConnect();
 

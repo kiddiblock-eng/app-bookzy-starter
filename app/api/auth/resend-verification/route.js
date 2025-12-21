@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // api/auth/resend-verification/route.js
 // ✅ VERSION PRODUCTION avec noreply@bookzy.io
 
@@ -31,6 +32,7 @@ function getUserIdFromCookie(req) {
 }
 
 export async function POST(req) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     await dbConnect();
 

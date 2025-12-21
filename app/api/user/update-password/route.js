@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { dbConnect } from "@/lib/db";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
@@ -8,6 +9,7 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function PUT(req) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     await dbConnect();
 
