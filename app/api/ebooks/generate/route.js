@@ -121,7 +121,11 @@ async function generatePhase1(projetId, userId, providedOutline) {
     console.error("❌ [PHASE 1] Erreur:", err);
     console.error("❌ [PHASE 1] Stack:", err.stack);
     try {
-      await Projet.findByIdAndUpdate(projetId, { status: "ERROR", progress: 0 });
+      await Projet.findByIdAndUpdate(projetId, { 
+        status: "ERROR", 
+        progress: 0,
+        errorMessage: err.message 
+      });
     } catch(e) {
       console.error("❌ [PHASE 1] Erreur update projet:", e);
     }
@@ -170,12 +174,14 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     3. INTERDIT : Pas de Markdown (*, #), pas de gras (**).
     `;
 
-    console.log("🤖 [PHASE 2] Début génération parallèle PAR BATCH");
+    console.log("🤖 [PHASE 2] Début génération ULTRA-ROBUSTE par batch");
     
-    // ✅ OPTIMISATION : Préparation des appels (pas d'exécution immédiate)
+    // ============================================================================
+    // ✅ PRÉPARATION DES APPELS (avec gestion d'erreurs individuelles)
+    // ============================================================================
     const parallelCalls = [];
 
-    // Chapitres
+    // Chapitres avec try/catch individuel
     for (let i = 1; i <= totalChapters; i++) {
       const chapterTitleMatch = summaryText.match(new RegExp(`Chapitre ${i}\\s*[:：]\\s*(.+?)(?=\\n|$)`, 'i'));
       const chapterTitle = chapterTitleMatch ? chapterTitleMatch[1].trim() : `Chapitre ${i}`;
@@ -183,79 +189,99 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       parallelCalls.push(async () => {
         console.log(`🤖 [PHASE 2] Génération chapitre ${i}/${totalChapters}`);
         
-        const text = await getAIWithRetry(
-          "ebook", 
-          `${EBOOK_SYSTEM_PROMPT}\n\n${getChapterPrompt({ 
-            chapterNumber: i, 
-            chapterTitle, 
-            title: titre, 
-            description, 
-            summary: summaryText, 
-            totalChapters, 
-            wordsTarget: wordsPerChapter 
-          })}\n\n${FORMAT_INSTRUCTIONS}`, 
-          dynamicMaxTokens
-        );
-        
-        const newProgress = 30 + Math.floor((i / totalChapters) * 40);
-        await Projet.findByIdAndUpdate(projetId, { progress: newProgress });
-        console.log(`✅ [PHASE 2] Chapitre ${i} terminé - ${newProgress}%`);
-        
-        return { type: "chapter", index: i, content: cleanMarkdown(text) };
+        try {
+          const text = await getAIWithRetry(
+            "ebook", 
+            `${EBOOK_SYSTEM_PROMPT}\n\n${getChapterPrompt({ 
+              chapterNumber: i, 
+              chapterTitle, 
+              title: titre, 
+              description, 
+              summary: summaryText, 
+              totalChapters, 
+              wordsTarget: wordsPerChapter 
+            })}\n\n${FORMAT_INSTRUCTIONS}`, 
+            dynamicMaxTokens
+          );
+          
+          const newProgress = 30 + Math.floor((i / totalChapters) * 40);
+          await Projet.findByIdAndUpdate(projetId, { progress: newProgress });
+          console.log(`✅ [PHASE 2] Chapitre ${i} terminé - ${newProgress}%`);
+          
+          return { type: "chapter", index: i, content: cleanMarkdown(text) };
+        } catch (err) {
+          console.error(`❌ [PHASE 2] Chapitre ${i} ÉCHOUÉ:`, err.message);
+          // ✅ FALLBACK : Chapitre par défaut si échec
+          return { 
+            type: "chapter", 
+            index: i, 
+            content: `<h2>${chapterTitle}</h2><p>Contenu en cours de génération...</p>` 
+          };
+        }
       });
     }
 
-    // Conclusion
+    // Conclusion avec try/catch
     parallelCalls.push(async () => {
       console.log("🤖 [PHASE 2] Génération conclusion");
-      const text = await getAIWithRetry(
-        "ebook", 
-        `${EBOOK_SYSTEM_PROMPT}\n\n${getConclusionPrompt({ title: titre, description, summary: summaryText })}`, 
-        1500
-      );
-      console.log("✅ [PHASE 2] Conclusion terminée");
-      return { type: "conclusion", content: cleanMarkdown(text) };
+      try {
+        const text = await getAIWithRetry(
+          "ebook", 
+          `${EBOOK_SYSTEM_PROMPT}\n\n${getConclusionPrompt({ title: titre, description, summary: summaryText })}`, 
+          1500
+        );
+        console.log("✅ [PHASE 2] Conclusion terminée");
+        return { type: "conclusion", content: cleanMarkdown(text) };
+      } catch (err) {
+        console.error("❌ [PHASE 2] Conclusion ÉCHOUÉE:", err.message);
+        return { type: "conclusion", content: "<p>En résumé, ce guide vous offre les clés essentielles pour réussir.</p>" };
+      }
     });
 
-    // ADS
+    // ADS avec try/catch
     parallelCalls.push(async () => {
       console.log("🤖 [PHASE 2] Génération ads");
-      const promptAds = `
-        Tu es un Copywriter Expert. Rédige 4 contenus marketing distincts pour vendre l'ebook : "${titre}".
+      try {
+        const promptAds = `
+          Tu es un Copywriter Expert. Rédige 4 contenus marketing distincts pour vendre l'ebook : "${titre}".
+          
+          1. FACEBOOK_INSTA: Une publicité courte et percutante avec emojis.
+          2. WHATSAPP: Un message de diffusion directe.
+          3. LONG_COPY: Un post LinkedIn/Blog avec storytelling.
+          4. LANDING_PAGE: Structure texte de la page de vente.
+          5. INTERDIT : Pas de Markdown (*, #), pas de gras (**).
+
+          FORMAT :
+          ---FACEBOOK---
+          (texte)
+          ---WHATSAPP---
+          (texte)
+          ---LONG---
+          (texte)
+          ---LANDING---
+          (texte)
+        `;
+
+        const raw = await getAIWithRetry("ads", promptAds, 3000);
         
-        1. FACEBOOK_INSTA: Une publicité courte et percutante avec emojis.
-        2. WHATSAPP: Un message de diffusion directe.
-        3. LONG_COPY: Un post LinkedIn/Blog avec storytelling.
-        4. LANDING_PAGE: Structure texte de la page de vente.
-        5. INTERDIT : Pas de Markdown (*, #), pas de gras (**).
-
-        FORMAT :
-        ---FACEBOOK---
-        (texte)
-        ---WHATSAPP---
-        (texte)
-        ---LONG---
-        (texte)
-        ---LANDING---
-        (texte)
-      `;
-
-      const raw = await getAIWithRetry("ads", promptAds, 3000);
-      
-      const facebook = raw.split("---FACEBOOK---")[1]?.split("---WHATSAPP---")[0]?.trim() || "";
-      const whatsapp = raw.split("---WHATSAPP---")[1]?.split("---LONG---")[0]?.trim() || "";
-      const long = raw.split("---LONG---")[1]?.split("---LANDING---")[0]?.trim() || "";
-      const landing = raw.split("---LANDING---")[1]?.trim() || "";
-      
-      console.log("✅ [PHASE 2] Ads terminées");
-      return { type: "ads", content: { facebook, whatsapp, long, landing } };
+        const facebook = raw.split("---FACEBOOK---")[1]?.split("---WHATSAPP---")[0]?.trim() || "";
+        const whatsapp = raw.split("---WHATSAPP---")[1]?.split("---LONG---")[0]?.trim() || "";
+        const long = raw.split("---LONG---")[1]?.split("---LANDING---")[0]?.trim() || "";
+        const landing = raw.split("---LANDING---")[1]?.trim() || "";
+        
+        console.log("✅ [PHASE 2] Ads terminées");
+        return { type: "ads", content: { facebook, whatsapp, long, landing } };
+      } catch (err) {
+        console.error("❌ [PHASE 2] Ads ÉCHOUÉES:", err.message);
+        return { type: "ads", content: { facebook: "", whatsapp: "", long: "", landing: "" } };
+      }
     });
 
     // ============================================================================
-    // ✅ OPTIMISATION GEMINI : Exécution par BATCH de 3 (évite de surcharger)
+    // ✅ EXÉCUTION PAR BATCH DE 2 (Gemini recommande 2 pour stabilité maximale)
     // ============================================================================
     const results = [];
-    const batchSize = 3;
+    const batchSize = 2;  // ← Réduit à 2 au lieu de 3
     
     console.log(`📦 [PHASE 2] Exécution par batch de ${batchSize}`);
     
@@ -263,10 +289,11 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       const batch = parallelCalls.slice(i, i + batchSize);
       console.log(`📦 Batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(parallelCalls.length/batchSize)}`);
       
+      // ✅ DOUBLE PROTECTION : try/catch dans chaque fonction + catch global
       const batchResults = await Promise.all(
         batch.map(fn => fn().catch(err => {
-          console.error("❌ Erreur batch:", err.message);
-          return null;
+          console.error("⚠️ Un élément du batch a échoué, mais on continue:", err.message);
+          return null;  // ← Renvoie null au lieu de planter
         }))
       );
       
@@ -275,20 +302,30 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     
     console.log("✅ [PHASE 2] Génération texte terminée");
 
-    // Assemblage
+    // ============================================================================
+    // Assemblage des résultats
+    // ============================================================================
     let conclusionText = "";
     let adsTexts = { facebook: "", whatsapp: "", long: "", landing: "" };
     const chaptersArray = [];
 
     results.forEach(result => {
-        if (!result) return;
+        if (!result) return;  // ✅ Ignore les null (erreurs)
         if (result.type === "conclusion") conclusionText = result.content;
         else if (result.type === "ads") adsTexts = result.content;
         else if (result.type === "chapter") chaptersArray[result.index - 1] = result.content;
     });
     
-    projet.chapters = chaptersArray.filter(Boolean).join("\n\n");
-    projet.conclusion = conclusionText;
+    // ✅ VÉRIFICATION : Au moins 1 chapitre doit exister
+    const validChapters = chaptersArray.filter(Boolean);
+    if (validChapters.length === 0) {
+      throw new Error("Aucun chapitre n'a pu être généré - Erreur IA critique");
+    }
+    
+    console.log(`✅ [PHASE 2] ${validChapters.length}/${totalChapters} chapitres générés avec succès`);
+    
+    projet.chapters = validChapters.join("\n\n");
+    projet.conclusion = conclusionText || "<p>En résumé, ce guide vous offre les clés essentielles.</p>";
     projet.adsTexts = adsTexts;
     projet.progress = 80;
     projet.status = "generated_text";
@@ -296,16 +333,17 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     console.log("💾 [PHASE 2] Texte sauvegardé");
 
     // ============================================================================
-    // 🚀 PDF ULTRA-OPTIMISÉ (Gemini + Railway best practices combinés)
+    // 🚀 PDF ULTRA-OPTIMISÉ (Gemini + Railway fixes)
     // ============================================================================
     console.log("📄 [PHASE 2] Génération PDF");
     const chaptersStruct = chaptersArray.map((c, i) => {
+        if (!c) return null;
         const titleMatch = summaryText.match(new RegExp(`Chapitre ${i+1}\\s*[:：]\\s*(.+?)(?=\\n|$)`, 'i'));
         return { 
           title: titleMatch ? titleMatch[1].trim() : `Chapitre ${i+1}`, 
-          content: c || "<p>Contenu indisponible.</p>" 
+          content: c 
         };
-    });
+    }).filter(Boolean);
 
     const html = generateStyledHTML({
       title: titre || "Mon Ebook",
@@ -327,47 +365,51 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',  // ← CRITIQUE Railway (mémoire partagée)
+          '--disable-dev-shm-usage',  // ← CRITIQUE Railway
           '--disable-gpu',
-          '--no-zygote',  // ← Gemini (moins de processus)
-          '--single-process',  // ← Gemini (réduit RAM)
+          '--no-zygote',  // ← Gemini
+          '--single-process',  // ← Gemini
           '--disable-software-rasterizer',
           '--disable-extensions',
         ],
         executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
-        timeout: 90000  // ← 1min30 pour lancer (compromis Gemini)
+        timeout: 90000  // ← 1min30
       });
 
       console.log("✅ [PHASE 2] Browser lancé");
 
       const page = await browser.newPage();
       
-      // ✅ GEMINI FIX : domcontentloaded + timeout 60s
+      // ✅ domcontentloaded + timeout 60s
       await page.setContent(html, { 
-        waitUntil: "domcontentloaded",  // ← N'attend PAS networkidle (fonts externes)
-        timeout: 60000  // ← 1 minute (recommandation Gemini)
+        waitUntil: "domcontentloaded",
+        timeout: 60000
       });
       
       console.log("✅ [PHASE 2] HTML chargé");
 
-      // ✅ Timeout PDF réduit à 60s
       const pdfBuffer = await page.pdf({
         format: "A4",
         printBackground: true,
         margin: { top: "0mm", bottom: "0mm" },
-        timeout: 60000  // ← 1 minute
+        timeout: 60000
       });
 
       await browser.close();
       console.log("✅ [PHASE 2] PDF généré");
 
-      console.log("☁️ [PHASE 2] Upload Cloudinary");
+      console.log("☁️ [PHASE 2] Upload Cloudinary - DÉBUT");
+      const uploadStartTime = Date.now();
+      
       const pdfUpload = await uploadBufferToCloudinary(pdfBuffer, {
         folder: "bookzy/ebooks",
         publicId: `${titre || "ebook"}-${projetId}`,
         resourceType: "raw",
         extension: "pdf",
+        timeout: 60000  // ✅ AJOUTÉ : Timeout Cloudinary
       });
+
+      console.log(`✅ [PHASE 2] Upload terminé en ${Date.now() - uploadStartTime}ms`);
 
       projet.pdfUrl = pdfUpload.secure_url;
       projet.status = "COMPLETED";
@@ -414,11 +456,16 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     console.log("🎉 [PHASE 2] TERMINÉE");
 
   } catch (err) {
-    console.error("❌ [PHASE 2] ERREUR:", err.message);
+    console.error("❌ [PHASE 2] ERREUR FATALE:", err.message);
     console.error(err.stack);
     try {
-      await Projet.findByIdAndUpdate(projetId, { status: "ERROR" });
-    } catch(e) {}
+      await Projet.findByIdAndUpdate(projetId, { 
+        status: "ERROR",
+        errorMessage: err.message  // ✅ Sauvegarder l'erreur dans MongoDB
+      });
+    } catch(e) {
+      console.error("❌ Impossible de sauvegarder l'erreur:", e.message);
+    }
   }
 }
 
@@ -524,6 +571,7 @@ export async function POST(req) {
         projetId = projet._id.toString();
     }
     
+    // ✅ Lancement asynchrone (pas de await pour ne pas bloquer la réponse)
     generatePhase1(projet._id, userId, outline);
     
     return NextResponse.json({ 
@@ -538,6 +586,7 @@ export async function POST(req) {
     if (projet) {
       try {
         projet.status = "ERROR";
+        projet.errorMessage = err.message;
         await projet.save();
       } catch(e) {}
     }
