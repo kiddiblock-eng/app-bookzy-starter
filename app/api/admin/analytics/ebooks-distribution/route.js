@@ -4,7 +4,7 @@
 import { dbConnect } from "@/lib/db";
 import Projet from "@/models/Projet"; // ✅ CHANGÉ
 import { NextResponse } from "next/server";
-
+export const dynamic = 'force-dynamic';
 export async function GET() {
   await dbConnect();
 
