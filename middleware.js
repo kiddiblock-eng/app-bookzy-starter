@@ -100,24 +100,29 @@ export default async function middleware(req) {
 
   // Si on essaie d'accéder à dashboard/admin/auth sur www → redirect vers app
   if (pathname.startsWith("/dashboard") || pathname.startsWith("/admin") || pathname.startsWith("/auth")) {
-    const appUrl = new URL(req.url);
-    appUrl.hostname = hostname.includes("www.") 
-      ? hostname.replace("www.", "app.")
-      : `app.${hostname}`;
-    
-    console.log(`↪️ Redirect to ${appUrl.hostname}`);
-    return NextResponse.redirect(appUrl);
+    // ✅ FIX : Ne rediriger QUE si on n'est PAS déjà sur app subdomain
+    if (!hostname.includes("app.") && !hostname.startsWith("localhost")) {
+      const appUrl = new URL(req.url);
+      appUrl.hostname = hostname.includes("www.") 
+        ? hostname.replace("www.", "app.")
+        : `app.${hostname}`;
+      
+      console.log(`↪️ Redirect to ${appUrl.hostname}`);
+      return NextResponse.redirect(appUrl);
+    }
+    // Si déjà sur app subdomain, laisser passer (sera géré par la section app subdomain plus haut)
+    return NextResponse.next();
   }
 
   const marketingPaths = [
-  "/",
-  "/niche-hunter",
-  "/tendances",
-  "/blog",
-  "/legal",
-  "/sitemap.xml",    // ← AJOUTE
-  "/robots.txt",     // ← AJOUTE
-];
+    "/",
+    "/niche-hunter",
+    "/tendances",
+    "/blog",
+    "/legal",
+    "/sitemap.xml",
+    "/robots.txt",
+  ];
 
   const isMarketingPath = marketingPaths.some(path => 
     pathname === path || pathname.startsWith(path + "/")
