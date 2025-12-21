@@ -20,7 +20,7 @@ import puppeteer from "puppeteer";
 
 export const dynamic = 'force-dynamic';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// const resend = new Resend(process.env.RESEND_API_KEY);
 const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
 function cleanMarkdown(text) {
@@ -411,7 +411,8 @@ function getUserIdFromCookie(req) {
   }
 }
 
-export async function POST(req) {
+export async function POST(req) { 
+  const resend = new Resend(process.env.RESEND_API_KEY);
   const resend = new Resend(process.env.RESEND_API_KEY);
   let projet = null;
   try {

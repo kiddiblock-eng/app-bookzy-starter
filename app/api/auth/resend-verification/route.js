@@ -31,7 +31,8 @@ function getUserIdFromCookie(req) {
   }
 }
 
-export async function POST(req) {
+export async function POST(req) { 
+  const resend = new Resend(process.env.RESEND_API_KEY);
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     await dbConnect();

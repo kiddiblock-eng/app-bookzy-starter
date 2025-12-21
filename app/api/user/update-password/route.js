@@ -6,41 +6,49 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// ⚠️ AUCUNE INITIALISATION DE RESEND ICI (C'est ce qui bloquait le build)
 
-export async function PUT(req) {
+export async function PUT(req) { 
   const resend = new Resend(process.env.RESEND_API_KEY);
+  // ✅ INITIALISATION UNIQUEMENT ICI (À l'intérieur de la fonction)
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
   try {
     await dbConnect();
 
-    // 🔒 Authentification par token
+    // 🔒 1. Vérification de l'authentification
     const token = cookies().get("bookzy_token")?.value;
-    if (!token)
+    if (!token) {
       return new Response(JSON.stringify({ message: "Non connecté" }), { status: 401 });
+    }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.id;
 
+    // 📥 2. Récupération des données
     const { ancien, nouveau } = await req.json();
-    if (!ancien || !nouveau)
+    if (!ancien || !nouveau) {
       return new Response(JSON.stringify({ message: "Champs manquants" }), { status: 400 });
+    }
 
-    // 🧍‍♂️ Vérifie que l'utilisateur existe
+    // 🧍‍♂️ 3. Vérification de l'utilisateur
     const user = await User.findById(userId);
-    if (!user)
+    if (!user) {
       return new Response(JSON.stringify({ message: "Utilisateur introuvable" }), { status: 404 });
+    }
 
-    // 🔑 Vérifie l'ancien mot de passe
+    // 🔑 4. Vérification de l'ancien mot de passe
     const isMatch = await bcrypt.compare(ancien, user.password);
-    if (!isMatch)
+    if (!isMatch) {
       return new Response(JSON.stringify({ message: "Ancien mot de passe incorrect" }), { status: 400 });
+    }
 
-    // 🔐 Hash le nouveau mot de passe
+    // 🔐 5. Hashage et sauvegarde du nouveau mot de passe
     const hashed = await bcrypt.hash(nouveau, 10);
     user.password = hashed;
     await user.save();
 
-    // 📧 Envoi du mail de notification
+    // 📧 6. Envoi du mail de confirmation (Resend)
     try {
       await resend.emails.send({
         from: "Bookzy Sécurité <noreply@bookzy.io>",
@@ -57,14 +65,13 @@ export async function PUT(req) {
               </p>
               <p style="color: #374151; font-size: 15px;">
                 Si tu es à l’origine de cette modification, tu n’as rien à faire ✅.<br>
-                <b>Mais si ce n’est pas toi</b>, change immédiatement ton mot de passe et contacte notre support via ton espace client.
+                <b>Mais si ce n’est pas toi</b>, change immédiatement ton mot de passe et contacte notre support.
               </p>
               <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard"
                  style="display:inline-block; margin-top:25px; background:#3b82f6; color:white; padding:12px 20px; border-radius:8px; text-decoration:none; font-weight:500;">
                  Accéder à mon compte
               </a>
               <p style="font-size:13px; color:#6b7280; margin-top:40px;">
-                Cet e-mail a été envoyé automatiquement. Merci de ne pas y répondre.<br>
                 © ${new Date().getFullYear()} Bookzy. Tous droits réservés.
               </p>
             </div>

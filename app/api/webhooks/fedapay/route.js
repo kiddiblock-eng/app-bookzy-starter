@@ -9,9 +9,10 @@ import { Resend } from "resend";
 import { paymentSuccessTemplate } from "@/lib/emailTemplates/paymentSuccessTemplate";
 import FedaPayProvider from "@/lib/payment/providers/FedaPayProvider";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function POST(req) {
+export async function POST(req) { 
+  const resend = new Resend(process.env.RESEND_API_KEY);
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     await dbConnect();
