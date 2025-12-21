@@ -7,7 +7,7 @@ import User from "@/models/User";
 import jwt from "jsonwebtoken";
 import { Resend } from "resend";
 import { verifyEmailTemplate } from "@/lib/emailTemplates/verifyEmailTemplate";
-
+export const dynamic = 'force-dynamic';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req) {
