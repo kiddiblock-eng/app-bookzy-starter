@@ -9,7 +9,7 @@ import { cookies } from "next/headers";
 import { Resend } from "resend";
 import { verifyEmailTemplate } from "@/lib/emailTemplates/verifyEmailTemplate";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Helper pour récupérer userId depuis cookie
 function getUserIdFromCookie(req) {

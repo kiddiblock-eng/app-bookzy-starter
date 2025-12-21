@@ -12,7 +12,7 @@ import { verifyEmailTemplate } from "@/lib/emailTemplates/verifyEmailTemplate";
 // ⚠️ ON RETIRE L'IMPORT DE BCRYPT ICI CAR LE MODEL S'EN OCCUPE
 // import bcrypt from "bcryptjs"; 
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req) {
   try {

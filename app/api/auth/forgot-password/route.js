@@ -7,7 +7,7 @@ import { Resend } from "resend";
 import jwt from "jsonwebtoken";
 import { resetPasswordTemplate } from "@/lib/emailTemplates/resetPasswordTemplate";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req) {
   try {
