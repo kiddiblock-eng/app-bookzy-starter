@@ -290,7 +290,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     await projet.save();
     console.log("💾 [PHASE 2] Texte sauvegardé");
 
-    // PDF avec Chromium REMOTE PACK
+    // PDF avec Chromium REMOTE v131.0.1
     console.log("📄 [PHASE 2] Génération PDF");
     const chaptersStruct = chaptersArray.map((c, i) => {
         const titleMatch = summaryText.match(new RegExp(`Chapitre ${i+1}\\s*[:：]\\s*(.+?)(?=\\n|$)`, 'i'));
@@ -310,21 +310,23 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       coverImage: null 
     }, template || "minimal");
 
-    console.log("🌐 [PHASE 2] Lancement Puppeteer (REMOTE CHROMIUM)");
+    console.log("🌐 [PHASE 2] Lancement Puppeteer (REMOTE CHROMIUM v131)");
     
     let browser;
     try {
-      // ✅ FORCE LE TÉLÉCHARGEMENT DISTANT DE CHROMIUM
-      chromium.setGraphicsMode = false;
+      // ✅ URL EXACTE POUR LA VERSION 131.0.1
+      const CHROMIUM_PACK_URL = "https://github.com/sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.tar";
+      
+      console.log("🔍 [PHASE 2] Téléchargement Chromium depuis GitHub...");
       
       browser = await puppeteer.launch({
         args: chromium.args,
         defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
+        executablePath: await chromium.executablePath(CHROMIUM_PACK_URL),
         headless: chromium.headless,
       });
 
-      console.log("✅ [PHASE 2] Browser lancé");
+      console.log("✅ [PHASE 2] Browser lancé avec succès");
 
       const page = await browser.newPage();
       
@@ -333,7 +335,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
         timeout: 30000 
       });
       
-      console.log("✅ [PHASE 2] HTML chargé");
+      console.log("✅ [PHASE 2] HTML chargé dans le browser");
 
       const pdfBuffer = await page.pdf({
         format: "A4",
@@ -342,9 +344,9 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       });
 
       await browser.close();
-      console.log("✅ [PHASE 2] PDF généré");
+      console.log("✅ [PHASE 2] PDF généré avec succès");
 
-      console.log("☁️ [PHASE 2] Upload Cloudinary");
+      console.log("☁️ [PHASE 2] Upload vers Cloudinary...");
       const pdfUpload = await uploadBufferToCloudinary(pdfBuffer, {
         folder: "bookzy/ebooks",
         publicId: `${titre || "ebook"}-${projetId}`,
@@ -357,7 +359,8 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       projet.progress = 100;
       projet.completedAt = new Date();
       await projet.save();
-      console.log("✅ [PHASE 2] Projet COMPLETED");
+      console.log("✅ [PHASE 2] Projet marqué COMPLETED");
+      console.log("🎉 [PHASE 2] PDF disponible:", pdfUpload.secure_url);
 
     } catch (pdfError) {
       console.error("❌ [PHASE 2] Erreur PDF:", pdfError.message);
