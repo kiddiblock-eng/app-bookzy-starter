@@ -290,7 +290,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     await projet.save();
     console.log("💾 [PHASE 2] Texte sauvegardé");
 
-    // PDF avec Puppeteer optimisé pour Vercel
+    // PDF avec Chromium REMOTE PACK
     console.log("📄 [PHASE 2] Génération PDF");
     const chaptersStruct = chaptersArray.map((c, i) => {
         const titleMatch = summaryText.match(new RegExp(`Chapitre ${i+1}\\s*[:：]\\s*(.+?)(?=\\n|$)`, 'i'));
@@ -310,42 +310,69 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       coverImage: null 
     }, template || "minimal");
 
-    console.log("🌐 [PHASE 2] Lancement Puppeteer (Vercel optimized)");
+    console.log("🌐 [PHASE 2] Lancement Puppeteer (REMOTE CHROMIUM)");
     
-    // ✅ PUPPETEER OPTIMISÉ POUR VERCEL
-    const browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
-    });
+    let browser;
+    try {
+      // ✅ FORCE LE TÉLÉCHARGEMENT DISTANT DE CHROMIUM
+      chromium.setGraphicsMode = false;
+      
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+      });
 
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "domcontentloaded" });
+      console.log("✅ [PHASE 2] Browser lancé");
 
-    const pdfBuffer = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: { top: "0mm", bottom: "0mm" }
-    });
+      const page = await browser.newPage();
+      
+      await page.setContent(html, { 
+        waitUntil: "networkidle0",
+        timeout: 30000 
+      });
+      
+      console.log("✅ [PHASE 2] HTML chargé");
 
-    await browser.close();
-    console.log("✅ [PHASE 2] PDF généré");
+      const pdfBuffer = await page.pdf({
+        format: "A4",
+        printBackground: true,
+        margin: { top: "0mm", bottom: "0mm" }
+      });
 
-    console.log("☁️ [PHASE 2] Upload Cloudinary");
-    const pdfUpload = await uploadBufferToCloudinary(pdfBuffer, {
-      folder: "bookzy/ebooks",
-      publicId: `${titre || "ebook"}-${projetId}`,
-      resourceType: "raw",
-      extension: "pdf",
-    });
+      await browser.close();
+      console.log("✅ [PHASE 2] PDF généré");
 
-    projet.pdfUrl = pdfUpload.secure_url;
-    projet.status = "COMPLETED";
-    projet.progress = 100;
-    projet.completedAt = new Date();
-    await projet.save();
-    console.log("✅ [PHASE 2] Projet COMPLETED");
+      console.log("☁️ [PHASE 2] Upload Cloudinary");
+      const pdfUpload = await uploadBufferToCloudinary(pdfBuffer, {
+        folder: "bookzy/ebooks",
+        publicId: `${titre || "ebook"}-${projetId}`,
+        resourceType: "raw",
+        extension: "pdf",
+      });
+
+      projet.pdfUrl = pdfUpload.secure_url;
+      projet.status = "COMPLETED";
+      projet.progress = 100;
+      projet.completedAt = new Date();
+      await projet.save();
+      console.log("✅ [PHASE 2] Projet COMPLETED");
+
+    } catch (pdfError) {
+      console.error("❌ [PHASE 2] Erreur PDF:", pdfError.message);
+      console.error("❌ [PHASE 2] Stack:", pdfError.stack);
+      
+      if (browser) {
+        try { 
+          await browser.close(); 
+        } catch(e) {
+          console.error("❌ Erreur fermeture browser:", e.message);
+        }
+      }
+      
+      throw new Error(`Erreur génération PDF: ${pdfError.message}`);
+    }
 
     // Email
     if (userId) {
