@@ -18,10 +18,11 @@ export default async function middleware(req) {
   }
 
   // ============================================================
-  // SUBDOMAIN APP : app.bookzy.io + localhost (dev)
+  // SUBDOMAIN APP : app.bookzy.io + localhost (dev) + Railway
   // ============================================================
-  // ✅ En dev local, traiter localhost SEULEMENT pour les routes dashboard/auth
-  const isAppSubdomain = hostname.includes("app.") || 
+  const isAppSubdomain = 
+    hostname.includes("app.") ||  // app.bookzy.io
+    hostname.startsWith("app-") ||  // ✅ app-bookzy-starter-env.up.railway.app
     (hostname.startsWith("localhost") && (
       pathname.startsWith("/dashboard") || 
       pathname.startsWith("/admin") || 
@@ -101,7 +102,7 @@ export default async function middleware(req) {
   // Si on essaie d'accéder à dashboard/admin/auth sur www → redirect vers app
   if (pathname.startsWith("/dashboard") || pathname.startsWith("/admin") || pathname.startsWith("/auth")) {
     // ✅ FIX : Ne rediriger QUE si on n'est PAS déjà sur app subdomain
-    if (!hostname.includes("app.") && !hostname.startsWith("localhost")) {
+    if (!hostname.includes("app.") && !hostname.startsWith("app-") && !hostname.startsWith("localhost")) {
       const appUrl = new URL(req.url);
       appUrl.hostname = hostname.includes("www.") 
         ? hostname.replace("www.", "app.")
