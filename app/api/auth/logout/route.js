@@ -1,39 +1,39 @@
-export const dynamic = "force-dynamic";
-// app/api/auth/logout/route.js
-
-import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
 export async function POST() {
   try {
-    // ✅ Supprimer TOUS les tokens (user + admin)
-    cookies().set("bookzy_token", "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      expires: new Date(0),
-      path: "/",
+    const isProd = process.env.NODE_ENV === "production";
+    const cookieDomain = isProd ? ".bookzy.io" : undefined;
+
+    const response = NextResponse.json({ 
+      success: true, 
+      message: "Déconnexion réussie ✅" 
     });
 
-    cookies().set("admin_token", "", {
+    // 🚩 CONFIGURATION DE SUPPRESSION (Doit matcher le Login)
+    const logoutOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      expires: new Date(0),
+      secure: isProd,
       path: "/",
-    });
+      domain: cookieDomain, // ✅ ESSENTIEL : C'est ce qui te manquait
+      expires: new Date(0), // Force l'expiration immédiate
+      sameSite: "lax",
+    };
 
-    return new Response(
-      JSON.stringify({ success: true, message: "Déconnexion réussie ✅" }),
-      { status: 200 }
-    );
+    // On supprime les deux types de tokens possibles
+    response.cookies.set("bookzy_token", "", logoutOptions);
+    response.cookies.set("admin_token", "", logoutOptions);
+
+    return response;
   } catch (error) {
     console.error("❌ Erreur lors de la déconnexion :", error);
-    return new Response(
-      JSON.stringify({ success: false, message: "Erreur serveur lors de la déconnexion." }),
+    return NextResponse.json(
+      { success: false, message: "Erreur serveur" },
       { status: 500 }
     );
   }
 }
 
-// ✅ Support GET aussi (au cas où)
 export async function GET() {
   return POST();
 }
