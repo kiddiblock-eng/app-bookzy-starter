@@ -61,7 +61,7 @@ export default function ProjetsPage() {
         <header className="bg-white border-b border-slate-200 sticky top-16 z-20 opacity-50 pointer-events-none">
              <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center"></div>
         </header>
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-8">
             <ProjectsSkeleton />
         </main>
       </div>
@@ -90,7 +90,7 @@ export default function ProjetsPage() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-8">
         
         {projets.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
