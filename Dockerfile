@@ -1,6 +1,6 @@
 FROM node:20-bullseye-slim
 
-# Installation complète des dépendances Chromium (CRITIQUE pour Railway)
+# Installation Chromium (Puppeteer)
 RUN apt-get update && apt-get install -y \
     chromium \
     fonts-liberation \
@@ -22,27 +22,26 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
-# Variables d'environnement Puppeteer
+# 🚩 ÉTAPE 1 : On ne définit PAS encore NODE_ENV=production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
-    NODE_ENV=production
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 WORKDIR /app
 
-# Copier package.json
 COPY package*.json ./
 
-# Installer dépendances
+# ✅ ÉTAPE 2 : On installe TOUT (y compris autoprefixer pour le build)
 RUN npm install
 
-# Copier le code
 COPY . .
 
-# Build Next.js
+# ✅ ÉTAPE 3 : Le build va maintenant fonctionner
 RUN npm run build
 
-# Exposer le port (Railway injecte automatiquement PORT)
+# ✅ ÉTAPE 4 : On passe en production seulement après le build
+ENV NODE_ENV=production
+
 EXPOSE 8080
 
-# Démarrer l'app
-CMD ["npm", "start"]
+# ✅ ÉTAPE 5 : Fix pour le port Railway (force 8080 pour Next.js)
+CMD ["npm", "run", "start", "--", "-p", "8080"]
