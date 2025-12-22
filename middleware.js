@@ -104,11 +104,24 @@ export default async function middleware(req) {
     // ✅ FIX : Ne rediriger QUE si on n'est PAS déjà sur app subdomain
     if (!hostname.includes("app.") && !hostname.startsWith("app-") && !hostname.startsWith("localhost")) {
       const appUrl = new URL(req.url);
-      appUrl.hostname = hostname.includes("www.") 
-        ? hostname.replace("www.", "app.")
-        : `app.${hostname}`;
       
-      console.log(`↪️ Redirect to ${appUrl.hostname}`);
+      // ✅ LOGIQUE AMÉLIORÉE : Gestion explicite des domaines
+      if (hostname === "www.bookzy.io" || hostname === "bookzy.io") {
+        // Domaine personnalisé → toujours app.bookzy.io
+        appUrl.hostname = "app.bookzy.io";
+      } else if (hostname.includes("railway.app")) {
+        // Railway → Garde le nom Railway mais avec app-
+        appUrl.hostname = hostname.startsWith("www.") 
+          ? hostname.replace("www.", "app-")
+          : hostname.replace(/^/, "app-");
+      } else {
+        // Autre cas (localhost, etc.) → Ajoute app.
+        appUrl.hostname = hostname.includes("www.") 
+          ? hostname.replace("www.", "app.")
+          : `app.${hostname}`;
+      }
+      
+      console.log(`↪️ Redirect to ${appUrl.hostname}${pathname}`);
       return NextResponse.redirect(appUrl);
     }
     // Si déjà sur app subdomain, laisser passer (sera géré par la section app subdomain plus haut)
