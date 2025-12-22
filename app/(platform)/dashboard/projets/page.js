@@ -58,10 +58,8 @@ export default function ProjetsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] pb-20 font-sans">
-        <header className="bg-white border-b border-slate-200 sticky top-16 z-20 opacity-50 pointer-events-none">
-             <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center"></div>
-        </header>
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-8">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+            <div className="h-20 bg-slate-100 rounded-2xl mb-8 animate-pulse"></div>
             <ProjectsSkeleton />
         </main>
       </div>
@@ -71,9 +69,10 @@ export default function ProjetsPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-20 font-sans text-slate-900">
       
-      {/* ✅ HEADER CORRIGÉ : sticky top-16 z-20 */}
-      <header className="bg-white border-b border-slate-200 sticky top-16 z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        
+        {/* ✅ EN-TÊTE INTÉGRÉ AU CONTENU (plus de sticky séparé) */}
+        <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
              <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
                 <Library className="w-5 h-5" />
@@ -88,9 +87,6 @@ export default function ProjetsPage() {
              <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Nouveau e-book</span> <span className="sm:hidden">Créer</span>
           </a>
         </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-8">
         
         {projets.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">

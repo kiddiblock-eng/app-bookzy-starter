@@ -43,13 +43,8 @@ export default function FichiersPage() {
     pages: e.pages || 0,
     fileUrl: e.fileUrl || "",
     coverUrl: e.coverUrl || null,
-    
-    // 🔥 C'EST ICI LA CORRECTION 🔥
-    // On utilise les indicateurs (Vrai/Faux) envoyés par ton API optimisée
-    // Au lieu de chercher le texte (qui est vide pour la vitesse)
     hasAds: e.hasMarketing, 
     hasImages: e.hasVisuels, 
-    
     hasPdf: !!e.fileUrl
   })).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
@@ -63,19 +58,17 @@ export default function FichiersPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans pb-20">
       
-      {/* ✅ HEADER CORRIGÉ : sticky top-16 z-20 */}
-      <div className="sticky top-16 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-            <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                <Package className="w-5 h-5 text-indigo-600"/> Mes Kits
-            </h1>
-            <a href="https://app.bookzy.io/dashboard/projets/nouveau" className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-lg shadow-slate-200 flex items-center gap-2">
-                <Sparkles className="w-3 h-3" /> <span className="hidden sm:inline">Nouveau Kit</span> <span className="sm:hidden">Créer</span>
-            </a>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        
+        {/* ✅ EN-TÊTE INTÉGRÉ AU CONTENU */}
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <Package className="w-5 h-5 text-indigo-600"/> Mes Kits
+          </h1>
+          <a href="https://app.bookzy.io/dashboard/projets/nouveau" className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-lg shadow-slate-200 flex items-center gap-2">
+            <Sparkles className="w-3 h-3" /> <span className="hidden sm:inline">Nouveau Kit</span> <span className="sm:hidden">Créer</span>
+          </a>
         </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-8">
         
         <div className="flex flex-col md:flex-row gap-4 mb-8">
             <div className="flex-1 relative group">
@@ -160,7 +153,6 @@ function FileCard({ kit }) {
                         </span>
                     )}
                     
-                    {/* Les badges s'afficheront maintenant correctement 👇 */}
                     {kit.hasAds && (
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-[10px] font-bold border border-blue-100">
                             <MessageCircle className="w-3 h-3"/> Marketing
