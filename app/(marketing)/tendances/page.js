@@ -77,13 +77,13 @@ function NavbarTendances() {
           {/* CTA */}
           <div className="hidden md:flex items-center gap-4">
             <Link 
-              href="/auth/login"
+              href="https://app.bookzy.io/auth/login"
               className="text-sm font-medium text-slate-600 hover:text-slate-900 px-4 py-2"
             >
               Connexion
             </Link>
             <Link
-              href="/auth/register"
+              href="https://app.bookzy.io/auth/register"
               className="group flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-full font-medium text-sm shadow-lg shadow-indigo-500/25 transition-all hover:shadow-xl hover:shadow-indigo-500/40"
             >
               Voir la base
@@ -115,7 +115,7 @@ function NavbarTendances() {
                 </a>
               ))}
               <Link
-                href="/auth/register"
+                href="https://app.bookzy.io/auth/register"
                 className="flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-full font-medium mt-4 shadow-lg"
               >
                 Voir la base
@@ -165,7 +165,7 @@ function HeroSection() {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
             <Link
-              href="/auth/register"
+              href="https://app.bookzy.io/auth/register"
               className="group flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-xl shadow-indigo-500/25 transition-all hover:shadow-2xl hover:shadow-indigo-500/40 hover:scale-105"
             >
               Accéder à la base
@@ -573,7 +573,7 @@ function DatabaseSection() {
                 </div>
 
                 <Link
-                  href="/auth/register"
+                  href="https://app.bookzy.io/auth/register"
                   className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold transition-all group"
                 >
                   Voir les détails
@@ -594,7 +594,7 @@ function DatabaseSection() {
             Accède à la base complète avec filtres avancés, historique de croissance et analyses détaillées
           </p>
           <Link
-            href="/auth/register"
+            href="https://app.bookzy.io/auth/register"
             className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-xl transition-all hover:scale-105"
           >
             Débloquer la base complète
@@ -742,7 +742,7 @@ function PricingSection() {
             </div>
 
             <Link
-              href="/auth/register"
+              href="https://app.bookzy.io/auth/register"
               className="block w-full py-3 rounded-full border-2 border-slate-300 hover:border-slate-400 text-slate-900 font-semibold text-center transition-all"
             >
               Commencer gratuitement
@@ -781,7 +781,7 @@ function PricingSection() {
             </div>
 
             <Link
-              href="/auth/register"
+              href="https://app.bookzy.io/auth/register"
               className="block w-full py-3 rounded-full bg-white hover:bg-slate-50 text-indigo-600 font-semibold text-center transition-all"
             >
               Créer mon premier ebook
@@ -817,7 +817,7 @@ function FinalCTA() {
         </p>
 
         <Link
-          href="/auth/register"
+          href="https://app.bookzy.io/auth/register"
           className="inline-flex items-center gap-3 bg-white hover:bg-slate-50 text-slate-900 px-10 py-5 rounded-full font-bold text-lg shadow-2xl transition-all hover:scale-105"
         >
           <Database className="w-6 h-6" />

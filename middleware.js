@@ -2,138 +2,101 @@ import { NextResponse } from "next/server";
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
 
-// ✅ Log conditionnel (seulement en dev)
-const log = (...args) => {
-  if (process.env.NODE_ENV === 'development') {
-    console.log(...args);
-  }
-};
-
 export default async function middleware(req) {
-  const { pathname } = req.nextUrl;
-  const hostname = req.headers.get("host") || "";
+  const { pathname, search } = req.nextUrl;
+  
+  // ✅ NORMALISATION DU HOSTNAME (enlève le port :443, :8080, etc.)
+  const hostHeader = req.headers.get("host") || "";
+  const hostname = hostHeader.split(":")[0];
   const isDev = process.env.NODE_ENV === 'development';
 
-  log(`🌐 ${hostname}${pathname}`);
-
-  // Laisser passer les routes API
-  if (pathname.startsWith("/api")) {
-    return NextResponse.next();
-  }
+  // ✅ DÉFINITION DES ZONES (FIX Railway)
+  const isAppSubdomain = 
+    hostname === "app.bookzy.io" || 
+    hostname.startsWith("app-bookzy-starter") ||  // ← FIX Railway
+    (isDev && hostname.startsWith("localhost"));
+  
+  const APP_URL = isDev ? "http://localhost:3000" : "https://app.bookzy.io";
 
   // ============================================================
-  // SUBDOMAIN APP : app.bookzy.io + localhost (dev uniquement)
+  // ZONE A : APP.BOOKZY.IO
   // ============================================================
-  const isLocalhost = hostname.startsWith("localhost") || hostname.startsWith("127.0.0.1");
-  
-  const isAppSubdomain = hostname.includes("app.") || 
-    (isDev && isLocalhost && (
-      pathname.startsWith("/dashboard") || 
-      pathname.startsWith("/admin") || 
-      pathname.startsWith("/auth")
-    ));
-  
   if (isAppSubdomain) {
-    log(`📱 App subdomain (or localhost dashboard)`);
-
-    // Pages autorisées sur app.bookzy.io
-    const appAllowedPaths = [
-      "/",
-      "/auth/login",
-      "/auth/register",
-      "/auth/forgot-password",
-      "/auth/reset-password",
-      "/auth/verify-email",
-      "/dashboard",
-      "/admin",
-    ];
-
-    const isAppPath = appAllowedPaths.some(path => pathname.startsWith(path));
-
-    // Si on essaie d'accéder à une page marketing sur app → redirect login
-    if (!isAppPath) {
-      log(`❌ Marketing page on app subdomain - redirect to login`);
+    // 🚩 BLOCAGE MARKETING (Priorité haute)
+    const marketingPaths = ["/blog", "/tendances", "/niche-hunter", "/legal"];
+    if (marketingPaths.some(path => pathname.startsWith(path))) {
+      console.log(`🚫 BLOCKED: ${pathname} → /auth/login`);
       return NextResponse.redirect(new URL("/auth/login", req.url));
     }
 
-    // Vérifier les tokens
+    // 🔐 GESTION TOKENS
     const userToken = req.cookies.get("bookzy_token")?.value;
     const adminToken = req.cookies.get("admin_token")?.value;
+    const hasToken = userToken || adminToken;
 
-    // Si sur une page d'auth ET déjà connecté → redirect dashboard
-    if (pathname.startsWith("/auth/")) {
-      if (userToken || adminToken) {
-        log(`✅ Already logged in - redirect to dashboard`);
-        return NextResponse.redirect(new URL("/dashboard", req.url));
-      }
-      return NextResponse.next();
+    // Pages autorisées
+    const appFolders = ["/auth", "/dashboard", "/admin"];
+    const isAppFolder = appFolders.some(folder => pathname.startsWith(folder));
+
+    // 404 pour pages inconnues
+    if (pathname !== "/" && !isAppFolder) {
+      return NextResponse.rewrite(new URL("/404", req.url));
     }
 
-    // Protection dashboard
-    if (pathname.startsWith("/dashboard")) {
-      if (!userToken && !adminToken) {
-        log(`🚫 No token - redirect to login`);
-        return NextResponse.redirect(new URL("/auth/login", req.url));
-      }
+    // Protection dashboard/admin
+    if (!hasToken && (pathname.startsWith("/dashboard") || pathname.startsWith("/admin"))) {
+      const loginUrl = new URL("/auth/login", req.url);
+      loginUrl.searchParams.set("from", pathname);
+      return NextResponse.redirect(loginUrl);
     }
 
-    // Protection admin
-    if (pathname.startsWith("/admin")) {
-      if (!adminToken) {
-        log(`🚫 No admin token - redirect to admin login`);
-        return NextResponse.redirect(new URL("/auth/login", req.url));
-      }
+    // Déjà connecté → dashboard
+    if (hasToken && pathname.startsWith("/auth")) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
-    // Racine de app.bookzy.io → redirect selon état de connexion
+    // Racine app.bookzy.io/
     if (pathname === "/") {
-      if (userToken || adminToken) {
-        return NextResponse.redirect(new URL("/dashboard", req.url));
-      } else {
-        return NextResponse.redirect(new URL("/auth/login", req.url));
-      }
+      return hasToken 
+        ? NextResponse.redirect(new URL("/dashboard", req.url))
+        : NextResponse.redirect(new URL("/auth/login", req.url));
     }
 
     return NextResponse.next();
   }
 
   // ============================================================
-  // DOMAINE PRINCIPAL : www.bookzy.io ou bookzy.io
+  // ZONE B : WWW.BOOKZY.IO (MARKETING)
   // ============================================================
-  log(`🌍 Main domain`);
-
-  // Si on essaie d'accéder à dashboard/admin/auth sur www → redirect vers app
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/admin") || pathname.startsWith("/auth")) {
-    // ✅ FIX : URL correcte selon environnement
-    const appBaseUrl = isDev ? 'http://localhost:3000' : 'https://app.bookzy.io';
-    const targetUrl = new URL(pathname + req.nextUrl.search, appBaseUrl);
-    
-    log(`↪️ Redirect to ${targetUrl.href}`);
+  
+  // Redirection vers app subdomain
+  const authRoutes = ["/dashboard", "/admin", "/auth"];
+  if (authRoutes.some(route => pathname.startsWith(route))) {
+    const targetUrl = new URL(pathname + search, APP_URL);
+    console.log(`↪️ Redirect to ${targetUrl.href}`);
     return NextResponse.redirect(targetUrl);
   }
 
-  const marketingPaths = [
-    "/",
-    "/niche-hunter",
-    "/tendances",
-    "/blog",
-    "/legal",
-     "/sitemap.xml",    // ← AJOUTE
-  "/robots.txt",     // ← AJOUTE
+  // Pages marketing autorisées
+  const marketingAllowed = [
+    "/", 
+    "/niche-hunter", 
+    "/tendances", 
+    "/blog", 
+    "/legal", 
+    "/sitemap.xml", 
+    "/robots.txt"
   ];
-
-
-  const isMarketingPath = marketingPaths.some(path => 
+  
+  const isMarketingPath = marketingAllowed.some(path => 
     pathname === path || pathname.startsWith(path + "/")
   );
 
-  // Si ce n'est pas une page marketing → 404
   if (!isMarketingPath) {
-    log(`❌ Unknown page on main domain - 404`);
     return NextResponse.rewrite(new URL("/404", req.url));
   }
 

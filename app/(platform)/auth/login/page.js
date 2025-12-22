@@ -161,7 +161,7 @@ export default function LoginPage() {
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between ml-1">
                     <label className="text-xs font-bold text-slate-700 uppercase tracking-wide">Mot de passe</label>
-                    <Link href="/auth/forgot-password" className="text-xs font-medium text-slate-400 hover:text-slate-900 transition-colors">Oublié ?</Link>
+                    <Link href="https://app.bookzy.io/auth/forgot-password" className="text-xs font-medium text-slate-400 hover:text-slate-900 transition-colors">Oublié ?</Link>
                   </div>
                   <div className="relative group">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
@@ -225,7 +225,7 @@ export default function LoginPage() {
             <div className="mt-8 text-center">
               <p className="text-sm text-slate-500">
                 Pas encore de compte ?{" "}
-                <Link href="/auth/register" className="font-bold text-slate-900 hover:underline">
+                <Link href="https://app.bookzy.io/auth/register" className="font-bold text-slate-900 hover:underline">
                   Créer un compte
                 </Link>
               </p>

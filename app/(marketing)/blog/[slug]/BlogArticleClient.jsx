@@ -100,10 +100,10 @@ export default function BlogArticleClient({ blog, readTime }) {
             Prêt à créer ton ebook ?
           </h3>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Génère ton kit complet en 5 minutes avec Bookzy
+            Génère ton kit complet en 1 minutes avec Bookzy
           </p>
           <Link
-            href="/auth/register"
+            href="https://app.bookzy.io/auth/register"
             className="inline-flex items-center gap-3 bg-white text-blue-600 px-8 py-4 rounded-full font-black text-lg hover:bg-blue-50 transition-all shadow-xl"
           >
             <Sparkles className="w-6 h-6" />

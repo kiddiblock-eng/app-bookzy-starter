@@ -325,7 +325,7 @@ export default function RegisterPage() {
 
           {/* Login Link */}
           <Link
-            href="/auth/login"
+            href="https://app.bookzy.io/auth/login"
             className="group flex items-center justify-center gap-2 w-full py-3.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-900 font-bold rounded-xl transition-all"
           >
             <span>Se connecter</span>

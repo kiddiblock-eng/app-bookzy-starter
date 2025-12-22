@@ -608,7 +608,7 @@ function DownloadKitModal({ kit, router }) {
                     </a>
 
                     {/* MARKETING (Redirection Dashboard pour copier) */}
-                    <div onClick={() => router.push('/dashboard/projets')} className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 hover:border-blue-500 hover:bg-blue-50 transition-all bg-slate-50 cursor-pointer text-left">
+                    <div onClick={() => router.push('https://app.bookzy.io/dashboard/projets')} className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 hover:border-blue-500 hover:bg-blue-50 transition-all bg-slate-50 cursor-pointer text-left">
                         <span className="text-xl p-2 rounded-lg text-blue-500 bg-blue-50">📋</span>
                         <div className="flex-1">
                             <div className="font-bold text-slate-900 text-sm">Voir les Textes Marketing</div>
@@ -618,7 +618,7 @@ function DownloadKitModal({ kit, router }) {
                     </div>
                 </div>
                 
-                <button onClick={() => router.push('/dashboard/projets')} className="w-full py-4 bg-slate-900 text-white font-bold rounded-xl shadow-lg">Aller au Tableau de Bord</button>
+                <button onClick={() => router.push('https://app.bookzy.io/dashboard/projets')} className="w-full py-4 bg-slate-900 text-white font-bold rounded-xl shadow-lg">Aller au Tableau de Bord</button>
             </div>
         </div>
     )

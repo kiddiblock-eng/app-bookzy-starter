@@ -60,7 +60,7 @@ export default function DashboardSidebar({ open, setOpen }) {
     } catch (error) {
       console.error("Erreur lors de la déconnexion", error);
     } finally {
-      window.location.href = "/auth/login"; 
+      window.location.href = "https://app.bookzy.io/auth/login"; 
     }
   };
 
@@ -82,7 +82,7 @@ export default function DashboardSidebar({ open, setOpen }) {
 
         <div className="px-6 pb-2">
             <Link
-                href="/dashboard/projets/nouveau"
+                href="https://app.bookzy.io/dashboard/projets/nouveau"
                 className="group w-full flex items-center justify-center gap-2 py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold shadow-lg shadow-slate-200 hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-[0.98]"
             >
                 <div className="bg-white/20 p-1 rounded-md group-hover:bg-white/30 transition-colors">
@@ -189,7 +189,7 @@ export default function DashboardSidebar({ open, setOpen }) {
              </div>
 
              <div className="p-6 pb-2">
-                 <Link href="/dashboard/projets/nouveau" onClick={() => setOpen(false)} className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg">
+                 <Link href="https://app.bookzy.io/dashboard/projets/nouveau" onClick={() => setOpen(false)} className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg">
                     <Plus size={18} /> Générer un ebook
                  </Link>
              </div>

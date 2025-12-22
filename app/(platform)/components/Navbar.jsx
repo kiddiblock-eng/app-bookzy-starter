@@ -28,19 +28,19 @@ export default function Navbar() {
             Accueil
           </Link>
           <Link
-            href="/dashboard/support"
+            href="https://app.bookzy.io/dashboard/support"
             className="hover:text-neutral-200 transition"
           >
             Support
           </Link>
           <Link
-            href="/dashboard/historique"
+            href="https://app.bookzy.io/dashboard/historique"
             className="hover:text-neutral-200 transition"
           >
             Historique
           </Link>
           <Link
-            href="/dashboard/settings"
+            href="https://app.bookzy.io/dashboard/settings"
             className="hover:text-neutral-200 transition"
           >
             Paramètres
@@ -55,13 +55,13 @@ export default function Navbar() {
             <Link href="/" onClick={() => setOpen(false)}>
               Accueil
             </Link>
-            <Link href="/dashboard/support" onClick={() => setOpen(false)}>
+            <Link href="https://app.bookzy.io/dashboard/support" onClick={() => setOpen(false)}>
               Support
             </Link>
-            <Link href="/dashboard/historique" onClick={() => setOpen(false)}>
+            <Link href="https://app.bookzy.io/dashboard/historique" onClick={() => setOpen(false)}>
               Historique
             </Link>
-            <Link href="/dashboard/settings" onClick={() => setOpen(false)}>
+            <Link href="https://app.bookzy.io/dashboard/settings" onClick={() => setOpen(false)}>
               Paramètres
             </Link>
           </div>

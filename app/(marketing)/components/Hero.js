@@ -65,7 +65,7 @@ export default function Hero() {
             {/* CTAs - Stylés mobile */}
             <div className="flex flex-col gap-3 lg:flex-row lg:gap-4 w-full lg:w-auto mb-12 lg:mb-12">
               <Link
-                href="/auth/register"
+                href="https://app.bookzy.io/auth/register"
                 className="group relative h-16 lg:h-14 px-12 lg:px-8 overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 lg:bg-slate-900 text-white text-lg lg:text-base font-black lg:font-bold rounded-2xl lg:rounded-xl transition-all flex items-center justify-center gap-2.5 shadow-2xl shadow-blue-600/40 lg:shadow-xl lg:shadow-slate-900/10 hover:shadow-2xl hover:-translate-y-1 active:scale-95"
               >
                 {/* Brillance qui traverse (mobile) */}

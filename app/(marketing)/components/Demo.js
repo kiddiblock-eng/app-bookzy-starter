@@ -150,7 +150,7 @@ export default function DemoPro() {
 
         <div className="mt-12 text-center">
           <a
-            href="/auth/register"
+            href="https://app.bookzy.io/auth/register"
             className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all"
           >
             <span>Essayer maintenant</span>

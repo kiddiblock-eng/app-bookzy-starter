@@ -105,8 +105,16 @@ export async function POST(req) {
     });
 
     // 🔥 Toujours nettoyer les anciens tokens
-    response.cookies.set("admin_token", "", { maxAge: 0 });
-    response.cookies.set("bookzy_token", "", { maxAge: 0 });
+    response.cookies.set("admin_token", "", { 
+      maxAge: 0,
+      domain: ".bookzy.io",  // ← AJOUTÉ
+      path: "/"
+    });
+    response.cookies.set("bookzy_token", "", { 
+      maxAge: 0,
+      domain: ".bookzy.io",  // ← AJOUTÉ
+      path: "/"
+    });
 
     // 🔥 Définition du nouveau token
     response.cookies.set(isAdmin ? "admin_token" : "bookzy_token", token, {
@@ -115,6 +123,7 @@ export async function POST(req) {
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7,
       path: "/",
+      domain: ".bookzy.io",  // ← AJOUTÉ pour supporter www + app
     });
 
     return response;

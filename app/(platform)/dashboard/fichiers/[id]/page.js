@@ -268,7 +268,7 @@ function NotFoundState({ router }) {
     return (
         <div className="min-h-screen bg-[#FAFAFA] flex flex-col items-center justify-center p-6 text-center">
             <h1 className="text-xl font-bold text-slate-900 mb-2">Kit introuvable</h1>
-            <button onClick={() => router.push("/dashboard/fichiers")} className="mt-4 px-6 py-2 bg-slate-900 text-white rounded-xl font-bold text-sm">
+            <button onClick={() => router.push("https://app.bookzy.io/dashboard/fichiers")} className="mt-4 px-6 py-2 bg-slate-900 text-white rounded-xl font-bold text-sm">
                 Retour aux fichiers
             </button>
         </div>

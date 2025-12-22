@@ -13,7 +13,7 @@ export default function ProfilePage() {
         const res = await fetch("/api/profile/get", { credentials: "include" });
 
         if (res.status === 401) {
-          router.replace("/auth/login");
+          router.replace("https://app.bookzy.io/auth/login");
           return;
         }
 
@@ -21,7 +21,7 @@ export default function ProfilePage() {
         if (data.success) setUser(data.user);
       } catch (err) {
         console.error("Erreur chargement profil:", err);
-        router.replace("/auth/login");
+        router.replace("https://app.bookzy.io/auth/login");
       }
     };
 

@@ -83,7 +83,7 @@ export default function ProjetsPage() {
              </div>
           </div>
           
-          <a href="/dashboard/projets/nouveau" className="group flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all shadow-xl shadow-slate-200 active:scale-95">
+          <a href="https://app.bookzy.io/dashboard/projets/nouveau" className="group flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all shadow-xl shadow-slate-200 active:scale-95">
              <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Nouveau e-book</span> <span className="sm:hidden">Créer</span>
           </a>
         </div>
@@ -130,7 +130,7 @@ export default function ProjetsPage() {
              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4"><Folder className="w-8 h-8 text-slate-300" /></div>
              <h3 className="text-lg font-bold text-slate-900">Aucun livre trouvé</h3>
              <p className="text-slate-500 text-sm mb-6">Lancez une nouvelle rédaction par IA.</p>
-             <a href="/dashboard/projets/nouveau" className="text-indigo-600 font-bold text-sm hover:underline">Commencer un projet</a>
+             <a href="https://app.bookzy.io/dashboard/projets/nouveau" className="text-indigo-600 font-bold text-sm hover:underline">Commencer un projet</a>
           </div>
         )}
       </main>

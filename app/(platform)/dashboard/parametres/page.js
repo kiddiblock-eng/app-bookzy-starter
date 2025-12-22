@@ -366,7 +366,7 @@ export default function ParametresPage() {
 
                 {activeTab === "securite" && (
                      <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100 animate-fadeIn shadow-sm">
-                        <a href="/dashboard/parametres/email" className="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer group">
+                        <a href="https://app.bookzy.io/dashboard/parametres/email" className="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer group">
                              <div className="flex items-center gap-4">
                                  <div className="p-2 bg-slate-100 text-slate-600 rounded-lg"><Mail size={20} /></div>
                                  <div><h3 className="text-sm font-bold text-slate-900">Adresse E-mail</h3><p className="text-xs text-slate-500 mt-0.5">{user?.email}</p></div>
@@ -376,7 +376,7 @@ export default function ParametresPage() {
                                 <ChevronRight size={16} className="text-slate-300" />
                              </div>
                         </a>
-                        <a href="/dashboard/parametres/motdepasse" className="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer group">
+                        <a href="https://app.bookzy.io/dashboard/parametres/motdepasse" className="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer group">
                              <div className="flex items-center gap-4">
                                  <div className="p-2 bg-slate-100 text-slate-600 rounded-lg"><Lock size={20} /></div>
                                  <div><h3 className="text-sm font-bold text-slate-900">Mot de passe</h3><p className="text-xs text-slate-500 mt-0.5">Dernière modification il y a 3 mois</p></div>

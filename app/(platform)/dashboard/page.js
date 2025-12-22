@@ -61,10 +61,10 @@ export default function DashboardHome() {
                   <p className="text-base sm:text-lg text-slate-300 max-w-xl">Préparez-vous à lancer votre prochain produit gagnant en un temps record.</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <a href="/dashboard/projets/nouveau" className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm transition-all shadow-lg active:scale-[0.98]">
+                  <a href="https://app.bookzy.io/dashboard/projets/nouveau" className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm transition-all shadow-lg active:scale-[0.98]">
                     <Rocket className="w-4 h-4" /> Générer un ebook Pro <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </a>
-                  <a href="/dashboard/fichiers" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white/10 border border-white/20 hover:bg-white/20 text-white rounded-xl font-bold text-sm transition-all">
+                  <a href="https://app.bookzy.io/dashboard/fichiers" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white/10 border border-white/20 hover:bg-white/20 text-white rounded-xl font-bold text-sm transition-all">
                     <Package className="w-4 h-4" /> Mes fichiers
                   </a>
                 </div>
@@ -88,10 +88,10 @@ export default function DashboardHome() {
 
         {/* QUICK LINKS */}
         <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <QuickLink icon={BarChart3} title="Mes Projets" subtitle="Historique des créations" href="/dashboard/projets" color="text-indigo-600" />
-          <QuickLink icon={TargetIcon} title="Analyseur de Niche" subtitle="Trouver des idées rentables" href="/dashboard/niche-hunter" color="text-emerald-600" />
-          <QuickLink icon={TrendingUp} title="Tendances Virales" subtitle="Détecter les sujets porteurs" href="/dashboard/trends" color="text-orange-600" />
-          <QuickLink icon={Settings} title="Paramètres" subtitle="Gérer mon compte & facturation" href="/dashboard/parametres" color="text-slate-600" />
+          <QuickLink icon={BarChart3} title="Mes Projets" subtitle="Historique des créations" href="https://app.bookzy.io/dashboard/projets" color="text-indigo-600" />
+          <QuickLink icon={TargetIcon} title="Analyseur de Niche" subtitle="Trouver des idées rentables" href="https://app.bookzy.io/dashboard/niche-hunter" color="text-emerald-600" />
+          <QuickLink icon={TrendingUp} title="Tendances Virales" subtitle="Détecter les sujets porteurs" href="https://app.bookzy.io/dashboard/trends" color="text-orange-600" />
+          <QuickLink icon={Settings} title="Paramètres" subtitle="Gérer mon compte & facturation" href="https://app.bookzy.io/dashboard/parametres" color="text-slate-600" />
         </section>
 
         {/* CONTENT GRID */}
@@ -99,7 +99,7 @@ export default function DashboardHome() {
           <section className="lg:col-span-2 space-y-4 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div><h2 className="text-xl font-bold text-slate-900">Activité Récente</h2><p className="text-xs text-slate-500 mt-0.5">{total} projet(s) créé(s) au total</p></div>
-              {ebooks.length > 0 && (<a href="/dashboard/projets" className="group flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">Voir tout <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" /></a>)}
+              {ebooks.length > 0 && (<a href="https://app.bookzy.io/dashboard/projets" className="group flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">Voir tout <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" /></a>)}
             </div>
             {ebooks.length > 0 ? (
               <div className="space-y-3">
@@ -256,7 +256,7 @@ function EmptyState() {
       </div>
       <h3 className="text-lg font-bold text-neutral-900 mb-2">Aucun projet trouvé</h3>
       <p className="text-neutral-600 mb-4 max-w-sm mx-auto text-sm">Lancez votre premier projet d'eBook pour voir l'activité récente.</p>
-      <a href="/dashboard/projets/nouveau" className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-indigo-600 text-white rounded-xl font-bold text-sm transition-all shadow-lg">
+      <a href="https://app.bookzy.io/dashboard/projets/nouveau" className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-indigo-600 text-white rounded-xl font-bold text-sm transition-all shadow-lg">
         <Rocket className="w-4 h-4" />
         Créer maintenant
       </a>

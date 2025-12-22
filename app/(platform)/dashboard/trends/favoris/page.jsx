@@ -51,7 +51,7 @@ export default function FavorisPage() {
         <div className="max-w-7xl mx-auto px-6">
           
           <button
-            onClick={() => router.push("/dashboard/trends")}
+            onClick={() => router.push("https://app.bookzy.io/dashboard/trends")}
             className="group inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition-all mb-6 active:scale-95 shadow-md"
           >
             <ArrowLeft size={16} />
@@ -88,7 +88,7 @@ export default function FavorisPage() {
               Ajoutez vos meilleures opportunités pour les retrouver facilement ici.
             </p>
             <button
-              onClick={() => router.push("/dashboard/trends")}
+              onClick={() => router.push("https://app.bookzy.io/dashboard/trends")}
               className="inline-flex items-center gap-2 px-8 py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold shadow-lg transition-all"
             >
               <Sparkles size={20} />

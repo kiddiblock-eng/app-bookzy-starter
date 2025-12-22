@@ -66,7 +66,7 @@ export default function FinalCTA() {
             {/* DROITE : ACTION */}
             <div className="flex flex-col items-center lg:items-end gap-4 shrink-0">
               <Link
-                href="/auth/register"
+                href="https://app.bookzy.io/auth/register"
                 className="group relative inline-flex items-center gap-3 px-8 py-4 md:px-10 md:py-5 bg-white text-slate-950 text-lg md:text-xl font-bold rounded-2xl hover:bg-blue-50 hover:scale-[1.02] transition-all duration-300 shadow-lg whitespace-nowrap"
               >
                 <Sparkles className="w-5 h-5 text-blue-600 fill-blue-600" />

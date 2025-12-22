@@ -47,10 +47,10 @@ export default function DashboardHeader({ onMenuClick }) {
       await mutate(() => true, undefined, { revalidate: false });
       
       // On force le rechargement complet
-      window.location.href = "/auth/login";
+      window.location.href = "https://app.bookzy.io/auth/login";
     } catch (error) {
       console.error("Erreur logout", error);
-      window.location.href = "/auth/login";
+      window.location.href = "https://app.bookzy.io/auth/login";
     }
   };
 
@@ -169,7 +169,7 @@ export default function DashboardHeader({ onMenuClick }) {
                     <div className="p-2">
                       <button
                         onClick={() => {
-                          router.push("/dashboard/parametres?tab=profil");
+                          router.push("https://app.bookzy.io/dashboard/parametres?tab=profil");
                           setShowMenu(false);
                         }}
                         className="flex items-center w-full gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-neutral-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
@@ -178,7 +178,7 @@ export default function DashboardHeader({ onMenuClick }) {
                       </button>
                       <button
                         onClick={() => {
-                          router.push("/dashboard/parametres");
+                          router.push("https://app.bookzy.io/dashboard/parametres");
                           setShowMenu(false);
                         }}
                         className="flex items-center w-full gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-neutral-700 hover:bg-blue-50 hover:text-blue-600 transition-all"

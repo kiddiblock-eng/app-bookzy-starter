@@ -158,7 +158,7 @@ export default function NotificationBell() {
           {/* Footer */}
           <div className="p-2 border-t border-slate-50 bg-slate-50/50">
             <Link
-              href="/dashboard/notifications"
+              href="https://app.bookzy.io/dashboard/notifications"
               onClick={() => setIsOpen(false)}
               className="block text-center py-2 text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition-colors"
             >
