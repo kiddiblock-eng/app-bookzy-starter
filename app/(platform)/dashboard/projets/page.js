@@ -58,7 +58,7 @@ export default function ProjetsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] pb-20 font-sans">
-        <header className="bg-white border-b border-slate-200 sticky top-0 z-30 opacity-50 pointer-events-none">
+        <header className="bg-white border-b border-slate-200 sticky top-16 z-20 opacity-50 pointer-events-none">
              <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center"></div>
         </header>
         <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
@@ -71,7 +71,8 @@ export default function ProjetsPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-20 font-sans text-slate-900">
       
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
+      {/* ✅ HEADER CORRIGÉ : sticky top-16 z-20 */}
+      <header className="bg-white border-b border-slate-200 sticky top-16 z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
              <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
@@ -139,7 +140,7 @@ export default function ProjetsPage() {
 }
 
 // ──────────────────────────────────────────────
-// SOUS-COMPOSANTS & SKELETON (Tout est ici)
+// SOUS-COMPOSANTS & SKELETON
 // ──────────────────────────────────────────────
 
 function ProjectsSkeleton() {

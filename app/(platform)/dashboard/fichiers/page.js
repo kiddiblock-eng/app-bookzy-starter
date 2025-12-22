@@ -63,7 +63,8 @@ export default function FichiersPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans pb-20">
       
-      <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200">
+      {/* ✅ HEADER CORRIGÉ : sticky top-16 z-20 */}
+      <div className="sticky top-16 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
             <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
                 <Package className="w-5 h-5 text-indigo-600"/> Mes Kits
