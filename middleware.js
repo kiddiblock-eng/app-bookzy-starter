@@ -32,7 +32,16 @@ export default async function middleware(req) {
   if (isAppSubdomain) {
     console.log(`📱 App subdomain detected: ${hostname}`);
 
-    // ✅ STRICT : Pages AUTORISÉES uniquement sur app (dashboard/auth)
+    // ✅ VÉRIFIER LES PAGES MARKETING EN PREMIER (priorité haute)
+    const marketingPaths = ["/blog", "/tendances", "/niche-hunter", "/legal"];
+    const isMarketingPath = marketingPaths.some(path => pathname.startsWith(path));
+    
+    if (isMarketingPath) {
+      console.log(`↪️ BLOCKED: Marketing page ${pathname} on app → Redirect to /auth/login`);
+      return NextResponse.redirect(new URL("/auth/login", req.url));
+    }
+
+    // ✅ ENSUITE : Pages AUTORISÉES uniquement sur app (dashboard/auth)
     const appAllowedPaths = [
       "/",
       "/auth/login",
@@ -46,22 +55,7 @@ export default async function middleware(req) {
 
     const isAppPath = appAllowedPaths.some(path => pathname.startsWith(path));
 
-    // ✅ REDIRECT INTELLIGENT : Pages marketing sur app → /auth/login
-    const marketingPaths = [
-      "/blog",
-      "/tendances",
-      "/niche-hunter",
-      "/legal",
-    ];
-    
-    const isMarketingPath = marketingPaths.some(path => pathname.startsWith(path));
-    
-    if (isMarketingPath) {
-      console.log(`↪️ Marketing page ${pathname} on app subdomain → Redirect to /auth/login`);
-      return NextResponse.redirect(new URL("/auth/login", req.url));
-    }
-
-    // Si la page n'est ni app ni marketing → 404
+    // Si la page n'est ni marketing ni app → 404
     if (!isAppPath) {
       console.log(`❌ Unknown page on app subdomain → 404`);
       return NextResponse.rewrite(new URL("/404", req.url));
