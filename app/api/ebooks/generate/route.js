@@ -359,21 +359,33 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     
     let browser;
     try {
-      // ✅ FIXES COMBINÉS : Gemini + Railway
+      // ✅ FIXES RAILWAY COMPLETS - Configuration optimale
       browser = await puppeteer.launch({
-        headless: true,
+        headless: 'new',  // ← Changé de true à 'new'
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',  // ← CRITIQUE Railway
           '--disable-gpu',
-          '--no-zygote',  // ← Gemini
-          '--single-process',  // ← Gemini
+          '--no-zygote',
+          '--single-process',  // ← CRUCIAL pour Railway
           '--disable-software-rasterizer',
           '--disable-extensions',
+          '--disable-background-networking',
+          '--disable-default-apps',
+          '--disable-sync',
+          '--disable-translate',
+          '--hide-scrollbars',
+          '--metrics-recording-only',
+          '--mute-audio',
+          '--no-first-run',
+          '--safebrowsing-disable-auto-update',
+          '--disable-features=IsolateOrigins,site-per-process',
+          '--js-flags=--max-old-space-size=512',  // ← Limite RAM à 512MB
         ],
         executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
-        timeout: 90000  // ← 1min30
+        timeout: 90000,  // 90 secondes
+        protocolTimeout: 90000,  // ← AJOUTÉ : timeout protocole WebSocket
       });
 
       console.log("✅ [PHASE 2] Browser lancé");
