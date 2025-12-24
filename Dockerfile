@@ -44,4 +44,4 @@ ENV NODE_ENV=production
 EXPOSE 8080
 
 # ✅ ÉTAPE 5 : Fix pour le port Railway (force 8080 pour Next.js)
-CMD ["npm", "run", "start", "--", "-p", "8080"]
+CMD ["sh", "-c", "npm run start -- -p ${PORT:-8080}"]
