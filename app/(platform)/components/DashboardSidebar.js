@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react"; // ✅ Ajouté pour le blocage du scroll
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -51,11 +51,12 @@ export default function DashboardSidebar({ open, setOpen }) {
     return pathname === href || pathname.startsWith(href + "/");
   };
 
+  // 🔥 LOGOUT CORRIGÉ
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { 
         method: "POST",
-        headers: { "Content-Type": "application/json" }
+        credentials: "include",  // ✅ AJOUTÉ
       });
     } catch (error) {
       console.error("Erreur lors de la déconnexion", error);

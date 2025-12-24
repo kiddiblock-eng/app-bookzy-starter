@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-export async function POST() {
+export async function POST(req) {
   try {
     const isProd = process.env.NODE_ENV === "production";
     const cookieDomain = isProd ? ".bookzy.io" : undefined;
@@ -10,23 +10,35 @@ export async function POST() {
       message: "Déconnexion réussie ✅" 
     });
 
-    // 🚩 CONFIGURATION DE SUPPRESSION (Doit matcher EXACTEMENT le Login)
+    // 🔥 CONFIGURATION DE SUPPRESSION
     const logoutOptions = {
       httpOnly: true,
       secure: isProd,
       path: "/",
       domain: cookieDomain,
-      expires: new Date(0), // Force l'expiration immédiate
+      maxAge: 0,  // Expire immédiatement
       sameSite: "lax",
     };
 
-    // On supprime les deux types de tokens possibles
+    // Supprimer les deux tokens avec domain
     response.cookies.set("bookzy_token", "", logoutOptions);
     response.cookies.set("admin_token", "", logoutOptions);
 
+    // 🔥 AUSSI SANS DOMAIN (double sécurité pour production)
+    if (isProd) {
+      response.cookies.set("bookzy_token", "", { 
+        ...logoutOptions, 
+        domain: undefined 
+      });
+      response.cookies.set("admin_token", "", { 
+        ...logoutOptions, 
+        domain: undefined 
+      });
+    }
+
     return response;
   } catch (error) {
-    console.error("❌ Erreur lors de la déconnexion :", error);
+    console.error("❌ Erreur logout:", error);
     return NextResponse.json(
       { success: false, message: "Erreur serveur" },
       { status: 500 }

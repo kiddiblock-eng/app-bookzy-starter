@@ -13,8 +13,7 @@ import {
 } from "lucide-react";
 import NotificationBell from "./NotificationBell";
 
-// ✅ Fetcher Standardisé (Exactement comme le Dashboard)
-// On retourne tout le JSON, pas juste user, pour partager le même cache.
+// ✅ Fetcher Standardisé
 const fetcher = (url) =>
   fetch(url, { credentials: "include" }).then((r) => r.json());
 
@@ -25,28 +24,30 @@ export default function DashboardHeader({ onMenuClick }) {
   const [visible, setVisible] = useState(false);
 
   // ✅ Utilisation du cache partagé
-  // SWR va voir que "/api/profile/get" est déjà chargé par le Dashboard -> Affichage Immédiat
   const { data: userData } = useSWR("/api/profile/get", fetcher, {
     revalidateOnFocus: true,
-    dedupingInterval: 5000, // Ne pas refaire de requête si fait il y a moins de 5s
+    dedupingInterval: 5000,
   });
 
-  // Extraction sécurisée (compatible si l'API renvoie {user: ...} ou juste {...})
+  // Extraction sécurisée
   const user = userData?.user || userData;
 
   const displayName =
     user?.displayName ||
     (user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() : "Invité");
 
-  // ✅ LOGOUT "NUCLÉAIRE" (Nettoie tout)
+  // ✅ LOGOUT (Déjà correct, aucun changement)
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+      await fetch("/api/auth/logout", { 
+        method: "POST", 
+        credentials: "include" 
+      });
       
-      // On vide le cache SWR
+      // Vider le cache SWR
       await mutate(() => true, undefined, { revalidate: false });
       
-      // On force le rechargement complet
+      // Force redirection
       window.location.href = "/auth/login";
     } catch (error) {
       console.error("Erreur logout", error);
@@ -98,7 +99,7 @@ export default function DashboardHeader({ onMenuClick }) {
                 onClick={() => setShowMenu(!showMenu)}
                 className="flex items-center gap-2 px-2 py-1.5 rounded-full hover:bg-neutral-100 transition-all"
               >
-                {/* AVATAR : On affiche un squelette gris si pas encore chargé pour éviter le "?" moche */}
+                {/* AVATAR */}
                 {!user ? (
                    <div className="w-9 h-9 rounded-full bg-neutral-200 animate-pulse"></div>
                 ) : user.photo ? (
