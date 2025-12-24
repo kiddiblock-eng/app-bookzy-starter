@@ -105,23 +105,16 @@ export default async function middleware(req) {
   }
 
   // ============================================================
-  // ZONE B : WWW.BOOKZY.IO (MARKETING)
+  // ZONE B : WWW.BOOKZY.IO & BOOKZY.IO (MARKETING)
   // ============================================================
   
-  // Rediriger les tentatives d'accès aux pages App depuis le site marketing
+  // 1. Rediriger les tentatives d'accès aux pages de l'App depuis le marketing
   const authRoutes = ["/dashboard", "/admin", "/auth", "/setup"];
   if (authRoutes.some(route => pathname.startsWith(route))) {
-    // On propulse l'utilisateur vers le domaine APP défini dans APP_URL
     return NextResponse.redirect(new URL(pathname + search, APP_URL));
   }
 
-  // Seules ces pages sont autorisées sur le site marketing
-  const marketingAllowed = ["/", "/niche-hunter", "/tendances", "/blog", "/legal", "/sitemap.xml", "/robots.txt"];
-  const isMarketingPath = marketingAllowed.some(path => pathname === path || pathname.startsWith(path + "/"));
-
-  if (!isMarketingPath) {
-    return NextResponse.rewrite(new URL("/404", req.url));
-  }
-
+  // 2. Autoriser TOUTES les autres pages (Marketing)
+  // On enlève le rewrite vers 404 qui causait l'affichage blanc
   return NextResponse.next();
 }
