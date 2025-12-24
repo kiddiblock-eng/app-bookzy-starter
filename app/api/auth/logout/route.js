@@ -10,12 +10,12 @@ export async function POST() {
       message: "Déconnexion réussie ✅" 
     });
 
-    // 🚩 CONFIGURATION DE SUPPRESSION (Doit matcher le Login)
+    // 🚩 CONFIGURATION DE SUPPRESSION (Doit matcher EXACTEMENT le Login)
     const logoutOptions = {
       httpOnly: true,
       secure: isProd,
       path: "/",
-      domain: cookieDomain, // ✅ ESSENTIEL : C'est ce qui te manquait
+      domain: cookieDomain,
       expires: new Date(0), // Force l'expiration immédiate
       sameSite: "lax",
     };

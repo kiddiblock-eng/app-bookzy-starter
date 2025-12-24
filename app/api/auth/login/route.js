@@ -104,26 +104,26 @@ export async function POST(req) {
       },
     });
 
-    // 🔥 Toujours nettoyer les anciens tokens
-    response.cookies.set("admin_token", "", { 
-      maxAge: 0,
-      domain: ".bookzy.io",  // ← AJOUTÉ
-      path: "/"
-    });
-    response.cookies.set("bookzy_token", "", { 
-      maxAge: 0,
-      domain: ".bookzy.io",  // ← AJOUTÉ
-      path: "/"
-    });
+    // 🚩 CONFIGURATION DES COOKIES (Alignée pour la production)
+    const isProd = process.env.NODE_ENV === "production";
+    const cookieDomain = isProd ? ".bookzy.io" : undefined;
 
-    // 🔥 Définition du nouveau token
-    response.cookies.set(isAdmin ? "admin_token" : "bookzy_token", token, {
+    const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProd,
       sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7,
       path: "/",
-      domain: ".bookzy.io",  // ← AJOUTÉ pour supporter www + app
+      domain: cookieDomain,
+    };
+
+    // Nettoyage des anciens
+    response.cookies.set("admin_token", "", { ...cookieOptions, maxAge: 0 });
+    response.cookies.set("bookzy_token", "", { ...cookieOptions, maxAge: 0 });
+
+    // Définition du nouveau token
+    response.cookies.set(isAdmin ? "admin_token" : "bookzy_token", token, {
+      ...cookieOptions,
+      maxAge: 60 * 60 * 24 * 7,
     });
 
     return response;
