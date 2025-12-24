@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Menu, X, Target, TrendingUp } from 'lucide-react';
-import { usePathname } from 'next/navigation'; // <-- AJOUTÉ
+import { usePathname } from 'next/navigation';
 
 /* --- LOGO OFFICIEL (Style Login) --- */
 function BookOpenSVG(props) {
@@ -26,7 +26,7 @@ function BookOpenSVG(props) {
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const pathname = usePathname(); // <-- AJOUTÉ : Récupère la route actuelle
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -60,26 +60,20 @@ export default function Navbar() {
   ];
 
   // ====================================================================
-  // LOGIQUE D'EXCLUSION (La solution à ton problème)
+  // 🚩 LOGIQUE D'EXCLUSION CORRIGÉE
+  // On ne cache plus la Navbar sur /tendances, /blog ou /niche-hunter
   // ====================================================================
   const EXCLUDE_PATHS = [
-    '/tendances',
-    '/blog',
-    '/niche-hunter',
-    '/legal', // Inclut toutes les pages sous /legal
-    '/auth', // Exclut la page de connexion/inscription
-    '/dashboard', // Exclut le dashboard (même si le middleware le gère déjà)
+    '/auth', 
+    '/dashboard',
+    '/setup'
   ];
 
-  // On vérifie si la route actuelle commence par un des chemins exclus
   const isExcluded = EXCLUDE_PATHS.some(path => pathname.startsWith(path));
 
   if (isExcluded) {
-    // Si l'utilisateur est sur une page exclue, on ne retourne rien.
     return null;
   }
-  // ====================================================================
-
 
   return (
     <>
@@ -152,9 +146,11 @@ export default function Navbar() {
             </div>
 
             {/* --- BOUTONS D'ACTION (Desktop) --- */}
+            {/* 🚩 prefetch={false} AJOUTÉ POUR ÉVITER LES ERREURS CORS */}
             <div className="hidden md:flex items-center gap-3">
               <Link
                 href="/auth/login"
+                prefetch={false}
                 className="px-4 py-2 text-sm font-bold text-slate-700 hover:text-slate-900 transition-colors"
               >
                 Connexion
@@ -162,7 +158,8 @@ export default function Navbar() {
               
               <Link
                 href="/auth/register"
-                className="px-5 py-2.5 text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-lg shadow-slate-900/20 transition-all duration-300 active:scale-95"
+                prefetch={false}
+                className="px-5 py-2.5 text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-lg shadow-slate-900/20 transition-all duration-300 active:scale-[0.98]"
               >
                 Commencer
               </Link>
@@ -215,7 +212,6 @@ export default function Navbar() {
               )
             ))}
             
-            {/* Outils Mobile */}
             <div className="mt-6 space-y-3">
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Outils Gratuits</p>
                 
@@ -242,6 +238,7 @@ export default function Navbar() {
           <div className="mt-auto flex flex-col gap-3 pb-8">
             <Link
               href="/auth/login"
+              prefetch={false}
               onClick={() => setIsMobileMenuOpen(false)}
               className="w-full px-5 py-4 text-center text-base font-bold text-slate-700 border-2 border-slate-100 rounded-xl"
             >
@@ -249,6 +246,7 @@ export default function Navbar() {
             </Link>
             <Link
               href="/auth/register"
+              prefetch={false}
               onClick={() => setIsMobileMenuOpen(false)}
               className="w-full px-5 py-4 text-center text-base font-bold text-white rounded-xl bg-slate-900 shadow-lg"
             >
