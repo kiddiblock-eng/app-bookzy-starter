@@ -52,7 +52,7 @@ export default function EditBlogPage({ params }) {
           setSeoKeywords(b.seoKeywords || "");
         } else {
           alert("Article introuvable");
-          router.push("https://app.bookzy.io/admin/blog");
+          router.push("/admin/blog");
         }
       } catch (error) {
         console.error("Erreur chargement:", error);
@@ -79,7 +79,7 @@ export default function EditBlogPage({ params }) {
       const data = await res.json();
       if (data.success) {
         alert("✅ Article mis à jour !");
-        router.push("https://app.bookzy.io/admin/blog"); // Retour à la liste
+        router.push("/admin/blog"); // Retour à la liste
       } else {
         alert("❌ Erreur : " + data.message);
       }
@@ -125,7 +125,7 @@ export default function EditBlogPage({ params }) {
             </div>
           </div>
           <button 
-            onClick={() => router.push("https://app.bookzy.io/admin/blog")} 
+            onClick={() => router.push("/admin/blog")} 
             className="text-slate-500 hover:text-white transition-colors"
           >
             <X size={24} />
@@ -238,7 +238,7 @@ export default function EditBlogPage({ params }) {
           <div className="flex items-center justify-end gap-6 pt-8 border-t border-slate-800 sticky bottom-0 bg-[#020617]/95 backdrop-blur py-4 z-10">
             <button 
               type="button" 
-              onClick={() => router.push("https://app.bookzy.io/admin/blog")} 
+              onClick={() => router.push("/admin/blog")} 
               className="text-sm font-medium text-slate-500 hover:text-white transition-colors"
             >
               Annuler

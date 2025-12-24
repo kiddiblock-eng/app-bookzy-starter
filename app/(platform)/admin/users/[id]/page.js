@@ -118,7 +118,7 @@ export default function AdminUserDetailsPage({ params }) {
           <h2 className="text-lg font-bold text-white mb-2">Utilisateur introuvable</h2>
           <p className="text-slate-500 text-sm mb-6">L'ID demandé n'existe pas ou a été supprimé.</p>
           <button
-            onClick={() => router.push("https://app.bookzy.io/admin/users")}
+            onClick={() => router.push("/admin/users")}
             className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm transition-colors"
           >
             Retour à la liste
@@ -144,7 +144,7 @@ export default function AdminUserDetailsPage({ params }) {
       {/* HEADER NAVIGATION */}
       <div className="flex items-center gap-4 mb-8">
         <button
-          onClick={() => router.push("https://app.bookzy.io/admin/users")}
+          onClick={() => router.push("/admin/users")}
           className="p-2 rounded-lg bg-[#0f1623] border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition-all"
         >
           <ArrowLeft size={18} />

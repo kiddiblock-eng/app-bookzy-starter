@@ -64,7 +64,7 @@ function VerifyEmailPageContent() {
     }
     
     if (status === "success" && countdown === 0) {
-      router.push("https://app.bookzy.io/dashboard");
+      router.push("/dashboard");
     }
   }, [status, countdown, router]);
 
@@ -185,7 +185,7 @@ function VerifyEmailPageContent() {
               </div>
 
               <button
-                onClick={() => router.push("https://app.bookzy.io/dashboard")}
+                onClick={() => router.push("/dashboard")}
                 className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-lg shadow-slate-900/20 transition-all active:scale-[0.98]"
               >
                 Accéder au Dashboard
@@ -209,14 +209,14 @@ function VerifyEmailPageContent() {
               </p>
 
               <button
-                onClick={() => router.push("https://app.bookzy.io/dashboard")}
+                onClick={() => router.push("/dashboard")}
                 className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-lg shadow-slate-900/20 transition-all active:scale-[0.98] mb-4"
               >
                 Accéder au Dashboard
               </button>
 
               <Link
-                href="https://app.bookzy.io/auth/login"
+                href="/auth/login"
                 className="text-sm font-medium text-slate-400 hover:text-slate-600 transition-colors"
               >
                 Retour à la connexion
@@ -258,7 +258,7 @@ function VerifyEmailPageContent() {
               </button>
 
               <Link
-                href="https://app.bookzy.io/auth/login"
+                href="/auth/login"
                 className="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-slate-600 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />

@@ -199,7 +199,7 @@ export default function HowItWorks() {
 
         {/* CTA Final */}
         <div className="text-center mt-32">
-          <Link href="https://app.bookzy.io/auth/register" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-xl font-bold text-lg shadow-xl hover:bg-slate-800 hover:-translate-y-1 transition-all">
+          <Link href="/auth/register" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-xl font-bold text-lg shadow-xl hover:bg-slate-800 hover:-translate-y-1 transition-all">
              <span>Générer mon premier ebook</span>
           </Link>
         </div>
@@ -250,7 +250,7 @@ export default function HowItWorks() {
                   </div>
 
                   <div className="mt-8 flex justify-end">
-                      <Link href="https://app.bookzy.io/auth/register" className="bg-slate-900 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors shadow-lg flex items-center gap-2">
+                      <Link href="/auth/register" className="bg-slate-900 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors shadow-lg flex items-center gap-2">
                           Essayer cette étape <ArrowRight className="w-4 h-4" />
                       </Link>
                   </div>

@@ -35,7 +35,7 @@ export default function Step1() {
 
   useEffect(() => {
     const step = localStorage.getItem("onboardingStep");
-    if (step !== "1") router.push("https://app.bookzy.io/auth/register");
+    if (step !== "1") router.push("/auth/register");
   }, [router]);
 
   const profiles = [

@@ -148,10 +148,10 @@ function NavbarNicheHunter() {
           </div>
 
           <div className="hidden lg:flex items-center gap-4">
-            <Link href="https://app.bookzy.io/auth/login" className="text-sm font-bold text-slate-600 hover:text-slate-900 px-4 py-2">
+            <Link href="/auth/login" className="text-sm font-bold text-slate-600 hover:text-slate-900 px-4 py-2">
                 Connexion
             </Link>
-            <Link href="https://app.bookzy.io/auth/register" className="group relative px-6 py-2.5 bg-slate-900 text-white font-bold rounded-xl shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2">
+            <Link href="/auth/register" className="group relative px-6 py-2.5 bg-slate-900 text-white font-bold rounded-xl shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2">
                 <span className="relative z-10 text-sm">Analyser gratuitement</span>
                 <ArrowRight className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform"/>
             </Link>
@@ -170,10 +170,10 @@ function NavbarNicheHunter() {
               </a>
             ))}
             <div className="flex flex-col gap-3 mt-4">
-                <Link href="https://app.bookzy.io/auth/login" className="w-full text-center py-3 font-bold text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50">
+                <Link href="/auth/login" className="w-full text-center py-3 font-bold text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50">
                     Se connecter
                 </Link>
-                <Link href="https://app.bookzy.io/auth/register" className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-violet-600 text-white px-6 py-4 rounded-xl font-bold shadow-lg">
+                <Link href="/auth/register" className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-violet-600 text-white px-6 py-4 rounded-xl font-bold shadow-lg">
                     <Rocket className="w-5 h-5 text-yellow-300" /> Analyser gratuitement
                 </Link>
             </div>
@@ -314,7 +314,7 @@ export default function NicheHunterPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-5 mb-12">
-            <Link href="https://app.bookzy.io/auth/register" className="group relative inline-flex items-center justify-center gap-3 px-10 py-5 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white text-lg font-bold rounded-2xl transition-all hover:scale-105 shadow-xl">
+            <Link href="/auth/register" className="group relative inline-flex items-center justify-center gap-3 px-10 py-5 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white text-lg font-bold rounded-2xl transition-all hover:scale-105 shadow-xl">
               <Target className="w-5 h-5" />
               <span>Trouver ma niche (Gratuit)</span>
             </Link>
@@ -484,7 +484,7 @@ export default function NicheHunterPage() {
                 placeholder="Ex: Fitness, Cuisine, Business..." 
                 className="flex-1 px-6 py-4 border-2 border-slate-200 rounded-xl text-lg font-semibold focus:border-blue-500 focus:outline-none"
               />
-              <Link href="https://app.bookzy.io/auth/register" className="px-8 py-4 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white font-bold rounded-xl hover:scale-105 transition-transform shadow-lg whitespace-nowrap">
+              <Link href="/auth/register" className="px-8 py-4 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white font-bold rounded-xl hover:scale-105 transition-transform shadow-lg whitespace-nowrap">
                 <span className="flex items-center gap-2">
                   <Search className="w-5 h-5" />
                   Analyser
@@ -682,7 +682,7 @@ export default function NicheHunterPage() {
             <strong className="text-white"> Ne ratez plus aucune opportunité.</strong>
           </p>
 
-          <Link href="https://app.bookzy.io/auth/register" className="inline-flex items-center gap-3 px-12 py-6 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white text-xl font-black rounded-2xl shadow-2xl hover:scale-105 transition-all">
+          <Link href="/auth/register" className="inline-flex items-center gap-3 px-12 py-6 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white text-xl font-black rounded-2xl shadow-2xl hover:scale-105 transition-all">
             <Target className="w-6 h-6" />
             Analyser 10 000 niches MAINTENANT
           </Link>
@@ -737,7 +737,7 @@ export default function NicheHunterPage() {
                 <li><a href="#features" onClick={(e) => { e.preventDefault(); smoothScrollTo('features'); }} className="hover:text-blue-400 transition-colors">Comment ça marche</a></li>
                 <li><a href="#demo" onClick={(e) => { e.preventDefault(); smoothScrollTo('demo'); }} className="hover:text-blue-400 transition-colors">Essayer gratuitement</a></li>
                 <li><a href="#comparaison" onClick={(e) => { e.preventDefault(); smoothScrollTo('comparaison'); }} className="hover:text-blue-400 transition-colors">Pourquoi Niche Hunter</a></li>
-                <li><Link href="https://app.bookzy.io/auth/register" className="hover:text-blue-400 transition-colors">Créer un compte</Link></li>
+                <li><Link href="/auth/register" className="hover:text-blue-400 transition-colors">Créer un compte</Link></li>
               </ul>
             </div>
 

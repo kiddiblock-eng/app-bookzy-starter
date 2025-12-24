@@ -36,7 +36,7 @@ export default function EmailConfirmedPage() {
 
         {/* Bouton Action */}
         <button
-          onClick={() => router.push("https://app.bookzy.io/dashboard")}
+          onClick={() => router.push("/dashboard")}
           className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md active:scale-95"
         >
           Retour au tableau de bord <ArrowRight size={18} />

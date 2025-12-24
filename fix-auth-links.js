@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 // ============================================================
 // CONFIGURATION
 // ============================================================
-const APP_URL = 'https://app.bookzy.io';
+const APP_URL = '';
 
 // Chemins à traiter
 const directories = [

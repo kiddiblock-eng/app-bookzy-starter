@@ -221,7 +221,7 @@ export default function ExamplesSection() {
                 </div>
               </div>
               <a 
-                href="https://app.bookzy.io/auth/register" 
+                href="/auth/register" 
                 className="w-full md:w-auto bg-white hover:bg-blue-50 text-slate-900 font-bold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 group"
               >
                 Créer mon compte <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -285,7 +285,7 @@ export default function ExamplesSection() {
             <div className="px-4 py-3 sm:px-6 sm:py-4 border-t border-slate-100 bg-white flex justify-between items-center z-20">
               <span className="text-xs font-medium text-slate-400 hidden sm:block">Généré par Bookzy AI</span>
               <a 
-                href="https://app.bookzy.io/auth/register" 
+                href="/auth/register" 
                 className="w-full sm:w-auto bg-slate-900 text-white px-6 py-3 sm:py-2.5 rounded-xl font-bold text-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 shadow-lg"
               >
                 <Sparkles className="w-4 h-4 text-yellow-300" />

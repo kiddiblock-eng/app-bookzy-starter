@@ -143,7 +143,7 @@ export default function Step2() {
     if (!form.country || !form.language || !form.niche) return;
     localStorage.setItem("bookzyUserNiche", form.niche); // On sauvegarde la niche
     localStorage.setItem("onboardingStep", "done");
-    router.push("https://app.bookzy.io/dashboard");
+    router.push("/dashboard");
   };
 
   const isComplete = form.country && form.language && form.niche;

@@ -14,7 +14,7 @@ export default function AdminHeader({ onMenuClick }) {
     try {
       setLoadingLogout(true);
       await fetch("/api/auth/logout", { method: "POST" });
-      router.push("https://app.bookzy.io/auth/login");
+      router.push("/auth/login");
     } catch (e) {
       console.error("Erreur logout admin:", e);
     } finally {

@@ -198,7 +198,7 @@ export default function ForgotPasswordPage() {
 
           {/* Back to Login */}
           <Link
-            href="https://app.bookzy.io/auth/login"
+            href="/auth/login"
             className="flex items-center justify-center gap-2 w-full py-3.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-900 font-bold rounded-xl transition-all group"
           >
             <ArrowLeft className="w-4 h-4 text-slate-400 group-hover:text-slate-900 group-hover:-translate-x-1 transition-all" />

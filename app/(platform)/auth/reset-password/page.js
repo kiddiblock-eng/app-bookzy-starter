@@ -81,7 +81,7 @@ function ResetPasswordPageContent() {
       setSuccess(true);
       
       setTimeout(() => {
-        router.push("https://app.bookzy.io/auth/login?reset=success");
+        router.push("/auth/login?reset=success");
       }, 2000);
     } catch (err) {
       setError(err.message);
@@ -110,7 +110,7 @@ function ResetPasswordPageContent() {
                 </p>
 
                 <Link
-                  href="https://app.bookzy.io/auth/forgot-password"
+                  href="/auth/forgot-password"
                   className="w-full flex items-center justify-center gap-2 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-lg shadow-slate-900/20 transition-all active:scale-[0.98]"
                 >
                   <span>Faire une nouvelle demande</span>
@@ -270,7 +270,7 @@ function ResetPasswordPageContent() {
 
         {/* Footer */}
         <div className="mt-8 text-center">
-             <Link href="https://app.bookzy.io/auth/login" className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">
+             <Link href="/auth/login" className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">
                 Annuler et retourner à la connexion
              </Link>
         </div>

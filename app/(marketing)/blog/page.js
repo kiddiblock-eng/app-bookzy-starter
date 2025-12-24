@@ -429,7 +429,7 @@ export default function BlogPage() {
           </p>
 
           <Link
-            href="https://app.bookzy.io/auth/register"
+            href="/auth/register"
             className="group inline-flex items-center gap-3 bg-white text-blue-600 px-10 py-5 rounded-full font-black text-lg shadow-2xl hover:shadow-white/20 transition-all duration-300 hover:scale-105"
           >
             <BookOpen className="w-6 h-6 group-hover:rotate-12 transition-transform" />

@@ -103,7 +103,7 @@ export default function BlogArticleClient({ blog, readTime }) {
             Génère ton kit complet en 1 minutes avec Bookzy
           </p>
           <Link
-            href="https://app.bookzy.io/auth/register"
+            href="/auth/register"
             className="inline-flex items-center gap-3 bg-white text-blue-600 px-8 py-4 rounded-full font-black text-lg hover:bg-blue-50 transition-all shadow-xl"
           >
             <Sparkles className="w-6 h-6" />

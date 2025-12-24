@@ -123,7 +123,7 @@ export default function TemplatePreview() {
       <div className="text-center py-20">
         <p className="text-neutral-500">Template introuvable.</p>
         <button
-          onClick={() => router.push("https://app.bookzy.io/dashboard/templates")}
+          onClick={() => router.push("/dashboard/templates")}
           className="mt-4 text-blue-600 hover:underline"
         >
           ← Retour aux templates
@@ -138,7 +138,7 @@ export default function TemplatePreview() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => router.push("https://app.bookzy.io/dashboard/templates")}
+            onClick={() => router.push("/dashboard/templates")}
             className="text-neutral-500 hover:text-neutral-800 dark:hover:text-white"
           >
             <ArrowLeft size={20} />

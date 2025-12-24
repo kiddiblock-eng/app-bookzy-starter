@@ -160,7 +160,7 @@ export default function MainFeaturesSection() {
                 ))}
               </div>
 
-              <Link href="https://app.bookzy.io/auth/register" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all hover:scale-105 shadow-lg shadow-blue-500/30">
+              <Link href="/auth/register" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all hover:scale-105 shadow-lg shadow-blue-500/30">
                 Commencer la rédaction 
                 <ArrowRight className="w-4 h-4" />
               </Link>
@@ -225,7 +225,7 @@ export default function MainFeaturesSection() {
                 </div>
               </div>
               
-              <Link href="https://app.bookzy.io/auth/register" className="inline-flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-semibold transition-all hover:scale-105 shadow-lg shadow-orange-500/30">
+              <Link href="/auth/register" className="inline-flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-semibold transition-all hover:scale-105 shadow-lg shadow-orange-500/30">
                 Explorer les tendances
                 <ArrowRight className="w-4 h-4" />
               </Link>
@@ -288,7 +288,7 @@ export default function MainFeaturesSection() {
               </div>
 
               <div className="mt-8">
-                <Link href="https://app.bookzy.io/auth/register" className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold transition-all hover:scale-105 shadow-lg shadow-purple-500/30">
+                <Link href="/auth/register" className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold transition-all hover:scale-105 shadow-lg shadow-purple-500/30">
                   Découvrir ma niche
                   <ArrowRight className="w-4 h-4" />
                 </Link>

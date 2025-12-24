@@ -154,14 +154,14 @@ export default function Navbar() {
             {/* --- BOUTONS D'ACTION (Desktop) --- */}
             <div className="hidden md:flex items-center gap-3">
               <Link
-                href="https://app.bookzy.io/auth/login"
+                href="/auth/login"
                 className="px-4 py-2 text-sm font-bold text-slate-700 hover:text-slate-900 transition-colors"
               >
                 Connexion
               </Link>
               
               <Link
-                href="https://app.bookzy.io/auth/register"
+                href="/auth/register"
                 className="px-5 py-2.5 text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-lg shadow-slate-900/20 transition-all duration-300 active:scale-95"
               >
                 Commencer
@@ -241,14 +241,14 @@ export default function Navbar() {
 
           <div className="mt-auto flex flex-col gap-3 pb-8">
             <Link
-              href="https://app.bookzy.io/auth/login"
+              href="/auth/login"
               onClick={() => setIsMobileMenuOpen(false)}
               className="w-full px-5 py-4 text-center text-base font-bold text-slate-700 border-2 border-slate-100 rounded-xl"
             >
               Se connecter
             </Link>
             <Link
-              href="https://app.bookzy.io/auth/register"
+              href="/auth/register"
               onClick={() => setIsMobileMenuOpen(false)}
               className="w-full px-5 py-4 text-center text-base font-bold text-white rounded-xl bg-slate-900 shadow-lg"
             >

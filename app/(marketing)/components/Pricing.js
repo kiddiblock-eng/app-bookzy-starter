@@ -47,7 +47,7 @@ export default function Pricing() {
                         <span className="text-xs text-slate-400 ml-2">Gratuit à vie</span>
                     </div>
 
-                    <Link href="https://app.bookzy.io/auth/register" className="block w-full py-3 rounded-full border-2 border-slate-300 text-slate-900 font-bold text-center hover:bg-slate-900 hover:text-white transition-all mb-8">
+                    <Link href="/auth/register" className="block w-full py-3 rounded-full border-2 border-slate-300 text-slate-900 font-bold text-center hover:bg-slate-900 hover:text-white transition-all mb-8">
                         Commencer l'exploration
                     </Link>
 
@@ -121,7 +121,7 @@ export default function Pricing() {
                         </div>
                     </div>
 
-                    <Link href="https://app.bookzy.io/auth/register" className="block w-full py-3.5 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white font-bold text-center transition-all mb-4 shadow-lg hover:shadow-xl hover:scale-105">
+                    <Link href="/auth/register" className="block w-full py-3.5 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white font-bold text-center transition-all mb-4 shadow-lg hover:shadow-xl hover:scale-105">
                         Créer mon eBook
                     </Link>
 

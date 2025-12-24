@@ -126,7 +126,7 @@ export default function TrendsPage() {
                 </div>
                 <div className="flex gap-3">
                     <button
-                        onClick={() => router.push("https://app.bookzy.io/dashboard/trends/favoris")}
+                        onClick={() => router.push("/dashboard/trends/favoris")}
                         className={`px-4 py-3 rounded-lg font-bold text-sm flex items-center gap-2 transition-all ${
                             pathname.includes('/favoris') 
                                 ? "bg-rose-600 text-white shadow-md"

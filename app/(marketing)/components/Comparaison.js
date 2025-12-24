@@ -188,7 +188,7 @@ export default function ComparisonSection() {
       {/* CTA */}
       <div className="text-center mt-12 px-6">
         <Link
-          href="https://app.bookzy.io/auth/register"
+          href="/auth/register"
           className="group inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-sm md:text-base shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
         >
           <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
