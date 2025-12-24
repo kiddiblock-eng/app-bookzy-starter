@@ -2,11 +2,11 @@
 import { Suspense } from "react";
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { toPng } from "html-to-image"; // ✅ Ajouté
+import { toPng } from "html-to-image";
 import {
   CheckCircle2, Loader2, ArrowLeft, ArrowRight, Sparkles,
   Layers, FileText, Zap, Wand2, MessageCircle, PenTool, Lock, Download,
-  Clock, AlertCircle, User, Mic, Smartphone, BrainCircuit, Palette
+  Clock, AlertCircle, User, Mic, Smartphone, BrainCircuit
 } from "lucide-react";
 
 // --- DONNÉES STATIQUES ---
@@ -84,7 +84,7 @@ function NouveauProjetPageContent() {
   const router = useRouter();
   const params = useSearchParams();
   const hasProcessedPayment = useRef(false);
-  const bookRef = useRef(null); // ✅ Ajouté pour capture PNG
+  const bookRef = useRef(null);
 
   // ÉTATS
   const [step, setStep] = useState(1);
@@ -99,7 +99,7 @@ function NouveauProjetPageContent() {
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulatedProgress, setSimulatedProgress] = useState(0);
   const [finalKitData, setFinalKitData] = useState(null);
-  const [isDownloadingCover, setIsDownloadingCover] = useState(false); // ✅ Ajouté
+  const [isDownloadingCover, setIsDownloadingCover] = useState(false);
 
   const txId = params.get("tx");
   const [realGenerating, setRealGenerating] = useState(!!txId);
@@ -117,7 +117,7 @@ function NouveauProjetPageContent() {
   const [improvingTitle, setImprovingTitle] = useState(false);
   const [improvingDescription, setImprovingDescription] = useState(false);
 
-  // --- FONCTION TÉLÉCHARGEMENT COUVERTURE ---
+  // TÉLÉCHARGEMENT COUVERTURE 3D
   const handleDownloadCover = async () => {
     if (!bookRef.current) return;
     setIsDownloadingCover(true);
@@ -125,15 +125,15 @@ function NouveauProjetPageContent() {
       const dataUrl = await toPng(bookRef.current, {
         cacheBust: true,
         pixelRatio: 8,
-        skipFonts: false, // Assure que les polices sont bien chargées
-        fontEmbedCSS: true // Force l'inclusion des styles de texte
+        skipFonts: false,
+        fontEmbedCSS: true
       });
       const link = document.createElement('a');
       link.download = `bookzy-cover-3d.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
-      console.error("Erreur capture image:", err);
+      console.error("Erreur capture:", err);
     } finally {
       setIsDownloadingCover(false);
     }
@@ -196,17 +196,25 @@ function NouveauProjetPageContent() {
       if (isNaN(num) || num < 3) setChapters("3");
   };
 
+  // AMÉLIORATION IA
   const handleImproveTitle = async () => {
     if (!titre || improvingTitle) return;
     setImprovingTitle(true);
     try {
       const res = await fetch("/api/ebooks/improve-title", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ titre, tone, audience }),
       });
       const data = await res.json();
       if (data.success && data.improvedTitle) setTitre(data.improvedTitle);
-    } catch (error) { console.error(error); } finally { setImprovingTitle(false); }
+      else alert("Erreur amélioration titre");
+    } catch (error) {
+      console.error(error);
+      alert("Erreur technique");
+    } finally {
+      setImprovingTitle(false);
+    }
   };
 
   const handleImproveDescription = async () => {
@@ -214,12 +222,19 @@ function NouveauProjetPageContent() {
     setImprovingDescription(true);
     try {
       const res = await fetch("/api/ebooks/improve-description", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ titre, description, tone, audience }),
       });
       const data = await res.json();
       if (data.success && data.improvedDescription) setDescription(data.improvedDescription);
-    } catch (error) { console.error(error); } finally { setImprovingDescription(false); }
+      else alert("Erreur amélioration description");
+    } catch (error) {
+      console.error(error);
+      alert("Erreur technique");
+    } finally {
+      setImprovingDescription(false);
+    }
   };
 
   const forceChapterCount = (rawOutline, targetCount) => {
@@ -233,6 +248,7 @@ function NouveauProjetPageContent() {
     return [`Introduction`, ...clean, `Conclusion`];
   };
 
+  // API OUTLINE
   useEffect(() => {
     if (isSimulating && !outlineFetchedRef.current) {
         outlineFetchedRef.current = true;
@@ -247,11 +263,13 @@ function NouveauProjetPageContent() {
         })
         .catch(e => {
             const count = parseInt(chapters) || 5;
-            outlineDataRef.current = ["Introduction", ...Array(count).fill("Chapitre"), "Conclusion"];
+            const fallback = ["Introduction", ...Array(count).fill("Chapitre"), "Conclusion"];
+            outlineDataRef.current = fallback;
         });
     }
   }, [isSimulating, titre, tone, audience, chapters]);
 
+  // TIMER PROGRESSION
   useEffect(() => {
     let interval;
     if (isSimulating) {
@@ -269,6 +287,7 @@ function NouveauProjetPageContent() {
     return () => clearInterval(interval);
   }, [isSimulating]);
 
+  // WATCHER
   useEffect(() => {
     if (simulatedProgress >= 100 && isSimulating) {
         const count = parseInt(chapters) || 5;
@@ -287,7 +306,7 @@ function NouveauProjetPageContent() {
         window.scrollTo(0, 0); 
     }
   }, [simulatedProgress, isSimulating]);
-
+  // GENERATION (continuation de la partie 1)
   const verifyAndGenerate = async (transactionId) => {
     try {
         const verifyRes = await fetch("/api/payments/verify", {
@@ -318,11 +337,8 @@ function NouveauProjetPageContent() {
                 setRealGenerating(false); 
                 setGeneratedKit({
                     title: currentTitre || "Mon eBook",
-                    files: [
-                        { name: "Ebook_Complet.pdf", type: "Livre", url: genData.pdfUrl, icon: FileText, color: "text-red-500 bg-red-50" },
-                        { name: "Marketing_Pack.pdf", type: "Scripts & Ads", url: "#", icon: Zap, color: "text-orange-500 bg-orange-50" },
-                        { name: "Scripts_Vente.txt", type: "Copywriting", url: "#", icon: PenTool, color: "text-blue-500 bg-blue-50" },
-                    ],
+                    pdfUrl: genData.pdfUrl,
+                    kitUrl: genData.kitUrl || "#",
                 });
                 return; 
             }
@@ -337,19 +353,23 @@ function NouveauProjetPageContent() {
                         setFinalKitData(null);
                         setGeneratedKit({
                             title: currentTitre || "Mon eBook",
-                            files: [
-                                { name: `${(currentTitre || "ebook").substring(0, 30)}.pdf`, type: "Ebook Complet", url: pData.pdfUrl || "#", icon: FileText, color: "text-red-500 bg-red-50" },
-                                { name: "Marketing_Pack.pdf", type: "Scripts & Ads", url: pData.kitUrl || "#", icon: Zap, color: "text-orange-500 bg-orange-50" },
-                                { name: "Scripts_Vente.txt", type: "Copywriting", url: pData.kitUrl || "#", icon: PenTool, color: "text-blue-500 bg-blue-50" },
-                            ],
+                            pdfUrl: pData.pdfUrl || "#",
+                            kitUrl: pData.kitUrl || "#",
                         });
                         setRealGenerating(false);
                     }
-                    if (pData.status === "ERROR") { clearInterval(pollInterval); setRealGenerating(false); }
-                } catch (e) { console.error(e); }
+                    if (pData.status === "ERROR") {
+                        clearInterval(pollInterval);
+                        setRealGenerating(false);
+                        alert("Erreur technique. Support contacté.");
+                    }
+                } catch (e) { console.error("Erreur polling:", e); }
             }, 3000);
-        }
-    } catch (e) { console.error(e); setRealGenerating(false); }
+        } else { throw new Error("Paiement non validé."); }
+    } catch (e) { 
+        console.error("Erreur verify&generate:", e);
+        setRealGenerating(false);
+    }
   };
 
   const handleSubmit = (e) => { e.preventDefault(); setIsSimulating(true); };
@@ -359,86 +379,206 @@ function NouveauProjetPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans selection:bg-indigo-100 selection:text-indigo-900 relative">
       {/* GAUCHE */}
-      <div className="w-full md:w-1/2 p-6 md:p-12 overflow-y-auto h-auto md:h-screen bg-white shadow-2xl z-10 relative border-r border-slate-100 order-1">
+      <div className="w-full md:w-1/2 p-6 md:p-12 overflow-y-auto h-auto md:h-screen bg-white shadow-2xl z-10 relative border-r border-slate-100 order-1 md:order-1">
         <div className="flex mb-8 items-center gap-2 text-indigo-600">
            <Zap className="w-6 h-6 fill-current" /> 
            <span className="font-black text-xl">Bookzy Studio</span>
         </div>
+        
         <div className="max-w-md mx-auto py-4">
             <h1 className="text-3xl font-black text-slate-900 mb-6 tracking-tight">
                 {step === 1 ? "Concevez votre Livre" : "Personnalisez le Style"}
             </h1>
+            
             <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {step === 1 && (
                     <>
                         <div className="space-y-5">
+                            {/* TITRE AVEC IA */}
                             <div>
-                              <label className="block text-sm font-bold text-slate-700 mb-2">Titre de l'ebook</label>
+                              <label className="block text-sm font-bold text-slate-700 mb-2">
+                                Titre de l'ebook
+                              </label>
                               <div className="relative">
-                                <input autoFocus type="text" className="w-full p-4 pr-12 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-indigo-500 font-bold text-slate-900" placeholder="Ex: Le Guide de l'Immobilier..." value={titre} onChange={e => setTitre(e.target.value)} />
-                                <button type="button" onClick={handleImproveTitle} disabled={!titre || improvingTitle} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-indigo-100 hover:bg-indigo-200 disabled:opacity-50 text-indigo-600 rounded-lg transition-all"><Sparkles className={`w-4 h-4 ${improvingTitle ? 'animate-spin' : ''}`} /></button>
+                                <input 
+                                  autoFocus 
+                                  type="text" 
+                                  className="w-full p-4 pr-12 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-indigo-500 font-bold text-slate-900" 
+                                  placeholder="Ex: Le Guide de l'Immobilier..." 
+                                  value={titre} 
+                                  onChange={e => setTitre(e.target.value)} 
+                                />
+                                <button
+                                  type="button"
+                                  onClick={handleImproveTitle}
+                                  disabled={!titre || improvingTitle}
+                                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-indigo-100 hover:bg-indigo-200 disabled:bg-slate-100 disabled:opacity-50 text-indigo-600 disabled:text-slate-400 rounded-lg transition-all group"
+                                  title="Améliorer avec l'IA"
+                                >
+                                  {improvingTitle ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <Sparkles className="w-4 h-4" />
+                                  )}
+                                </button>
                               </div>
+                              {improvingTitle && (
+                                <p className="text-xs text-indigo-600 mt-1 animate-pulse flex items-center gap-1">
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                  L'IA améliore votre titre...
+                                </p>
+                              )}
                             </div>
+
+                            {/* DESCRIPTION AVEC IA */}
                             <div>
-                              <label className="block text-sm font-bold text-slate-700 mb-2">Décris ton ebook en quelques phrases</label>
+                              <label className="block text-sm font-bold text-slate-700 mb-2">
+                                Décris ton ebook en quelques phrases
+                              </label>
                               <div className="relative">
-                                <textarea rows={4} className="w-full p-4 pr-12 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-indigo-500 font-medium text-slate-700 resize-none" placeholder="Décrivez les grandes lignes..." value={description} onChange={e => setDescription(e.target.value)} />
-                                <button type="button" onClick={handleImproveDescription} disabled={!description || improvingDescription} className="absolute right-2 top-2 p-2 bg-indigo-100 hover:bg-indigo-200 disabled:opacity-50 text-indigo-600 rounded-lg transition-all"><Sparkles className={`w-4 h-4 ${improvingDescription ? 'animate-spin' : ''}`} /></button>
+                                <textarea 
+                                  rows={4} 
+                                  className="w-full p-4 pr-12 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-indigo-500 font-medium text-slate-700 resize-none" 
+                                  placeholder="Décrivez les grandes lignes..." 
+                                  value={description} 
+                                  onChange={e => setDescription(e.target.value)} 
+                                />
+                                <button
+                                  type="button"
+                                  onClick={handleImproveDescription}
+                                  disabled={!description || improvingDescription}
+                                  className="absolute right-2 top-2 p-2 bg-indigo-100 hover:bg-indigo-200 disabled:bg-slate-100 disabled:opacity-50 text-indigo-600 disabled:text-slate-400 rounded-lg transition-all group"
+                                  title="Améliorer avec l'IA"
+                                >
+                                  {improvingDescription ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <Sparkles className="w-4 h-4" />
+                                  )}
+                                </button>
                               </div>
+                              {improvingDescription && (
+                                <p className="text-xs text-indigo-600 mt-1 animate-pulse flex items-center gap-1">
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                  L'IA améliore votre description...
+                                </p>
+                              )}
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className={`p-4 rounded-xl border bg-white relative transition-colors ${parseInt(pages) === 80 ? 'border-orange-300 bg-orange-50' : 'border-slate-200'}`}>
-                                    <label className="text-xs font-bold text-slate-400 uppercase flex items-center gap-1 mb-1"><Layers className="w-3 h-3"/> Pages (Max 80)</label>
-                                    <input type="number" inputMode="numeric" value={pages} onChange={handlePagesChange} onBlur={handlePagesBlur} className="w-full text-2xl font-black text-slate-900 outline-none bg-transparent" />
+                                    <label className="text-xs font-bold text-slate-400 uppercase flex items-center gap-1 mb-1">
+                                      <Layers className="w-3 h-3"/> Pages (Max 80)
+                                    </label>
+                                    <input 
+                                        type="number" inputMode="numeric"
+                                        value={pages} onChange={handlePagesChange} onBlur={handlePagesBlur}
+                                        className="w-full text-2xl font-black text-slate-900 outline-none border-b border-transparent focus:border-indigo-500 bg-transparent" 
+                                    />
+                                    {parseInt(pages) === 80 && <div className="absolute top-2 right-2 text-[10px] text-orange-600 font-bold flex items-center gap-1"><AlertCircle className="w-3 h-3"/> Max</div>}
                                 </div>
+                                
                                 <div className={`p-4 rounded-xl border bg-white relative transition-colors ${parseInt(chapters) === 12 ? 'border-orange-300 bg-orange-50' : 'border-slate-200'}`}>
-                                    <label className="text-xs font-bold text-slate-400 uppercase flex items-center gap-1 mb-1"><FileText className="w-3 h-3"/> Chapitres (Max 12)</label>
-                                    <input type="number" inputMode="numeric" value={chapters} onChange={handleChaptersChange} onBlur={handleChaptersBlur} className="w-full text-2xl font-black text-slate-900 outline-none bg-transparent" />
+                                    <label className="text-xs font-bold text-slate-400 uppercase flex items-center gap-1 mb-1">
+                                      <FileText className="w-3 h-3"/> Chapitres (Max 12)
+                                    </label>
+                                    <input 
+                                        type="number" inputMode="numeric"
+                                        value={chapters} onChange={handleChaptersChange} onBlur={handleChaptersBlur}
+                                        className="w-full text-2xl font-black text-slate-900 outline-none border-b border-transparent focus:border-indigo-500 bg-transparent" 
+                                    />
+                                    {parseInt(chapters) === 12 && <div className="absolute top-2 right-2 text-[10px] text-orange-600 font-bold flex items-center gap-1"><AlertCircle className="w-3 h-3"/> Max</div>}
                                 </div>
                             </div>
                         </div>
-                        <button type="button" disabled={!titre || !description} onClick={() => setStep(2)} className="w-full py-4 bg-slate-900 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-slate-800 disabled:opacity-50 transition-all">Suivant <ArrowRight size={18} /></button>
+                        
+                        <button 
+                          type="button" 
+                          disabled={!titre || !description} 
+                          onClick={() => setStep(2)} 
+                          className="w-full py-4 bg-slate-900 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-slate-800 disabled:opacity-50 transition-all"
+                        >
+                          Suivant <ArrowRight size={18} />
+                        </button>
                     </>
                 )}
+                
                 {step === 2 && (
                     <>
                         <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2"><Sparkles className="w-4 h-4 text-purple-500"/> Style Graphique</label>
+                            <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                              <Sparkles className="w-4 h-4 text-purple-500"/> Style Graphique
+                            </label>
                             <div className="grid grid-cols-3 gap-3">
                                 {TEMPLATES.map(t => (
-                                    <div key={t.id} onClick={() => setTemplate(t.id)} className={`cursor-pointer rounded-xl border-2 p-1 transition-all transform hover:scale-105 ${template === t.id ? 'border-indigo-600 ring-2 ring-indigo-100' : 'border-slate-100 hover:border-slate-300'}`}>
-                                        <div className="h-20 w-full rounded-lg bg-gradient-to-br mb-2" style={{backgroundImage: `linear-gradient(135deg, ${t.primaryColor}, ${t.accentColor})`}}></div>
-                                        <p className="text-[10px] text-center font-bold uppercase">{t.label}</p>
+                                    <div 
+                                      key={t.id} 
+                                      onClick={() => setTemplate(t.id)} 
+                                      className={`cursor-pointer rounded-xl border-2 p-1 transition-all transform hover:scale-105 ${template === t.id ? 'border-indigo-600 ring-2 ring-indigo-100' : 'border-slate-100 hover:border-slate-300'}`}
+                                    >
+                                        <div className="h-20 w-full rounded-lg bg-gradient-to-br mb-2 shadow-sm" style={{backgroundImage: `linear-gradient(135deg, ${t.primaryColor}, ${t.accentColor})`}}></div>
+                                        <p className={`text-[10px] text-center font-bold uppercase tracking-wide ${template === t.id ? 'text-indigo-700' : 'text-slate-500'}`}>{t.label}</p>
                                     </div>
                                 ))}
                             </div>
                         </div>
+                        
                         <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2"><Mic className="w-4 h-4 text-blue-500"/> Ton du livre</label>
+                            <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                              <Mic className="w-4 h-4 text-blue-500"/> Ton du livre
+                            </label>
                             <div className="flex flex-wrap gap-2">
                               {TONES.map(t => {
-                                const IconComp = t.icon;
+                                const IconComponent = t.icon;
                                 return (
-                                  <button key={t.value} type="button" onClick={() => setTone(t.value)} className={`px-4 py-2.5 rounded-lg text-sm font-bold border flex items-center gap-2 ${tone === t.value ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white text-slate-600 border-slate-200'}`}>
-                                    <IconComp className="w-4 h-4" /> {t.label}
+                                  <button 
+                                    key={t.value} 
+                                    type="button" 
+                                    onClick={() => setTone(t.value)} 
+                                    className={`px-4 py-2.5 rounded-lg text-sm font-bold border transition-all flex items-center gap-2 ${tone === t.value ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'}`}
+                                  >
+                                    <IconComponent className="w-4 h-4" /> {t.label}
                                   </button>
                                 );
                               })}
                             </div>
                         </div>
+                        
                         <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2"><User className="w-4 h-4 text-green-500"/> Audience Cible</label>
+                            <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                              <User className="w-4 h-4 text-green-500"/> Audience Cible
+                            </label>
                             <div className="flex flex-wrap gap-2">
                               {AUDIENCES.slice(0, 5).map(a => (
-                                <button key={a} type="button" onClick={() => setAudience(a)} className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${audience === a ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-white text-slate-500 border-slate-200'}`}>{a}</button>
+                                <button 
+                                  key={a} 
+                                  type="button" 
+                                  onClick={() => setAudience(a)} 
+                                  className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${audience === a ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-white text-slate-500 border-slate-200'}`}
+                                >
+                                  {a}
+                                </button>
                               ))}
                             </div>
                         </div>
+                        
                         <div className="flex gap-4 pt-6 border-t border-slate-100">
-                            <button type="button" onClick={() => setStep(1)} className="px-6 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl"><ArrowLeft size={18} /></button>
-                            <button type="submit" disabled={loading} className="flex-1 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-xl hover:scale-[1.02] transition-all"><Wand2 size={18} /> Générer l'Aperçu</button>
+                            <button 
+                              type="button" 
+                              onClick={() => setStep(1)} 
+                              className="px-6 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all"
+                            >
+                              <ArrowLeft size={18} />
+                            </button>
+                            <button 
+                              type="submit" 
+                              disabled={loading} 
+                              className="flex-1 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-indigo-200 hover:scale-[1.02] transition-all"
+                            >
+                              <Wand2 size={18} /> Générer maintenant
+                            </button>
                         </div>
                     </>
                 )}
@@ -446,14 +586,14 @@ function NouveauProjetPageContent() {
         </div>
       </div>
 
-      {/* DROITE - APERÇU DYNAMIQUE */}
-      <div className="w-full md:w-1/2 bg-slate-900 relative flex items-center justify-center h-[600px] md:h-screen order-2">
+      {/* DROITE */}
+      <div className="w-full md:w-1/2 bg-slate-900 relative flex items-center justify-center overflow-hidden h-[600px] md:h-screen order-2 md:order-2">
          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none"></div>
-         <div className="relative z-10 flex flex-col items-center w-full px-4 animate-in zoom-in duration-700">
+         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[100px]"></div>
+         <div className="relative z-10 flex flex-col items-center animate-in zoom-in duration-700 w-full px-4">
             
-            {/* ✅ ZONE DE CAPTURE PNG */}
             <div ref={bookRef} className="p-8">
-                <LiveBookPreview title={titre} templateId={template} />
+              <LiveBookPreview id="book-preview-target" title={titre} templateId={template} />
             </div>
             
             <div className="mt-8 grid grid-cols-2 gap-4 text-center w-full max-w-xs">
@@ -467,7 +607,6 @@ function NouveauProjetPageContent() {
                 </div>
             </div>
 
-            {/* ✅ BOUTON TÉLÉCHARGEMENT (Étape 2 seulement) */}
             {step === 2 && (
               <button
                 onClick={handleDownloadCover}
@@ -487,74 +626,170 @@ function NouveauProjetPageContent() {
     </div>
   );
 }
-
-// --- COMPOSANTS DE PRÉVISUALISATION ET MODALS (Toute ta logique originale) ---
+// PARTIE 3 - PreviewPage + Modals
 
 function PreviewPage({ kit, onEdit }) {
+    const [isPaymentLoading, setIsPaymentLoading] = useState(false);
+    
     const handlePay = async () => {
+       if (isPaymentLoading) return; // Empêche double-clic
+       
+       setIsPaymentLoading(true); // ✅ Feedback immédiat !
+       
        try {
           const res = await fetch("/api/payments/create", { 
-            method: "POST", headers: { "Content-Type": "application/json" }, 
+            method: "POST", 
+            headers: { "Content-Type": "application/json" }, 
             body: JSON.stringify({ kitData: { ...kit } }) 
           });
           const data = await res.json();
-          if(data.success && data.paymentUrl) window.location.href = data.paymentUrl;
-       } catch(e) { console.error(e); }
+          if(data.success && data.paymentUrl) {
+            window.location.href = data.paymentUrl;
+          } else {
+            alert("Erreur initialisation paiement");
+            setIsPaymentLoading(false);
+          }
+       } catch(e) { 
+          alert("Erreur technique"); 
+          setIsPaymentLoading(false);
+       }
     }
 
     return (
-        <div className="h-[100dvh] bg-slate-50 flex flex-col overflow-hidden">
-            <div className="bg-white border-b h-14 md:h-16 flex-shrink-0 px-4 flex items-center justify-between">
-                <button onClick={onEdit} className="flex items-center gap-2 text-slate-500 font-bold hover:text-slate-800 text-sm"><ArrowLeft className="w-4 h-4"/> Modifier</button>
-                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-black uppercase flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5"/> Plan Validé</span>
+        <div className="h-[100dvh] bg-slate-50 font-sans flex flex-col overflow-hidden">
+            {/* HEADER */}
+            <div className="bg-white border-b border-slate-200 h-14 md:h-16 flex-shrink-0 z-40 shadow-sm px-4 flex items-center justify-between">
+                <button onClick={onEdit} className="flex items-center gap-2 text-slate-500 font-bold hover:text-slate-800 text-sm">
+                  <ArrowLeft className="w-4 h-4"/> Modifier
+                </button>
+                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] md:text-xs font-black uppercase flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5"/> Validé
+                </span>
             </div>
+
+            {/* CONTENU */}
             <div className="flex-1 flex flex-col md:flex-row overflow-hidden max-w-7xl mx-auto w-full relative">
-                <div className="md:w-5/12 bg-slate-100 md:border-r flex-shrink-0 overflow-y-auto">
-                    <div className="p-6 flex flex-col items-center">
-                        <LiveBookPreview title={kit.title} templateId={kit.template} small={true} />
-                        <div className="mt-6 flex gap-4 w-full max-w-xs justify-center">
-                            <div className="bg-white px-4 py-3 rounded-xl border text-center min-w-[80px]">
+                
+                {/* GAUCHE */}
+                <div className="md:w-5/12 bg-slate-100 md:border-r border-slate-200 flex-shrink-0 overflow-y-auto">
+                    <div className="p-6 flex flex-col items-center justify-center min-h-full">
+                        {/* LIVRE 3D TAILLE NORMALE */}
+                        <div className="mb-8">
+                            <LiveBookPreview title={kit.title} templateId={kit.template} small={false} />
+                        </div>
+
+                        {/* STATS */}
+                        <div className="flex gap-4 w-full max-w-xs justify-center">
+                            <div className="bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-sm text-center min-w-[80px]">
                                 <div className="text-xl font-black text-slate-800">{kit.pages}</div>
                                 <div className="text-[9px] text-slate-400 font-bold uppercase">Pages</div>
                             </div>
-                            <div className="bg-white px-4 py-3 rounded-xl border text-center min-w-[80px]">
-                                <div className="text-xl font-black text-slate-800">5</div>
+                            <div className="bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-sm text-center min-w-[80px]">
+                                <div className="text-xl font-black text-slate-800">4</div>
                                 <div className="text-[9px] text-slate-400 font-bold uppercase">Fichiers</div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="flex-1 bg-white flex flex-col overflow-hidden relative">
-                    <div className="p-5 pb-2 bg-white">
+
+                {/* DROITE */}
+                <div className="flex-1 bg-white flex flex-col h-full overflow-hidden relative">
+                    <div className="p-5 pb-2 flex-shrink-0 bg-white z-10">
                         <h2 className="text-lg md:text-2xl font-black text-slate-900 mb-1">Votre plan est prêt.</h2>
                         <p className="text-slate-500 text-xs md:text-sm">Structure optimisée pour {kit.pages} pages.</p>
                     </div>
-                    <div className="flex-1 overflow-y-auto px-5 py-2 space-y-2 pb-40">
+
+                    {/* LISTE SCROLLABLE */}
+                    <div className="flex-1 overflow-y-auto px-5 py-2 space-y-2 custom-scrollbar pb-40">
                         {kit.outline && kit.outline.map((chap, idx) => (
-                            <div key={idx} className="flex gap-3 p-3 border border-slate-100 items-start hover:bg-slate-50 rounded-lg">
-                                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 bg-slate-200 text-slate-600`}>{idx+1}</div>
-                                <div className="flex-1 flex justify-between">
-                                    <span className="text-sm font-bold text-slate-800 leading-snug">{chap}</span>
-                                    <Lock className="w-3 h-3 text-slate-300"/>
+                            <div key={idx} className="flex gap-3 p-3 border border-slate-100 items-start hover:bg-slate-50 transition-colors rounded-lg group">
+                                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 ${chap.toLowerCase().includes('intro') || chap.toLowerCase().includes('concl') ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                                    {chap.toLowerCase().includes('intro') ? 'I' : chap.toLowerCase().includes('concl') ? 'C' : idx}
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex justify-between items-start">
+                                        <span className="text-sm font-bold text-slate-800 leading-snug">{chap}</span>
+                                        <Lock className="w-3 h-3 text-slate-300 mt-0.5 flex-shrink-0"/>
+                                    </div>
                                 </div>
                             </div>
                         ))}
-                        {/* BONUS LOCKS */}
+
+                        {/* BONUS */}
                         <div className="pt-6 mt-2 border-t border-slate-100">
-                            <h4 className="text-xs font-bold text-slate-400 uppercase mb-4 flex items-center gap-2"><Sparkles className="w-3 h-3 text-orange-500"/> Bonus inclus</h4>
+                            <h4 className="text-xs font-bold text-slate-400 uppercase mb-4 flex items-center gap-2">
+                                <Sparkles className="w-3 h-3 text-orange-500"/> Bonus inclus
+                            </h4>
                             <div className="space-y-3">
-                                <div className="flex gap-3 p-3 border border-slate-100 items-center bg-white rounded-xl opacity-80"><MessageCircle className="w-5 h-5 text-blue-500"/><div className="flex-1"><div className="text-xs font-bold text-slate-900">Scripts Facebook</div></div><Lock className="w-4 h-4 text-slate-300"/></div>
-                                <div className="flex gap-3 p-3 border border-slate-100 items-center bg-white rounded-xl opacity-80"><Smartphone className="w-5 h-5 text-green-500"/><div className="flex-1"><div className="text-xs font-bold text-slate-900">Séquence WhatsApp</div></div><Lock className="w-4 h-4 text-slate-300"/></div>
+                                <div className="flex gap-3 p-3 border border-slate-100 items-center bg-white rounded-xl shadow-sm opacity-80">
+                                    <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                      <MessageCircle className="w-5 h-5"/>
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="text-xs font-bold text-slate-900">Scripts Facebook & Instagram</div>
+                                        <div className="text-[10px] text-slate-500">Pour lancer vos publicités</div>
+                                    </div>
+                                    <Lock className="w-4 h-4 text-slate-300"/>
+                                </div>
+                                
+                                <div className="flex gap-3 p-3 border border-slate-100 items-center bg-white rounded-xl shadow-sm opacity-80">
+                                    <div className="w-10 h-10 bg-green-50 text-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                      <Smartphone className="w-5 h-5"/>
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="text-xs font-bold text-slate-900">Séquence WhatsApp</div>
+                                        <div className="text-[10px] text-slate-500">Pour relancer vos prospects</div>
+                                    </div>
+                                    <Lock className="w-4 h-4 text-slate-300"/>
+                                </div>
+                                
+                                <div className="flex gap-3 p-3 border border-slate-100 items-center bg-white rounded-xl shadow-sm opacity-80">
+                                    <div className="w-10 h-10 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                      <PenTool className="w-5 h-5"/>
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="text-xs font-bold text-slate-900">Texte Page de Vente</div>
+                                        <div className="text-[10px] text-slate-500">Structure persuasive (Copywriting)</div>
+                                    </div>
+                                    <Lock className="w-4 h-4 text-slate-300"/>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div className="fixed md:absolute bottom-0 left-0 right-0 p-4 border-t bg-white/95 backdrop-blur-md z-50">
-                        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-                            <div>
-                                <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Accès Complet</div>
-                                <div className="text-xl font-black text-slate-900">{kit.price} {kit.currency}</div>
+
+                    {/* CTA FOOTER FIXED */}
+                    <div className="fixed md:absolute bottom-0 left-0 right-0 p-4 border-t border-slate-200 bg-white/95 backdrop-blur-md z-50 shadow-[0_-5px_30px_rgba(0,0,0,0.1)]">
+                        <div className="max-w-7xl mx-auto w-full">
+                            <div className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-100 rounded-lg mb-3 text-[10px] md:text-xs text-blue-700 font-medium justify-center">
+                                <Clock className="w-3.5 h-3.5 shrink-0"/>
+                                <p>Génération complète : <strong>~1 min</strong> après paiement.</p>
                             </div>
-                            <button onClick={handlePay} className="flex-[2] py-4 bg-slate-900 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg"><Lock className="w-4 h-4 text-green-400" /> <span>Débloquer</span></button>
+
+                            <div className="flex items-center justify-between gap-4">
+                                <div>
+                                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total</div>
+                                    <div className="text-xl md:text-2xl font-black text-slate-900 leading-none">
+                                      {kit.price} <span className="text-xs text-slate-500 font-medium">{kit.currency}</span>
+                                    </div>
+                                </div>
+                                <button 
+                                  onClick={handlePay}
+                                  disabled={isPaymentLoading}
+                                  className="flex-[2] py-3.5 bg-slate-900 text-white font-bold rounded-xl active:scale-[0.98] transition-transform flex items-center justify-center gap-2 shadow-lg group disabled:opacity-70 disabled:cursor-not-allowed"
+                                >
+                                    {isPaymentLoading ? (
+                                      <>
+                                        <Loader2 className="w-4 h-4 animate-spin text-green-400" />
+                                        <span>Redirection...</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Lock className="w-4 h-4 text-green-400 group-hover:text-green-300" />
+                                        <span>Débloquer et télécharger</span>
+                                      </>
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -563,46 +798,87 @@ function PreviewPage({ kit, onEdit }) {
     )
 }
 
+/* --- MODALS --- */
 function SimulationModal({ progress }) {
     return (
         <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-md flex flex-col items-center justify-center z-50 text-white p-6 animate-in fade-in">
              <div className="w-20 h-20 mb-6 relative">
                 <svg className="w-full h-full transform -rotate-90">
                     <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="6" fill="transparent" className="text-slate-700" />
-                    <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="6" fill="transparent" className="text-indigo-500" strokeDasharray="226" strokeDashoffset={226 - (226 * progress) / 100} />
+                    <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="6" fill="transparent" className="text-indigo-500 transition-all duration-300 ease-linear" strokeDasharray="226" strokeDashoffset={226 - (226 * progress) / 100} />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center text-lg font-bold">{Math.round(progress)}%</div>
              </div>
-             <h2 className="text-xl font-bold mb-2 animate-pulse">Analyse du sujet par l'IA...</h2>
+             <h2 className="text-xl font-bold mb-2 animate-pulse">Analyse du sujet...</h2>
         </div>
     )
 }
 
 function RealGenerationModal({ progress }) {
     return (
-        <div className="fixed inset-0 bg-indigo-900/95 flex flex-col items-center justify-center z-50 text-white p-6">
-            <div className="w-20 h-20 mb-6 border-4 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
-            <h2 className="text-2xl font-bold mb-2">Rédaction de votre eBook...</h2>
-            <p className="text-indigo-300 font-bold">{Math.round(progress)}% complété</p>
+        <div className="fixed inset-0 bg-gradient-to-br from-indigo-900 to-slate-900 flex flex-col items-center justify-center z-50 text-white p-6">
+            <div className="w-full max-w-md text-center">
+                <div className="mb-6 relative mx-auto w-20 h-20">
+                     <div className="absolute inset-0 border-4 border-slate-700 rounded-full"></div>
+                     <div className="absolute inset-0 border-4 border-indigo-500 rounded-full border-t-transparent animate-spin"></div>
+                     <div className="absolute inset-0 flex items-center justify-center font-bold text-lg">{Math.round(progress)}%</div>
+                </div>
+                <h2 className="text-2xl font-bold mb-2">Rédaction en cours...</h2>
+                <p className="text-slate-400 mb-8 animate-pulse text-sm">Ne fermez pas cette page.</p>
+            </div>
         </div>
     )
 }
 
 function DownloadKitModal({ kit, router }) {
     return (
-        <div className="fixed inset-0 bg-green-50/95 flex items-center justify-center z-50 p-6 animate-in zoom-in">
-            <div className="bg-white p-8 rounded-3xl shadow-2xl max-w-lg w-full text-center">
-                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 className="w-10 h-10 text-green-600" /></div>
-                <h2 className="text-2xl font-black mb-2">Félicitations !</h2>
-                <p className="text-slate-500 mb-8">Votre kit marketing et eBook sont prêts.</p>
+        <div className="fixed inset-0 bg-green-50/90 backdrop-blur-sm flex items-center justify-center z-50 p-6 animate-in zoom-in">
+            <div className="bg-white p-8 rounded-3xl shadow-2xl max-w-lg w-full text-center border border-white">
+                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <CheckCircle2 className="w-10 h-10 text-green-600" />
+                </div>
+                <h2 className="text-2xl font-black text-slate-900 mb-2">C'est prêt !</h2>
+                <p className="text-slate-500 mb-8">Votre kit a été généré avec succès.</p>
+                
                 <div className="space-y-3 mb-8">
-                    <a href={kit.files[0].url} download className="flex items-center gap-4 p-4 rounded-xl border bg-slate-50 hover:bg-green-50 transition-all">
-                        <FileText className="w-5 h-5 text-red-500" />
-                        <div className="flex-1 text-left font-bold text-sm">Télécharger l'eBook (PDF)</div>
+                    {/* EBOOK PDF */}
+                    <a 
+                      href={kit.pdfUrl} 
+                      download={`${kit.title}.pdf`}
+                      className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 hover:border-green-500 hover:bg-green-50 transition-all bg-slate-50 cursor-pointer text-left"
+                    >
+                        <span className="p-2 rounded-lg text-red-500 bg-red-50">
+                          <FileText className="w-5 h-5" />
+                        </span>
+                        <div className="flex-1">
+                          <div className="font-bold text-slate-900 text-sm">Télécharger l'Ebook (PDF)</div>
+                          <div className="text-[10px] text-slate-500">{kit.title}</div>
+                        </div>
                         <Download className="w-5 h-5 text-slate-400" />
                     </a>
+
+                    {/* KIT MARKETING */}
+                    <div 
+                      onClick={() => router.push('/dashboard/projets')} 
+                      className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 hover:border-blue-500 hover:bg-blue-50 transition-all bg-slate-50 cursor-pointer text-left"
+                    >
+                        <span className="p-2 rounded-lg text-blue-500 bg-blue-50">
+                          <Zap className="w-5 h-5" />
+                        </span>
+                        <div className="flex-1">
+                            <div className="font-bold text-slate-900 text-sm">Kit Marketing Complet</div>
+                            <div className="text-[10px] text-slate-500">Scripts Facebook, WhatsApp, landing page...</div>
+                        </div>
+                        <ArrowRight className="w-5 h-5 text-slate-400" />
+                    </div>
                 </div>
-                <button onClick={() => router.push('/dashboard/projets')} className="w-full py-4 bg-slate-900 text-white font-bold rounded-xl shadow-lg">Terminer</button>
+                
+                <button 
+                  onClick={() => router.push('/dashboard/projets')} 
+                  className="w-full py-4 bg-slate-900 text-white font-bold rounded-xl shadow-lg hover:bg-slate-800 transition-colors"
+                >
+                  Aller au Tableau de Bord
+                </button>
             </div>
         </div>
     )
@@ -610,8 +886,15 @@ function DownloadKitModal({ kit, router }) {
 
 export default function NouveauProjetPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen text-lg">Préparation du Studio...</div>}>
-      <NouveauProjetPageContent /> 
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-indigo-600 mx-auto mb-4" />
+          <div className="text-lg font-bold text-slate-900">Chargement du Studio...</div>
+        </div>
+      </div>
+    }>
+      <NouveauProjetPageContent />
     </Suspense>
   );
 }
