@@ -1,19 +1,12 @@
 import { NextResponse } from "next/server";
-import { jwtVerify } from "jose"; // ✅ Optimisé pour Next.js Edge
+import { jwtVerify } from "jose";
 
 export const config = {
   matcher: [
-    /*
-     * Match toutes les routes sauf :
-     * 1. /api (les routes API ont leur propre logique)
-     * 2. _next/static, _next/image (fichiers système Next.js)
-     * 3. Images, favicons, svg, etc.
-     */
     "/((?!api|_next/static|_next/image|_static|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
 
-// ✅ FONCTION DE VÉRIFICATION DE LA SIGNATURE DU TOKEN
 async function getVerifiedPayload(token) {
   if (!token) return null;
   try {
@@ -21,25 +14,33 @@ async function getVerifiedPayload(token) {
     const { payload } = await jwtVerify(token, secret);
     return payload;
   } catch (err) {
-    // Si le token est invalide ou expiré, on ne bloque pas tout, on renvoie null
     return null;
   }
 }
 
 export default async function middleware(req) {
   const { pathname, search } = req.nextUrl;
-  
   const hostHeader = req.headers.get("host") || "";
   const hostname = hostHeader.split(":")[0];
-  
-  // Utilise tes variables .env
   const isDev = process.env.NODE_ENV === 'development';
   const APP_URL = isDev ? "http://localhost:3000" : process.env.NEXT_PUBLIC_APP_URL;
 
-  // ✅ DÉTECTION DU DOMAINE APP (Local ou Production Railway)
+  // 1. DÉFINITION DES HEADERS CORS (Pour éviter l'erreur de tes captures)
+  const origin = req.headers.get("origin") || "";
+  const allowedOrigins = [APP_URL, "https://www.bookzy.io", "https://bookzy.io"];
+  
+  const response = NextResponse.next();
+
+  if (allowedOrigins.includes(origin)) {
+    response.headers.set("Access-Control-Allow-Origin", origin);
+    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    response.headers.set("Access-Control-Allow-Credentials", "true");
+  }
+
   const isAppSubdomain = 
     hostname === "app.bookzy.io" || 
-    hostname.startsWith("app-bookzy-starter") || // Pour les domaines temporaires Railway
+    hostname.startsWith("app-bookzy-starter") ||
     (isDev && (hostname === "localhost" || hostname === "127.0.0.1"));
 
   // ============================================================
@@ -48,19 +49,12 @@ export default async function middleware(req) {
   if (isAppSubdomain) {
     const userToken = req.cookies.get("bookzy_token")?.value;
     const adminToken = req.cookies.get("admin_token")?.value;
-
     const userPayload = await getVerifiedPayload(userToken);
     const adminPayload = await getVerifiedPayload(adminToken);
-    
     const hasValidToken = !!(userPayload || adminPayload);
 
-    // 🚩 PRIORITÉ 1 : ONBOARDING / SETUP
-    // On autorise toujours l'accès aux étapes d'onboarding
-    if (pathname.startsWith("/setup")) {
-      return NextResponse.next();
-    }
+    if (pathname.startsWith("/setup")) return NextResponse.next();
 
-    // 🚩 PRIORITÉ 2 : SÉCURITÉ ADMIN
     if (pathname.startsWith("/admin")) {
       if (!adminPayload || (adminPayload.role !== "admin" && adminPayload.role !== "super_admin")) {
         return NextResponse.redirect(new URL("/auth/login", req.url));
@@ -68,53 +62,43 @@ export default async function middleware(req) {
       return NextResponse.next();
     }
 
-    // 🚩 PRIORITÉ 3 : PAGES D'AUTHENTIFICATION (/auth)
     if (pathname.startsWith("/auth")) {
-      if (hasValidToken) {
-        return NextResponse.redirect(new URL("/dashboard", req.url));
-      }
+      if (hasValidToken) return NextResponse.redirect(new URL("/dashboard", req.url));
       return NextResponse.next();
     }
 
-    // 🚩 PRIORITÉ 4 : PAGES PROTÉGÉES (Dashboard)
     if (pathname.startsWith("/dashboard") && !hasValidToken) {
       const loginUrl = new URL("/auth/login", req.url);
-      loginUrl.searchParams.set("from", pathname); // Pour revenir ici après login
+      loginUrl.searchParams.set("from", pathname);
       return NextResponse.redirect(loginUrl);
     }
 
-    // 🚩 PRIORITÉ 5 : LA RACINE (/) DU SOUS-DOMAINE APP
     if (pathname === "/") {
       if (hasValidToken) return NextResponse.redirect(new URL("/dashboard", req.url));
       return NextResponse.redirect(new URL("/auth/login", req.url));
     }
 
-    // 🚩 PRIORITÉ 6 : BLOCAGE DES PAGES MARKETING SUR L'APP
     const forbiddenOnApp = ["/blog", "/tendances", "/niche-hunter", "/legal"];
     if (forbiddenOnApp.some(path => pathname.startsWith(path))) {
       return NextResponse.redirect(new URL("/auth/login", req.url));
     }
 
-    // 🚩 PRIORITÉ 7 : 404 POUR LES ROUTES INCONNUES SUR L'APP
     const appFolders = ["/auth", "/dashboard", "/admin", "/setup"];
     if (!appFolders.some(folder => pathname.startsWith(folder)) && pathname !== "/") {
       return NextResponse.rewrite(new URL("/404", req.url));
     }
 
-    return NextResponse.next();
+    return response;
   }
 
   // ============================================================
-  // ZONE B : WWW.BOOKZY.IO & BOOKZY.IO (MARKETING)
+  // ZONE B : MARKETING (www.bookzy.io)
   // ============================================================
-  
-  // 1. Rediriger les tentatives d'accès aux pages de l'App depuis le marketing
   const authRoutes = ["/dashboard", "/admin", "/auth", "/setup"];
   if (authRoutes.some(route => pathname.startsWith(route))) {
-    return NextResponse.redirect(new URL(pathname + search, APP_URL));
+    // 🚩 On utilise une redirection 307 (Temporary Redirect) pour mieux gérer le CORS
+    return NextResponse.redirect(new URL(pathname + search, APP_URL), { status: 307 });
   }
 
-  // 2. Autoriser TOUTES les autres pages (Marketing)
-  // On enlève le rewrite vers 404 qui causait l'affichage blanc
-  return NextResponse.next();
+  return response;
 }
