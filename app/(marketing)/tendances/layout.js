@@ -1,4 +1,4 @@
-// app/(marketing)/tendances/page.js (ou metadata.js)
+// app/(marketing)/tendances/layout.js
 
 export const metadata = {
   title: "Tendances eBook 2025 : Niches Rentables & Idées Business | Bookzy",
@@ -40,18 +40,9 @@ export const metadata = {
   alternates: {
     canonical: "https://www.bookzy.io/tendances",
   },
-  
-  // ✅ Article Schema
-  other: {
-    "article:published_time": new Date().toISOString(),
-    "article:modified_time": new Date().toISOString(),
-    "article:author": "Bookzy",
-    "article:section": "Business & Entrepreneurship",
-  },
 };
 
-// Dans le composant, ajoutez aussi un JSON-LD spécifique
-export default function TendancesPage() {
+export default function TendancesLayout({ children }) {
   return (
     <>
       <script
@@ -84,7 +75,7 @@ export default function TendancesPage() {
         }}
       />
       
-      {/* Votre contenu existant */}
+      {children}
     </>
   );
 }

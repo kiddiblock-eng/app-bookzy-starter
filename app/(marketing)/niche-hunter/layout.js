@@ -1,5 +1,3 @@
-// app/(marketing)/niche-hunter/page.js (ou metadata.js)
-
 export const metadata = {
   title: "Niche Hunter : Trouvez Votre idée d'eBook Rentable en 3 Clics | Bookzy",
   description: "Analyseur de niche gratuit : trouvez instantanément les idées d'eBooks rentables avec volume de recherche, concurrence et potentiel de revenus. Outil 100% gratuit.",
@@ -42,8 +40,7 @@ export const metadata = {
   },
 };
 
-// Dans le composant, ajoutez aussi un JSON-LD pour WebApplication
-export default function NicheHunterPage() {
+export default function NicheHunterLayout({ children }) {
   return (
     <>
       <script
@@ -74,7 +71,7 @@ export default function NicheHunterPage() {
         }}
       />
       
-      {/* Votre contenu existant */}
+      {children}
     </>
   );
 }

@@ -24,20 +24,63 @@ export default async function middleware(req) {
   const hostname = hostHeader.split(":")[0];
   const origin = req.headers.get("origin") || "";
   
-  const isDev = process.env.NODE_ENV === 'development';
+  const isDev = process.env.NODE_ENV === "development";
   const APP_URL = isDev ? "http://localhost:3000" : "https://app.bookzy.io";
 
-  // Détection du domaine
-  const isAppSubdomain = 
-    hostname === "app.bookzy.io" || 
-    hostname.startsWith("app-bookzy-starter") ||
-    (isDev && (hostname === "localhost" || hostname === "127.0.0.1"));
+  // 🔥 EN DEV : Détection par PATH au lieu de hostname
+  if (isDev) {
+    const userToken = req.cookies.get("bookzy_token")?.value;
+    const adminToken = req.cookies.get("admin_token")?.value;
+    const userPayload = await getVerifiedPayload(userToken);
+    const adminPayload = await getVerifiedPayload(adminToken);
+    const hasValidToken = !!(userPayload || adminPayload);
+
+    // Pages marketing : libre accès
+    const marketingPaths = ["/blog", "/tendances", "/niche-hunter", "/legal"];
+    if (marketingPaths.some(path => pathname.startsWith(path)) || pathname === "/") {
+      return NextResponse.next();
+    }
+
+    // Setup : toujours accessible
+    if (pathname.startsWith("/setup")) {
+      return NextResponse.next();
+    }
+
+    // Admin : protection
+    if (pathname.startsWith("/admin")) {
+      if (!adminPayload || (adminPayload.role !== "admin" && adminPayload.role !== "super_admin")) {
+        return NextResponse.redirect(new URL("/auth/login", req.url));
+      }
+      return NextResponse.next();
+    }
+
+    // Auth : redirect si déjà connecté
+    if (pathname.startsWith("/auth")) {
+      if (hasValidToken) {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+      return NextResponse.next();
+    }
+
+    // Dashboard : protection
+    if (pathname.startsWith("/dashboard")) {
+      if (!hasValidToken) {
+        const loginUrl = new URL("/auth/login", req.url);
+        loginUrl.searchParams.set("from", pathname);
+        return NextResponse.redirect(loginUrl);
+      }
+      return NextResponse.next();
+    }
+
+    // Reste : libre accès
+    return NextResponse.next();
+  }
+
+  // 🔥 EN PRODUCTION : Détection par hostname
+  const isAppSubdomain = hostname === "app.bookzy.io" || hostname.startsWith("app-bookzy-starter");
 
   let response;
 
-  // ============================================================
-  // ZONE A : APP.BOOKZY.IO
-  // ============================================================
   if (isAppSubdomain) {
     const userToken = req.cookies.get("bookzy_token")?.value;
     const adminToken = req.cookies.get("admin_token")?.value;
@@ -79,25 +122,17 @@ export default async function middleware(req) {
       }
     }
   } 
-  // ============================================================
-  // ZONE B : MARKETING (www.bookzy.io)
-  // ============================================================
   else {
     const authRoutes = ["/dashboard", "/admin", "/auth", "/setup"];
     
-    // Rediriger les routes app vers app.bookzy.io
     if (authRoutes.some(route => pathname.startsWith(route))) {
       response = NextResponse.redirect(new URL(pathname + search, APP_URL), { status: 307 });
     } 
-    // 🔥 AUTORISER TOUTES LES PAGES MARKETING
     else {
       response = NextResponse.next();
     }
   }
 
-  // ============================================================
-  // CORS
-  // ============================================================
   if (response) {
     const allowedOrigins = [
       APP_URL, 
