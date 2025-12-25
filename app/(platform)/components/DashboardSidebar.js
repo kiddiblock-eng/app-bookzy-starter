@@ -86,7 +86,7 @@ export default function DashboardSidebar({ open, setOpen }) {
   return (
     <>
       {/* SIDEBAR DESKTOP */}
-      <aside className={`hidden lg:flex flex-col fixed left-0 top-0 z-40 h-screen w-[280px] bg-white border-r border-slate-100 shadow-[2px_0_20px_rgba(0,0,0,0.02)] overflow-hidden`}>
+      <aside className={`hidden lg:flex flex-col fixed left-0 top-0 z-40 h-screen w-[280px] bg-white border-r border-slate-100 shadow-[2px_0_20px_rgba(0,0,0,0.02)]`}>
         <div className="h-20 flex items-center px-8 flex-shrink-0">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center shadow-md">
@@ -97,22 +97,31 @@ export default function DashboardSidebar({ open, setOpen }) {
         </div>
 
         <div className="px-6 pb-4 flex-shrink-0">
-            <Link href="/dashboard/projets/nouveau" className="group w-full flex items-center justify-center gap-2 py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold shadow-lg transition-all active:scale-[0.98]">
+            <Link 
+              href="/dashboard/projets/nouveau" 
+              prefetch={true}
+              className="group w-full flex items-center justify-center gap-2 py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold shadow-lg transition-all active:scale-[0.98]"
+            >
                 <Plus size={16} strokeWidth={3} />
                 <span className="tracking-wide text-sm">Générer un ebook</span>
             </Link>
         </div>
 
-        <nav className="flex-1 px-4 py-2 flex flex-col gap-6 overflow-hidden">
+        {/* ✅ FIX: Espaces réduits pour tout tenir sans scroll */}
+        <nav className="flex-1 px-4 py-2 flex flex-col gap-4 overflow-hidden">
           {sidebarConfig.map((section) => (
             <div key={section.title}>
-              <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">{section.title}</p>
-              <ul className="space-y-0.5">
+              <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">{section.title}</p>
+              <ul className="space-y-0">
                 {section.items.map(({ label, href, icon: Icon, badge, exact, isSpecial }) => {
                   const isActive = isLinkActive(href, exact);
                   return (
                     <li key={href}>
-                      <Link href={href} className={`group flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${isActive ? "bg-slate-50 text-slate-900 shadow-sm border border-slate-100" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50/50"}`}>
+                      <Link 
+                        href={href} 
+                        prefetch={true}
+                        className={`group flex items-center justify-between px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${isActive ? "bg-slate-50 text-slate-900 shadow-sm border border-slate-100" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50/50"}`}
+                      >
                         <div className="flex items-center gap-3">
                             <Icon size={18} className={isActive ? "text-indigo-600" : (isSpecial ? "text-red-500" : "text-slate-400 group-hover:text-slate-600")} />
                             <span className={isSpecial && !isActive ? "text-slate-700 font-bold" : ""}>{label}</span>
@@ -130,13 +139,19 @@ export default function DashboardSidebar({ open, setOpen }) {
             </div>
           ))}
 
-          <div className="mt-auto pt-4 border-t border-slate-50">
-             <ul className="space-y-1">
+          {/* ✅ SECTION AIDE (Support + Paramètres) - Dans le flow normal */}
+          <div className="pt-3 border-t border-slate-50">
+             <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Aide</p>
+             <ul className="space-y-0">
                 {bottomItems.map(({ label, href, icon: Icon }) => {
                     const isActive = pathname === href;
                     return (
                     <li key={label}>
-                        <Link href={href} className={`group flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium transition-all ${isActive ? "text-slate-900 bg-slate-50" : "text-slate-500 hover:text-slate-900"}`}>
+                        <Link 
+                          href={href} 
+                          prefetch={true}
+                          className={`group flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium transition-all ${isActive ? "text-slate-900 bg-slate-50 shadow-sm border border-slate-100" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50/50"}`}
+                        >
                           <Icon size={18} className={isActive ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-600"} />
                           <span>{label}</span>
                         </Link>
@@ -147,6 +162,7 @@ export default function DashboardSidebar({ open, setOpen }) {
           </div>
         </nav>
 
+        {/* ✅ DÉCONNEXION EN BAS */}
         <div className="p-4 border-t border-slate-50 flex-shrink-0">
           <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all">
             <LogOut size={16} />
@@ -177,6 +193,7 @@ export default function DashboardSidebar({ open, setOpen }) {
                 <Link
                     href="/dashboard/projets/nouveau"
                     onClick={() => setOpen(false)}
+                    prefetch={true}
                     className="w-full flex items-center justify-center gap-2 py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold shadow-lg transition-all active:scale-[0.98]"
                 >
                     <Plus size={16} strokeWidth={3} />
@@ -191,7 +208,12 @@ export default function DashboardSidebar({ open, setOpen }) {
                     <ul className="space-y-0.5">
                         {section.items.map(({ label, href, icon: Icon, badge, isSpecial }) => (
                             <li key={href}>
-                                <Link href={href} onClick={() => setOpen(false)} className="flex items-center justify-between px-2 py-2.5 text-slate-600 font-medium hover:bg-slate-50 rounded-lg">
+                                <Link 
+                                  href={href} 
+                                  onClick={() => setOpen(false)} 
+                                  prefetch={true}
+                                  className="flex items-center justify-between px-2 py-2.5 text-slate-600 font-medium hover:bg-slate-50 rounded-lg"
+                                >
                                     <div className="flex items-center gap-3">
                                         <Icon size={18} className={isSpecial ? "text-red-500" : ""} />
                                         <span className="text-sm">{label}</span>
@@ -210,7 +232,12 @@ export default function DashboardSidebar({ open, setOpen }) {
                   <ul className="space-y-0.5">
                     {bottomItems.map(({ label, href, icon: Icon }) => (
                       <li key={href}>
-                        <Link href={href} onClick={() => setOpen(false)} className="flex items-center gap-3 px-2 py-2.5 text-slate-600 text-sm font-medium hover:bg-slate-50 rounded-lg">
+                        <Link 
+                          href={href} 
+                          onClick={() => setOpen(false)} 
+                          prefetch={true}
+                          className="flex items-center gap-3 px-2 py-2.5 text-slate-600 text-sm font-medium hover:bg-slate-50 rounded-lg"
+                        >
                           <Icon size={18} />
                           <span>{label}</span>
                         </Link>

@@ -68,11 +68,25 @@ export default function Pricing() {
                                     <p className="text-xs text-slate-500">Espionnez ce qui se vend maintenant</p>
                                 </div>
                             </li>
+                            {/* ✅ YOUBOOK AJOUTÉ */}
+                            <li className="flex items-start gap-3">
+                                <Zap className="w-5 h-5 text-red-600 shrink-0 mt-0.5" strokeWidth={2} />
+                                <div>
+                                    <span className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                                        3 Analyses YouTube / jour
+                                        <span className="px-1.5 py-0.5 bg-red-100 text-red-700 text-[9px] font-black rounded">NEW</span>
+                                    </span>
+                                    <p className="text-xs text-slate-500">Youbook • Transformez des vidéos en ebook</p>
+                                </div>
+                            </li>
                             <li className="flex items-start gap-3">
                                 <Check className="w-5 h-5 text-slate-900 shrink-0 mt-0.5" strokeWidth={2} />
-                                <span className="text-sm text-slate-700 font-medium">Génération du plan complet</span>
+                                <span className="text-sm text-slate-700 font-medium">Génération du sommaire complet</span>
                             </li>
-                            
+                            <li className="flex items-start gap-3">
+                                <Check className="w-5 h-5 text-slate-900 shrink-0 mt-0.5" strokeWidth={2} />
+                                <span className="text-sm text-slate-700 font-medium">Couverture 3D générée par l'IA</span>
+                            </li>
                             <li className="border-t border-slate-100 my-2"></li>
                             <li className="pt-2">
                                 <p className="text-xs text-slate-400 italic">Pour créer le produit final :</p>
@@ -116,7 +130,7 @@ export default function Pricing() {
                              <span className="text-5xl font-bold text-slate-900 tracking-tight">2 000</span>
                              <div className="flex flex-col">
                                 <span className="text-sm font-bold text-slate-900">{currency.symbol}</span>
-                                <span className="text-xs text-slate-500 font-normal">par eBook générer</span>
+                                <span className="text-xs text-slate-500 font-normal">par eBook généré</span>
                              </div>
                         </div>
                     </div>
@@ -147,6 +161,18 @@ export default function Pricing() {
                                 <div>
                                     <span className="text-sm font-bold text-slate-900">Tendances Premium</span>
                                     <p className="text-xs text-slate-500">Données en temps réel</p>
+                                </div>
+                            </li>
+
+                            {/* ✅ YOUBOOK ILLIMITÉ */}
+                            <li className="flex items-start gap-3">
+                                <Zap className="w-5 h-5 text-red-600 shrink-0 mt-0.5" strokeWidth={2} />
+                                <div>
+                                    <span className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                                        Youbook Illimité
+                                        <span className="px-1.5 py-0.5 bg-red-100 text-red-700 text-[9px] font-black rounded">NEW</span>
+                                    </span>
+                                    <p className="text-xs text-slate-500">Analyses YouTube sans limite</p>
                                 </div>
                             </li>
 

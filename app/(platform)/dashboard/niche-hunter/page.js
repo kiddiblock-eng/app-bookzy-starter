@@ -96,7 +96,7 @@ export default function NicheHunterPage() {
                 Niche Hunter <span className="text-indigo-600">AI</span>
               </h1>
               <p className="text-lg text-slate-500">
-                Un mot-clé suffit pour découvrir des idées d’ebooks qui se vendent.
+                Un mot-clé suffit pour découvrir des idées d'ebooks qui se vendent.
               </p>
             </div>
           )}
@@ -213,10 +213,18 @@ export default function NicheHunterPage() {
   );
 }
 
-/* --- NOUVEAU DESIGN DE CARTE --- */
+/* --- NOUVEAU DESIGN DE CARTE AVEC 2 BOUTONS CTA --- */
 function NicheCardV2({ niche, index, analysisId, getDifficultyColor, router }) {
   const handleAnalyze = () => {
     router.push(`/dashboard/niche-hunter/analyse/${analysisId}?nicheId=${niche.nicheId}`);
+  };
+
+  const handleGenerate = () => {
+    const params = new URLSearchParams({
+      suggestion: niche.title,
+      description: niche.description
+    });
+    router.push(`/dashboard/projets/nouveau?${params.toString()}`);
   };
 
   return (
@@ -288,14 +296,24 @@ function NicheCardV2({ niche, index, analysisId, getDifficultyColor, router }) {
         )}
       </div>
 
-      {/* Bouton Action */}
-      <button
-        onClick={handleAnalyze}
-        className="w-full py-3 rounded-xl bg-slate-900 text-white font-semibold text-sm hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 flex items-center justify-center gap-2 group-hover:translate-y-[-2px]"
-      >
-        <Zap className="w-4 h-4" />
-        Analyser le potentiel
-      </button>
+      {/* ✅ 2 BOUTONS CTA COMPACTS SUR MÊME LIGNE */}
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          onClick={handleAnalyze}
+          className="py-3 rounded-xl bg-slate-900 text-white font-semibold text-sm hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 flex items-center justify-center gap-2 group-hover:translate-y-[-2px]"
+        >
+          <Zap className="w-4 h-4" />
+          Analyser
+        </button>
+        
+        <button
+          onClick={handleGenerate}
+          className="py-3 rounded-xl bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 flex items-center justify-center gap-2 group-hover:translate-y-[-2px]"
+        >
+          <Sparkles className="w-4 h-4" />
+          Générer
+        </button>
+      </div>
 
     </div>
   );
