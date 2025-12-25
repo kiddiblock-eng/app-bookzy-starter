@@ -187,71 +187,94 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     4. STRUCTURE : 2-3 sous-sections maximum par chapitre.
     `;
 
-    console.log("🤖 [PHASE 2] Début génération SÉQUENTIELLE (1 par 1)");
+    console.log("🤖 [PHASE 2] Début génération PAR BATCH (3 par 3) avec décalage");
     
     // ============================================================================
-    // ✅ CHAPITRES - APPELS SÉQUENTIELS (1 PAR 1) AVEC RETRY
+    // ✅ CHAPITRES - APPELS PARALLÈLES PAR BATCH DE 3 AVEC DÉCALAGE
     // ============================================================================
     const chaptersArray = [];
+    const batchSize = 3; // ✅ 3 chapitres en parallèle
     
-    for (let i = 1; i <= totalChapters; i++) {
-      console.log(`🤖 [PHASE 2] Génération chapitre ${i}/${totalChapters}`);
+    for (let i = 0; i < totalChapters; i += batchSize) {
+      const batch = [];
+      const batchEnd = Math.min(i + batchSize, totalChapters);
       
-      const chapterTitleMatch = summaryText.match(new RegExp(`Chapitre ${i}\\s*[:：]\\s*(.+?)(?=\\n|$)`, 'i'));
-      const chapterTitle = chapterTitleMatch ? chapterTitleMatch[1].trim() : `Chapitre ${i}`;
+      console.log(`🤖 [PHASE 2] Batch ${Math.floor(i/batchSize) + 1}: chapitres ${i+1} à ${batchEnd}`);
       
-      let chapterText = "";
-      let retryCount = 0;
-      const MAX_CHAPTER_RETRIES = 3;
+      for (let j = i; j < batchEnd; j++) {
+        const chapterNumber = j + 1;
+        const chapterTitleMatch = summaryText.match(new RegExp(`Chapitre ${chapterNumber}\\s*[:：]\\s*(.+?)(?=\\n|$)`, 'i'));
+        const chapterTitle = chapterTitleMatch ? chapterTitleMatch[1].trim() : `Chapitre ${chapterNumber}`;
+        
+        // ✅ Décalage progressif : 0s, 2s, 4s
+        const delayMs = (j - i) * 2000;
+        
+        batch.push(
+          (async () => {
+            await delay(delayMs); // ✅ Décalage
+            
+            let chapterText = "";
+            let retryCount = 0;
+            const MAX_CHAPTER_RETRIES = 3;
+            
+            while (retryCount < MAX_CHAPTER_RETRIES) {
+              try {
+                chapterText = await getAIWithRetry(
+                  "ebook", 
+                  `${EBOOK_SYSTEM_PROMPT}\n\n${getChapterPrompt({ 
+                    chapterNumber, 
+                    chapterTitle, 
+                    title: titre, 
+                    description, 
+                    summary: summaryText, 
+                    totalChapters, 
+                    wordsTarget: wordsPerChapter 
+                  })}\n\n${FORMAT_INSTRUCTIONS}`, 
+                  dynamicMaxTokens
+                );
+                
+                console.log(`✅ [PHASE 2] Chapitre ${chapterNumber} terminé`);
+                break;
+                
+              } catch (err) {
+                retryCount++;
+                console.error(`❌ [PHASE 2] Chapitre ${chapterNumber} échec (tentative ${retryCount}/${MAX_CHAPTER_RETRIES}):`, err.message);
+                
+                if (retryCount >= MAX_CHAPTER_RETRIES) {
+                  console.warn(`⚠️ [PHASE 2] Chapitre ${chapterNumber} - Utilisation fallback`);
+                  chapterText = `<h2>${chapterTitle}</h2><p>Ce chapitre explore en profondeur les concepts clés et stratégies essentielles pour réussir dans ce domaine.</p><p>Les points principaux abordés permettent de comprendre les enjeux et d'appliquer les meilleures pratiques.</p>`;
+                  break;
+                }
+                
+                await delay(3000);
+              }
+            }
+            
+            return { index: chapterNumber - 1, content: cleanMarkdown(chapterText) };
+          })()
+        );
+      }
       
-      // ✅ RETRY AUTOMATIQUE par chapitre
-      while (retryCount < MAX_CHAPTER_RETRIES) {
-        try {
-          chapterText = await getAIWithRetry(
-            "ebook", 
-            `${EBOOK_SYSTEM_PROMPT}\n\n${getChapterPrompt({ 
-              chapterNumber: i, 
-              chapterTitle, 
-              title: titre, 
-              description, 
-              summary: summaryText, 
-              totalChapters, 
-              wordsTarget: wordsPerChapter 
-            })}\n\n${FORMAT_INSTRUCTIONS}`, 
-            dynamicMaxTokens
-          );
-          
-          // ✅ Succès
-          chaptersArray.push(cleanMarkdown(chapterText));
-          
-          // ✅ Update progress
-          const newProgress = 30 + Math.floor((i / totalChapters) * 40);
-          await Projet.findByIdAndUpdate(projetId, { progress: newProgress });
-          console.log(`✅ [PHASE 2] Chapitre ${i} terminé - ${newProgress}%`);
-          
-          // ✅ PAUSE entre chapitres (critical pour Gemini)
-          if (i < totalChapters) {
-            await delay(2000); // 2 secondes entre chaque chapitre
-          }
-          
-          break; // ✅ Sortir de la boucle retry
-          
-        } catch (err) {
-          retryCount++;
-          console.error(`❌ [PHASE 2] Chapitre ${i} échec (tentative ${retryCount}/${MAX_CHAPTER_RETRIES}):`, err.message);
-          
-          if (retryCount >= MAX_CHAPTER_RETRIES) {
-            // ✅ FALLBACK après 3 échecs
-            console.warn(`⚠️ [PHASE 2] Chapitre ${i} - Utilisation fallback`);
-            chaptersArray.push(`<h2>${chapterTitle}</h2><p>Ce chapitre explore en profondeur les concepts clés et stratégies essentielles pour réussir dans ce domaine.</p><p>Les points principaux abordés permettent de comprendre les enjeux et d'appliquer les meilleures pratiques.</p>`);
-            break;
-          }
-          
-          // ✅ Attendre avant retry
-          await delay(3000);
-        }
+      // ✅ Attendre que le batch se termine
+      const batchResults = await Promise.all(batch);
+      
+      // ✅ Insérer dans l'ordre
+      batchResults.forEach(({ index, content }) => {
+        chaptersArray[index] = content;
+      });
+      
+      // ✅ Update progress
+      const newProgress = 30 + Math.floor(((i + batchSize) / totalChapters) * 40);
+      await Projet.findByIdAndUpdate(projetId, { progress: Math.min(newProgress, 70) });
+      
+      // ✅ Pause entre batches (sauf dernier)
+      if (i + batchSize < totalChapters) {
+        console.log("⏸️ [PHASE 2] Pause 3s avant batch suivant...");
+        await delay(3000);
       }
     }
+    
+    console.log(`✅ [PHASE 2] ${chaptersArray.length}/${totalChapters} chapitres générés`);
 
     // ============================================================================
     // ✅ CONCLUSION
