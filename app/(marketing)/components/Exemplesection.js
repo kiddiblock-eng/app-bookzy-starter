@@ -49,7 +49,7 @@ export default function ExamplesSection() {
   const [isLoadingPdf, setIsLoadingPdf] = useState(true);
 
   // Ton URL PDF Cloudinary
-  const pdfUrl = "https://res.cloudinary.com/dcmlw5hak/raw/upload/v1765662168/bookzy/ebooks/comment-creer-et-monetiser-un-compte-tiktok-grace-a-lia-sans-montrer-son-identit.pdf";
+  const pdfUrl = "https://res.cloudinary.com/dcmlw5hak/raw/upload/v1766663881/bookzy/ebooks/tiktok-sans-visage-monetisez-votre-compte-avec-lia-guide-debutant-694d26256694fe.pdf";
 
   // Gestion du scroll body
   useEffect(() => {

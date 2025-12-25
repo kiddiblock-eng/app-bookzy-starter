@@ -10,7 +10,7 @@ export default function DemoPro() {
   const [showControls, setShowControls] = useState(true);
 
   const cloudName = "dcmlw5hak";
-  const videoId = "videolive_z5iaye";
+  const videoId = "generateur_g1nl9o";
   const videoUrl = `https://res.cloudinary.com/${cloudName}/video/upload/q_auto,f_auto/${videoId}.mov`;
 
   const togglePlay = () => {

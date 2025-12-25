@@ -104,7 +104,7 @@ export default function MainFeaturesSection() {
             <div className="order-1 lg:order-2 relative">
               <PremiumBlock color="blue">
                 <CloudinaryVideo 
-                  publicId="generator_bsjysh" 
+                  publicId="plumege_tgfv3i" 
                   className="w-full h-full object-cover" 
                   alt="Générateur eBook" 
                 />
