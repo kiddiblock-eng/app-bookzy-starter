@@ -549,6 +549,7 @@ export async function POST(req) {
       
       userId = projet.userId?._id || projet.userId;
     } else {
+        // --- CAS D'UN NOUVEAU PROJET ---
         if (transactionId) {
             const existing = await Projet.findOne({ transactionId });
             if (existing) {
@@ -563,30 +564,50 @@ export async function POST(req) {
             }
         }
         
-        // ✅ FIX: Template du BODY en priorité absolue (ignore kitData.template)
-        let { titre, description, tone, audience, pages, chapters, template } = body;
+        // ✅ 1. Récupération des données du body
+        let { titre, description, tone, audience, pages, chapters, template: bodyTemplate, outline: bodyOutline } = body;
         
-        console.log("🎨 [POST] Template reçu du frontend:", template);
-        
-        if ((!titre || !outline) && transactionId) {
-             const tx = await Transaction.findById(transactionId);
-             if(tx?.kitData) { 
-                 titre = titre || tx.kitData.title;
-                 description = description || tx.kitData.description;
-                 tone = tone || tx.kitData.tone; 
-                 audience = audience || tx.kitData.audience;
-                 pages = pages || tx.kitData.pages;
-                 chapters = chapters || tx.kitData.chapters; 
-                 // ✅ NE PAS écraser le template du body avec kitData
-                 // template = template (déjà défini plus haut)
-                 if(!outline) outline = tx.kitData.outline;
-             }
+        let templateFinal; 
+        let outlineFinal = bodyOutline;
+
+        console.log("📥 [POST] Body reçu - bodyTemplate:", bodyTemplate);
+
+        // ✅ 2. TRANSACTION = SOURCE DE VÉRITÉ (Priorité sur le body)
+        if (transactionId) {
+            const tx = await Transaction.findById(transactionId);
+            if (tx?.kitData) {
+                console.log("📦 [POST] Transaction trouvée - kitData:", tx.kitData);
+                console.log("🎨 [POST] kitData.template:", tx.kitData.template);
+                
+                // On utilise les données que l'utilisateur a validées lors du paiement
+                titre = tx.kitData.title || titre;
+                description = tx.kitData.description || description;
+                tone = tx.kitData.tone || tone;
+                audience = tx.kitData.audience || audience;
+                pages = tx.kitData.pages || pages;
+                chapters = tx.kitData.chapters || chapters;
+                outlineFinal = tx.kitData.outline || bodyOutline;
+                
+                // ✅ FIX : On prend le template payé, même si le body renvoie "modern" par défaut
+                templateFinal = tx.kitData.template || bodyTemplate;
+                
+                console.log("🎨 [POST] Template FINAL (de la transaction):", templateFinal);
+            } else {
+                templateFinal = bodyTemplate;
+                console.log("🎨 [POST] Template FINAL (du body, pas de kitData):", templateFinal);
+            }
+        } else {
+            templateFinal = bodyTemplate;
+            console.log("🎨 [POST] Template FINAL (du body, pas de transaction):", templateFinal);
         }
 
-        // ✅ FIX: Validation template
+        // ✅ 3. Validation finale du template
         const validTemplates = ["modern", "luxe", "educatif", "energie", "minimal", "creative"];
-        const finalTemplate = validTemplates.includes(template) ? template : "modern";
+        const validatedTemplate = validTemplates.includes(templateFinal) ? templateFinal : "modern";
+        
+        console.log("✅ [POST] Template validé pour création:", validatedTemplate);
 
+        // ✅ 4. Création du projet en base
         projet = await Projet.create({
             userId,
             transactionId,
@@ -596,17 +617,19 @@ export async function POST(req) {
             audience, 
             pages: pages || 20,
             chapters: chapters || 5,
-            template: finalTemplate, // ✅ Template validé
+            template: validatedTemplate, // ✅ On enregistre bien le template choisi
             isPaid: true,
             status: "processing",
             progress: 5
         });
         
         projetId = projet._id.toString();
-        console.log(`✅ [POST] Projet créé avec template: ${finalTemplate}`);
+        outline = outlineFinal;
+        
+        console.log(`✅ [POST] Projet créé avec succès - Template: ${validatedTemplate}`);
     }
     
-    // ✅ Lancement asynchrone
+    // ✅ Lancement asynchrone des phases de génération
     generatePhase1(projet._id, userId, outline);
     
     return NextResponse.json({ 

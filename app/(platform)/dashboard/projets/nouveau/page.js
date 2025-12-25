@@ -659,11 +659,29 @@ function PreviewPage({ kit, onEdit }) {
        
        setIsPaymentLoading(true);
        
+       console.log("💰 [PAYMENT] Kit envoyé:", kit);
+       console.log("🎨 [PAYMENT] Template dans kit:", kit.template);
+       
        try {
           const res = await fetch("/api/payments/create", { 
             method: "POST", 
             headers: { "Content-Type": "application/json" }, 
-            body: JSON.stringify({ kitData: { ...kit } }) 
+            // ✅ FIX: On envoie le kit COMPLET avec template
+            body: JSON.stringify({ 
+              kitData: { 
+                title: kit.title,
+                description: kit.description,
+                tone: kit.tone,
+                audience: kit.audience,
+                pages: kit.pages,
+                chapters: kit.chapters,
+                template: kit.template, // ✅ CRITIQUE
+                outline: kit.outline,
+                price: kit.price,
+                currency: kit.currency,
+                provider: kit.provider
+              } 
+            }) 
           });
           const data = await res.json();
           if(data.success && data.paymentUrl) {
@@ -673,6 +691,7 @@ function PreviewPage({ kit, onEdit }) {
             setIsPaymentLoading(false);
           }
        } catch(e) { 
+          console.error("❌ [PAYMENT] Erreur:", e);
           alert("Erreur technique"); 
           setIsPaymentLoading(false);
        }
