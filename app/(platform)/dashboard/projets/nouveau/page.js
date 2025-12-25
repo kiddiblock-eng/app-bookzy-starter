@@ -294,8 +294,17 @@ function NouveauProjetPageContent() {
         const finalOutline = outlineDataRef.current || forceChapterCount([], count);
         setPredictedOutline(finalOutline);
         setFinalKitData({
-            title: titre, description, pages, chapters, tone, audience, template,
-            price: dynamicPrice, currency: dynamicCurrency, provider: dynamicProvider, value: 197,
+            title: titre, 
+            description, 
+            pages, 
+            chapters, 
+            tone, 
+            audience, 
+            template, // ✅ FIX: Template actuel du state
+            price: dynamicPrice, 
+            currency: dynamicCurrency, 
+            provider: dynamicProvider, 
+            value: 197,
             outline: finalOutline
         });
         setIsSimulating(false);
@@ -305,8 +314,9 @@ function NouveauProjetPageContent() {
         setStep(3);
         window.scrollTo(0, 0); 
     }
-  }, [simulatedProgress, isSimulating]);
-  // GENERATION (continuation de la partie 1)
+  }, [simulatedProgress, isSimulating, titre, description, pages, chapters, tone, audience, template, dynamicPrice, dynamicCurrency, dynamicProvider]);
+
+  // GENERATION
   const verifyAndGenerate = async (transactionId) => {
     try {
         const verifyRes = await fetch("/api/payments/verify", {
@@ -321,14 +331,25 @@ function NouveauProjetPageContent() {
             const currentTitre = titre || kitData.title;
             const currentDesc = description || kitData.description;
             const currentOutline = predictedOutline.length > 0 ? predictedOutline : (kitData.outline || []);
+            
+            // ✅ FIX CRITIQUE: Priorité au template actuel (state) puis kitData
+            const currentTemplate = template || kitData.template || "modern";
+            
+            console.log("📤 Envoi génération avec template:", currentTemplate);
+            
             const genRes = await fetch("/api/ebooks/generate", {
               method: "POST", headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ 
-                  projetId: data.transaction.projetId || null, transactionId: transactionId,
-                  titre: currentTitre, description: currentDesc,
-                  tone: kitData.tone || tone, audience: kitData.audience || audience,
-                  pages: kitData.pages || pages, chapters: kitData.chapters || chapters,
-                  template: kitData.template || template, outline: currentOutline
+                  projetId: data.transaction.projetId || null, 
+                  transactionId: transactionId,
+                  titre: currentTitre, 
+                  description: currentDesc,
+                  tone: kitData.tone || tone, 
+                  audience: kitData.audience || audience,
+                  pages: kitData.pages || pages, 
+                  chapters: kitData.chapters || chapters,
+                  template: currentTemplate, // ✅ Template correct
+                  outline: currentOutline
               }),
             });
             const genData = await genRes.json();
@@ -626,15 +647,15 @@ function NouveauProjetPageContent() {
     </div>
   );
 }
-// PARTIE 3 - PreviewPage + Modals
 
+// PREVIEW PAGE
 function PreviewPage({ kit, onEdit }) {
     const [isPaymentLoading, setIsPaymentLoading] = useState(false);
     
     const handlePay = async () => {
-       if (isPaymentLoading) return; // Empêche double-clic
+       if (isPaymentLoading) return;
        
-       setIsPaymentLoading(true); // ✅ Feedback immédiat !
+       setIsPaymentLoading(true);
        
        try {
           const res = await fetch("/api/payments/create", { 
@@ -673,12 +694,10 @@ function PreviewPage({ kit, onEdit }) {
                 {/* GAUCHE */}
                 <div className="md:w-5/12 bg-slate-100 md:border-r border-slate-200 flex-shrink-0 overflow-y-auto">
                     <div className="p-6 flex flex-col items-center justify-center min-h-full">
-                        {/* LIVRE 3D TAILLE NORMALE */}
                         <div className="mb-8">
                             <LiveBookPreview title={kit.title} templateId={kit.template} small={false} />
                         </div>
 
-                        {/* STATS */}
                         <div className="flex gap-4 w-full max-w-xs justify-center">
                             <div className="bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-sm text-center min-w-[80px]">
                                 <div className="text-xl font-black text-slate-800">{kit.pages}</div>
@@ -841,7 +860,6 @@ function DownloadKitModal({ kit, router }) {
                 <p className="text-slate-500 mb-8">Votre kit a été généré avec succès.</p>
                 
                 <div className="space-y-3 mb-8">
-                    {/* EBOOK PDF */}
                     <a 
                       href={kit.pdfUrl} 
                       download={`${kit.title}.pdf`}
@@ -857,7 +875,6 @@ function DownloadKitModal({ kit, router }) {
                         <Download className="w-5 h-5 text-slate-400" />
                     </a>
 
-                    {/* KIT MARKETING */}
                     <div 
                       onClick={() => router.push('/dashboard/projets')} 
                       className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 hover:border-blue-500 hover:bg-blue-50 transition-all bg-slate-50 cursor-pointer text-left"
