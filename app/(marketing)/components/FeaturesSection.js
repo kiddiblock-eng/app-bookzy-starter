@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { Sparkles, TrendingUp, Target, ArrowRight, Check, BarChart3, Users, FileText } from "lucide-react";
+import { Sparkles, TrendingUp, Target, ArrowRight, Check, BarChart3, Users, FileText, Youtube, Zap ,Headphones,Brain,Layout,Book} from "lucide-react";
 import Link from "next/link";
 
 /* 🎥 Cloudinary Video avec autoplay intelligent + POSTER (Fix écran noir) */
@@ -24,21 +24,15 @@ function CloudinaryVideo({ publicId, className, alt = "Feature video" }) {
   }, []);
 
   const cloudName = "dcmlw5hak";
-  
-  // 1. URL de la vidéo
   const videoUrl = `https://res.cloudinary.com/${cloudName}/video/upload/q_auto,f_auto,w_1200/${publicId}.mp4`;
-
-  // 2. ✅ URL de l'image "Poster" (Première frame de la vidéo)
-  // so_0 = Start Offset 0 (Première image)
-  // .jpg = On veut une image, pas une vidéo
   const posterUrl = `https://res.cloudinary.com/${cloudName}/video/upload/q_auto,f_auto,w_1200,so_0/${publicId}.jpg`;
 
   return (
     <video 
       ref={ref} 
       src={videoUrl}
-      poster={posterUrl} // 👈 C'est ça qui supprime l'écran noir
-      className={`${className} bg-slate-50`} // On met un fond clair au cas où
+      poster={posterUrl}
+      className={`${className} bg-slate-50`}
       muted 
       loop 
       playsInline 
@@ -47,6 +41,7 @@ function CloudinaryVideo({ publicId, className, alt = "Feature video" }) {
     />
   );
 }
+
 /* 💎 Bloc Premium OPTIMISÉ */
 function PremiumBlock({ children, color = "blue" }) {
   const gradients = {
@@ -80,12 +75,11 @@ export default function MainFeaturesSection() {
   return (
     <section id="features" className="bg-white py-24 relative overflow-hidden">
       
-      {/* BACKGROUND SIMPLIFIÉ */}
       <div className="absolute inset-0 bg-gradient-to-b from-slate-50 via-white to-slate-50"></div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
 
-        {/* ========== HEADER ========== */}
+        {/* HEADER */}
         <div className="text-center mb-24 relative">
           <div className="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-1.5 rounded-full mb-6 shadow-lg text-sm font-medium">
             <span>L'outil Tout-en-Un</span>
@@ -103,11 +97,10 @@ export default function MainFeaturesSection() {
           </p>
         </div>
 
-        {/* ========== FEATURE 1 - GÉNÉRATEUR ========== */}
+        {/* FEATURE 1 - GÉNÉRATEUR */}
         <div className="mb-32 relative group">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             
-            {/* VISUEL */}
             <div className="order-1 lg:order-2 relative">
               <PremiumBlock color="blue">
                 <CloudinaryVideo 
@@ -118,7 +111,6 @@ export default function MainFeaturesSection() {
               </PremiumBlock>
             </div>
 
-            {/* TEXTE */}
             <div className="order-2 lg:order-1">
               <div className="flex items-center gap-3 mb-6">
                 <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100 text-blue-700 font-bold text-xl border border-blue-200">1</span>
@@ -130,7 +122,6 @@ export default function MainFeaturesSection() {
                 <span className="text-blue-600">prêt à être vendu.</span>
               </h4>
 
-              {/* SOCIAL PROOF CARD */}
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 p-5 rounded-2xl shadow-lg mb-8 hover:scale-105 transition-transform">
                 <div className="flex items-center gap-4">
                   <div className="bg-green-500 p-3 rounded-full shadow-lg">
@@ -143,13 +134,12 @@ export default function MainFeaturesSection() {
                 </div>
               </div>
 
-              {/* LISTE BÉNÉFICES */}
               <div className="space-y-4 mb-8">
                 {[
                   "Ebook complet structuré (Chapitres, Intro, Conclusion)",
                   "PDF professionnel prêt à télécharger",
                   "Textes pour Facebook & WhatsApp inclus",
-                  "Couverture 3D moderne et attractive, générée par l’IA",
+                  "Couverture 3D moderne et attractive, générée par l'IA",
                   "Description pour page de vente rédigée"
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3 group/item">
@@ -169,11 +159,10 @@ export default function MainFeaturesSection() {
           </div>
         </div>
 
-        {/* ========== FEATURE 2 - TENDANCE ========== */}
+        {/* FEATURE 2 - TENDANCE */}
         <div className="mb-32 relative group">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             
-            {/* VISUEL - Image statique car c'est une capture */}
             <div className="order-1 relative">
               <PremiumBlock color="orange">
                 <img 
@@ -184,7 +173,6 @@ export default function MainFeaturesSection() {
                 />
               </PremiumBlock>
 
-              {/* Stat card flottante */}
               <div className="absolute -right-6 -bottom-6 bg-white p-4 rounded-xl shadow-2xl border-2 border-orange-200 hidden md:block">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center shadow-lg">
@@ -198,7 +186,6 @@ export default function MainFeaturesSection() {
               </div>
             </div>
 
-            {/* TEXTE */}
             <div className="order-2">
               <div className="inline-flex items-center gap-2 bg-orange-50 text-orange-700 px-3 py-1 rounded-md mb-4 text-xs font-bold uppercase tracking-wider border border-orange-200">
                 <TrendingUp className="w-3 h-3" />
@@ -234,22 +221,20 @@ export default function MainFeaturesSection() {
           </div>
         </div>
 
-        {/* ========== FEATURE 3 - NICHE HUNTER ========== */}
-        <div className="relative group">
+        {/* FEATURE 3 - NICHE HUNTER */}
+        <div className="mb-32 relative group">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             
-            {/* VISUEL */}
             <div className="order-1 lg:order-2 relative">
               <PremiumBlock color="purple">
                 <CloudinaryVideo 
-                  publicId="nichehunternew_psydjb" 
+                  publicId="niche-hunter_zwrlpz" 
                   className="w-full h-full object-cover" 
                   alt="Niche Hunter" 
                 />
               </PremiumBlock>
             </div>
 
-            {/* TEXTE */}
             <div className="order-2 lg:order-1">
               <div className="inline-flex items-center gap-2 bg-purple-50 text-purple-700 px-3 py-1 rounded-md mb-4 text-xs font-bold uppercase tracking-wider border border-purple-200">
                 <Target className="w-3 h-3" />
@@ -265,7 +250,6 @@ export default function MainFeaturesSection() {
                 Entrez un simple mot-clé (ex: "Freelance") et laissez l'IA générer 10 idées uniques, rentables et peu concurrentielles.
               </p>
 
-              {/* Card analyse */}
               <div className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-2xl p-6 shadow-lg">
                 <p className="font-bold text-slate-900 mb-4 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-purple-600" />
@@ -292,6 +276,95 @@ export default function MainFeaturesSection() {
                 <Link href="/auth/register" className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold transition-all hover:scale-105 shadow-lg shadow-purple-500/30">
                   Découvrir ma niche
                   <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* FEATURE 4 - YOUBOOK */}
+        <div className="relative group">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            
+            <div className="order-1 relative">
+              <PremiumBlock color="orange">
+                <img 
+                  src="https://res.cloudinary.com/dcmlw5hak/image/upload/v1766646838/yoobookimg_c7ffey.png" 
+                  alt="Youbook - YouTube to eBook" 
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </PremiumBlock>
+
+              <div className="absolute -right-6 -bottom-6 bg-white p-4 rounded-xl shadow-2xl border-2 border-red-200 hidden md:block">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-rose-500 rounded-full flex items-center justify-center shadow-lg">
+                    <Youtube className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500 font-medium">Conversion instantanée</p>
+                    <p className="font-black text-slate-900 text-lg">30 secondes</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="order-2">
+              <div className="inline-flex items-center gap-2 bg-red-50 text-red-700 px-3 py-1 rounded-md mb-4 text-xs font-bold uppercase tracking-wider border border-red-200">
+                <Youtube className="w-3 h-3" />
+                Youbook Studio
+              </div>
+
+              <h3 className="text-3xl font-bold text-slate-900 mb-4">
+                Des vidéos YouTube = <br/>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-rose-600">Des eBooks rentables.</span>
+              </h3>
+
+              <p className="text-slate-600 text-lg mb-8 leading-relaxed">
+Ajoutez l'URL d'une vidéo et obtenez un eBook complet avec structure, chapitres et contenu extrait automatiquement.
+
+              </p>
+
+              <div className="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-200 rounded-2xl p-6 shadow-lg mb-8">
+                
+                <div className="space-y-3">
+                  {[
+                    { icon: Headphones, text: "Bookzy transforme les paroles de la vidéo en texte" },
+                    { icon: Brain, text: "Identification automatique des conseils importants" },
+                    { icon: Layout, text: "Création auto du titre, du résumé et du plan du livre" },
+                    { icon: Zap, text: "Un seul bouton pour générer votre eBook de A à Z" },
+                    { icon: Book, text: "Texte final optimisé pour une lecture professionnelle" }
+                  ].map((feat, i) => (
+                    <div key={i} className="flex items-center gap-3 text-sm group/item">
+                      <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center border border-red-200 group-hover/item:scale-110 transition-transform">
+                        <feat.icon className="w-4 h-4 text-red-600" />
+                      </div>
+                      <span className="text-slate-700 font-medium">{feat.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* MODIFICATION ICI : Badge Quota & Unlock */}
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 p-4 rounded-xl mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="bg-green-500 p-2 rounded-full shadow-md">
+                    <Check className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-900 text-sm">Gratuit à vie – 3 conversions/jour</p>
+                    <p className="text-green-700 text-xs font-semibold">Débloquez et téléchargez l’eBook complet pour seulement 2 000 FCFA</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <Link href="/youbook" className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold transition-all hover:scale-105 shadow-lg shadow-red-500/30">
+                  Essayer Youbook
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link href="/auth/register" className="inline-flex items-center gap-2 px-6 py-3 border-2 border-slate-200 hover:border-red-300 text-slate-700 hover:text-red-600 rounded-xl font-semibold transition-all">
+                  Créer un compte
                 </Link>
               </div>
             </div>

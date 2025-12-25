@@ -11,6 +11,7 @@ export default function Footer() {
   const EXCLUDE_PATHS = [
     '/niche-hunter',
     '/tendances',
+    '/youbook',
     '/blog',
     '/legal',
     '/auth',

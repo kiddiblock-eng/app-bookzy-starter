@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, Target, TrendingUp } from 'lucide-react';
-import { usePathname } from 'next/navigation'; // <-- AJOUTÉ
+import { Menu, X, Target, TrendingUp, Youtube } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 /* --- LOGO OFFICIEL (Style Login) --- */
 function BookOpenSVG(props) {
@@ -26,7 +26,7 @@ function BookOpenSVG(props) {
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const pathname = usePathname(); // <-- AJOUTÉ : Récupère la route actuelle
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,27 +59,21 @@ export default function Navbar() {
     { label: 'Blog', href: '/blog', isLink: true },
   ];
 
-  // ====================================================================
-  // LOGIQUE D'EXCLUSION (La solution à ton problème)
-  // ====================================================================
   const EXCLUDE_PATHS = [
     '/tendances',
     '/blog',
     '/niche-hunter',
-    '/legal', // Inclut toutes les pages sous /legal
-    '/auth', // Exclut la page de connexion/inscription
-    '/dashboard', // Exclut le dashboard (même si le middleware le gère déjà)
+    '/youbook',
+    '/legal',
+    '/auth',
+    '/dashboard',
   ];
 
-  // On vérifie si la route actuelle commence par un des chemins exclus
   const isExcluded = EXCLUDE_PATHS.some(path => pathname.startsWith(path));
 
   if (isExcluded) {
-    // Si l'utilisateur est sur une page exclue, on ne retourne rien.
     return null;
   }
-  // ====================================================================
-
 
   return (
     <>
@@ -131,7 +125,7 @@ export default function Navbar() {
               {/* Séparateur */}
               <div className="h-4 w-px bg-slate-200"></div>
 
-              {/* Outils Gratuits */}
+              {/* ✅ Outils Gratuits (YOUBOOK AJOUTÉ) */}
               <div className="flex items-center gap-4">
                 <Link 
                   href="/niche-hunter" 
@@ -139,6 +133,14 @@ export default function Navbar() {
                 >
                   <Target className="w-4 h-4 text-pink-500" />
                   Niche Hunter
+                </Link>
+
+                <Link 
+                  href="/youbook" 
+                  className="text-sm font-bold text-slate-900 flex items-center gap-1.5 hover:text-red-600 transition-colors"
+                >
+                  <Youtube className="w-4 h-4 text-red-500" />
+                  Youbook
                 </Link>
 
                 <Link 
@@ -215,7 +217,7 @@ export default function Navbar() {
               )
             ))}
             
-            {/* Outils Mobile */}
+            {/* ✅ Outils Mobile (YOUBOOK AJOUTÉ) */}
             <div className="mt-6 space-y-3">
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Outils Gratuits</p>
                 
@@ -226,6 +228,15 @@ export default function Navbar() {
                 >
                     <Target className="w-5 h-5 text-pink-600" />
                     Niche Hunter
+                </Link>
+
+                <Link
+                    href="/youbook"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-red-50 text-red-900 font-bold border border-red-100"
+                >
+                    <Youtube className="w-5 h-5 text-red-600" />
+                    Youbook
                 </Link>
 
                 <Link
