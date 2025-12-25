@@ -332,10 +332,12 @@ function NouveauProjetPageContent() {
             const currentDesc = description || kitData.description;
             const currentOutline = predictedOutline.length > 0 ? predictedOutline : (kitData.outline || []);
             
-            // ✅ FIX CRITIQUE: Priorité au template actuel (state) puis kitData
-            const currentTemplate = template || kitData.template || "modern";
+            // ✅ FIX CRITIQUE: Template du STATE en priorité ABSOLUE
+            // On force le template actuel même si kitData existe
+            const currentTemplate = template || "modern";
             
-            console.log("📤 Envoi génération avec template:", currentTemplate);
+            console.log("📤 [PAYMENT] Template envoyé:", currentTemplate);
+            console.log("📦 [PAYMENT] kitData.template:", kitData.template);
             
             const genRes = await fetch("/api/ebooks/generate", {
               method: "POST", headers: { "Content-Type": "application/json" },
@@ -348,7 +350,7 @@ function NouveauProjetPageContent() {
                   audience: kitData.audience || audience,
                   pages: kitData.pages || pages, 
                   chapters: kitData.chapters || chapters,
-                  template: currentTemplate, // ✅ Template correct
+                  template: currentTemplate, // ✅ Template du state forcé
                   outline: currentOutline
               }),
             });

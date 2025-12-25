@@ -358,6 +358,17 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       chaptersData: chaptersStruct,
       coverImage: null 
     }, template); // ✅ Utilise projet.template au lieu de "minimal"
+    
+    // ✅ FIX EMOJI: Ajouter support emoji dans le HTML
+    const htmlWithEmoji = `
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
+      * { 
+        font-family: inherit, "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", sans-serif !important; 
+      }
+    </style>
+    ${html}
+    `;
 
     console.log(`🌐 [PHASE 2] Génération PDF avec template: ${template}`);
     
@@ -395,7 +406,8 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
 
       const page = await browser.newPage();
       
-      await page.setContent(html, { 
+      // ✅ Charger HTML avec support emoji
+      await page.setContent(htmlWithEmoji, { 
         waitUntil: "domcontentloaded",
         timeout: 60000
       });
@@ -551,18 +563,22 @@ export async function POST(req) {
             }
         }
         
+        // ✅ FIX: Template du BODY en priorité absolue (ignore kitData.template)
         let { titre, description, tone, audience, pages, chapters, template } = body;
+        
+        console.log("🎨 [POST] Template reçu du frontend:", template);
         
         if ((!titre || !outline) && transactionId) {
              const tx = await Transaction.findById(transactionId);
              if(tx?.kitData) { 
-                 titre = tx.kitData.title;
-                 description = tx.kitData.description;
-                 tone = tx.kitData.tone; 
-                 audience = tx.kitData.audience;
-                 pages = tx.kitData.pages;
-                 chapters = tx.kitData.chapters; 
-                 template = tx.kitData.template;
+                 titre = titre || tx.kitData.title;
+                 description = description || tx.kitData.description;
+                 tone = tone || tx.kitData.tone; 
+                 audience = audience || tx.kitData.audience;
+                 pages = pages || tx.kitData.pages;
+                 chapters = chapters || tx.kitData.chapters; 
+                 // ✅ NE PAS écraser le template du body avec kitData
+                 // template = template (déjà défini plus haut)
                  if(!outline) outline = tx.kitData.outline;
              }
         }
