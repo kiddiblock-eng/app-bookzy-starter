@@ -29,7 +29,11 @@ function cleanMarkdown(text) {
     .replace(/#{1,6}\s?/g, "") 
     .replace(/```html/g, "") 
     .replace(/```/g, "")
-    .replace(/---/g, "")    
+    .replace(/---/g, "")
+    // ✅ FIX GEMINI: Supprimer caractères invisibles/contrôle (cause des rectangles)
+    .replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200D\uFEFF]/g, "")
+    // ✅ OPTIONNEL: Supprimer emojis si problème persiste (décommenter si besoin)
+    // .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '')
     .trim();
 }
 
@@ -429,10 +433,11 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
 
       const page = await browser.newPage();
       
-      // ✅ Charger HTML avec support emoji
+      // ✅ FIX GEMINI: networkidle0 au lieu de domcontentloaded
+      // Attend que TOUTES les polices Google Fonts soient chargées
       await page.setContent(htmlWithEmoji, { 
-        waitUntil: "domcontentloaded",
-        timeout: 60000
+        waitUntil: "networkidle0", // ✅ Attend réseau complètement inactif
+        timeout: 90000 // ✅ Augmenté à 90s pour laisser temps aux polices
       });
       
       console.log("✅ [PHASE 2] HTML chargé");
