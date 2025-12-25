@@ -54,7 +54,13 @@ export default async function middleware(req) {
       return NextResponse.next();
     }
 
-    // Auth : redirect si déjà connecté
+    // 🔥 Auth : JAMAIS bloquer /auth/login (même si token présent)
+    if (pathname.startsWith("/auth/login") || pathname.startsWith("/auth/register")) {
+      // Permet l'accès même si connecté (pour la déconnexion)
+      return NextResponse.next();
+    }
+
+    // Auth (autres pages comme /auth/forgot-password) : redirect si connecté
     if (pathname.startsWith("/auth")) {
       if (hasValidToken) {
         return NextResponse.redirect(new URL("/dashboard", req.url));
@@ -98,6 +104,10 @@ export default async function middleware(req) {
         response = NextResponse.next();
       }
     } 
+    // 🔥 CORRECTION : Permet toujours l'accès à /auth/login
+    else if (pathname.startsWith("/auth/login") || pathname.startsWith("/auth/register")) {
+      response = NextResponse.next();
+    }
     else if (pathname.startsWith("/auth")) {
       response = hasValidToken 
         ? NextResponse.redirect(new URL("/dashboard", req.url)) 
