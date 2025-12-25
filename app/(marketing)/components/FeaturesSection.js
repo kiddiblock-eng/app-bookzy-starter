@@ -149,6 +149,7 @@ export default function MainFeaturesSection() {
                   "Ebook complet structuré (Chapitres, Intro, Conclusion)",
                   "PDF professionnel prêt à télécharger",
                   "Textes pour Facebook & WhatsApp inclus",
+                  "Couverture 3D moderne et attractive, générée par l’IA",
                   "Description pour page de vente rédigée"
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3 group/item">

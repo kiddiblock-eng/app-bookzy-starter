@@ -178,7 +178,7 @@ export default function WhyBookzy() {
                   </div>
                   <div>
                     <h4 className="text-slate-900 font-black text-base">Business-Ready</h4>
-                    <p className="text-slate-500 text-sm mt-1 leading-relaxed font-medium">Livré avec les textes marketing pour générer des ventes.</p>
+                    <p className="text-slate-500 text-sm mt-1 leading-relaxed font-medium">Livré avec couverture 3D et  les textes marketing pour générer des ventes.</p>
                   </div>
                 </div>
               </div>

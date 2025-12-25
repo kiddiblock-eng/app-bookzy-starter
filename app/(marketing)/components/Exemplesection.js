@@ -109,7 +109,7 @@ export default function ExamplesSection() {
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900 mb-2">Ebook Pro PDF</h3>
                 <p className="text-slate-600 font-medium text-sm leading-relaxed">
-                  L'IA génère <span className="text-slate-900 font-bold">25 à 40 pages</span> de contenu haute valeur, structuré et mis en page automatiquement.
+                  L'IA génère <span className="text-slate-900 font-bold">25 à 90 pages</span> de contenu haute valeur, structuré et mis en page automatiquement.
                 </p>
               </div>
 
@@ -143,7 +143,7 @@ export default function ExamplesSection() {
                       <h3 className="text-xl font-bold text-slate-900">Copywriting AIDA</h3>
                    </div>
                    <p className="text-slate-600 font-medium mb-5 leading-relaxed">
-                     Obtenez instantanément une page de vente persuasive utilisant la méthode AIDA pour convertir vos lecteurs en acheteurs.
+                     Obtenez instantanément le contenu d’une page de vente persuasive utilisant la méthode AIDA pour convertir vos lecteurs en acheteurs.
                    </p>
                    <div className="flex items-center gap-2 text-xs font-bold text-slate-500 bg-slate-50 px-3 py-2 rounded-lg w-fit border border-slate-100">
                       <CheckCircle2 className="w-4 h-4 text-green-500" /> Prêt à copier-coller
@@ -174,14 +174,17 @@ export default function ExamplesSection() {
                           <h3 className="text-xl font-bold text-slate-900">Marketing Multicanal</h3>
                       </div>
                       <p className="text-slate-600 font-medium mb-6 leading-relaxed">
-                        Ne cherchez plus quoi poster. L'IA génère vos posts Facebook, Instagram et vos messages WhatsApp.
+                        Ne cherchez plus quoi poster. L'IA génère la couverture 3D, vos posts Facebook, Instagram et vos messages WhatsApp.
                       </p>
-                      <div className="flex gap-2">
+                      <div className="flex gap-4">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-100">
                           <Zap className="w-3 h-3" /> Facebook
                         </span>
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 text-green-700 text-xs font-bold border border-green-100">
                           <Zap className="w-3 h-3" /> WhatsApp
+                        </span>
+                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 text-Blue-700 text-xs font-bold border border-green-100">
+                          <Zap className="w-3 h-3" /> Couverture 3D
                         </span>
                       </div>
                   </div>
@@ -217,7 +220,7 @@ export default function ExamplesSection() {
                 </div>
                 <div>
                   <h4 className="text-white font-bold text-lg">Bonus Gratuit Inclus</h4>
-                  <p className="text-slate-400 text-sm">Outil "Niche Hunter" offert avec votre compte.</p>
+                  <p className="text-slate-400 text-sm">Les outils Niche Hunter et Tendances sont inclus gratuitement avec votre compte.</p>
                 </div>
               </div>
               <a 

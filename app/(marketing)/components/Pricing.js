@@ -154,7 +154,7 @@ export default function Pricing() {
 
                             <li className="flex items-start gap-3">
                                 <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" strokeWidth={3} />
-                                <span className="text-sm text-slate-900 font-semibold">eBook complet (20-80 pages)</span>
+                                <span className="text-sm text-slate-900 font-semibold">eBook complet (20-90 pages)</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" strokeWidth={3} />
@@ -162,8 +162,13 @@ export default function Pricing() {
                             </li>
                             <li className="flex items-start gap-3">
                                 <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" strokeWidth={3} />
+                                <span className="text-sm text-slate-900 font-medium">Couverture 3D</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" strokeWidth={3} />
                                 <span className="text-sm text-slate-900 font-medium">Rédaction IA Premium </span>
                             </li>
+                            
                             <li className="flex items-start gap-3">
                                 <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" strokeWidth={3} />
                                 <span className="text-sm text-slate-900 font-medium">Posts Facebook + Instagram</span>

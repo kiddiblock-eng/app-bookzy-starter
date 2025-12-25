@@ -17,7 +17,7 @@ const steps = [
     modalContent: {
       title: "Le Brief Ultra-rapide",
       items: [
-        "Entrez le titre (ex: 'Dresser son chien')",
+        "Entrez le titre (ex. : « Dresser son chien ») et améliorez-le avec l’IA si besoin.",
         "L'IA analyse le marché instantanément",
         "L'IA Génère le plan logique automatique"
       ],
@@ -57,10 +57,11 @@ const steps = [
     modalContent: {
       title: "Livraison du Business",
       items: [
-        "Ebook PDF complet (Mise en page incluse)",
-        "Posts Facebook & Instagram rédigés",
-        "Séquences WhatsApp & Emails",
-        "Page de vente complète"
+        "Ebook PDF complet et professionnel, prêt à vendre",
+  "Posts optimisés pour Facebook , Whatsapp et Instagram",
+  "Couverture 3D moderne générée par l’IA",
+  
+  "Page de vente complète, prête à convertir"
       ],
       info: "Prêt à être vendu en moins de 60 secondes."
     },

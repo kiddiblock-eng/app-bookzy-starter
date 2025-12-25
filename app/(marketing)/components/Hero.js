@@ -1,7 +1,48 @@
 "use client";
 
 import Link from 'next/link';
-import { ArrowRight, Wand2, CheckCircle2, FileText, Download, Sparkles } from 'lucide-react';
+import { ArrowRight, Wand2, CheckCircle2, FileText, Download, Sparkles, Palette } from 'lucide-react';
+
+// ✅ IMPORT DU LIVRE 3D
+const LiveBookPreview = ({ title, templateId }) => {
+  const templates = {
+    modern: { primaryColor: "#2563eb", accentColor: "#7c3aed", font: "Inter" },
+    luxe: { primaryColor: "#f59e0b", accentColor: "#fbbf24", font: "Poppins" },
+  };
+  
+  const tmpl = templates[templateId] || templates.modern;
+  const displayTitle = title || "Votre eBook";
+
+  return (
+    <div className="relative w-32 h-44 transition-all duration-500 transform hover:scale-110 hover:rotate-3 perspective-1000 group cursor-pointer mx-auto">
+      <div className="absolute bottom-0 left-2 right-2 h-3 bg-black/40 blur-xl rounded-full transform translate-y-3 group-hover:scale-110 transition-transform"></div>
+      <div 
+        className="absolute inset-0 rounded-r-md rounded-l-sm shadow-2xl overflow-hidden flex flex-col transition-all duration-500 border-l border-white/10"
+        style={{ background: `linear-gradient(135deg, ${tmpl.primaryColor}, ${tmpl.accentColor})`, fontFamily: tmpl.font }}
+      >
+        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+        <div className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-r from-white/30 to-transparent z-20"></div>
+        
+        <div className="flex-1 p-3 flex flex-col relative z-10 text-white">
+          <div className="mb-1">
+             <div className="inline-block text-[6px] font-bold tracking-wider opacity-70 uppercase border-b border-white/20 pb-0.5">Guide Premium</div>
+          </div>
+          <h1 className="text-[9px] leading-tight font-black drop-shadow-lg break-words text-left" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
+            {displayTitle}
+          </h1>
+          <div className="mt-auto pt-2 border-t border-white/20 flex items-center gap-1 opacity-80">
+             <div className="w-2.5 h-2.5 rounded-full bg-white/30 flex items-center justify-center">
+               <Sparkles className="w-1.5 h-1.5"/>
+             </div>
+             <span className="text-[5px] font-bold uppercase tracking-widest">Édition Limitée</span>
+          </div>
+        </div>
+      </div>
+      <div className="absolute top-0.5 right-0.5 bottom-0.5 w-2 bg-[#f8fafc] rounded-r-sm shadow-inner transform translate-x-full -translate-y-0.5 -z-10 border-l border-slate-300"></div>
+      <div className="absolute top-1 right-0.5 bottom-1 w-1.5 bg-slate-200 rounded-r-sm transform translate-x-full -z-10"></div>
+    </div>
+  );
+};
 
 export default function Hero() {
   
@@ -57,9 +98,15 @@ export default function Hero() {
               </span>
             </h1>
 
+            {/* ✅ NOUVEAU : Badge Couverture 3D */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 mb-6">
+              <Palette className="w-4 h-4 text-violet-600" />
+              <span className="text-sm font-bold text-violet-900">+ Couverture 3D incluse</span>
+            </div>
+
             {/* Description - Plus lisible mobile */}
             <p className="text-lg leading-relaxed lg:text-xl text-slate-800 lg:text-slate-600 mb-10 lg:mb-10 max-w-2xl font-medium lg:font-medium">
-               Notre IA ne génère pas seulement du texte brut . Elle structure, rédige, met en page et prépare le kit marketing. Vous obtenez un produit digital fini,  <strong className="text-slate-900 bg-blue-50 px-2 py-0.5 rounded lg:bg-transparent lg:px-0 lg:py-0 font-bold">prêt à vendre</strong>, sans attendre.
+               Notre IA ne génère pas  du texte brut . Elle structure, rédige, met en page et prépare le kit marketing. Vous obtenez un produit digital fini,  <strong className="text-slate-900 bg-blue-50 px-2 py-0.5 rounded lg:bg-transparent lg:px-0 lg:py-0 font-bold">prêt à vendre</strong>, sans attendre.
             </p>
 
             {/* CTAs - Stylés mobile */}
@@ -103,11 +150,25 @@ export default function Hero() {
 
           </div>
 
-          {/* COLONNE DROITE : VISUEL PC - Inchangé */}
+          {/* COLONNE DROITE : VISUEL PC - TON DESIGN INTACT */}
           <div className="relative h-[600px] w-full hidden lg:flex items-center justify-center perspective-1000">
              
              {/* Halo */}
              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-gradient-to-tr from-blue-100/50 to-violet-100/50 rounded-full blur-[80px] animate-pulse-slow"></div>
+
+             {/* ✅ NOUVEAU : LIVRE 3D (en haut à gauche) */}
+             <div className="absolute top-8 left-0 z-40 animate-float-slow">
+               <LiveBookPreview 
+                 title="Micro-Business Rentable : Le Guide Afrique & Europe pour Débutants"
+                 templateId="modern"
+               />
+               {/* Badge HD */}
+               <div className="mt-2 text-center">
+                 <span className="text-[8px] font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full border border-violet-200">
+                   HD 3D
+                 </span>
+               </div>
+             </div>
 
              {/* Ligne de connexion animée entre les cartes */}
              <svg className="absolute inset-0 w-full h-full pointer-events-none z-5" xmlns="http://www.w3.org/2000/svg">
