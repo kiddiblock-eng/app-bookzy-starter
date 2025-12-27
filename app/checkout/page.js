@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import { Loader2 } from 'lucide-react';
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const transactionId = searchParams.get('tx');
@@ -112,6 +112,22 @@ export default function CheckoutPage() {
   }
 
   return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black p-4">
+      <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 max-w-md w-full text-center border border-white/20">
+        <Loader2 className="w-16 h-16 animate-spin text-purple-400 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-white mb-2">
+          {loading ? 'Vérification...' : 'Initialisation...'}
+        </h2>
+        <p className="text-gray-300">Veuillez patienter...</p>
+      </div>
+    </div>
+  );
+}
+
+export default function CheckoutPage() {
+  const [kkiapayReady, setKkiapayReady] = useState(false);
+
+  return (
     <>
       <Script 
         src="https://cdn.kkiapay.me/k.js" 
@@ -121,15 +137,13 @@ export default function CheckoutPage() {
         }}
       />
       
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black p-4">
-        <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 max-w-md w-full text-center border border-white/20">
-          <Loader2 className="w-16 h-16 animate-spin text-purple-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">
-            {loading ? 'Vérification...' : 'Initialisation...'}
-          </h2>
-          <p className="text-gray-300">Veuillez patienter...</p>
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black">
+          <Loader2 className="w-16 h-16 animate-spin text-purple-400" />
         </div>
-      </div>
+      }>
+        <CheckoutContent />
+      </Suspense>
     </>
   );
 }
