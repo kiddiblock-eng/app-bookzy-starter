@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 // app/api/payments/create/route.js
-// ✅ VERSION CORRIGÉE : Détection automatique du provider actif
+// ✅ VERSION CORRIGÉE : Utilise le provider name depuis la DB
 
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
@@ -106,14 +106,15 @@ export async function POST(req) {
 
     console.log("✅ Transaction créée:", tx._id.toString(), "Provider:", activeProviderName);
 
-    // 9) Récupérer le provider via le service
+    // 9) 🔥 FIX : Récupérer le provider SPÉCIFIQUE (pas getActiveProvider)
     let provider;
     try {
-      provider = await PaymentProviderService.getActiveProvider();
+      provider = await PaymentProviderService.getProvider(activeProviderName);
+      console.log(`🔥 Provider instance récupérée: ${provider.constructor.name}`);
     } catch (error) {
       console.error("❌ Erreur récupération provider:", error);
       return NextResponse.json(
-        { success: false, message: "Aucun provider de paiement actif" },
+        { success: false, message: `Provider ${activeProviderName} non disponible` },
         { status: 500 }
       );
     }
