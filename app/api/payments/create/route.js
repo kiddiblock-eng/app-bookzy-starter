@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 // app/api/payments/create/route.js
-// ✅ VERSION CORRIGÉE : Utilise le provider name depuis la DB
+// ✅ Support widget KkiaPay + redirection classique
 
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
@@ -50,7 +50,6 @@ export async function POST(req) {
     let activeProviderName = settings.payment.activeProvider;
     let providerConfig = null;
 
-    // Si activeProvider n'est pas défini, chercher le premier provider actif
     if (!activeProviderName) {
       const providers = ["fedapay", "moneroo", "kkiapay", "pawapay"];
       for (const provName of providers) {
@@ -65,12 +64,11 @@ export async function POST(req) {
       providerConfig = settings.payment[activeProviderName];
     }
 
-    // Vérifier qu'on a bien un provider actif
     if (!activeProviderName || !providerConfig || !providerConfig.enabled) {
       return NextResponse.json(
         {
           success: false,
-          message: "Aucun provider de paiement activé. Veuillez activer FedaPay, Moneroo, KkiaPay ou PawaPay dans les paramètres.",
+          message: "Aucun provider de paiement activé.",
         },
         { status: 500 }
       );
@@ -78,7 +76,6 @@ export async function POST(req) {
 
     console.log(`💳 Utilisation du provider: ${activeProviderName}`);
 
-    // Prix GLOBAL depuis settings.payment.ebookPrice
     const PRICE = settings.payment.ebookPrice || 2100;
     const CURRENCY = providerConfig.defaultCurrency || "XOF";
 
@@ -87,10 +84,7 @@ export async function POST(req) {
     // 6) Générer ID interne
     const internalId = `BKZ-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-    // 7) ✅ NE PAS créer le projet ici - sera créé par /api/ebooks/generate
-    // On stocke juste les données dans kitData pour plus tard
-
-    // 8) Créer la transaction
+    // 7) Créer la transaction
     const tx = await Transaction.create({
       userId: authUser.id,
       provider: activeProviderName,
@@ -98,7 +92,7 @@ export async function POST(req) {
       currency: CURRENCY,
       status: "pending",
       purpose: "ebook_kit",
-      projetId: projetId || null, // ✅ null si pas encore de projet
+      projetId: projetId || null,
       kitData: kitData || {},
       internalId,
       providerResponse: {},
@@ -106,7 +100,7 @@ export async function POST(req) {
 
     console.log("✅ Transaction créée:", tx._id.toString(), "Provider:", activeProviderName);
 
-    // 9) 🔥 FIX : Récupérer le provider SPÉCIFIQUE (pas getActiveProvider)
+    // 8) 🔥 Récupérer le provider SPÉCIFIQUE
     let provider;
     try {
       provider = await PaymentProviderService.getProvider(activeProviderName);
@@ -119,24 +113,22 @@ export async function POST(req) {
       );
     }
 
-    // 10) Préparer les données pour le provider
+    // 9) Préparer les données
     const callbackBase = settings.appDomain || "http://localhost:3000";
     const returnUrl = `${callbackBase.replace(/\/$/, "")}/dashboard/projets/nouveau?tx=${tx._id.toString()}`;
 
     const firstName = user.firstName || user.name?.split(" ")[0] || "Client";
     const lastName = user.lastName || user.name?.split(" ")[1] || "Bookzy";
 
-    // Créer l'objet data au bon format pour le provider
     const paymentData = {
       amount: PRICE,
       currency: CURRENCY,
       description: kitData?.title ? `Kit eBook : ${kitData.title}` : "Kit eBook Bookzy",
       customerEmail: user.email,
       customerName: `${firstName} ${lastName}`,
+      customerPhone: user.phone || '',
       returnUrl: returnUrl,
       cancelUrl: returnUrl,
-      
-      // Métadonnées supplémentaires (optionnelles)
       metadata: {
         transactionId: internalId,
         userId: authUser.id,
@@ -147,16 +139,13 @@ export async function POST(req) {
     };
 
     console.log("📤 Création paiement avec", activeProviderName);
-    console.log("📧 Email:", user.email);
-    console.log("🔗 Return URL:", returnUrl);
 
-    // 11) Créer le paiement avec le provider
+    // 10) Créer le paiement
     let paymentResult;
     
     try {
       paymentResult = await provider.createPayment(paymentData);
       
-      // Mettre à jour la transaction avec les infos du provider
       tx.providerTransactionId = paymentResult.transactionId || paymentResult.id;
       tx.providerResponse = paymentResult.rawResponse || paymentResult;
       tx.paymentUrl = paymentResult.paymentUrl;
@@ -167,13 +156,9 @@ export async function POST(req) {
     } catch (error) {
       console.error(`❌ Erreur création paiement ${activeProviderName}:`, error);
       
-      // Marquer la transaction comme failed
       tx.status = "failed";
       tx.errorMessage = error.message;
-      tx.providerResponse = {
-        error: error.message,
-        timestamp: new Date(),
-      };
+      tx.providerResponse = { error: error.message, timestamp: new Date() };
       await tx.save();
 
       return NextResponse.json(
@@ -186,7 +171,22 @@ export async function POST(req) {
       );
     }
 
-    // 12) Vérifier qu'on a bien une URL de paiement (sauf PawaPay)
+    // 11) 🔥 NOUVEAU : Gérer le cas du widget KkiaPay
+    if (paymentResult.useWidget) {
+      // KkiaPay LIVE → Utiliser le widget côté client
+      return NextResponse.json({
+        success: true,
+        useWidget: true,
+        widgetProvider: activeProviderName,
+        widgetConfig: paymentResult.widgetConfig,
+        transactionId: tx._id.toString(),
+        provider: activeProviderName,
+        amount: PRICE,
+        currency: CURRENCY,
+      });
+    }
+
+    // 12) Mode classique : redirection
     if (!paymentResult.paymentUrl && activeProviderName !== 'pawapay') {
       console.error("❌ Aucune URL de paiement trouvée:", paymentResult);
       return NextResponse.json(
@@ -199,7 +199,7 @@ export async function POST(req) {
       );
     }
 
-    // 13) Succès ✔
+    // 13) Succès avec redirection
     return NextResponse.json({
       success: true,
       paymentUrl: paymentResult.paymentUrl,

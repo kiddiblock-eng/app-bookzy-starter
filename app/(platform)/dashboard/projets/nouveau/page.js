@@ -655,46 +655,55 @@ function PreviewPage({ kit, onEdit }) {
     const [isPaymentLoading, setIsPaymentLoading] = useState(false);
     
     const handlePay = async () => {
-       if (isPaymentLoading) return;
-       
-       setIsPaymentLoading(true);
-       
-       console.log("💰 [PAYMENT] Kit envoyé:", kit);
-       console.log("🎨 [PAYMENT] Template dans kit:", kit.template);
-       
-       try {
-          const res = await fetch("/api/payments/create", { 
-            method: "POST", 
-            headers: { "Content-Type": "application/json" }, 
-            // ✅ FIX: On envoie le kit COMPLET avec template
-            body: JSON.stringify({ 
-              kitData: { 
-                title: kit.title,
-                description: kit.description,
-                tone: kit.tone,
-                audience: kit.audience,
-                pages: kit.pages,
-                chapters: kit.chapters,
-                template: kit.template, // ✅ CRITIQUE
-                outline: kit.outline,
-                price: kit.price,
-                currency: kit.currency,
-                provider: kit.provider
-              } 
-            }) 
-          });
-          const data = await res.json();
-          if(data.success && data.paymentUrl) {
-            window.location.href = data.paymentUrl;
-          } else {
-            alert("Erreur initialisation paiement");
-            setIsPaymentLoading(false);
-          }
-       } catch(e) { 
-          console.error("❌ [PAYMENT] Erreur:", e);
-          alert("Erreur technique"); 
-          setIsPaymentLoading(false);
-       }
+   if (isPaymentLoading) return;
+   
+   setIsPaymentLoading(true);
+   
+   console.log("💰 [PAYMENT] Kit envoyé:", kit);
+   console.log("🎨 [PAYMENT] Template dans kit:", kit.template);
+   
+   try {
+      const res = await fetch("/api/payments/create", { 
+        method: "POST", 
+        headers: { "Content-Type": "application/json" }, 
+        // ✅ FIX: On envoie le kit COMPLET avec template
+        body: JSON.stringify({ 
+          kitData: { 
+            title: kit.title,
+            description: kit.description,
+            tone: kit.tone,
+            audience: kit.audience,
+            pages: kit.pages,
+            chapters: kit.chapters,
+            template: kit.template, // ✅ CRITIQUE
+            outline: kit.outline,
+            price: kit.price,
+            currency: kit.currency,
+            provider: kit.provider
+          } 
+        }) 
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        // 🔥 NOUVEAU : Gérer widget vs redirection
+        if (data.useWidget) {
+          // KkiaPay widget → Rediriger vers page checkout
+          window.location.href = `/checkout?tx=${data.transactionId}`;
+        } else {
+          // Mode classique → Redirection vers provider
+          window.location.href = data.paymentUrl;
+        }
+      } else {
+        alert("Erreur initialisation paiement");
+        setIsPaymentLoading(false);
+      }
+   } catch(e) { 
+      console.error("❌ [PAYMENT] Erreur:", e);
+      alert("Erreur technique"); 
+      setIsPaymentLoading(false);
+   }
+
     }
 
     return (

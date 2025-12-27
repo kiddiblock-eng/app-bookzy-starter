@@ -32,6 +32,7 @@
     "jose": "^6.1.0",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^3.0.3",
+    "kkiapay-react": "^0.0.7",
     "lucide-react": "latest",
     "mongoose": "^8.19.3",
     "next": "^14.2.35",
