@@ -13,6 +13,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [widgetConfig, setWidgetConfig] = useState(null);
+  const [kkiapayReady, setKkiapayReady] = useState(false);
 
   useEffect(() => {
     if (transactionId) {
@@ -39,15 +40,19 @@ export default function CheckoutPage() {
     }
   }
 
-  function openKkiapayWidget() {
-    if (!window.kkiapay || !widgetConfig) return;
+  useEffect(() => {
+    if (widgetConfig && kkiapayReady && window.kkiapay) {
+      openKkiapayWidget();
+    }
+  }, [widgetConfig, kkiapayReady]);
 
+  function openKkiapayWidget() {
     window.kkiapay.open({
       amount: widgetConfig.amount,
       api_key: widgetConfig.api_key,
       sandbox: widgetConfig.sandbox,
       email: widgetConfig.email,
-      phone: widgetConfig.phone,
+      phone: widgetConfig.phone || '',
       name: widgetConfig.name
     });
 
@@ -86,12 +91,6 @@ export default function CheckoutPage() {
     setLoading(false);
   }
 
-  useEffect(() => {
-    if (widgetConfig && window.kkiapay) {
-      openKkiapayWidget();
-    }
-  }, [widgetConfig]);
-
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black p-4">
@@ -116,7 +115,10 @@ export default function CheckoutPage() {
     <>
       <Script 
         src="https://cdn.kkiapay.me/k.js" 
-        onLoad={() => console.log('KkiaPay SDK chargé')}
+        onLoad={() => {
+          console.log('✅ KkiaPay SDK chargé');
+          setKkiapayReady(true);
+        }}
       />
       
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black p-4">
