@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useKKiaPay } from 'kkiapay-react';
+import Script from 'next/script';
 import { Loader2 } from 'lucide-react';
 
 export default function CheckoutPage() {
@@ -11,68 +11,52 @@ export default function CheckoutPage() {
   const transactionId = searchParams.get('tx');
   
   const [loading, setLoading] = useState(false);
-  const [paymentData, setPaymentData] = useState(null);
   const [error, setError] = useState(null);
+  const [widgetConfig, setWidgetConfig] = useState(null);
 
-  const { openKkiapayWidget, addKkiapayListener, removeKkiapayListener } = useKKiaPay();
-
-  // 🔥 Initialiser le paiement au chargement
   useEffect(() => {
     if (transactionId) {
       initializePayment();
     }
   }, [transactionId]);
 
-  // 🔥 Gérer les callbacks KkiaPay
-  useEffect(() => {
-    function successHandler(response) {
-      console.log('✅ Paiement KkiaPay réussi:', response);
-      verifyPayment(response.transactionId);
-    }
-
-    function failedHandler(error) {
-      console.error('❌ Paiement KkiaPay échoué:', error);
-      setError('Le paiement a échoué. Veuillez réessayer.');
-      setLoading(false);
-    }
-
-    addKkiapayListener('success', successHandler);
-    addKkiapayListener('failed', failedHandler);
-
-    return () => {
-      removeKkiapayListener('success', successHandler);
-      removeKkiapayListener('failed', failedHandler);
-    };
-  }, [addKkiapayListener, removeKkiapayListener]);
-
   async function initializePayment() {
-    // Les données du paiement sont déjà créées
-    // On récupère juste les infos de la transaction
     try {
       const res = await fetch(`/api/payments/info?id=${transactionId}`);
       const data = await res.json();
 
       if (data.success) {
-        setPaymentData(data);
-
-        // 🔥 Si c'est un widget, l'ouvrir automatiquement
         if (data.useWidget && data.widgetProvider === 'kkiapay') {
-          openKkiapayWidget(data.widgetConfig);
-        }
-        // Sinon, rediriger vers l'URL de paiement
-        else if (data.paymentUrl) {
+          setWidgetConfig(data.widgetConfig);
+        } else if (data.paymentUrl) {
           window.location.href = data.paymentUrl;
         }
       } else {
-        setError(data.message || 'Erreur lors de l\'initialisation du paiement');
+        setError(data.message || 'Erreur initialisation');
       }
     } catch (err) {
-      console.error('Erreur init payment:', err);
       setError('Erreur de connexion');
     }
   }
 
-  async function verifyPayment(kkiapayTransactionId) {
+  function openKkiapayWidget() {
+    if (!window.kkiapay || !widgetConfig) return;
+
+    window.kkiapay.open({
+      amount: widgetConfig.amount,
+      api_key: widgetConfig.api_key,
+      sandbox: widgetConfig.sandbox,
+      email: widgetConfig.email,
+      phone: widgetConfig.phone,
+      name: widgetConfig.name
+    });
+
+    window.addEventListener('success', handleSuccess);
+    window.addEventListener('failed', handleFailed);
+  }
+
+  async function handleSuccess(e) {
+    console.log('✅ Paiement réussi:', e);
     setLoading(true);
 
     try {
@@ -85,18 +69,28 @@ export default function CheckoutPage() {
       const data = await res.json();
 
       if (data.success && data.paid) {
-        // ✅ Paiement confirmé → Rediriger vers génération
         router.push(`/dashboard/projets/nouveau?tx=${transactionId}`);
       } else {
-        setError('Le paiement n\'a pas pu être vérifié');
+        setError('Paiement non vérifié');
         setLoading(false);
       }
     } catch (err) {
-      console.error('Erreur verify:', err);
-      setError('Erreur lors de la vérification du paiement');
+      setError('Erreur vérification');
       setLoading(false);
     }
   }
+
+  function handleFailed(e) {
+    console.error('❌ Paiement échoué:', e);
+    setError('Le paiement a échoué');
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    if (widgetConfig && window.kkiapay) {
+      openKkiapayWidget();
+    }
+  }, [widgetConfig]);
 
   if (error) {
     return (
@@ -119,18 +113,21 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black p-4">
-      <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 max-w-md w-full text-center border border-white/20">
-        <Loader2 className="w-16 h-16 animate-spin text-purple-400 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-white mb-2">
-          {loading ? 'Vérification du paiement...' : 'Initialisation du paiement...'}
-        </h2>
-        <p className="text-gray-300">
-          {loading 
-            ? 'Veuillez patienter pendant que nous vérifions votre paiement'
-            : 'Veuillez patienter...'}
-        </p>
+    <>
+      <Script 
+        src="https://cdn.kkiapay.me/k.js" 
+        onLoad={() => console.log('KkiaPay SDK chargé')}
+      />
+      
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black p-4">
+        <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 max-w-md w-full text-center border border-white/20">
+          <Loader2 className="w-16 h-16 animate-spin text-purple-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-white mb-2">
+            {loading ? 'Vérification...' : 'Initialisation...'}
+          </h2>
+          <p className="text-gray-300">Veuillez patienter...</p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
