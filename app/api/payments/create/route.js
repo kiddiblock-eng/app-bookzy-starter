@@ -84,7 +84,11 @@ export async function POST(req) {
     // 6) Générer ID interne
     const internalId = `BKZ-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-    // 7) Créer la transaction
+    // 7) Préparer les infos user
+    const firstName = user.firstName || user.name?.split(" ")[0] || "Client";
+    const lastName = user.lastName || user.name?.split(" ")[1] || "Bookzy";
+
+    // 8) 🔥 FIX: Créer la transaction avec les infos user dans kitData
     const tx = await Transaction.create({
       userId: authUser.id,
       provider: activeProviderName,
@@ -93,14 +97,19 @@ export async function POST(req) {
       status: "pending",
       purpose: "ebook_kit",
       projetId: projetId || null,
-      kitData: kitData || {},
+      kitData: {
+        ...(kitData || {}),
+        customerEmail: user.email,
+        customerName: `${firstName} ${lastName}`,
+        customerPhone: user.phone || '',
+      },
       internalId,
       providerResponse: {},
     });
 
     console.log("✅ Transaction créée:", tx._id.toString(), "Provider:", activeProviderName);
 
-    // 8) 🔥 Récupérer le provider SPÉCIFIQUE
+    // 9) 🔥 Récupérer le provider SPÉCIFIQUE
     let provider;
     try {
       provider = await PaymentProviderService.getProvider(activeProviderName);
@@ -113,12 +122,9 @@ export async function POST(req) {
       );
     }
 
-    // 9) Préparer les données
+    // 10) Préparer les données
     const callbackBase = settings.appDomain || "http://localhost:3000";
     const returnUrl = `${callbackBase.replace(/\/$/, "")}/dashboard/projets/nouveau?tx=${tx._id.toString()}`;
-
-    const firstName = user.firstName || user.name?.split(" ")[0] || "Client";
-    const lastName = user.lastName || user.name?.split(" ")[1] || "Bookzy";
 
     const paymentData = {
       amount: PRICE,
@@ -140,7 +146,7 @@ export async function POST(req) {
 
     console.log("📤 Création paiement avec", activeProviderName);
 
-    // 10) Créer le paiement
+    // 11) Créer le paiement
     let paymentResult;
     
     try {
@@ -171,7 +177,7 @@ export async function POST(req) {
       );
     }
 
-    // 11) 🔥 NOUVEAU : Gérer le cas du widget KkiaPay
+    // 12) 🔥 NOUVEAU : Gérer le cas du widget KkiaPay
     if (paymentResult.useWidget) {
       // KkiaPay LIVE → Utiliser le widget côté client
       return NextResponse.json({
@@ -186,7 +192,7 @@ export async function POST(req) {
       });
     }
 
-    // 12) Mode classique : redirection
+    // 13) Mode classique : redirection
     if (!paymentResult.paymentUrl && activeProviderName !== 'pawapay') {
       console.error("❌ Aucune URL de paiement trouvée:", paymentResult);
       return NextResponse.json(
@@ -199,7 +205,7 @@ export async function POST(req) {
       );
     }
 
-    // 13) Succès avec redirection
+    // 14) Succès avec redirection
     return NextResponse.json({
       success: true,
       paymentUrl: paymentResult.paymentUrl,
