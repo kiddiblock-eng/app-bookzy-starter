@@ -2,7 +2,7 @@
 
 import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Loader2, CheckCircle2, ShieldCheck, Sparkles, Lock, CreditCard } from 'lucide-react';
+import { Loader2, CheckCircle2, ShieldCheck, Lock, CreditCard } from 'lucide-react';
 
 function CheckoutContent({ kkiapayReady }) {
   const router = useRouter();
@@ -59,22 +59,30 @@ function CheckoutContent({ kkiapayReady }) {
         position: 'center'
       };
 
-      if (typeof window.addSuccessListener === 'function') {
-        window.addSuccessListener(handleSuccess);
-      }
+      console.log('🚀 Opening KkiaPay widget with config:', config);
 
-      if (typeof window.addFailedListener === 'function') {
-        window.addFailedListener(handleFailed);
-      }
+      // 🔥 IMPORTANT : Définir les callbacks GLOBALEMENT
+      window.addSuccessListener((response) => {
+        console.log('✅ KkiaPay Success Event:', response);
+        handleSuccess(response);
+      });
 
+      window.addFailedListener((error) => {
+        console.log('❌ KkiaPay Failed Event:', error);
+        handleFailed(error);
+      });
+
+      // Ouvrir le widget
       window.openKkiapayWidget(config);
 
     } catch (err) {
+      console.error('❌ Error opening widget:', err);
       setError(`Erreur widget: ${err.message}`);
     }
   }
 
   async function handleSuccess(response) {
+    console.log('💰 Processing successful payment...', response);
     setStep('processing');
     setLoading(true);
 
@@ -86,20 +94,26 @@ function CheckoutContent({ kkiapayReady }) {
       });
 
       const data = await res.json();
+      console.log('🔍 Verify response:', data);
 
       if (data.success && data.paid) {
+        console.log('✅ Payment verified! Redirecting...');
+        // Rediriger vers la génération
         router.push(`/dashboard/projets/nouveau?tx=${transactionId}`);
       } else {
+        console.warn('⚠️ Payment not verified:', data);
         setError('Paiement non vérifié');
         setLoading(false);
       }
     } catch (err) {
+      console.error('❌ Verify error:', err);
       setError('Erreur vérification');
       setLoading(false);
     }
   }
 
   function handleFailed(error) {
+    console.error('❌ Payment failed:', error);
     setError('Le paiement a échoué ou a été annulé');
     setLoading(false);
   }
@@ -182,7 +196,6 @@ function CheckoutContent({ kkiapayReady }) {
               Complétez votre paiement dans la fenêtre KkiaPay pour accéder à votre eBook professionnel
             </p>
             
-            {/* Info sécurité */}
             <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6">
               <div className="flex items-center justify-center gap-2 text-indigo-700 text-sm font-medium">
                 <Lock className="w-4 h-4" />
@@ -190,7 +203,6 @@ function CheckoutContent({ kkiapayReady }) {
               </div>
             </div>
 
-            {/* Infos montant si disponible */}
             {widgetConfig && (
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6">
                 <div className="flex items-center justify-between">
@@ -230,13 +242,14 @@ export default function CheckoutPage() {
     script.async = true;
     
     script.onload = () => {
+      console.log('✅ KkiaPay SDK loaded');
       setTimeout(() => {
         setKkiapayReady(true);
       }, 500);
     };
     
     script.onerror = () => {
-      console.error('Erreur chargement SDK KkiaPay');
+      console.error('❌ Failed to load KkiaPay SDK');
     };
     
     document.body.appendChild(script);
