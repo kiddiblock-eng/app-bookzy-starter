@@ -7,35 +7,29 @@ const TransactionSchema = new mongoose.Schema({
     required: true,
   },
 
-  // 🔥 ID INTERNE (pour retours de paiement)
+  // 🔥 ID INTERNE (Utilisé pour le suivi avant redirection)
   internalId: {
     type: String,
-    unique: true,
-    sparse: true, // Permet null mais unique si défini
+    // On retire "unique: true" ici car l'index est défini plus bas
+    // pour éviter le "Duplicate schema index"
+    sparse: true, 
   },
 
-  // Le provider utilisé : moneroo | fedapay | kkiapay | pawapay
+  // Le provider : moneroo | fedapay | kkiapay | pawapay
   provider: {
     type: String,
     enum: ["moneroo", "fedapay", "kkiapay", "pawapay"],
     required: true,
   },
 
-  // ID donné par le provider (Moneroo, KkiaPay, etc.)
+  // ID réel généré par Kkiapay (ex: 222689...)
   providerTransactionId: {
     type: String,
     default: null,
   },
 
-  amount: {
-    type: Number,
-    required: true,
-  },
-
-  currency: {
-    type: String,
-    default: "XOF",
-  },
+  amount: { type: Number, required: true },
+  currency: { type: String, default: "XOF" },
 
   status: {
     type: String,
@@ -43,67 +37,44 @@ const TransactionSchema = new mongoose.Schema({
     default: "pending",
   },
 
-  // 🔥 Purpose plus flexible
-  purpose: {
-    type: String,
-    default: "ebook_kit",
-  },
+  purpose: { type: String, default: "ebook_kit" },
 
-  // 🔥 AJOUT : projetId (référence au projet)
+  // Référence au projet pour déclencher la génération après paiement
   projetId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Projet",
     default: null,
   },
 
-  // 🔥 AJOUT : ebookId (référence à l'ebook généré)
   ebookId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Ebook",
     default: null,
   },
 
-  // Données du kit (métadonnées)
+  // Métadonnées pour l'IA
   kitData: {
     title: String,
     description: String,
-    template: String,
+    template: String, // Crucial pour le design choisi par l'utilisateur
     pages: Number,
     chapters: Number,
     tone: String,
     audience: String,
   },
 
-  // Données brutes venant du provider
-  providerResponse: {
-    type: Object,
-    default: {},
-  },
-
-  // URL de paiement générée (pour redirection)
-  paymentUrl: {
-    type: String,
-    default: null,
-  },
-
-  // Message d'erreur si échec
-  errorMessage: {
-    type: String,
-    default: null,
-  },
-
-  // Date de complétion du paiement
-  completedAt: {
-    type: Date,
-    default: null,
-  },
+  providerResponse: { type: Object, default: {} },
+  paymentUrl: { type: String, default: null }, // Stocke le lien de redirection Kkiapay
+  errorMessage: { type: String, default: null },
+  completedAt: { type: Date, default: null },
 }, {
-  timestamps: true, // 🔥 Gère automatiquement createdAt et updatedAt
+  timestamps: true,
 });
 
-// 🔥 INDEX pour performance
+// 🔥 INDEXATION UNIQUE (Correction du Warning)
+// On définit l'index unique ici proprement une seule fois
+TransactionSchema.index({ internalId: 1 }, { unique: true, sparse: true });
 TransactionSchema.index({ userId: 1, status: 1 });
-TransactionSchema.index({ internalId: 1 });
 TransactionSchema.index({ providerTransactionId: 1 });
 
 export default mongoose.models.Transaction ||
