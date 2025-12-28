@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import { Loader2 } from 'lucide-react';
 
-function CheckoutContent() {
+function CheckoutContent({ kkiapayReady }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const transactionId = searchParams.get('tx');
@@ -13,7 +13,6 @@ function CheckoutContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [widgetConfig, setWidgetConfig] = useState(null);
-  const [kkiapayReady, setKkiapayReady] = useState(false);
 
   useEffect(() => {
     if (transactionId) {
@@ -23,25 +22,32 @@ function CheckoutContent() {
 
   async function initializePayment() {
     try {
+      console.log('🔍 Fetching payment info for:', transactionId);
       const res = await fetch(`/api/payments/info?id=${transactionId}`);
       const data = await res.json();
+      
+      console.log('📦 Payment info:', data);
 
       if (data.success) {
         if (data.useWidget && data.widgetProvider === 'kkiapay') {
+          console.log('🎯 Widget config:', data.widgetConfig);
           setWidgetConfig(data.widgetConfig);
         } else if (data.paymentUrl) {
+          console.log('🔗 Redirecting to:', data.paymentUrl);
           window.location.href = data.paymentUrl;
         }
       } else {
         setError(data.message || 'Erreur initialisation');
       }
     } catch (err) {
+      console.error('❌ Init error:', err);
       setError('Erreur de connexion');
     }
   }
 
   useEffect(() => {
     if (widgetConfig && kkiapayReady && window.kkiapay) {
+      console.log('🚀 Opening KkiaPay widget...');
       openKkiapayWidget();
     }
   }, [widgetConfig, kkiapayReady]);
@@ -119,6 +125,7 @@ function CheckoutContent() {
           {loading ? 'Vérification...' : 'Initialisation...'}
         </h2>
         <p className="text-gray-300">Veuillez patienter...</p>
+        {widgetConfig && <p className="text-xs text-purple-300 mt-2">Widget chargé...</p>}
       </div>
     </div>
   );
@@ -142,7 +149,7 @@ export default function CheckoutPage() {
           <Loader2 className="w-16 h-16 animate-spin text-purple-400" />
         </div>
       }>
-        <CheckoutContent />
+        <CheckoutContent kkiapayReady={kkiapayReady} />
       </Suspense>
     </>
   );
