@@ -682,68 +682,68 @@ function PreviewPage({ kit, onEdit }) {
     const [isPaymentLoading, setIsPaymentLoading] = useState(false);
     
     const handlePay = async () => {
-      if (isPaymentLoading) return;
-      setIsPaymentLoading(true);
+  if (isPaymentLoading) return;
+  setIsPaymentLoading(true);
 
-      try {
-        const res = await fetch("/api/payments/create", { 
-          method: "POST", 
-          headers: { "Content-Type": "application/json" }, 
-          body: JSON.stringify({ kitData: kit, projetId: kit.projetId }) 
-        });
-        const data = await res.json();
+  try {
+    const res = await fetch("/api/payments/create", { 
+      method: "POST", 
+      headers: { "Content-Type": "application/json" }, 
+      body: JSON.stringify({ kitData: kit, projetId: kit.projetId }) 
+    });
+    const data = await res.json();
+    
+    console.log('📦 Payment response:', data);
+    
+    if (data.success) {
+      if (data.useWidget) {
+        // 🚀 MODE LIVE : Widget KkiaPay
+        console.log('🎯 Opening KkiaPay widget...');
         
-        console.log('📦 Payment response:', data);
-        
-        if (data.success) {
-          if (data.useWidget) {
-            // 🚀 MODE LIVE : Widget KkiaPay
-            console.log('🎯 Opening KkiaPay widget...');
-            
-            if (typeof window.openKkiapayWidget !== 'function') {
-              alert('Erreur: SDK KkiaPay non chargé. Veuillez recharger la page.');
-              setIsPaymentLoading(false);
-              return;
-            }
-
-            window.openKkiapayWidget({
-              amount: data.widgetConfig.amount,
-              key: data.widgetConfig.api_key,
-              sandbox: data.widgetConfig.sandbox,
-              email: data.widgetConfig.email || '',
-              phone: data.widgetConfig.phone || '',
-              name: data.widgetConfig.name || 'Client Bookzy',
-              callback: `${window.location.origin}/dashboard/projets/nouveau?tx=${data.transactionId}`
-            });
-
-            // 🔥 Listener de succès
-            window.addSuccessListener((response) => {
-              console.log('✅ Payment success:', response);
-              window.location.href = `/dashboard/projets/nouveau?tx=${data.transactionId}&kkiapayId=${response.transactionId}`;
-            });
-
-            // 🔥 Listener d'échec
-            window.addFailedListener((error) => {
-              console.error('❌ Payment failed:', error);
-              setIsPaymentLoading(false);
-              alert('Le paiement a échoué ou a été annulé');
-            });
-            
-          } else {
-            // 🚀 MODE SANDBOX : Redirection classique
-            console.log('🔗 Redirecting to:', data.paymentUrl);
-            window.location.href = data.paymentUrl;
-          }
-        } else {
-          alert(data.message || 'Erreur initialisation paiement');
+        if (typeof window.openKkiapayWidget !== 'function') {
+          alert('Erreur: SDK KkiaPay non chargé. Veuillez recharger la page.');
           setIsPaymentLoading(false);
+          return;
         }
-      } catch(e) { 
-        console.error('Payment error:', e);
-        alert('Erreur technique');
-        setIsPaymentLoading(false);
+
+        // 🔥 Définir les listeners AVANT d'ouvrir le widget
+        window.addSuccessListener((response) => {
+          console.log('✅ Payment success:', response);
+          window.location.href = `/dashboard/projets/nouveau?tx=${data.transactionId}&kkiapayId=${response.transactionId}`;
+        });
+
+        window.addFailedListener((error) => {
+          console.error('❌ Payment failed:', error);
+          setIsPaymentLoading(false);
+          alert('Le paiement a échoué ou a été annulé');
+        });
+
+        // 🔥 Ouvrir le widget SANS callback
+        window.openKkiapayWidget({
+          amount: data.widgetConfig.amount,
+          key: data.widgetConfig.api_key,
+          sandbox: data.widgetConfig.sandbox,
+          email: data.widgetConfig.email || '',
+          phone: data.widgetConfig.phone || '',
+          name: data.widgetConfig.name || 'Client Bookzy'
+          // ❌ PAS de callback ici
+        });
+        
+      } else {
+        // 🚀 MODE SANDBOX : Redirection classique
+        console.log('🔗 Redirecting to:', data.paymentUrl);
+        window.location.href = data.paymentUrl;
       }
-    };
+    } else {
+      alert(data.message || 'Erreur initialisation paiement');
+      setIsPaymentLoading(false);
+    }
+  } catch(e) { 
+    console.error('Payment error:', e);
+    alert('Erreur technique');
+    setIsPaymentLoading(false);
+  }
+};
 
     return (
         <div className="h-[100dvh] bg-slate-50 font-sans flex flex-col overflow-hidden">

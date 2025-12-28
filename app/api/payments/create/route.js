@@ -32,14 +32,18 @@ export async function POST(req) {
       currency: CURRENCY,
       status: "pending",
       projetId: projetId || null,
-      kitData: { ...kitData, customerEmail: user.email },
+      kitData: { 
+        ...kitData, 
+        customerEmail: user.email,
+        customerName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+        customerPhone: user.phone || ''
+      },
       internalId: `BKZ-${Date.now()}`
     });
 
     const provider = await PaymentProviderService.getProvider(activeProviderName);
     const callbackBase = settings.appDomain || "http://localhost:3000";
     
-    // 🔥 On prépare l'URL où l'utilisateur revient après avoir payé
     const returnUrl = `${callbackBase}/dashboard/projets/nouveau?tx=${tx._id.toString()}`;
 
     const paymentResult = await provider.createPayment({
@@ -47,6 +51,8 @@ export async function POST(req) {
       currency: CURRENCY,
       description: `eBook Bookzy : ${kitData?.title || "Nouveau"}`,
       customerEmail: user.email,
+      customerName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+      customerPhone: user.phone || '',
       returnUrl
     });
 
@@ -54,13 +60,27 @@ export async function POST(req) {
     tx.paymentUrl = paymentResult.paymentUrl;
     await tx.save();
 
-    return NextResponse.json({
-      success: true,
-      paymentUrl: paymentResult.paymentUrl,
-      transactionId: tx._id.toString()
-    });
+    // 🔥 FIX : Retourner les bonnes données selon le mode
+    if (paymentResult.useWidget) {
+      return NextResponse.json({
+        success: true,
+        useWidget: true,
+        widgetConfig: paymentResult.widgetConfig,
+        transactionId: tx._id.toString(),
+        provider: activeProviderName
+      });
+    } else {
+      return NextResponse.json({
+        success: true,
+        useWidget: false,
+        paymentUrl: paymentResult.paymentUrl,
+        transactionId: tx._id.toString(),
+        provider: activeProviderName
+      });
+    }
 
   } catch (error) {
+    console.error('❌ Erreur create payment:', error);
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
