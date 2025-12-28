@@ -22,6 +22,26 @@ function CheckoutContent({ kkiapayReady }) {
 
   async function initializePayment() {
     try {
+      // 🔥 ÉTAPE 1 : Vérifier si le paiement est déjà complété
+      const verifyRes = await fetch('/api/payments/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transactionId })
+      });
+
+      const verifyData = await verifyRes.json();
+      console.log('🔍 Initial verification:', verifyData);
+
+      // Si le paiement est déjà complété, rediriger directement
+      if (verifyData.success && verifyData.paid) {
+        console.log('✅ Payment already completed! Redirecting...');
+        setStep('processing');
+        setLoading(true);
+        router.push(`/dashboard/projets/nouveau?tx=${transactionId}`);
+        return;
+      }
+
+      // 🔥 ÉTAPE 2 : Si pas encore payé, charger le widget
       const res = await fetch(`/api/payments/info?id=${transactionId}`);
       const data = await res.json();
 
@@ -35,6 +55,7 @@ function CheckoutContent({ kkiapayReady }) {
         setError(data.message || 'Erreur initialisation');
       }
     } catch (err) {
+      console.error('❌ Init error:', err);
       setError('Erreur de connexion');
     }
   }
@@ -82,7 +103,7 @@ function CheckoutContent({ kkiapayReady }) {
   }
 
   async function handleSuccess(response) {
-    console.log('💰 Processing successful payment...', response);
+    console.log('✅ KkiaPay Success Event:', response);
     setStep('processing');
     setLoading(true);
 
@@ -90,7 +111,10 @@ function CheckoutContent({ kkiapayReady }) {
       const res = await fetch('/api/payments/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transactionId })
+        body: JSON.stringify({ 
+          transactionId: transactionId, // L'ID de notre DB
+          kkiapayId: response.transactionId // 🔥 Le VRAI ID KkiaPay
+        })
       });
 
       const data = await res.json();
@@ -98,7 +122,6 @@ function CheckoutContent({ kkiapayReady }) {
 
       if (data.success && data.paid) {
         console.log('✅ Payment verified! Redirecting...');
-        // Rediriger vers la génération
         router.push(`/dashboard/projets/nouveau?tx=${transactionId}`);
       } else {
         console.warn('⚠️ Payment not verified:', data);

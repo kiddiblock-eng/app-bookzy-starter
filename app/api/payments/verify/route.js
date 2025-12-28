@@ -8,8 +8,6 @@ import User from "@/models/User";
 import { Resend } from "resend";
 import { paymentSuccessTemplate } from "@/lib/emailTemplates/paymentSuccessTemplate";
 
-// const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(req) { 
   const resend = new Resend(process.env.RESEND_API_KEY); 
 
@@ -17,7 +15,7 @@ export async function POST(req) {
     await dbConnect();
 
     const body = await req.json();
-    const { transactionId } = body;
+    const { transactionId, kkiapayId } = body; // 🔥 Récupérer le vrai ID KkiaPay
 
     if (!transactionId) {
       return NextResponse.json(
@@ -41,10 +39,18 @@ export async function POST(req) {
       );
     }
 
-    // Si déjà completed, retourner directement avec toutes les données
+    // 🔥 MISE À JOUR CRUCIALE : Remplacer l'ID temporaire par le vrai ID KkiaPay
+    if (kkiapayId) {
+      console.log(`🔄 Mise à jour providerTransactionId: ${transaction.providerTransactionId} → ${kkiapayId}`);
+      transaction.providerTransactionId = kkiapayId;
+      await transaction.save();
+    }
+
+    // Si déjà completed, retourner directement
     if (transaction.status === "completed") {
       return NextResponse.json({
         success: true,
+        paid: true,
         status: "completed",
         transaction: {
           id: transaction.internalId || transaction._id,
@@ -52,8 +58,8 @@ export async function POST(req) {
           currency: transaction.currency,
           status: transaction.status,
           provider: transaction.provider,
-          kitData: transaction.kitData || {},  // ✅ AJOUTER kitData
-          projetId: transaction.projetId || null,  // ✅ AJOUTER projetId
+          kitData: transaction.kitData || {},
+          projetId: transaction.projetId || null,
         }
       });
     }
@@ -80,7 +86,7 @@ export async function POST(req) {
       );
     }
 
-    // Vérifier le paiement chez le provider
+    // 🔥 Vérifier le paiement avec le VRAI ID
     let verificationData;
     
     try {
@@ -111,7 +117,7 @@ export async function POST(req) {
       transaction.completedAt = new Date();
       console.log(`💰 Paiement ${providerName} confirmé:`, transaction.internalId || transaction._id);
 
-      // Marquer le projet comme payé et démarrer la génération
+      // 🔥 Marquer le projet comme payé et démarrer la génération
       if (transaction.projetId) {
         try {
           const projet = await Projet.findById(transaction.projetId);
@@ -120,7 +126,7 @@ export async function POST(req) {
             projet.isPaid = true;
             projet.paymentId = transaction.internalId || transaction._id.toString();
             projet.paidAt = new Date();
-            projet.status = "processing"; // ✅ Passer en processing pour démarrer la génération
+            projet.status = "processing"; // ✅ Passer en processing
             await projet.save();
             
             console.log(`✅ Projet ${projet._id} marqué comme payé et en processing`);
@@ -131,7 +137,7 @@ export async function POST(req) {
           console.error("❌ Erreur mise à jour projet:", projetError);
         }
       } else if (transaction.userId) {
-        // Fallback : chercher le dernier projet non payé de l'utilisateur
+        // Fallback : chercher le dernier projet non payé
         try {
           const projets = await Projet.find({ 
             userId: transaction.userId,
@@ -146,7 +152,7 @@ export async function POST(req) {
             projet.status = "processing"; // ✅ Démarrer la génération
             await projet.save();
             
-            console.log(`✅ Projet ${projet._id} (fallback) marqué comme payé`);
+            console.log(`✅ Projet ${projet._id} (fallback) marqué comme payé et en processing`);
           }
         } catch (fallbackError) {
           console.error("❌ Erreur fallback projet:", fallbackError);
@@ -193,8 +199,8 @@ export async function POST(req) {
         currency: transaction.currency,
         status: transaction.status,
         completedAt: transaction.completedAt,
-        kitData: transaction.kitData || {},  // ✅ AJOUTER kitData
-        projetId: transaction.projetId || null,  // ✅ AJOUTER projetId
+        kitData: transaction.kitData || {},
+        projetId: transaction.projetId || null,
       }
     });
 
