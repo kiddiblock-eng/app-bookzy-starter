@@ -2,6 +2,7 @@
 import { Suspense } from "react";
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Script from "next/script"; // 🔥 AJOUTÉ pour KkiaPay SDK
 import { toPng } from "html-to-image";
 import {
   CheckCircle2, Loader2, ArrowLeft, ArrowRight, Sparkles,
@@ -78,7 +79,8 @@ const LiveBookPreview = ({ title, templateId, small = false }) => {
       <div className="absolute top-1.5 right-1 bottom-1.5 w-2 bg-slate-200 rounded-r-sm transform translate-x-full -z-10"></div>
     </div>
   );
-};
+};// PARTIE 2/3 - Composant principal NouveauProjetPageContent
+// À ajouter après la PARTIE 1
 
 function NouveauProjetPageContent() {
   const router = useRouter();
@@ -102,6 +104,7 @@ function NouveauProjetPageContent() {
   const [isDownloadingCover, setIsDownloadingCover] = useState(false);
 
   const txId = params.get("tx");
+  const kkiapayId = params.get("kkiapayId"); // 🔥 AJOUTÉ
   const [realGenerating, setRealGenerating] = useState(!!txId);
   const [progressPercent, setProgressPercent] = useState(0);
   const [generatedKit, setGeneratedKit] = useState(null);
@@ -166,9 +169,9 @@ function NouveauProjetPageContent() {
         if (generatedKit) { setRealGenerating(false); return; }
         hasProcessedPayment.current = true;
         setRealGenerating(true);
-        verifyAndGenerate(txId);
+        verifyAndGenerate(txId, kkiapayId); // 🔥 MODIFIÉ
     }
-  }, [params, txId]);
+  }, [params, txId, kkiapayId]); // 🔥 MODIFIÉ
 
   const handlePagesChange = (e) => {
       const val = e.target.value;
@@ -300,7 +303,7 @@ function NouveauProjetPageContent() {
             chapters, 
             tone, 
             audience, 
-            template, // ✅ FIX: Template actuel du state
+            template,
             price: dynamicPrice, 
             currency: dynamicCurrency, 
             provider: dynamicProvider, 
@@ -316,31 +319,35 @@ function NouveauProjetPageContent() {
     }
   }, [simulatedProgress, isSimulating, titre, description, pages, chapters, tone, audience, template, dynamicPrice, dynamicCurrency, dynamicProvider]);
 
-  // GENERATION
-  const verifyAndGenerate = async (transactionId) => {
+  // 🔥 GENERATION MODIFIÉE
+  const verifyAndGenerate = async (transactionId, kkiapayId) => {
     try {
         const verifyRes = await fetch("/api/payments/verify", {
-            method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ transactionId })
+            method: "POST", 
+            headers: { "Content-Type": "application/json" }, 
+            body: JSON.stringify({ 
+              transactionId,
+              kkiapayId // 🔥 AJOUTÉ
+            })
         });
         const data = await verifyRes.json();
-        if (data.success && data.status === "completed") {
+        
+        if (data.success && data.paid) {
             const newUrl = '/dashboard/projets/nouveau';
             window.history.replaceState({}, '', newUrl); 
             setRealGenerating(true);
+            
             const kitData = data.transaction.kitData || {};
             const currentTitre = titre || kitData.title;
             const currentDesc = description || kitData.description;
             const currentOutline = predictedOutline.length > 0 ? predictedOutline : (kitData.outline || []);
-            
-            // ✅ FIX CRITIQUE: Template du STATE en priorité ABSOLUE
-            // On force le template actuel même si kitData existe
             const currentTemplate = template || "modern";
             
             console.log("📤 [PAYMENT] Template envoyé:", currentTemplate);
-            console.log("📦 [PAYMENT] kitData.template:", kitData.template);
             
             const genRes = await fetch("/api/ebooks/generate", {
-              method: "POST", headers: { "Content-Type": "application/json" },
+              method: "POST", 
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ 
                   projetId: data.transaction.projetId || null, 
                   transactionId: transactionId,
@@ -350,12 +357,14 @@ function NouveauProjetPageContent() {
                   audience: kitData.audience || audience,
                   pages: kitData.pages || pages, 
                   chapters: kitData.chapters || chapters,
-                  template: currentTemplate, // ✅ Template du state forcé
+                  template: currentTemplate,
                   outline: currentOutline
               }),
             });
+            
             const genData = await genRes.json();
             if (!genData.success) throw new Error(genData.message);
+            
             if (genData.alreadyGenerated) {
                 setRealGenerating(false); 
                 setGeneratedKit({
@@ -365,12 +374,14 @@ function NouveauProjetPageContent() {
                 });
                 return; 
             }
+            
             const finalProjetId = genData.projetId;
             const pollInterval = setInterval(async () => {
                 try {
                     const pRes = await fetch(`/api/ebooks/progress/${finalProjetId}`);
                     const pData = await pRes.json();
                     setProgressPercent(pData.progress || 0);
+                    
                     if (pData.status === "COMPLETED") {
                         clearInterval(pollInterval);
                         setFinalKitData(null);
@@ -388,7 +399,9 @@ function NouveauProjetPageContent() {
                     }
                 } catch (e) { console.error("Erreur polling:", e); }
             }, 3000);
-        } else { throw new Error("Paiement non validé."); }
+        } else { 
+          throw new Error("Paiement non validé."); 
+        }
     } catch (e) { 
         console.error("Erreur verify&generate:", e);
         setRealGenerating(false);
@@ -401,301 +414,336 @@ function NouveauProjetPageContent() {
     return <PreviewPage kit={finalKitData} onEdit={() => setStep(1)} />;
   }
 
+// PARTIE 3/3 - Suite du render NouveauProjetPageContent + PreviewPage + Modals
+// À ajouter après la PARTIE 2
+
+  // SUITE DU RETURN DE NouveauProjetPageContent
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans selection:bg-indigo-100 selection:text-indigo-900 relative">
-      {/* GAUCHE */}
-      <div className="w-full md:w-1/2 p-6 md:p-12 overflow-y-auto h-auto md:h-screen bg-white shadow-2xl z-10 relative border-r border-slate-100 order-1 md:order-1">
-        <div className="flex mb-8 items-center gap-2 text-indigo-600">
-           <Zap className="w-6 h-6 fill-current" /> 
-           <span className="font-black text-xl">Bookzy Studio</span>
-        </div>
-        
-        <div className="max-w-md mx-auto py-4">
-            <h1 className="text-3xl font-black text-slate-900 mb-6 tracking-tight">
-                {step === 1 ? "Concevez votre Livre" : "Personnalisez le Style"}
-            </h1>
-            
-            <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {step === 1 && (
-                    <>
-                        <div className="space-y-5">
-                            {/* TITRE AVEC IA */}
-                            <div>
-                              <label className="block text-sm font-bold text-slate-700 mb-2">
-                                Titre de l'ebook
-                              </label>
-                              <div className="relative">
-                                <input 
-                                  autoFocus 
-                                  type="text" 
-                                  className="w-full p-4 pr-12 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-indigo-500 font-bold text-slate-900" 
-                                  placeholder="Ex: Le Guide de l'Immobilier..." 
-                                  value={titre} 
-                                  onChange={e => setTitre(e.target.value)} 
-                                />
-                                <button
-                                  type="button"
-                                  onClick={handleImproveTitle}
-                                  disabled={!titre || improvingTitle}
-                                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-indigo-100 hover:bg-indigo-200 disabled:bg-slate-100 disabled:opacity-50 text-indigo-600 disabled:text-slate-400 rounded-lg transition-all group"
-                                  title="Améliorer avec l'IA"
-                                >
-                                  {improvingTitle ? (
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                  ) : (
-                                    <Sparkles className="w-4 h-4" />
-                                  )}
-                                </button>
-                              </div>
-                              {improvingTitle && (
-                                <p className="text-xs text-indigo-600 mt-1 animate-pulse flex items-center gap-1">
-                                  <Loader2 className="w-3 h-3 animate-spin" />
-                                  L'IA améliore votre titre...
-                                </p>
-                              )}
-                            </div>
-
-                            {/* DESCRIPTION AVEC IA */}
-                            <div>
-                              <label className="block text-sm font-bold text-slate-700 mb-2">
-                                Décris ton ebook en quelques phrases
-                              </label>
-                              <div className="relative">
-                                <textarea 
-                                  rows={4} 
-                                  className="w-full p-4 pr-12 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-indigo-500 font-medium text-slate-700 resize-none" 
-                                  placeholder="Décrivez les grandes lignes..." 
-                                  value={description} 
-                                  onChange={e => setDescription(e.target.value)} 
-                                />
-                                <button
-                                  type="button"
-                                  onClick={handleImproveDescription}
-                                  disabled={!description || improvingDescription}
-                                  className="absolute right-2 top-2 p-2 bg-indigo-100 hover:bg-indigo-200 disabled:bg-slate-100 disabled:opacity-50 text-indigo-600 disabled:text-slate-400 rounded-lg transition-all group"
-                                  title="Améliorer avec l'IA"
-                                >
-                                  {improvingDescription ? (
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                  ) : (
-                                    <Sparkles className="w-4 h-4" />
-                                  )}
-                                </button>
-                              </div>
-                              {improvingDescription && (
-                                <p className="text-xs text-indigo-600 mt-1 animate-pulse flex items-center gap-1">
-                                  <Loader2 className="w-3 h-3 animate-spin" />
-                                  L'IA améliore votre description...
-                                </p>
-                              )}
-                            </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className={`p-4 rounded-xl border bg-white relative transition-colors ${parseInt(pages) === 80 ? 'border-orange-300 bg-orange-50' : 'border-slate-200'}`}>
-                                    <label className="text-xs font-bold text-slate-400 uppercase flex items-center gap-1 mb-1">
-                                      <Layers className="w-3 h-3"/> Pages (Max 80)
-                                    </label>
-                                    <input 
-                                        type="number" inputMode="numeric"
-                                        value={pages} onChange={handlePagesChange} onBlur={handlePagesBlur}
-                                        className="w-full text-2xl font-black text-slate-900 outline-none border-b border-transparent focus:border-indigo-500 bg-transparent" 
-                                    />
-                                    {parseInt(pages) === 80 && <div className="absolute top-2 right-2 text-[10px] text-orange-600 font-bold flex items-center gap-1"><AlertCircle className="w-3 h-3"/> Max</div>}
-                                </div>
-                                
-                                <div className={`p-4 rounded-xl border bg-white relative transition-colors ${parseInt(chapters) === 12 ? 'border-orange-300 bg-orange-50' : 'border-slate-200'}`}>
-                                    <label className="text-xs font-bold text-slate-400 uppercase flex items-center gap-1 mb-1">
-                                      <FileText className="w-3 h-3"/> Chapitres (Max 12)
-                                    </label>
-                                    <input 
-                                        type="number" inputMode="numeric"
-                                        value={chapters} onChange={handleChaptersChange} onBlur={handleChaptersBlur}
-                                        className="w-full text-2xl font-black text-slate-900 outline-none border-b border-transparent focus:border-indigo-500 bg-transparent" 
-                                    />
-                                    {parseInt(chapters) === 12 && <div className="absolute top-2 right-2 text-[10px] text-orange-600 font-bold flex items-center gap-1"><AlertCircle className="w-3 h-3"/> Max</div>}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <button 
-                          type="button" 
-                          disabled={!titre || !description} 
-                          onClick={() => setStep(2)} 
-                          className="w-full py-4 bg-slate-900 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-slate-800 disabled:opacity-50 transition-all"
-                        >
-                          Suivant <ArrowRight size={18} />
-                        </button>
-                    </>
-                )}
-                
-                {step === 2 && (
-                    <>
-                        <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-                              <Sparkles className="w-4 h-4 text-purple-500"/> Style Graphique
-                            </label>
-                            <div className="grid grid-cols-3 gap-3">
-                                {TEMPLATES.map(t => (
-                                    <div 
-                                      key={t.id} 
-                                      onClick={() => setTemplate(t.id)} 
-                                      className={`cursor-pointer rounded-xl border-2 p-1 transition-all transform hover:scale-105 ${template === t.id ? 'border-indigo-600 ring-2 ring-indigo-100' : 'border-slate-100 hover:border-slate-300'}`}
-                                    >
-                                        <div className="h-20 w-full rounded-lg bg-gradient-to-br mb-2 shadow-sm" style={{backgroundImage: `linear-gradient(135deg, ${t.primaryColor}, ${t.accentColor})`}}></div>
-                                        <p className={`text-[10px] text-center font-bold uppercase tracking-wide ${template === t.id ? 'text-indigo-700' : 'text-slate-500'}`}>{t.label}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-                              <Mic className="w-4 h-4 text-blue-500"/> Ton du livre
-                            </label>
-                            <div className="flex flex-wrap gap-2">
-                              {TONES.map(t => {
-                                const IconComponent = t.icon;
-                                return (
-                                  <button 
-                                    key={t.value} 
-                                    type="button" 
-                                    onClick={() => setTone(t.value)} 
-                                    className={`px-4 py-2.5 rounded-lg text-sm font-bold border transition-all flex items-center gap-2 ${tone === t.value ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'}`}
+    <>
+      {/* 🔥 SDK KkiaPay */}
+      <Script 
+        src="https://cdn.kkiapay.me/k.js" 
+        strategy="lazyOnload"
+        onLoad={() => console.log('✅ KkiaPay SDK loaded')}
+        onError={() => console.error('❌ KkiaPay SDK failed to load')}
+      />
+      
+      <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans selection:bg-indigo-100 selection:text-indigo-900 relative">
+        {/* GAUCHE */}
+        <div className="w-full md:w-1/2 p-6 md:p-12 overflow-y-auto h-auto md:h-screen bg-white shadow-2xl z-10 relative border-r border-slate-100 order-1 md:order-1">
+          <div className="flex mb-8 items-center gap-2 text-indigo-600">
+             <Zap className="w-6 h-6 fill-current" /> 
+             <span className="font-black text-xl">Bookzy Studio</span>
+          </div>
+          
+          <div className="max-w-md mx-auto py-4">
+              <h1 className="text-3xl font-black text-slate-900 mb-6 tracking-tight">
+                  {step === 1 ? "Concevez votre Livre" : "Personnalisez le Style"}
+              </h1>
+              
+              <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  {step === 1 && (
+                      <>
+                          <div className="space-y-5">
+                              {/* TITRE AVEC IA */}
+                              <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">
+                                  Titre de l'ebook
+                                </label>
+                                <div className="relative">
+                                  <input 
+                                    autoFocus 
+                                    type="text" 
+                                    className="w-full p-4 pr-12 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-indigo-500 font-bold text-slate-900" 
+                                    placeholder="Ex: Le Guide de l'Immobilier..." 
+                                    value={titre} 
+                                    onChange={e => setTitre(e.target.value)} 
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={handleImproveTitle}
+                                    disabled={!titre || improvingTitle}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-indigo-100 hover:bg-indigo-200 disabled:bg-slate-100 disabled:opacity-50 text-indigo-600 disabled:text-slate-400 rounded-lg transition-all group"
+                                    title="Améliorer avec l'IA"
                                   >
-                                    <IconComponent className="w-4 h-4" /> {t.label}
+                                    {improvingTitle ? (
+                                      <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                      <Sparkles className="w-4 h-4" />
+                                    )}
                                   </button>
-                                );
-                              })}
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-                              <User className="w-4 h-4 text-green-500"/> Audience Cible
-                            </label>
-                            <div className="flex flex-wrap gap-2">
-                              {AUDIENCES.slice(0, 5).map(a => (
-                                <button 
-                                  key={a} 
-                                  type="button" 
-                                  onClick={() => setAudience(a)} 
-                                  className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${audience === a ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-white text-slate-500 border-slate-200'}`}
-                                >
-                                  {a}
-                                </button>
-                              ))}
-                            </div>
-                        </div>
-                        
-                        <div className="flex gap-4 pt-6 border-t border-slate-100">
-                            <button 
-                              type="button" 
-                              onClick={() => setStep(1)} 
-                              className="px-6 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all"
-                            >
-                              <ArrowLeft size={18} />
-                            </button>
-                            <button 
-                              type="submit" 
-                              disabled={loading} 
-                              className="flex-1 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-indigo-200 hover:scale-[1.02] transition-all"
-                            >
-                              <Wand2 size={18} /> Générer maintenant
-                            </button>
-                        </div>
-                    </>
-                )}
-            </form>
+                                </div>
+                                {improvingTitle && (
+                                  <p className="text-xs text-indigo-600 mt-1 animate-pulse flex items-center gap-1">
+                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                    L'IA améliore votre titre...
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* DESCRIPTION AVEC IA */}
+                              <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">
+                                  Décris ton ebook en quelques phrases
+                                </label>
+                                <div className="relative">
+                                  <textarea 
+                                    rows={4} 
+                                    className="w-full p-4 pr-12 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-indigo-500 font-medium text-slate-700 resize-none" 
+                                    placeholder="Décrivez les grandes lignes..." 
+                                    value={description} 
+                                    onChange={e => setDescription(e.target.value)} 
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={handleImproveDescription}
+                                    disabled={!description || improvingDescription}
+                                    className="absolute right-2 top-2 p-2 bg-indigo-100 hover:bg-indigo-200 disabled:bg-slate-100 disabled:opacity-50 text-indigo-600 disabled:text-slate-400 rounded-lg transition-all group"
+                                    title="Améliorer avec l'IA"
+                                  >
+                                    {improvingDescription ? (
+                                      <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                      <Sparkles className="w-4 h-4" />
+                                    )}
+                                  </button>
+                                </div>
+                                {improvingDescription && (
+                                  <p className="text-xs text-indigo-600 mt-1 animate-pulse flex items-center gap-1">
+                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                    L'IA améliore votre description...
+                                  </p>
+                                )}
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className={`p-4 rounded-xl border bg-white relative transition-colors ${parseInt(pages) === 80 ? 'border-orange-300 bg-orange-50' : 'border-slate-200'}`}>
+                                      <label className="text-xs font-bold text-slate-400 uppercase flex items-center gap-1 mb-1">
+                                        <Layers className="w-3 h-3"/> Pages (Max 80)
+                                      </label>
+                                      <input 
+                                          type="number" inputMode="numeric"
+                                          value={pages} onChange={handlePagesChange} onBlur={handlePagesBlur}
+                                          className="w-full text-2xl font-black text-slate-900 outline-none border-b border-transparent focus:border-indigo-500 bg-transparent" 
+                                      />
+                                      {parseInt(pages) === 80 && <div className="absolute top-2 right-2 text-[10px] text-orange-600 font-bold flex items-center gap-1"><AlertCircle className="w-3 h-3"/> Max</div>}
+                                  </div>
+                                  
+                                  <div className={`p-4 rounded-xl border bg-white relative transition-colors ${parseInt(chapters) === 12 ? 'border-orange-300 bg-orange-50' : 'border-slate-200'}`}>
+                                      <label className="text-xs font-bold text-slate-400 uppercase flex items-center gap-1 mb-1">
+                                        <FileText className="w-3 h-3"/> Chapitres (Max 12)
+                                      </label>
+                                      <input 
+                                          type="number" inputMode="numeric"
+                                          value={chapters} onChange={handleChaptersChange} onBlur={handleChaptersBlur}
+                                          className="w-full text-2xl font-black text-slate-900 outline-none border-b border-transparent focus:border-indigo-500 bg-transparent" 
+                                      />
+                                      {parseInt(chapters) === 12 && <div className="absolute top-2 right-2 text-[10px] text-orange-600 font-bold flex items-center gap-1"><AlertCircle className="w-3 h-3"/> Max</div>}
+                                  </div>
+                              </div>
+                          </div>
+                          
+                          <button 
+                            type="button" 
+                            disabled={!titre || !description} 
+                            onClick={() => setStep(2)} 
+                            className="w-full py-4 bg-slate-900 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-slate-800 disabled:opacity-50 transition-all"
+                          >
+                            Suivant <ArrowRight size={18} />
+                          </button>
+                      </>
+                  )}
+                  
+                  {step === 2 && (
+                      <>
+                          <div>
+                              <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                                <Sparkles className="w-4 h-4 text-purple-500"/> Style Graphique
+                              </label>
+                              <div className="grid grid-cols-3 gap-3">
+                                  {TEMPLATES.map(t => (
+                                      <div 
+                                        key={t.id} 
+                                        onClick={() => setTemplate(t.id)} 
+                                        className={`cursor-pointer rounded-xl border-2 p-1 transition-all transform hover:scale-105 ${template === t.id ? 'border-indigo-600 ring-2 ring-indigo-100' : 'border-slate-100 hover:border-slate-300'}`}
+                                      >
+                                          <div className="h-20 w-full rounded-lg bg-gradient-to-br mb-2 shadow-sm" style={{backgroundImage: `linear-gradient(135deg, ${t.primaryColor}, ${t.accentColor})`}}></div>
+                                          <p className={`text-[10px] text-center font-bold uppercase tracking-wide ${template === t.id ? 'text-indigo-700' : 'text-slate-500'}`}>{t.label}</p>
+                                      </div>
+                                  ))}
+                              </div>
+                          </div>
+                          
+                          <div>
+                              <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                                <Mic className="w-4 h-4 text-blue-500"/> Ton du livre
+                              </label>
+                              <div className="flex flex-wrap gap-2">
+                                {TONES.map(t => {
+                                  const IconComponent = t.icon;
+                                  return (
+                                    <button 
+                                      key={t.value} 
+                                      type="button" 
+                                      onClick={() => setTone(t.value)} 
+                                      className={`px-4 py-2.5 rounded-lg text-sm font-bold border transition-all flex items-center gap-2 ${tone === t.value ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'}`}
+                                    >
+                                      <IconComponent className="w-4 h-4" /> {t.label}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                          </div>
+                          
+                          <div>
+                              <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                                <User className="w-4 h-4 text-green-500"/> Audience Cible
+                              </label>
+                              <div className="flex flex-wrap gap-2">
+                                {AUDIENCES.slice(0, 5).map(a => (
+                                  <button 
+                                    key={a} 
+                                    type="button" 
+                                    onClick={() => setAudience(a)} 
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${audience === a ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-white text-slate-500 border-slate-200'}`}
+                                  >
+                                    {a}
+                                  </button>
+                                ))}
+                              </div>
+                          </div>
+                          
+                          <div className="flex gap-4 pt-6 border-t border-slate-100">
+                              <button 
+                                type="button" 
+                                onClick={() => setStep(1)} 
+                                className="px-6 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all"
+                              >
+                                <ArrowLeft size={18} />
+                              </button>
+                              <button 
+                                type="submit" 
+                                disabled={loading} 
+                                className="flex-1 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-indigo-200 hover:scale-[1.02] transition-all"
+                              >
+                                <Wand2 size={18} /> Générer maintenant
+                              </button>
+                          </div>
+                      </>
+                  )}
+              </form>
+          </div>
         </div>
+
+        {/* DROITE */}
+        <div className="w-full md:w-1/2 bg-slate-900 relative flex items-center justify-center overflow-hidden h-[600px] md:h-screen order-2 md:order-2">
+           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none"></div>
+           <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[100px]"></div>
+           <div className="relative z-10 flex flex-col items-center animate-in zoom-in duration-700 w-full px-4">
+              
+              <div ref={bookRef} className="p-8">
+                <LiveBookPreview id="book-preview-target" title={titre} templateId={template} />
+              </div>
+              
+              <div className="mt-8 grid grid-cols-2 gap-4 text-center w-full max-w-xs">
+                  <div className="bg-white/5 p-4 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors">
+                      <div className="text-2xl font-black text-white mb-1">{pages}</div>
+                      <div className="text-[9px] text-indigo-300 uppercase font-bold tracking-widest">Pages estimées</div>
+                  </div>
+                  <div className="bg-white/5 p-4 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors">
+                      <div className="text-2xl font-black text-white mb-1">5</div>
+                      <div className="text-[9px] text-purple-300 uppercase font-bold tracking-widest">Fichiers inclus</div>
+                  </div>
+              </div>
+
+              {step === 2 && (
+                <button
+                  onClick={handleDownloadCover}
+                  disabled={isDownloadingCover}
+                  className="mt-8 flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-all border border-white/10 disabled:opacity-50"
+                >
+                  {isDownloadingCover ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                  {isDownloadingCover ? "Capture HD..." : "Télécharger la couverture 3D"}
+                </button>
+              )}
+           </div>
+        </div>
+
+        {isSimulating && <SimulationModal progress={simulatedProgress} />}
+        {realGenerating && <RealGenerationModal progress={progressPercent} />}
+        {generatedKit && <DownloadKitModal kit={generatedKit} router={router} />}
       </div>
-
-      {/* DROITE */}
-      <div className="w-full md:w-1/2 bg-slate-900 relative flex items-center justify-center overflow-hidden h-[600px] md:h-screen order-2 md:order-2">
-         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none"></div>
-         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[100px]"></div>
-         <div className="relative z-10 flex flex-col items-center animate-in zoom-in duration-700 w-full px-4">
-            
-            <div ref={bookRef} className="p-8">
-              <LiveBookPreview id="book-preview-target" title={titre} templateId={template} />
-            </div>
-            
-            <div className="mt-8 grid grid-cols-2 gap-4 text-center w-full max-w-xs">
-                <div className="bg-white/5 p-4 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors">
-                    <div className="text-2xl font-black text-white mb-1">{pages}</div>
-                    <div className="text-[9px] text-indigo-300 uppercase font-bold tracking-widest">Pages estimées</div>
-                </div>
-                <div className="bg-white/5 p-4 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors">
-                    <div className="text-2xl font-black text-white mb-1">5</div>
-                    <div className="text-[9px] text-purple-300 uppercase font-bold tracking-widest">Fichiers inclus</div>
-                </div>
-            </div>
-
-            {step === 2 && (
-              <button
-                onClick={handleDownloadCover}
-                disabled={isDownloadingCover}
-                className="mt-8 flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-all border border-white/10 disabled:opacity-50"
-              >
-                {isDownloadingCover ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                {isDownloadingCover ? "Capture HD..." : "Télécharger la couverture 3D"}
-              </button>
-            )}
-         </div>
-      </div>
-
-      {isSimulating && <SimulationModal progress={simulatedProgress} />}
-      {realGenerating && <RealGenerationModal progress={progressPercent} />}
-      {generatedKit && <DownloadKitModal kit={generatedKit} router={router} />}
-    </div>
+    </>
   );
 }
 
-// PREVIEW PAGE
+// 🔥 PREVIEW PAGE AVEC HANDLEPAY CORRIGÉ
 function PreviewPage({ kit, onEdit }) {
     const [isPaymentLoading, setIsPaymentLoading] = useState(false);
     
     const handlePay = async () => {
-       if (isPaymentLoading) return;
-       
-       setIsPaymentLoading(true);
-       
-       console.log("💰 [PAYMENT] Kit envoyé:", kit);
-       console.log("🎨 [PAYMENT] Template dans kit:", kit.template);
-       
-       try {
-          const res = await fetch("/api/payments/create", { 
-            method: "POST", 
-            headers: { "Content-Type": "application/json" }, 
-            // ✅ FIX: On envoie le kit COMPLET avec template
-            body: JSON.stringify({ 
-              kitData: { 
-                title: kit.title,
-                description: kit.description,
-                tone: kit.tone,
-                audience: kit.audience,
-                pages: kit.pages,
-                chapters: kit.chapters,
-                template: kit.template, // ✅ CRITIQUE
-                outline: kit.outline,
-                price: kit.price,
-                currency: kit.currency,
-                provider: kit.provider
-              } 
-            }) 
-          });
-          const data = await res.json();
-          if(data.success && data.paymentUrl) {
-            window.location.href = data.paymentUrl;
+      if (isPaymentLoading) return;
+      setIsPaymentLoading(true);
+
+      try {
+        const res = await fetch("/api/payments/create", { 
+          method: "POST", 
+          headers: { "Content-Type": "application/json" }, 
+          body: JSON.stringify({ kitData: kit, projetId: kit.projetId }) 
+        });
+        const data = await res.json();
+        
+        console.log('📦 Payment response:', data);
+        
+        if (data.success) {
+          if (data.useWidget) {
+            // 🚀 MODE LIVE : Widget KkiaPay
+            console.log('🎯 Opening KkiaPay widget...');
+            
+            if (typeof window.openKkiapayWidget !== 'function') {
+              alert('Erreur: SDK KkiaPay non chargé. Veuillez recharger la page.');
+              setIsPaymentLoading(false);
+              return;
+            }
+
+            window.openKkiapayWidget({
+              amount: data.widgetConfig.amount,
+              key: data.widgetConfig.api_key,
+              sandbox: data.widgetConfig.sandbox,
+              email: data.widgetConfig.email || '',
+              phone: data.widgetConfig.phone || '',
+              name: data.widgetConfig.name || 'Client Bookzy',
+              callback: `${window.location.origin}/dashboard/projets/nouveau?tx=${data.transactionId}`
+            });
+
+            // 🔥 Listener de succès
+            window.addSuccessListener((response) => {
+              console.log('✅ Payment success:', response);
+              window.location.href = `/dashboard/projets/nouveau?tx=${data.transactionId}&kkiapayId=${response.transactionId}`;
+            });
+
+            // 🔥 Listener d'échec
+            window.addFailedListener((error) => {
+              console.error('❌ Payment failed:', error);
+              setIsPaymentLoading(false);
+              alert('Le paiement a échoué ou a été annulé');
+            });
+            
           } else {
-            alert("Erreur initialisation paiement");
-            setIsPaymentLoading(false);
+            // 🚀 MODE SANDBOX : Redirection classique
+            console.log('🔗 Redirecting to:', data.paymentUrl);
+            window.location.href = data.paymentUrl;
           }
-       } catch(e) { 
-          console.error("❌ [PAYMENT] Erreur:", e);
-          alert("Erreur technique"); 
+        } else {
+          alert(data.message || 'Erreur initialisation paiement');
           setIsPaymentLoading(false);
-       }
-    }
+        }
+      } catch(e) { 
+        console.error('Payment error:', e);
+        alert('Erreur technique');
+        setIsPaymentLoading(false);
+      }
+    };
 
     return (
         <div className="h-[100dvh] bg-slate-50 font-sans flex flex-col overflow-hidden">
@@ -820,7 +868,7 @@ function PreviewPage({ kit, onEdit }) {
                                     {isPaymentLoading ? (
                                       <>
                                         <Loader2 className="w-4 h-4 animate-spin text-green-400" />
-                                        <span>Redirection...</span>
+                                        <span>Initialisation...</span>
                                       </>
                                     ) : (
                                       <>

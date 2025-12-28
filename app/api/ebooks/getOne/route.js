@@ -11,9 +11,10 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 
-    if (!id) {
+    // 🔥 FIX : Valider l'ID AVANT de faire la requête MongoDB
+    if (!id || id === "undefined" || id === "null" || id.length !== 24) {
       return NextResponse.json(
-        { success: false, message: "ID manquant" },
+        { success: false, message: "ID invalide" },
         { status: 400 }
       );
     }
