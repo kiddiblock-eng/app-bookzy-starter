@@ -15,7 +15,6 @@ function CheckoutContent({ kkiapayReady }) {
   const [widgetConfig, setWidgetConfig] = useState(null);
   const [debugLogs, setDebugLogs] = useState([]);
 
-  // 🔥 Helper pour logger
   const addLog = (message, data = null) => {
     const log = `[${new Date().toLocaleTimeString()}] ${message}`;
     console.log(log, data || '');
@@ -49,8 +48,6 @@ function CheckoutContent({ kkiapayReady }) {
         } else if (data.paymentUrl) {
           addLog('🔗 Redirect mode detected:', data.paymentUrl);
           window.location.href = data.paymentUrl;
-        } else {
-          addLog('⚠️ No widget or paymentUrl');
         }
       } else {
         addLog('❌ API error:', data.message);
@@ -58,7 +55,6 @@ function CheckoutContent({ kkiapayReady }) {
       }
     } catch (err) {
       addLog('❌ Init error:', err.message);
-      console.error('Full error:', err);
       setError('Erreur de connexion');
     }
   }
@@ -67,61 +63,60 @@ function CheckoutContent({ kkiapayReady }) {
     addLog('🔄 useEffect triggered', {
       widgetConfig: !!widgetConfig,
       kkiapayReady,
-      windowKkiapay: !!window.kkiapay
+      openKkiapayWidget: typeof window.openKkiapayWidget
     });
 
-    if (widgetConfig && kkiapayReady && window.kkiapay) {
+    if (widgetConfig && kkiapayReady && typeof window.openKkiapayWidget === 'function') {
       addLog('🚀 All conditions met, opening widget...');
-      openKkiapayWidget();
+      openWidget();
     } else {
       if (!widgetConfig) addLog('⏳ Waiting for widgetConfig...');
       if (!kkiapayReady) addLog('⏳ Waiting for kkiapayReady...');
-      if (!window.kkiapay) addLog('⏳ Waiting for window.kkiapay...');
+      if (typeof window.openKkiapayWidget !== 'function') addLog('⏳ Waiting for openKkiapayWidget...');
     }
   }, [widgetConfig, kkiapayReady]);
 
-  function openKkiapayWidget() {
-    addLog('🚀 openKkiapayWidget called');
+  function openWidget() {
+    addLog('🚀 openWidget called');
     addLog('📦 Widget config:', widgetConfig);
-    addLog('🔧 window.kkiapay type:', typeof window.kkiapay);
-    addLog('🔧 window.kkiapay:', window.kkiapay);
+    addLog('🔧 openKkiapayWidget type:', typeof window.openKkiapayWidget);
 
-    if (!window.kkiapay) {
-      addLog('❌ window.kkiapay is undefined!');
+    if (typeof window.openKkiapayWidget !== 'function') {
+      addLog('❌ openKkiapayWidget is not a function!');
       setError('KkiaPay SDK non chargé');
       return;
     }
 
-    if (typeof window.kkiapay.open !== 'function') {
-      addLog('❌ window.kkiapay.open is not a function!');
-      addLog('🔧 window.kkiapay keys:', Object.keys(window.kkiapay));
-      setError('KkiaPay SDK mal chargé');
-      return;
-    }
-
     try {
-      addLog('📞 Calling window.kkiapay.open()...');
+      addLog('📞 Calling openKkiapayWidget()...');
       
       const config = {
         amount: widgetConfig.amount,
-        api_key: widgetConfig.api_key,
+        key: widgetConfig.api_key,
         sandbox: widgetConfig.sandbox,
-        email: widgetConfig.email,
+        email: widgetConfig.email || '',
         phone: widgetConfig.phone || '',
-        name: widgetConfig.name
+        name: widgetConfig.name || 'Client Bookzy',
+        position: 'center'
       };
       
       addLog('🎛️ Widget config to send:', config);
 
-      window.kkiapay.open(config);
+      // 🔥 Ajouter les listeners AVANT d'ouvrir le widget
+      if (typeof window.addSuccessListener === 'function') {
+        window.addSuccessListener(handleSuccess);
+        addLog('✅ Success listener added');
+      }
+
+      if (typeof window.addFailedListener === 'function') {
+        window.addFailedListener(handleFailed);
+        addLog('✅ Failed listener added');
+      }
+
+      // 🔥 Ouvrir le widget
+      window.openKkiapayWidget(config);
 
       addLog('✅ Widget opened successfully');
-
-      // Listeners
-      window.addEventListener('success', handleSuccess);
-      window.addEventListener('failed', handleFailed);
-      
-      addLog('🎧 Event listeners added');
 
     } catch (err) {
       addLog('❌ Error opening widget:', err.message);
@@ -130,8 +125,8 @@ function CheckoutContent({ kkiapayReady }) {
     }
   }
 
-  async function handleSuccess(e) {
-    addLog('✅ Payment SUCCESS event:', e);
+  async function handleSuccess(response) {
+    addLog('✅ Payment SUCCESS:', response);
     setLoading(true);
 
     try {
@@ -159,8 +154,8 @@ function CheckoutContent({ kkiapayReady }) {
     }
   }
 
-  function handleFailed(e) {
-    addLog('❌ Payment FAILED event:', e);
+  function handleFailed(error) {
+    addLog('❌ Payment FAILED:', error);
     setError('Le paiement a échoué');
     setLoading(false);
   }
@@ -175,7 +170,6 @@ function CheckoutContent({ kkiapayReady }) {
           <h2 className="text-2xl font-bold text-white mb-4">Erreur de paiement</h2>
           <p className="text-gray-300 mb-6">{error}</p>
           
-          {/* Debug logs */}
           <details className="text-left mb-6">
             <summary className="text-sm text-purple-300 cursor-pointer mb-2">🐛 Debug logs</summary>
             <div className="bg-black/30 p-4 rounded-lg max-h-60 overflow-y-auto text-xs font-mono">
@@ -214,13 +208,12 @@ function CheckoutContent({ kkiapayReady }) {
         <p className="text-gray-300 mb-4">Veuillez patienter...</p>
         
         {widgetConfig && (
-          <p className="text-xs text-green-300 mb-4">✅ Widget config chargé</p>
+          <p className="text-xs text-green-300 mb-2">✅ Widget config chargé</p>
         )}
         {kkiapayReady && (
-          <p className="text-xs text-green-300 mb-4">✅ KkiaPay SDK prêt</p>
+          <p className="text-xs text-green-300 mb-2">✅ KkiaPay SDK prêt</p>
         )}
 
-        {/* Debug logs en temps réel */}
         <details className="text-left mt-6">
           <summary className="text-sm text-purple-300 cursor-pointer mb-2">🐛 Debug logs ({debugLogs.length})</summary>
           <div className="bg-black/30 p-4 rounded-lg max-h-60 overflow-y-auto text-xs font-mono">
@@ -252,7 +245,9 @@ export default function CheckoutPage() {
         strategy="beforeInteractive"
         onLoad={() => {
           console.log('✅ KkiaPay SDK chargé');
-          console.log('🔧 window.kkiapay:', window.kkiapay);
+          console.log('🔧 openKkiapayWidget:', typeof window.openKkiapayWidget);
+          console.log('🔧 addSuccessListener:', typeof window.addSuccessListener);
+          console.log('🔧 addFailedListener:', typeof window.addFailedListener);
           setKkiapayReady(true);
         }}
         onError={(e) => {
