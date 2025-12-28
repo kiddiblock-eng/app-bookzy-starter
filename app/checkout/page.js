@@ -2,7 +2,7 @@
 
 import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CheckCircle2, ShieldCheck, Sparkles, Lock, CreditCard } from 'lucide-react';
 
 function CheckoutContent({ kkiapayReady }) {
   const router = useRouter();
@@ -12,19 +12,9 @@ function CheckoutContent({ kkiapayReady }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [widgetConfig, setWidgetConfig] = useState(null);
-  const [debugLogs, setDebugLogs] = useState([]);
-
-  const addLog = (message, data = null) => {
-    const log = `[${new Date().toLocaleTimeString()}] ${message}`;
-    console.log(log, data || '');
-    setDebugLogs(prev => [...prev, { message, data, time: new Date().toLocaleTimeString() }]);
-  };
+  const [step, setStep] = useState('initializing');
 
   useEffect(() => {
-    addLog('🎬 Component mounted');
-    addLog('📋 Transaction ID:', transactionId);
-    addLog('🎯 KkiaPay Ready:', kkiapayReady);
-    
     if (transactionId) {
       initializePayment();
     }
@@ -32,62 +22,32 @@ function CheckoutContent({ kkiapayReady }) {
 
   async function initializePayment() {
     try {
-      addLog('🔍 Fetching payment info for:', transactionId);
-      
       const res = await fetch(`/api/payments/info?id=${transactionId}`);
       const data = await res.json();
-      
-      addLog('📦 Payment info received:', data);
 
       if (data.success) {
         if (data.useWidget && data.widgetProvider === 'kkiapay') {
-          addLog('✅ Widget mode detected');
-          addLog('🎯 Widget config:', data.widgetConfig);
           setWidgetConfig(data.widgetConfig);
         } else if (data.paymentUrl) {
-          addLog('🔗 Redirect mode detected:', data.paymentUrl);
           window.location.href = data.paymentUrl;
         }
       } else {
-        addLog('❌ API error:', data.message);
         setError(data.message || 'Erreur initialisation');
       }
     } catch (err) {
-      addLog('❌ Init error:', err.message);
       setError('Erreur de connexion');
     }
   }
 
   useEffect(() => {
-    addLog('🔄 useEffect triggered', {
-      widgetConfig: !!widgetConfig,
-      kkiapayReady,
-      openKkiapayWidget: typeof window.openKkiapayWidget
-    });
-
     if (widgetConfig && kkiapayReady && typeof window.openKkiapayWidget === 'function') {
-      addLog('🚀 All conditions met, opening widget...');
       openWidget();
-    } else {
-      if (!widgetConfig) addLog('⏳ Waiting for widgetConfig...');
-      if (!kkiapayReady) addLog('⏳ Waiting for kkiapayReady...');
-      if (typeof window.openKkiapayWidget !== 'function') addLog('⏳ Waiting for openKkiapayWidget...');
     }
   }, [widgetConfig, kkiapayReady]);
 
   function openWidget() {
-    addLog('🚀 openWidget called');
-    addLog('📦 Widget config:', widgetConfig);
-    addLog('🔧 openKkiapayWidget type:', typeof window.openKkiapayWidget);
-
-    if (typeof window.openKkiapayWidget !== 'function') {
-      addLog('❌ openKkiapayWidget is not a function!');
-      setError('KkiaPay SDK non chargé');
-      return;
-    }
-
     try {
-      addLog('📞 Calling openKkiapayWidget()...');
+      setStep('opening');
       
       const config = {
         amount: widgetConfig.amount,
@@ -95,37 +55,27 @@ function CheckoutContent({ kkiapayReady }) {
         sandbox: widgetConfig.sandbox,
         email: widgetConfig.email || '',
         phone: widgetConfig.phone || '',
-        name: widgetConfig.name || 'Client Bookzy',
+        name: widgetConfig.name || '',
         position: 'center'
       };
-      
-      addLog('🎛️ Widget config to send:', config);
 
-      // 🔥 Ajouter les listeners AVANT d'ouvrir le widget
       if (typeof window.addSuccessListener === 'function') {
         window.addSuccessListener(handleSuccess);
-        addLog('✅ Success listener added');
       }
 
       if (typeof window.addFailedListener === 'function') {
         window.addFailedListener(handleFailed);
-        addLog('✅ Failed listener added');
       }
 
-      // 🔥 Ouvrir le widget
       window.openKkiapayWidget(config);
 
-      addLog('✅ Widget opened successfully');
-
     } catch (err) {
-      addLog('❌ Error opening widget:', err.message);
-      console.error('Full widget error:', err);
       setError(`Erreur widget: ${err.message}`);
     }
   }
 
   async function handleSuccess(response) {
-    addLog('✅ Payment SUCCESS:', response);
+    setStep('processing');
     setLoading(true);
 
     try {
@@ -136,99 +86,131 @@ function CheckoutContent({ kkiapayReady }) {
       });
 
       const data = await res.json();
-      addLog('🔍 Verify response:', data);
 
       if (data.success && data.paid) {
-        addLog('✅ Payment verified, redirecting...');
         router.push(`/dashboard/projets/nouveau?tx=${transactionId}`);
       } else {
-        addLog('❌ Payment not verified');
         setError('Paiement non vérifié');
         setLoading(false);
       }
     } catch (err) {
-      addLog('❌ Verify error:', err.message);
       setError('Erreur vérification');
       setLoading(false);
     }
   }
 
   function handleFailed(error) {
-    addLog('❌ Payment FAILED:', error);
-    setError('Le paiement a échoué');
+    setError('Le paiement a échoué ou a été annulé');
     setLoading(false);
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black p-4">
-        <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 max-w-2xl w-full text-center border border-white/20">
-          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">❌</span>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white border border-slate-200 rounded-2xl p-8 max-w-md w-full text-center shadow-sm">
+          <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-4xl">❌</span>
           </div>
-          <h2 className="text-2xl font-bold text-white mb-4">Erreur de paiement</h2>
-          <p className="text-gray-300 mb-6">{error}</p>
+          <h2 className="text-2xl font-black text-slate-900 mb-3">Paiement échoué</h2>
+          <p className="text-slate-600 mb-8 leading-relaxed">{error}</p>
           
-          <details className="text-left mb-6">
-            <summary className="text-sm text-purple-300 cursor-pointer mb-2">🐛 Debug logs</summary>
-            <div className="bg-black/30 p-4 rounded-lg max-h-60 overflow-y-auto text-xs font-mono">
-              {debugLogs.map((log, i) => (
-                <div key={i} className="mb-2 border-b border-white/10 pb-2">
-                  <span className="text-gray-400">[{log.time}]</span>{' '}
-                  <span className="text-white">{log.message}</span>
-                  {log.data && (
-                    <pre className="text-purple-300 mt-1 ml-4 text-[10px]">
-                      {typeof log.data === 'object' ? JSON.stringify(log.data, null, 2) : log.data}
-                    </pre>
-                  )}
-                </div>
-              ))}
-            </div>
-          </details>
+          <div className="space-y-3">
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full px-6 py-3.5 bg-slate-900 hover:bg-indigo-600 text-white rounded-xl font-bold text-sm transition-all shadow-lg active:scale-[0.98]"
+            >
+              Réessayer le paiement
+            </button>
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="w-full px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-sm transition-all border border-slate-200"
+            >
+              Retour au tableau de bord
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-xl font-medium text-white transition"
-          >
-            Retour au tableau de bord
-          </button>
+  if (step === 'processing' || loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white border border-emerald-200 rounded-2xl p-12 max-w-md w-full text-center shadow-sm">
+          <div className="relative w-20 h-20 mx-auto mb-8">
+            <div className="absolute inset-0 border-4 border-emerald-100 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-emerald-600 rounded-full border-t-transparent animate-spin"></div>
+            <CheckCircle2 className="absolute inset-0 m-auto w-10 h-10 text-emerald-600 animate-pulse" />
+          </div>
+          
+          <h2 className="text-2xl font-black text-slate-900 mb-3">Vérification en cours...</h2>
+          <p className="text-emerald-700 mb-6 font-medium">Votre paiement est en cours de traitement</p>
+          
+          <div className="flex items-center justify-center gap-2 text-sm text-slate-500 bg-slate-50 py-3 px-4 rounded-xl border border-slate-200">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <span className="font-medium">Paiement 100% sécurisé</span>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black p-4">
-      <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 max-w-2xl w-full text-center border border-white/20">
-        <Loader2 className="w-16 h-16 animate-spin text-purple-400 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-white mb-2">
-          {loading ? 'Vérification...' : 'Initialisation...'}
-        </h2>
-        <p className="text-gray-300 mb-4">Veuillez patienter...</p>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+      <div className="bg-white border border-slate-200 rounded-2xl p-8 sm:p-12 max-w-md w-full text-center shadow-sm">
         
-        {widgetConfig && (
-          <p className="text-xs text-green-300 mb-2">✅ Widget config chargé</p>
-        )}
-        {kkiapayReady && (
-          <p className="text-xs text-green-300 mb-2">✅ KkiaPay SDK prêt</p>
-        )}
-
-        <details className="text-left mt-6">
-          <summary className="text-sm text-purple-300 cursor-pointer mb-2">🐛 Debug logs ({debugLogs.length})</summary>
-          <div className="bg-black/30 p-4 rounded-lg max-h-60 overflow-y-auto text-xs font-mono">
-            {debugLogs.map((log, i) => (
-              <div key={i} className="mb-2 border-b border-white/10 pb-2">
-                <span className="text-gray-400">[{log.time}]</span>{' '}
-                <span className="text-white">{log.message}</span>
-                {log.data && (
-                  <pre className="text-purple-300 mt-1 ml-4 text-[10px]">
-                    {typeof log.data === 'object' ? JSON.stringify(log.data, null, 2) : String(log.data)}
-                  </pre>
-                )}
+        {step === 'initializing' ? (
+          <>
+            <div className="w-16 h-16 mx-auto mb-6 bg-indigo-50 rounded-full flex items-center justify-center">
+              <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+            </div>
+            <h2 className="text-2xl font-black text-slate-900 mb-3">
+              Préparation du paiement...
+            </h2>
+            <p className="text-slate-600">Veuillez patienter un instant</p>
+          </>
+        ) : (
+          <>
+            <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CreditCard className="w-8 h-8 text-white" />
+            </div>
+            
+            <h2 className="text-2xl font-black text-slate-900 mb-3">
+              Fenêtre de paiement ouverte
+            </h2>
+            <p className="text-slate-600 mb-8 leading-relaxed">
+              Complétez votre paiement dans la fenêtre KkiaPay pour accéder à votre eBook professionnel
+            </p>
+            
+            {/* Info sécurité */}
+            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6">
+              <div className="flex items-center justify-center gap-2 text-indigo-700 text-sm font-medium">
+                <Lock className="w-4 h-4" />
+                <span>Paiement sécurisé par KkiaPay</span>
               </div>
-            ))}
-          </div>
-        </details>
+            </div>
+
+            {/* Infos montant si disponible */}
+            {widgetConfig && (
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-slate-500 uppercase tracking-wide">Montant</span>
+                  <span className="text-2xl font-black text-slate-900">{widgetConfig.amount} <span className="text-sm text-slate-500 font-medium">FCFA</span></span>
+                </div>
+              </div>
+            )}
+
+            <p className="text-xs text-slate-500">
+              La fenêtre ne s'affiche pas ? 
+              <button 
+                onClick={() => window.location.reload()} 
+                className="text-indigo-600 hover:text-indigo-700 ml-1 underline font-medium"
+              >
+                Actualiser la page
+              </button>
+            </p>
+          </>
+        )}
       </div>
     </div>
   );
@@ -237,13 +219,8 @@ function CheckoutContent({ kkiapayReady }) {
 export default function CheckoutPage() {
   const [kkiapayReady, setKkiapayReady] = useState(false);
 
-  // 🔥 Chargement manuel du SDK KkiaPay
   useEffect(() => {
-    console.log('🔧 Chargement manuel du SDK KkiaPay...');
-    
-    // Vérifier si déjà chargé
     if (typeof window.openKkiapayWidget === 'function') {
-      console.log('✅ SDK déjà chargé !');
       setKkiapayReady(true);
       return;
     }
@@ -253,25 +230,18 @@ export default function CheckoutPage() {
     script.async = true;
     
     script.onload = () => {
-      console.log('✅ KkiaPay SDK chargé avec succès');
-      console.log('🔧 openKkiapayWidget:', typeof window.openKkiapayWidget);
-      console.log('🔧 addSuccessListener:', typeof window.addSuccessListener);
-      console.log('🔧 addFailedListener:', typeof window.addFailedListener);
-      
-      // Attendre un peu pour s'assurer que tout est bien initialisé
       setTimeout(() => {
         setKkiapayReady(true);
       }, 500);
     };
     
-    script.onerror = (e) => {
-      console.error('❌ Erreur chargement SDK KkiaPay:', e);
+    script.onerror = () => {
+      console.error('Erreur chargement SDK KkiaPay');
     };
     
     document.body.appendChild(script);
     
     return () => {
-      // Cleanup
       if (document.body.contains(script)) {
         document.body.removeChild(script);
       }
@@ -280,8 +250,8 @@ export default function CheckoutPage() {
 
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black">
-        <Loader2 className="w-16 h-16 animate-spin text-purple-400" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-12 h-12 animate-spin text-indigo-600" />
       </div>
     }>
       <CheckoutContent kkiapayReady={kkiapayReady} />
