@@ -2,7 +2,6 @@
 
 import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Script from 'next/script';
 import { Loader2 } from 'lucide-react';
 
 function CheckoutContent({ kkiapayReady }) {
@@ -238,30 +237,54 @@ function CheckoutContent({ kkiapayReady }) {
 export default function CheckoutPage() {
   const [kkiapayReady, setKkiapayReady] = useState(false);
 
-  return (
-    <>
-      <Script 
-        src="https://cdn.kkiapay.me/k.js" 
-        strategy="beforeInteractive"
-        onLoad={() => {
-          console.log('✅ KkiaPay SDK chargé');
-          console.log('🔧 openKkiapayWidget:', typeof window.openKkiapayWidget);
-          console.log('🔧 addSuccessListener:', typeof window.addSuccessListener);
-          console.log('🔧 addFailedListener:', typeof window.addFailedListener);
-          setKkiapayReady(true);
-        }}
-        onError={(e) => {
-          console.error('❌ Erreur chargement SDK KkiaPay:', e);
-        }}
-      />
+  // 🔥 Chargement manuel du SDK KkiaPay
+  useEffect(() => {
+    console.log('🔧 Chargement manuel du SDK KkiaPay...');
+    
+    // Vérifier si déjà chargé
+    if (typeof window.openKkiapayWidget === 'function') {
+      console.log('✅ SDK déjà chargé !');
+      setKkiapayReady(true);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://cdn.kkiapay.me/k.js';
+    script.async = true;
+    
+    script.onload = () => {
+      console.log('✅ KkiaPay SDK chargé avec succès');
+      console.log('🔧 openKkiapayWidget:', typeof window.openKkiapayWidget);
+      console.log('🔧 addSuccessListener:', typeof window.addSuccessListener);
+      console.log('🔧 addFailedListener:', typeof window.addFailedListener);
       
-      <Suspense fallback={
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black">
-          <Loader2 className="w-16 h-16 animate-spin text-purple-400" />
-        </div>
-      }>
-        <CheckoutContent kkiapayReady={kkiapayReady} />
-      </Suspense>
-    </>
+      // Attendre un peu pour s'assurer que tout est bien initialisé
+      setTimeout(() => {
+        setKkiapayReady(true);
+      }, 500);
+    };
+    
+    script.onerror = (e) => {
+      console.error('❌ Erreur chargement SDK KkiaPay:', e);
+    };
+    
+    document.body.appendChild(script);
+    
+    return () => {
+      // Cleanup
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
+
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black">
+        <Loader2 className="w-16 h-16 animate-spin text-purple-400" />
+      </div>
+    }>
+      <CheckoutContent kkiapayReady={kkiapayReady} />
+    </Suspense>
   );
 }
