@@ -3,14 +3,13 @@ import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import Transaction from "@/models/Transaction";
 import Settings from "@/models/settings";
-import Projet from "@/models/Projet";
 import User from "@/models/User";
 import { Resend } from "resend";
 import { paymentSuccessTemplate } from "@/lib/emailTemplates/paymentSuccessTemplate";
 import KkiaPayProvider from "@/lib/payment/providers/KkiaPayProvider";
 
 export async function POST(req) { 
-  const resend = new Resend(process.env.RESEND_API_KEY); 
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
     await dbConnect();
@@ -19,19 +18,11 @@ export async function POST(req) {
     const kkiapayConfig = settings?.payment?.kkiapay;
 
     const payload = await req.json();
-    const signature = req.headers.get("x-kkiapay-signature");
 
     console.log("📩 Webhook KkiaPay:", payload);
 
     const provider = new KkiaPayProvider(kkiapayConfig);
-    
-    let webhookData;
-    try {
-      webhookData = await provider.handleWebhook(payload, signature);
-    } catch (error) {
-      console.error('KkiaPay webhook verification failed:', error);
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
-    }
+    const webhookData = await provider.handleWebhook(payload);
 
     const tx = await Transaction.findOne({ 
       providerTransactionId: webhookData.transactionId,
@@ -39,7 +30,7 @@ export async function POST(req) {
     });
 
     if (!tx) {
-      console.warn("⚠️ Transaction KkiaPay introuvable:", webhookData.transactionId);
+      console.warn("⚠️ Transaction introuvable:", webhookData.transactionId);
       return NextResponse.json({ success: true });
     }
 
@@ -50,59 +41,40 @@ export async function POST(req) {
       lastWebhookAt: new Date(),
     };
 
-    const paid = webhookData.status === 'completed';
-
-    if (paid) {
+    if (webhookData.status === 'completed') {
       tx.completedAt = new Date();
-      console.log("💰 Paiement KkiaPay confirmé:", tx.internalId || tx._id);
+      console.log("💰 Paiement confirmé:", tx.internalId);
     }
 
     await tx.save();
 
-    if (paid) {
-      console.log("💰 Paiement confirmé");
-      console.log("🔍 tx.projetId:", tx.projetId);
-      
-      // 🔥 Marquer le projet comme payé (sans changer le statut)
-      if (tx.projetId) {
-        const projet = await Projet.findById(tx.projetId);
-        if (projet) {
-          projet.isPaid = true;
-          projet.transactionId = tx._id.toString();
-          await projet.save();
-          console.log("✅ Projet marqué comme payé:", projet._id);
-        }
-      }
+    // Email uniquement
+    if (webhookData.status === 'completed' && tx.userId) {
+      const user = await User.findById(tx.userId);
+      if (user) {
+        try {
+          const html = paymentSuccessTemplate({
+            firstName: user.firstName || "cher utilisateur",
+            amount: tx.amount,
+            transactionId: tx.internalId,
+            ebookTitle: tx.kitData?.title || "Ton eBook",
+          });
 
-      // Envoyer l'email de confirmation
-      if (tx.userId) {
-        const user = await User.findById(tx.userId);
-        if (user) {
-          try {
-            const html = paymentSuccessTemplate({
-              firstName: user.firstName || "cher utilisateur",
-              amount: tx.amount,
-              transactionId: tx.internalId || tx._id,
-              ebookTitle: tx.kitData?.title || tx.kitData?.titre || "Ton eBook",
-            });
-
-            await resend.emails.send({
-              from: "Bookzy <no-reply@bookzy.io>",
-              to: user.email,
-              subject: "🎉 Paiement confirmé - Bookzy",
-              html,
-            });
-            console.log("✅ Email envoyé à:", user.email);
-          } catch (e) {
-            console.error("❌ Email échoué:", e);
-          }
+          await resend.emails.send({
+            from: "Bookzy <no-reply@bookzy.io>",
+            to: user.email,
+            subject: "🎉 Paiement confirmé - Bookzy",
+            html,
+          });
+        } catch (e) {
+          console.error("❌ Email:", e);
         }
       }
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("❌ Webhook KkiaPay ERR:", error);
+    console.error("❌ Webhook ERR:", error);
     return NextResponse.json({ success: false }, { status: 500 });
   }
 }
