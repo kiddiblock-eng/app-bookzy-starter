@@ -33,7 +33,6 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
 
-    // Trouver la transaction
     const tx = await Transaction.findOne({ 
       providerTransactionId: webhookData.transactionId,
       provider: 'kkiapay'
@@ -44,7 +43,6 @@ export async function POST(req) {
       return NextResponse.json({ success: true });
     }
 
-    // Mettre à jour le statut
     tx.status = webhookData.status;
     tx.providerResponse = {
       ...(tx.providerResponse || {}),
@@ -61,23 +59,47 @@ export async function POST(req) {
 
     await tx.save();
 
-    // 🔥 FIX : Traiter le projet et envoyer l'email
     if (paid) {
       console.log("💰 Paiement confirmé, déclenchement génération...");
+      console.log("🔍 tx.projetId:", tx.projetId);
       
-      // Déclencher la génération du projet
       if (tx.projetId) {
         const projet = await Projet.findById(tx.projetId);
         if (projet) {
           projet.isPaid = true;
-          projet.status = 'processing'; // 🔥 DÉCLENCHE LA GÉNÉRATION
+          projet.status = 'processing';
           projet.transactionId = tx._id.toString();
           await projet.save();
           console.log("✅ Projet mis en status 'processing':", projet._id);
+
+          // 🔥 APPELER L'API DE GÉNÉRATION
+          const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "https://app.bookzy.io";
+          
+          try {
+            fetch(`${appUrl}/api/ebooks/generate`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ 
+                projetId: projet._id.toString(),
+                transactionId: tx._id.toString(),
+                titre: tx.kitData?.title || tx.kitData?.titre,
+                description: tx.kitData?.description,
+                tone: tx.kitData?.tone || tx.kitData?.ton,
+                audience: tx.kitData?.audience,
+                pages: tx.kitData?.pages,
+                chapters: tx.kitData?.chapters || tx.kitData?.chapitres,
+                template: tx.kitData?.template,
+                outline: tx.kitData?.outline
+              })
+            }).catch(err => console.error("❌ Erreur lancement génération:", err));
+            
+            console.log("🚀 Requête de génération envoyée à l'IA");
+          } catch (error) {
+            console.error("❌ Échec déclenchement génération:", error);
+          }
         }
       }
 
-      // Envoyer l'email de confirmation
       if (tx.userId) {
         const user = await User.findById(tx.userId);
         if (user) {
@@ -86,7 +108,7 @@ export async function POST(req) {
               firstName: user.firstName || "cher utilisateur",
               amount: tx.amount,
               transactionId: tx.internalId || tx._id,
-              ebookTitle: tx.kitData?.title || "Ton eBook",
+              ebookTitle: tx.kitData?.title || tx.kitData?.titre || "Ton eBook",
             });
 
             await resend.emails.send({
