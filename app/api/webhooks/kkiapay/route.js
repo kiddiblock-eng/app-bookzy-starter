@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import Transaction from "@/models/Transaction";
 import Settings from "@/models/settings";
+import Projet from "@/models/Projet";
 import User from "@/models/User";
 import { Resend } from "resend";
 import { paymentSuccessTemplate } from "@/lib/emailTemplates/paymentSuccessTemplate";
@@ -41,33 +42,85 @@ export async function POST(req) {
       lastWebhookAt: new Date(),
     };
 
+    // ✅ CAS DE SUCCÈS (ton code actuel)
     if (webhookData.status === 'completed') {
       tx.completedAt = new Date();
       console.log("💰 Paiement confirmé:", tx.internalId);
+      
+      await tx.save();
+
+      // Email de succès
+      if (tx.userId) {
+        const user = await User.findById(tx.userId);
+        if (user) {
+          try {
+            const html = paymentSuccessTemplate({
+              firstName: user.firstName || "cher utilisateur",
+              amount: tx.amount,
+              transactionId: tx.internalId,
+              ebookTitle: tx.kitData?.title || "Ton eBook",
+            });
+
+            await resend.emails.send({
+              from: "Bookzy <no-reply@bookzy.io>",
+              to: user.email,
+              subject: "🎉 Paiement confirmé - Bookzy",
+              html,
+            });
+            console.log("✅ Email succès envoyé à:", user.email);
+          } catch (e) {
+            console.error("❌ Email:", e);
+          }
+        }
+      }
     }
 
-    await tx.save();
+    // 🆕 CAS D'ÉCHEC (nouveau code)
+    if (webhookData.status === 'failed') {
+      console.log("❌ Paiement échoué:", tx.internalId);
+      
+      await tx.save();
 
-    // Email uniquement
-    if (webhookData.status === 'completed' && tx.userId) {
-      const user = await User.findById(tx.userId);
-      if (user) {
+      // Marquer le projet en erreur
+      if (tx.projetId) {
         try {
-          const html = paymentSuccessTemplate({
-            firstName: user.firstName || "cher utilisateur",
-            amount: tx.amount,
-            transactionId: tx.internalId,
-            ebookTitle: tx.kitData?.title || "Ton eBook",
-          });
-
-          await resend.emails.send({
-            from: "Bookzy <no-reply@bookzy.io>",
-            to: user.email,
-            subject: "🎉 Paiement confirmé - Bookzy",
-            html,
-          });
+          const projet = await Projet.findById(tx.projetId);
+          if (projet) {
+            projet.status = "ERROR";
+            projet.errorMessage = "Paiement échoué";
+            await projet.save();
+            console.log("⚠️ Projet marqué en erreur:", projet._id);
+          }
         } catch (e) {
-          console.error("❌ Email:", e);
+          console.error("❌ Erreur update projet:", e);
+        }
+      }
+
+      // Email d'échec
+      if (tx.userId) {
+        const user = await User.findById(tx.userId);
+        if (user) {
+          try {
+            await resend.emails.send({
+              from: "Bookzy <no-reply@bookzy.io>",
+              to: user.email,
+              subject: "⚠️ Paiement échoué - Bookzy",
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                  <h2 style="color: #ef4444;">Paiement échoué</h2>
+                  <p>Bonjour ${user.firstName || 'cher utilisateur'},</p>
+                  <p>Votre paiement pour "${tx.kitData?.title || 'votre eBook'}" n'a pas abouti.</p>
+                  <p>Montant: ${tx.amount} ${tx.currency}</p>
+                  <p>Vous pouvez réessayer depuis votre tableau de bord.</p>
+                  <p><a href="https://app.bookzy.io/dashboard/projets" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 8px; margin-top: 16px;">Réessayer</a></p>
+                  <p style="margin-top: 24px; color: #64748b; font-size: 14px;">L'équipe Bookzy</p>
+                </div>
+              `,
+            });
+            console.log("✅ Email échec envoyé à:", user.email);
+          } catch (e) {
+            console.error("❌ Email échec:", e);
+          }
         }
       }
     }
