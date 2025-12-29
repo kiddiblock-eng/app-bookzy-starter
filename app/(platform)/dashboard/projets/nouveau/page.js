@@ -321,17 +321,22 @@ function NouveauProjetPageContent() {
 
   // 🔥 GENERATION MODIFIÉE
   const verifyAndGenerate = async (transactionId, kkiapayId) => {
-    try {
-        const verifyRes = await fetch("/api/payments/verify", {
-            method: "POST", 
-            headers: { "Content-Type": "application/json" }, 
-            body: JSON.stringify({ 
-              transactionId,
-              kkiapayId // 🔥 AJOUTÉ
-            })
-        });
-        const data = await verifyRes.json();
-        
+  console.log('🔥 verifyAndGenerate appelé!');
+  console.log('📌 transactionId:', transactionId);
+  console.log('📌 kkiapayId:', kkiapayId);
+  
+  try {
+    const verifyRes = await fetch("/api/payments/verify", {
+      method: "POST", 
+      headers: { "Content-Type": "application/json" }, 
+      body: JSON.stringify({ 
+        transactionId,
+        kkiapayId
+      })
+    });
+    
+    const data = await verifyRes.json();
+    console.log('📦 Réponse verify:', data);
         if (data.success && data.paid) {
             const newUrl = '/dashboard/projets/nouveau';
             window.history.replaceState({}, '', newUrl); 
