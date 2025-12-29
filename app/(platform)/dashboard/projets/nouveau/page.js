@@ -2,7 +2,7 @@
 import { Suspense } from "react";
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import Script from "next/script";
+import Script from "next/script"; // 🔥 AJOUTÉ pour KkiaPay SDK
 import { toPng } from "html-to-image";
 import {
   CheckCircle2, Loader2, ArrowLeft, ArrowRight, Sparkles,
@@ -79,7 +79,8 @@ const LiveBookPreview = ({ title, templateId, small = false }) => {
       <div className="absolute top-1.5 right-1 bottom-1.5 w-2 bg-slate-200 rounded-r-sm transform translate-x-full -z-10"></div>
     </div>
   );
-};
+};// PARTIE 2/3 - Composant principal NouveauProjetPageContent
+// À ajouter après la PARTIE 1
 
 function NouveauProjetPageContent() {
   const router = useRouter();
@@ -103,7 +104,7 @@ function NouveauProjetPageContent() {
   const [isDownloadingCover, setIsDownloadingCover] = useState(false);
 
   const txId = params.get("tx");
-  const kkiapayId = params.get("kkiapayId");
+  const kkiapayId = params.get("kkiapayId"); // 🔥 AJOUTÉ
   const [realGenerating, setRealGenerating] = useState(!!txId);
   const [progressPercent, setProgressPercent] = useState(0);
   const [generatedKit, setGeneratedKit] = useState(null);
@@ -139,7 +140,9 @@ function NouveauProjetPageContent() {
     } finally {
       setIsDownloadingCover(false);
     }
-  };useEffect(() => {
+  };
+
+  useEffect(() => {
     async function fetchPrice() {
       try {
         const res = await fetch("/api/ebooks/price");
@@ -166,9 +169,9 @@ function NouveauProjetPageContent() {
         if (generatedKit) { setRealGenerating(false); return; }
         hasProcessedPayment.current = true;
         setRealGenerating(true);
-        verifyAndGenerate(txId, kkiapayId);
+        verifyAndGenerate(txId, kkiapayId); // 🔥 MODIFIÉ
     }
-  }, [params, txId, kkiapayId]);
+  }, [params, txId, kkiapayId]); // 🔥 MODIFIÉ
 
   const handlePagesChange = (e) => {
       const val = e.target.value;
@@ -287,166 +290,159 @@ function NouveauProjetPageContent() {
     return () => clearInterval(interval);
   }, [isSimulating]);
 
-  // WATCHER
-  useEffect(() => {
-    if (simulatedProgress >= 100 && isSimulating) {
-      const count = parseInt(chapters) || 5;
-      const finalOutline = outlineDataRef.current || forceChapterCount([], count);
-      
-      const createDraftProjet = async () => {
-        try {
-          const res = await fetch("/api/projets/ajouter", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              titre: titre,
-              description: description,
-              template: template,
-              pages: parseInt(pages),
-              chapitres: parseInt(chapters),
-              ton: tone,
-              audience: audience,
-              outline: finalOutline
-            })
-          });
-          const data = await res.json();
-          
-          if (data.success && data.projet) {
-            const projetId = data.projet._id.toString();
-            console.log("🎯 Projet créé avec ID:", projetId);
-            
-            setPredictedOutline(finalOutline);
-            setFinalKitData({
-              projetId: projetId,
-              title: titre, 
-              description, 
-              pages, 
-              chapters, 
-              tone, 
-              audience, 
-              template,
-              price: dynamicPrice, 
-              currency: dynamicCurrency, 
-              provider: dynamicProvider, 
-              value: 197,
-              outline: finalOutline
-            });
-            setStep(3);
-          } else {
-            console.error("❌ Erreur création projet:", data);
-          }
-        } catch (e) {
-          console.error("❌ Erreur création draft:", e);
-        }
-      };
-
-      createDraftProjet();
-      setIsSimulating(false);
-      setSimulatedProgress(0);
-      outlineFetchedRef.current = false;
-      outlineDataRef.current = null;
-      window.scrollTo(0, 0);
-    }
-  }, [simulatedProgress, isSimulating, titre, description, pages, chapters, tone, audience, template, dynamicPrice, dynamicCurrency, dynamicProvider]);
-
-  // 🔥 VERIFY AND GENERATE AVEC GESTION ÉCHEC
-  const verifyAndGenerate = async (transactionId, kkiapayId) => {
-    console.log('🔥 verifyAndGenerate appelé!');
-    console.log('📌 transactionId:', transactionId);
-    console.log('📌 kkiapayId:', kkiapayId);
+// WATCHER
+useEffect(() => {
+  if (simulatedProgress >= 100 && isSimulating) {
+    const count = parseInt(chapters) || 5;
+    const finalOutline = outlineDataRef.current || forceChapterCount([], count);
     
-    try {
-      const verifyRes = await fetch("/api/payments/verify", {
-        method: "POST", 
-        headers: { "Content-Type": "application/json" }, 
-        body: JSON.stringify({ transactionId, kkiapayId })
-      });
-      
-      const data = await verifyRes.json();
-      console.log('📦 Réponse verify:', data);
-      
-      if (data.success && data.paid) {
-        const newUrl = '/dashboard/projets/nouveau';
-        window.history.replaceState({}, '', newUrl); 
-        setRealGenerating(true);
-        
-        const kitData = data.transaction.kitData || {};
-        const currentTitre = titre || kitData.title;
-        const currentDesc = description || kitData.description;
-        const currentOutline = predictedOutline.length > 0 ? predictedOutline : (kitData.outline || []);
-        const currentTemplate = template || "modern";
-        
-        console.log("📤 [PAYMENT] Template envoyé:", currentTemplate);
-        
-        const genRes = await fetch("/api/ebooks/generate", {
-          method: "POST", 
+    // 🔥 Créer le projet AVANT le paiement
+    const createDraftProjet = async () => {
+      try {
+        const res = await fetch("/api/projets/ajouter", {
+          method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-            projetId: data.transaction.projetId || null, 
-            transactionId: transactionId,
-            titre: currentTitre, 
-            description: currentDesc,
-            tone: kitData.tone || tone, 
-            audience: kitData.audience || audience,
-            pages: kitData.pages || pages, 
-            chapters: kitData.chapters || chapters,
-            template: currentTemplate,
-            outline: currentOutline
-          }),
+          body: JSON.stringify({
+            titre: titre,
+            description: description,
+            template: template,
+            pages: parseInt(pages),
+            chapitres: parseInt(chapters),
+            ton: tone,
+            audience: audience,
+            outline: finalOutline
+          })
         });
+        const data = await res.json();
         
-        const genData = await genRes.json();
-        if (!genData.success) throw new Error(genData.message);
-        
-        if (genData.alreadyGenerated) {
-          setRealGenerating(false); 
-          setGeneratedKit({
-            title: currentTitre || "Mon eBook",
-            pdfUrl: genData.pdfUrl,
-            kitUrl: genData.kitUrl || "#",
+        if (data.success && data.projet) {
+          const projetId = data.projet._id.toString();
+          console.log("🎯 Projet créé avec ID:", projetId);
+          
+          setPredictedOutline(finalOutline);
+          setFinalKitData({
+            projetId: projetId, // 🔥 LE PLUS IMPORTANT
+            title: titre, 
+            description, 
+            pages, 
+            chapters, 
+            tone, 
+            audience, 
+            template,
+            price: dynamicPrice, 
+            currency: dynamicCurrency, 
+            provider: dynamicProvider, 
+            value: 197,
+            outline: finalOutline
           });
-          return; 
+          setStep(3);
+        } else {
+          console.error("❌ Erreur création projet:", data);
         }
-        
-        const finalProjetId = genData.projetId;
-        const pollInterval = setInterval(async () => {
-          try {
-            const pRes = await fetch(`/api/ebooks/progress/${finalProjetId}`);
-            const pData = await pRes.json();
-            setProgressPercent(pData.progress || 0);
-            
-            if (pData.status === "COMPLETED") {
-              clearInterval(pollInterval);
-              setFinalKitData(null);
-              setGeneratedKit({
-                title: currentTitre || "Mon eBook",
-                pdfUrl: pData.pdfUrl || "#",
-                kitUrl: pData.kitUrl || "#",
-              });
-              setRealGenerating(false);
-            }
-            if (pData.status === "ERROR") {
-              clearInterval(pollInterval);
-              setRealGenerating(false);
-              alert("Erreur technique. Support contacté.");
-            }
-          } catch (e) { console.error("Erreur polling:", e); }
-        }, 3000);
-        
-      } else {
-        // 🆕 GESTION ÉCHEC
-        console.error("❌ Paiement non validé");
-        setRealGenerating(false);
-        alert("Le paiement n'a pas abouti. Veuillez vérifier votre email ou réessayer depuis le tableau de bord.");
-        
-        setTimeout(() => {
-          router.push('/dashboard/projets');
-        }, 3000);
+      } catch (e) {
+        console.error("❌ Erreur création draft:", e);
       }
+    };
+
+    createDraftProjet();
+    setIsSimulating(false);
+    setSimulatedProgress(0);
+    outlineFetchedRef.current = false;
+    outlineDataRef.current = null;
+    window.scrollTo(0, 0);
+  }
+}, [simulatedProgress, isSimulating, titre, description, pages, chapters, tone, audience, template, dynamicPrice, dynamicCurrency, dynamicProvider]);
+  // 🔥 GENERATION MODIFIÉE
+  const verifyAndGenerate = async (transactionId, kkiapayId) => {
+  console.log('🔥 verifyAndGenerate appelé!');
+  console.log('📌 transactionId:', transactionId);
+  console.log('📌 kkiapayId:', kkiapayId);
+  
+  try {
+    const verifyRes = await fetch("/api/payments/verify", {
+      method: "POST", 
+      headers: { "Content-Type": "application/json" }, 
+      body: JSON.stringify({ 
+        transactionId,
+        kkiapayId
+      })
+    });
+    
+    const data = await verifyRes.json();
+    console.log('📦 Réponse verify:', data);
+        if (data.success && data.paid) {
+            const newUrl = '/dashboard/projets/nouveau';
+            window.history.replaceState({}, '', newUrl); 
+            setRealGenerating(true);
+            
+            const kitData = data.transaction.kitData || {};
+            const currentTitre = titre || kitData.title;
+            const currentDesc = description || kitData.description;
+            const currentOutline = predictedOutline.length > 0 ? predictedOutline : (kitData.outline || []);
+            const currentTemplate = template || "modern";
+            
+            console.log("📤 [PAYMENT] Template envoyé:", currentTemplate);
+            
+            const genRes = await fetch("/api/ebooks/generate", {
+              method: "POST", 
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ 
+                  projetId: data.transaction.projetId || null, 
+                  transactionId: transactionId,
+                  titre: currentTitre, 
+                  description: currentDesc,
+                  tone: kitData.tone || tone, 
+                  audience: kitData.audience || audience,
+                  pages: kitData.pages || pages, 
+                  chapters: kitData.chapters || chapters,
+                  template: currentTemplate,
+                  outline: currentOutline
+              }),
+            });
+            
+            const genData = await genRes.json();
+            if (!genData.success) throw new Error(genData.message);
+            
+            if (genData.alreadyGenerated) {
+                setRealGenerating(false); 
+                setGeneratedKit({
+                    title: currentTitre || "Mon eBook",
+                    pdfUrl: genData.pdfUrl,
+                    kitUrl: genData.kitUrl || "#",
+                });
+                return; 
+            }
+            
+            const finalProjetId = genData.projetId;
+            const pollInterval = setInterval(async () => {
+                try {
+                    const pRes = await fetch(`/api/ebooks/progress/${finalProjetId}`);
+                    const pData = await pRes.json();
+                    setProgressPercent(pData.progress || 0);
+                    
+                    if (pData.status === "COMPLETED") {
+                        clearInterval(pollInterval);
+                        setFinalKitData(null);
+                        setGeneratedKit({
+                            title: currentTitre || "Mon eBook",
+                            pdfUrl: pData.pdfUrl || "#",
+                            kitUrl: pData.kitUrl || "#",
+                        });
+                        setRealGenerating(false);
+                    }
+                    if (pData.status === "ERROR") {
+                        clearInterval(pollInterval);
+                        setRealGenerating(false);
+                        alert("Erreur technique. Support contacté.");
+                    }
+                } catch (e) { console.error("Erreur polling:", e); }
+            }, 3000);
+        } else { 
+          throw new Error("Paiement non validé."); 
+        }
     } catch (e) { 
-      console.error("Erreur verify&generate:", e);
-      setRealGenerating(false);
-      alert("Une erreur est survenue. Veuillez réessayer.");
+        console.error("Erreur verify&generate:", e);
+        setRealGenerating(false);
     }
   };
 
@@ -454,9 +450,15 @@ function NouveauProjetPageContent() {
 
   if (step === 3 && finalKitData) {
     return <PreviewPage kit={finalKitData} onEdit={() => setStep(1)} />;
-  }// SUITE DU RETURN DE NouveauProjetPageContent
+  }
+
+// PARTIE 3/3 - Suite du render NouveauProjetPageContent + PreviewPage + Modals
+// À ajouter après la PARTIE 2
+
+  // SUITE DU RETURN DE NouveauProjetPageContent
   return (
     <>
+      {/* 🔥 SDK KkiaPay */}
       <Script 
         src="https://cdn.kkiapay.me/k.js" 
         strategy="lazyOnload"
@@ -465,6 +467,7 @@ function NouveauProjetPageContent() {
       />
       
       <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans selection:bg-indigo-100 selection:text-indigo-900 relative">
+        {/* GAUCHE */}
         <div className="w-full md:w-1/2 p-6 md:p-12 overflow-y-auto h-auto md:h-screen bg-white shadow-2xl z-10 relative border-r border-slate-100 order-1 md:order-1">
           <div className="flex mb-8 items-center gap-2 text-indigo-600">
              <Zap className="w-6 h-6 fill-current" /> 
@@ -480,8 +483,11 @@ function NouveauProjetPageContent() {
                   {step === 1 && (
                       <>
                           <div className="space-y-5">
+                              {/* TITRE AVEC IA */}
                               <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-2">Titre de l'ebook</label>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">
+                                  Titre de l'ebook
+                                </label>
                                 <div className="relative">
                                   <input 
                                     autoFocus 
@@ -498,7 +504,11 @@ function NouveauProjetPageContent() {
                                     className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-indigo-100 hover:bg-indigo-200 disabled:bg-slate-100 disabled:opacity-50 text-indigo-600 disabled:text-slate-400 rounded-lg transition-all group"
                                     title="Améliorer avec l'IA"
                                   >
-                                    {improvingTitle ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                                    {improvingTitle ? (
+                                      <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                      <Sparkles className="w-4 h-4" />
+                                    )}
                                   </button>
                                 </div>
                                 {improvingTitle && (
@@ -509,8 +519,11 @@ function NouveauProjetPageContent() {
                                 )}
                               </div>
 
+                              {/* DESCRIPTION AVEC IA */}
                               <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-2">Décris ton ebook en quelques phrases</label>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">
+                                  Décris ton ebook en quelques phrases
+                                </label>
                                 <div className="relative">
                                   <textarea 
                                     rows={4} 
@@ -526,7 +539,11 @@ function NouveauProjetPageContent() {
                                     className="absolute right-2 top-2 p-2 bg-indigo-100 hover:bg-indigo-200 disabled:bg-slate-100 disabled:opacity-50 text-indigo-600 disabled:text-slate-400 rounded-lg transition-all group"
                                     title="Améliorer avec l'IA"
                                   >
-                                    {improvingDescription ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                                    {improvingDescription ? (
+                                      <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                      <Sparkles className="w-4 h-4" />
+                                    )}
                                   </button>
                                 </div>
                                 {improvingDescription && (
@@ -656,6 +673,7 @@ function NouveauProjetPageContent() {
           </div>
         </div>
 
+        {/* DROITE */}
         <div className="w-full md:w-1/2 bg-slate-900 relative flex items-center justify-center overflow-hidden h-[600px] md:h-screen order-2 md:order-2">
            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none"></div>
            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[100px]"></div>
@@ -697,6 +715,7 @@ function NouveauProjetPageContent() {
   );
 }
 
+// 🔥 PREVIEW PAGE AVEC HANDLEPAY CORRIGÉ
 function PreviewPage({ kit, onEdit }) {
     const [isPaymentLoading, setIsPaymentLoading] = useState(false);
     
@@ -712,15 +731,22 @@ function PreviewPage({ kit, onEdit }) {
     });
     const data = await res.json();
     
+    console.log('📦 Payment response:', data);
+    
     if (data.success) {
       if (data.useWidget) {
+        // 🚀 MODE LIVE : Widget KkiaPay
+        console.log('🎯 Opening KkiaPay widget...');
+        
         if (typeof window.openKkiapayWidget !== 'function') {
           alert('Erreur: SDK KkiaPay non chargé. Veuillez recharger la page.');
           setIsPaymentLoading(false);
           return;
         }
 
+        // 🔥 Définir les listeners AVANT d'ouvrir le widget
         window.addSuccessListener((response) => {
+          console.log('✅ Payment success:', response);
           window.location.href = `/dashboard/projets/nouveau?tx=${data.transactionId}&kkiapayId=${response.transactionId}`;
         });
 
@@ -730,6 +756,7 @@ function PreviewPage({ kit, onEdit }) {
           alert('Le paiement a échoué ou a été annulé');
         });
 
+        // 🔥 Ouvrir le widget SANS callback
         window.openKkiapayWidget({
           amount: data.widgetConfig.amount,
           key: data.widgetConfig.api_key,
@@ -737,9 +764,12 @@ function PreviewPage({ kit, onEdit }) {
           email: data.widgetConfig.email || '',
           phone: data.widgetConfig.phone || '',
           name: data.widgetConfig.name || 'Client Bookzy'
+          // ❌ PAS de callback ici
         });
         
       } else {
+        // 🚀 MODE SANDBOX : Redirection classique
+        console.log('🔗 Redirecting to:', data.paymentUrl);
         window.location.href = data.paymentUrl;
       }
     } else {
@@ -755,6 +785,7 @@ function PreviewPage({ kit, onEdit }) {
 
     return (
         <div className="h-[100dvh] bg-slate-50 font-sans flex flex-col overflow-hidden">
+            {/* HEADER */}
             <div className="bg-white border-b border-slate-200 h-14 md:h-16 flex-shrink-0 z-40 shadow-sm px-4 flex items-center justify-between">
                 <button onClick={onEdit} className="flex items-center gap-2 text-slate-500 font-bold hover:text-slate-800 text-sm">
                   <ArrowLeft className="w-4 h-4"/> Modifier
@@ -764,7 +795,10 @@ function PreviewPage({ kit, onEdit }) {
                 </span>
             </div>
 
+            {/* CONTENU */}
             <div className="flex-1 flex flex-col md:flex-row overflow-hidden max-w-7xl mx-auto w-full relative">
+                
+                {/* GAUCHE */}
                 <div className="md:w-5/12 bg-slate-100 md:border-r border-slate-200 flex-shrink-0 overflow-y-auto">
                     <div className="p-6 flex flex-col items-center justify-center min-h-full">
                         <div className="mb-8">
@@ -784,12 +818,14 @@ function PreviewPage({ kit, onEdit }) {
                     </div>
                 </div>
 
+                {/* DROITE */}
                 <div className="flex-1 bg-white flex flex-col h-full overflow-hidden relative">
                     <div className="p-5 pb-2 flex-shrink-0 bg-white z-10">
                         <h2 className="text-lg md:text-2xl font-black text-slate-900 mb-1">Votre plan est prêt.</h2>
                         <p className="text-slate-500 text-xs md:text-sm">Structure optimisée pour {kit.pages} pages.</p>
                     </div>
 
+                    {/* LISTE SCROLLABLE */}
                     <div className="flex-1 overflow-y-auto px-5 py-2 space-y-2 custom-scrollbar pb-40">
                         {kit.outline && kit.outline.map((chap, idx) => (
                             <div key={idx} className="flex gap-3 p-3 border border-slate-100 items-start hover:bg-slate-50 transition-colors rounded-lg group">
@@ -805,6 +841,7 @@ function PreviewPage({ kit, onEdit }) {
                             </div>
                         ))}
 
+                        {/* BONUS */}
                         <div className="pt-6 mt-2 border-t border-slate-100">
                             <h4 className="text-xs font-bold text-slate-400 uppercase mb-4 flex items-center gap-2">
                                 <Sparkles className="w-3 h-3 text-orange-500"/> Bonus inclus
@@ -846,6 +883,7 @@ function PreviewPage({ kit, onEdit }) {
                         </div>
                     </div>
 
+                    {/* CTA FOOTER FIXED */}
                     <div className="fixed md:absolute bottom-0 left-0 right-0 p-4 border-t border-slate-200 bg-white/95 backdrop-blur-md z-50 shadow-[0_-5px_30px_rgba(0,0,0,0.1)]">
                         <div className="max-w-7xl mx-auto w-full">
                             <div className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-100 rounded-lg mb-3 text-[10px] md:text-xs text-blue-700 font-medium justify-center">
@@ -886,6 +924,7 @@ function PreviewPage({ kit, onEdit }) {
     )
 }
 
+/* --- MODALS --- */
 function SimulationModal({ progress }) {
     return (
         <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-md flex flex-col items-center justify-center z-50 text-white p-6 animate-in fade-in">
