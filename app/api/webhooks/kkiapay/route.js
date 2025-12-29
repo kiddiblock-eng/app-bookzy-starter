@@ -63,12 +63,11 @@ export async function POST(req) {
       console.log("💰 Paiement confirmé");
       console.log("🔍 tx.projetId:", tx.projetId);
       
-      // 🔥 Marquer le projet comme payé (le frontend lancera la génération)
+      // 🔥 Marquer le projet comme payé (sans changer le statut)
       if (tx.projetId) {
         const projet = await Projet.findById(tx.projetId);
         if (projet) {
           projet.isPaid = true;
-          projet.status = 'pending'; // 🔥 Reste en pending, le frontend gérera
           projet.transactionId = tx._id.toString();
           await projet.save();
           console.log("✅ Projet marqué comme payé:", projet._id);

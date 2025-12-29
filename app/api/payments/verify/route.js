@@ -8,7 +8,7 @@ import Projet from "@/models/Projet";
 export async function POST(req) { 
   try {
     await dbConnect();
-    const { transactionId, kkiapayId } = await req.json(); // 🔥 AJOUTÉ kkiapayId
+    const { transactionId, kkiapayId } = await req.json();
 
     const transaction = await Transaction.findById(transactionId);
     if (!transaction) {
@@ -55,8 +55,36 @@ export async function POST(req) {
         const projet = await Projet.findById(transaction.projetId);
         if (projet) {
           projet.isPaid = true;
-          projet.status = "processing"; // L'IA commence ici 🔥
+          projet.status = "processing";
           await projet.save();
+          
+          console.log("🚀 Lancement génération pour projet:", projet._id);
+          
+          // 🔥 APPELER L'API DE GÉNÉRATION
+          try {
+            const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.bookzy.io";
+            
+            fetch(`${appUrl}/api/ebooks/generate`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ 
+                projetId: projet._id.toString(),
+                transactionId: transaction._id.toString(),
+                titre: transaction.kitData?.title || transaction.kitData?.titre,
+                description: transaction.kitData?.description,
+                tone: transaction.kitData?.tone || transaction.kitData?.ton,
+                audience: transaction.kitData?.audience,
+                pages: transaction.kitData?.pages,
+                chapters: transaction.kitData?.chapters || transaction.kitData?.chapitres,
+                template: transaction.kitData?.template,
+                outline: transaction.kitData?.outline
+              })
+            }).catch(err => console.error("❌ Erreur lancement génération:", err));
+            
+            console.log("✅ Génération lancée");
+          } catch (error) {
+            console.error("❌ Échec lancement génération:", error);
+          }
         }
       }
 
