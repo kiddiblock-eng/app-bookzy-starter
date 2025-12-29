@@ -9,8 +9,6 @@ import { Resend } from "resend";
 import { paymentSuccessTemplate } from "@/lib/emailTemplates/paymentSuccessTemplate";
 import KkiaPayProvider from "@/lib/payment/providers/KkiaPayProvider";
 
-// const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(req) { 
   const resend = new Resend(process.env.RESEND_API_KEY); 
 
@@ -63,24 +61,25 @@ export async function POST(req) {
 
     await tx.save();
 
-    // Traiter le projet et envoyer l'email
+    // 🔥 FIX : Traiter le projet et envoyer l'email
     if (paid) {
-      const metadata = payload?.metadata;
-      const projetId = metadata?.projetId;
-      const userId = metadata?.userId;
-
-      if (projetId) {
-        const projet = await Projet.findById(projetId);
+      console.log("💰 Paiement confirmé, déclenchement génération...");
+      
+      // Déclencher la génération du projet
+      if (tx.projetId) {
+        const projet = await Projet.findById(tx.projetId);
         if (projet) {
           projet.isPaid = true;
-          projet.updatedAt = new Date();
-          projet.transactionId = tx.internalId || tx._id;
+          projet.status = 'processing'; // 🔥 DÉCLENCHE LA GÉNÉRATION
+          projet.transactionId = tx._id.toString();
           await projet.save();
+          console.log("✅ Projet mis en status 'processing':", projet._id);
         }
       }
 
-      if (userId) {
-        const user = await User.findById(userId);
+      // Envoyer l'email de confirmation
+      if (tx.userId) {
+        const user = await User.findById(tx.userId);
         if (user) {
           try {
             const html = paymentSuccessTemplate({
@@ -96,6 +95,7 @@ export async function POST(req) {
               subject: "🎉 Paiement confirmé - Bookzy",
               html,
             });
+            console.log("✅ Email envoyé à:", user.email);
           } catch (e) {
             console.error("❌ Email échoué:", e);
           }
