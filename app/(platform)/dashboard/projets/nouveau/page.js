@@ -290,13 +290,38 @@ function NouveauProjetPageContent() {
     return () => clearInterval(interval);
   }, [isSimulating]);
 
-  // WATCHER
-  useEffect(() => {
-    if (simulatedProgress >= 100 && isSimulating) {
-        const count = parseInt(chapters) || 5;
-        const finalOutline = outlineDataRef.current || forceChapterCount([], count);
-        setPredictedOutline(finalOutline);
-        setFinalKitData({
+// WATCHER
+useEffect(() => {
+  if (simulatedProgress >= 100 && isSimulating) {
+    const count = parseInt(chapters) || 5;
+    const finalOutline = outlineDataRef.current || forceChapterCount([], count);
+    
+    // 🔥 Créer le projet AVANT le paiement
+    const createDraftProjet = async () => {
+      try {
+        const res = await fetch("/api/projets/ajouter", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            titre: titre,
+            description: description,
+            template: template,
+            pages: parseInt(pages),
+            chapitres: parseInt(chapters),
+            ton: tone,
+            audience: audience,
+            outline: finalOutline
+          })
+        });
+        const data = await res.json();
+        
+        if (data.success && data.projet) {
+          const projetId = data.projet._id.toString();
+          console.log("🎯 Projet créé avec ID:", projetId);
+          
+          setPredictedOutline(finalOutline);
+          setFinalKitData({
+            projetId: projetId, // 🔥 LE PLUS IMPORTANT
             title: titre, 
             description, 
             pages, 
@@ -309,16 +334,24 @@ function NouveauProjetPageContent() {
             provider: dynamicProvider, 
             value: 197,
             outline: finalOutline
-        });
-        setIsSimulating(false);
-        setSimulatedProgress(0);
-        outlineFetchedRef.current = false;
-        outlineDataRef.current = null;
-        setStep(3);
-        window.scrollTo(0, 0); 
-    }
-  }, [simulatedProgress, isSimulating, titre, description, pages, chapters, tone, audience, template, dynamicPrice, dynamicCurrency, dynamicProvider]);
+          });
+          setStep(3);
+        } else {
+          console.error("❌ Erreur création projet:", data);
+        }
+      } catch (e) {
+        console.error("❌ Erreur création draft:", e);
+      }
+    };
 
+    createDraftProjet();
+    setIsSimulating(false);
+    setSimulatedProgress(0);
+    outlineFetchedRef.current = false;
+    outlineDataRef.current = null;
+    window.scrollTo(0, 0);
+  }
+}, [simulatedProgress, isSimulating, titre, description, pages, chapters, tone, audience, template, dynamicPrice, dynamicCurrency, dynamicProvider]);
   // 🔥 GENERATION MODIFIÉE
   const verifyAndGenerate = async (transactionId, kkiapayId) => {
   console.log('🔥 verifyAndGenerate appelé!');
