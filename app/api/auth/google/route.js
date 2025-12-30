@@ -3,7 +3,10 @@ import { NextResponse } from 'next/server';
 export async function GET(request) {
   const googleAuthUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
   
-  // ✅ Fallback si NEXT_PUBLIC_APP_URL n'est pas défini
+  // ✅ Debug logs
+  console.log('🔑 GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'Défini' : '❌ MANQUANT');
+  console.log('🔑 NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL || 'Utilise fallback');
+  
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.bookzy.io';
   const redirectUri = `${baseUrl}/api/auth/google/callback`;
   
@@ -14,7 +17,7 @@ export async function GET(request) {
   googleAuthUrl.searchParams.set('access_type', 'offline');
   googleAuthUrl.searchParams.set('prompt', 'consent');
 
-  console.log('🔗 Google OAuth Redirect URI:', redirectUri); // ✅ Debug log
+  console.log('🔗 Redirect URI:', redirectUri);
 
   return NextResponse.redirect(googleAuthUrl.toString());
 }
