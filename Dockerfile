@@ -2,27 +2,30 @@
 FROM node:20-bullseye-slim
 
 # 2. Installation de Chromium et des dépendances pour Puppeteer
-# Ces bibliothèques permettent de générer les PDF sans erreur de système
-RUN apt-get update && apt-get install -y \
-    chromium \
-    fonts-liberation \
-    libnss3 \
-    libatk-bridge2.0-0 \
-    libdrm2 \
-    libxkbcommon0 \
-    libgbm1 \
-    libasound2 \
-    libx11-xcb1 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxrandr2 \
-    libcups2 \
-    libdbus-1-3 \
-    libgdk-pixbuf2.0-0 \
-    libnspr4 \
-    xdg-utils \
-    --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
+# Avec retry pour éviter les erreurs réseau temporaires
+RUN apt-get update && \
+    for i in 1 2 3; do \
+      apt-get install -y \
+        chromium \
+        fonts-liberation \
+        libnss3 \
+        libatk-bridge2.0-0 \
+        libdrm2 \
+        libxkbcommon0 \
+        libgbm1 \
+        libasound2 \
+        libx11-xcb1 \
+        libxcomposite1 \
+        libxdamage1 \
+        libxrandr2 \
+        libcups2 \
+        libdbus-1-3 \
+        libgdk-pixbuf2.0-0 \
+        libnspr4 \
+        xdg-utils \
+        --no-install-recommends && break || sleep 10; \
+    done && \
+    rm -rf /var/lib/apt/lists/*
 
 # 3. Configuration de Puppeteer pour utiliser Chromium installé
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
