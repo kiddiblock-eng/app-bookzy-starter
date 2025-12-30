@@ -1,5 +1,3 @@
-// models/User.js
-
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
@@ -32,7 +30,7 @@ const userSchema = new mongoose.Schema(
 
     password: {
       type: String,
-      required: true
+      required: false, // ✅ OPTIONNEL pour Google
     },
 
     // LOCALISATION
@@ -72,7 +70,7 @@ const userSchema = new mongoose.Schema(
       default: true
     },
 
-    // 🔥 EMAIL VERIFICATION (garde UN SEUL champ)
+    // 🔥 EMAIL VERIFICATION
     emailVerified: {
       type: Boolean,
       default: false
@@ -84,6 +82,17 @@ const userSchema = new mongoose.Schema(
     emailVerificationSentAt: {
       type: Date,
       default: null
+    },
+
+    // 🆕 GOOGLE AUTH
+    authProvider: {
+      type: String,
+      enum: ['local', 'google'],
+      default: 'local'
+    },
+    googleId: {
+      type: String,
+      sparse: true,
     },
 
     // 🔥 PASSWORD SECURITY
@@ -123,13 +132,11 @@ const userSchema = new mongoose.Schema(
         default: ""
       },
 
-      // Secret pour Authenticator (base32)
       twoFASecret: {
         type: String,
         default: ""
       },
 
-      // True une fois que l'utilisateur a validé un code TOTP
       twoFAVerified: {
         type: Boolean,
         default: false
@@ -156,15 +163,16 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// HASH MOT DE PASSE
+// ✅ HASH SÉCURISÉ (ne hache que si password existe ET a changé)
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+  if (!this.isModified("password") || !this.password) return next();
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
 
 // COMPARE PASSWORD
 userSchema.methods.comparePassword = async function (candidatePassword) {
+  if (!this.password) return false; // Google users n'ont pas de mot de passe
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
@@ -178,7 +186,7 @@ userSchema.methods.isVerified = function () {
   return this.emailVerified === true;
 };
 
-// 🔥 CHECK SI PEUT RENVOYER EMAIL (rate limiting 1 min)
+// 🔥 CHECK SI PEUT RENVOYER EMAIL
 userSchema.methods.canResendVerification = function () {
   if (!this.emailVerificationSentAt) return true;
   
@@ -189,7 +197,6 @@ userSchema.methods.canResendVerification = function () {
   return (now - lastSent) >= oneMinute;
 };
 
-// 🔥 FIX IMPORTANT — empêche la validation complète lors des updates partiels (2FA)
-userSchema.set("validateBeforeSave", false);
+// ✅ SUPPRIMÉ : validateBeforeSave (dangereux)
 
 export default mongoose.models.User || mongoose.model("User", userSchema);

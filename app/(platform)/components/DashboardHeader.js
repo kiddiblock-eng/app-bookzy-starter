@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import useSWR, { useSWRConfig } from "swr"; 
 import {
@@ -10,10 +10,12 @@ import {
   UserCircle2,
   Settings,
   Menu,
+  FileText,
+  Sparkles,
+  X,
 } from "lucide-react";
 import NotificationBell from "./NotificationBell";
 
-// ✅ Fetcher Standardisé
 const fetcher = (url) =>
   fetch(url, { credentials: "include" }).then((r) => r.json());
 
@@ -22,21 +24,44 @@ export default function DashboardHeader({ onMenuClick }) {
   const { mutate } = useSWRConfig();
   const [showMenu, setShowMenu] = useState(false);
   const [visible, setVisible] = useState(false);
+  
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const searchRef = useRef(null);
 
-  // ✅ Utilisation du cache partagé
+  const { data: ebooksData } = useSWR("/api/ebooks/user", fetcher);
+  const ebooks = ebooksData?.ebooks || [];
+
+  // ✅ FILTRAGE : Seulement les projets avec fileUrl (terminés)
+  const searchResults = searchQuery.trim().length > 0
+    ? ebooks.filter((ebook) =>
+        ebook.fileUrl &&
+        (ebook.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+         ebook.niche?.toLowerCase().includes(searchQuery.toLowerCase()))
+      )
+    : [];
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowSearchResults(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const { data: userData } = useSWR("/api/profile/get", fetcher, {
     revalidateOnFocus: true,
     dedupingInterval: 5000,
   });
 
-  // Extraction sécurisée
   const user = userData?.user || userData;
 
   const displayName =
     user?.displayName ||
     (user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() : "Invité");
 
-  // ✅ LOGOUT (Déjà correct, aucun changement)
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { 
@@ -44,10 +69,7 @@ export default function DashboardHeader({ onMenuClick }) {
         credentials: "include" 
       });
       
-      // Vider le cache SWR
       await mutate(() => true, undefined, { revalidate: false });
-      
-      // Force redirection
       window.location.href = "/auth/login";
     } catch (error) {
       console.error("Erreur logout", error);
@@ -68,8 +90,9 @@ export default function DashboardHeader({ onMenuClick }) {
     >
       <div className="w-full bg-white/95 backdrop-blur-xl border-b border-neutral-200 shadow-sm">
         <div className="h-16 px-4 md:px-6 flex items-center justify-between">
-          {/* LEFT SECTION */}
-          <div className="flex items-center gap-3 flex-1">
+          
+          {/* LEFT - MENU BURGER */}
+          <div className="flex items-center flex-shrink-0">
             <button
               onClick={onMenuClick}
               className="lg:hidden p-2.5 -ml-1 rounded-xl hover:bg-neutral-100 active:scale-95 transition-all"
@@ -77,21 +100,87 @@ export default function DashboardHeader({ onMenuClick }) {
             >
               <Menu className="w-6 h-6 text-neutral-700" />
             </button>
+          </div>
 
-            <div className="hidden md:block relative w-[260px] lg:w-[380px]">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+          {/* CENTER - BARRE DE RECHERCHE */}
+          <div className="flex-1 flex justify-center px-4">
+            <div ref={searchRef} className="hidden md:block relative w-full max-w-[480px]">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
+              
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setShowSearchResults(true);
+                }}
+                onFocus={() => setShowSearchResults(true)}
                 placeholder="Rechercher un projet..."
-                className="w-full pl-12 pr-4 py-2 rounded-2xl bg-neutral-100 dark:bg-neutral-900/70 
+                className="w-full pl-12 pr-10 py-2 rounded-2xl bg-neutral-100 dark:bg-neutral-900/70 
                 text-sm font-medium placeholder:text-neutral-400 dark:placeholder:text-neutral-500 
                 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
               />
+
+              {searchQuery && (
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setShowSearchResults(false);
+                  }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+
+              {/* DROPDOWN RÉSULTATS */}
+              {showSearchResults && searchQuery.trim().length > 0 && (
+                <div className="absolute top-full mt-2 w-full bg-white border border-neutral-200 rounded-2xl shadow-2xl overflow-hidden z-50 max-h-[400px] overflow-y-auto">
+                  {searchResults.length > 0 ? (
+                    <div className="p-2">
+                      <p className="px-3 py-2 text-xs font-bold text-neutral-400 uppercase tracking-wide">
+                        {searchResults.length} résultat{searchResults.length > 1 ? 's' : ''}
+                      </p>
+                      {searchResults.map((ebook) => (
+                        <button
+                          key={ebook._id}
+                          onClick={() => {
+                            router.push(`/dashboard/fichiers/${ebook._id}`); // ✅ CORRIGÉ : Redirige vers fichiers
+                            setSearchQuery("");
+                            setShowSearchResults(false);
+                          }}
+                          className="w-full flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-blue-50 transition-all text-left"
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                            <FileText className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-neutral-900 truncate">
+                              {ebook.title}
+                            </p>
+                            <p className="text-xs text-neutral-500 truncate">
+                              {ebook.niche || 'Sans catégorie'} • {new Date(ebook.createdAt).toLocaleDateString('fr-FR')}
+                            </p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-8 text-center">
+                      <Sparkles className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
+                      <p className="text-sm font-medium text-neutral-600">Aucun projet trouvé</p>
+                      <p className="text-xs text-neutral-400 mt-1">
+                        Essayez un autre terme de recherche
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* RIGHT SECTION */}
-          <div className="flex items-center gap-2">
+          {/* RIGHT - NOTIFICATIONS + PROFIL */}
+          <div className="flex items-center gap-2 flex-shrink-0">
             <NotificationBell />
 
             <div className="relative">
@@ -99,7 +188,6 @@ export default function DashboardHeader({ onMenuClick }) {
                 onClick={() => setShowMenu(!showMenu)}
                 className="flex items-center gap-2 px-2 py-1.5 rounded-full hover:bg-neutral-100 transition-all"
               >
-                {/* AVATAR */}
                 {!user ? (
                    <div className="w-9 h-9 rounded-full bg-neutral-200 animate-pulse"></div>
                 ) : user.photo ? (

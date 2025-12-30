@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
+import { jwtVerify } from "jose";
 import { dbConnect } from "@/lib/db";
 import NicheAnalysis from "@/models/NicheAnalysis";
 import User from "@/models/User";
@@ -49,8 +50,42 @@ export async function GET(req) {
   try {
     await dbConnect();
 
+    // ✅ Méthode 1 : JWT Token (via cookie)
+    const adminToken = req.cookies.get("admin_token")?.value;
+    
+    // ✅ Méthode 2 : Admin Secret (via header)
     const adminSecret = req.headers.get("x-admin-secret");
-    if (!adminSecret || adminSecret !== process.env.NEXT_PUBLIC_ADMIN_SECRET) {
+
+    let isAuthorized = false;
+
+    // Vérifier JWT token
+    if (adminToken) {
+      try {
+        const decoded = await jwtVerify(
+          adminToken,
+          new TextEncoder().encode(process.env.JWT_SECRET)
+        );
+
+        if (
+          decoded.payload.role === "admin" ||
+          decoded.payload.role === "super_admin"
+        ) {
+          isAuthorized = true;
+          console.log("✅ Auth JWT réussie");
+        }
+      } catch (error) {
+        console.error("❌ JWT invalide:", error.message);
+      }
+    }
+
+    // Fallback : vérifier le secret
+    if (!isAuthorized && adminSecret === process.env.ADMIN_SECRET) {
+      isAuthorized = true;
+      console.log("✅ Auth SECRET réussie");
+    }
+
+    if (!isAuthorized) {
+      console.log("❌ Non autorisé - Aucune méthode valide");
       return NextResponse.json(
         { success: false, message: "Non autorisé" },
         { status: 401 }

@@ -69,6 +69,11 @@ export async function POST(req) {
       }
     }
 
+    // ✅ CORRECTION : Ajouter une valeur par défaut pour 'name' si absent
+    if (!user.name) {
+      user.name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email.split('@')[0];
+    }
+
     // Update login metadata
     const ua = req.headers.get("user-agent") || "";
     user.lastLogin = new Date();

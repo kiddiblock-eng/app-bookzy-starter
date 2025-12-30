@@ -54,9 +54,12 @@ export default async function middleware(req) {
       return NextResponse.next();
     }
 
-    // 🔥 Auth : JAMAIS bloquer /auth/login (même si token présent)
-    if (pathname.startsWith("/auth/login") || pathname.startsWith("/auth/register")) {
-      // Permet l'accès même si connecté (pour la déconnexion)
+    // 🔥 Auth : JAMAIS bloquer ces pages (même si token présent)
+    if (
+      pathname.startsWith("/auth/login") || 
+      pathname.startsWith("/auth/register") ||
+      pathname.startsWith("/auth/callback-success") // ← AJOUTÉ
+    ) {
       return NextResponse.next();
     }
 
@@ -104,8 +107,12 @@ export default async function middleware(req) {
         response = NextResponse.next();
       }
     } 
-    // 🔥 CORRECTION : Permet toujours l'accès à /auth/login
-    else if (pathname.startsWith("/auth/login") || pathname.startsWith("/auth/register")) {
+    // 🔥 CORRECTION : Permet toujours l'accès à ces pages d'auth
+    else if (
+      pathname.startsWith("/auth/login") || 
+      pathname.startsWith("/auth/register") ||
+      pathname.startsWith("/auth/callback-success") // ← AJOUTÉ
+    ) {
       response = NextResponse.next();
     }
     else if (pathname.startsWith("/auth")) {
