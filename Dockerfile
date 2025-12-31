@@ -34,9 +34,9 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
 
 WORKDIR /app
 
-# 4. Installation dépendances (TOUTES, y compris devDependencies)
+# 4. Installation dépendances avec force clean
 COPY package*.json ./
-RUN npm ci && npm cache clean --force
+RUN rm -rf node_modules package-lock.json && npm install && npm cache clean --force
 
 # 5. Build
 COPY . .
