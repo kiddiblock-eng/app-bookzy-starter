@@ -27,22 +27,24 @@ RUN apt-get update && \
     done && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# 3. Configuration Puppeteer
+# 3. Configuration Puppeteer (SANS NODE_ENV pour l'instant)
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
-    NODE_ENV=production
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 WORKDIR /app
 
-# 4. Installation dépendances avec force clean
+# 4. Installation dépendances (avec devDependencies car NODE_ENV n'est pas encore production)
 COPY package*.json ./
-RUN rm -rf node_modules package-lock.json && npm install && npm cache clean --force
+RUN npm install && npm cache clean --force
 
 # 5. Build
 COPY . .
 RUN npm run build
 
+# 6. ✅ MAINTENANT on peut mettre NODE_ENV=production (après le build)
+ENV NODE_ENV=production
+
 EXPOSE 8080
 
-# 6. Démarrage avec limite RAM optimisée
+# 7. Démarrage avec limite RAM optimisée
 CMD ["sh", "-c", "node --max-old-space-size=16384 node_modules/.bin/next start -p ${PORT:-8080}"]
