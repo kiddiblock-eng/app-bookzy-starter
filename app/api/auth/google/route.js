@@ -3,13 +3,11 @@ import { NextResponse } from 'next/server';
 export async function GET(request) {
   const googleAuthUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
   
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.bookzy.io';
-  const redirectUri = `${baseUrl}/api/auth/google/callback`;
+  // ✅ Client ID hardcodé (public, donc safe - comme Stripe)
+  const clientId = '1033263723818-a8jrj1bgtqs8jegro77qbpcpam82950t.apps.googleusercontent.com';
+  const redirectUri = 'https://app.bookzy.io/api/auth/google/callback';
   
-  console.log('🔑 GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'Défini ✅' : '❌ MANQUANT');
-  console.log('🔗 Redirect URI:', redirectUri);
-  
-  googleAuthUrl.searchParams.set('client_id', process.env.GOOGLE_CLIENT_ID);
+  googleAuthUrl.searchParams.set('client_id', clientId);
   googleAuthUrl.searchParams.set('redirect_uri', redirectUri);
   googleAuthUrl.searchParams.set('response_type', 'code');
   googleAuthUrl.searchParams.set('scope', 'openid email profile');

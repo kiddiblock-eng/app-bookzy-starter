@@ -1,113 +1,118 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/db';
 import User from '@/models/User';
 import jwt from 'jsonwebtoken';
 
 export async function GET(request) {
-  const { searchParams } = new URL(request.url);
-  const code = searchParams.get('code');
-
-  console.log('🔵 Callback reçu avec code:', code ? 'OUI' : 'NON');
-
-  if (!code) {
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/auth/login?error=no_code`);
-  }
-
   try {
-    // 1. Échanger le code contre un access token
+    await dbConnect();
+
+    const { searchParams } = new URL(request.url);
+    const code = searchParams.get('code');
+
+    if (!code) {
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/auth/login?error=no_code`);
+    }
+
+    // ✅ Échange du code contre un access token
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         code,
-        client_id: process.env.GOOGLE_CLIENT_ID,
-        client_secret: process.env.GOOGLE_CLIENT_SECRET,
-        redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/google/callback`,
+        client_id: '1033263723818-a8jrj1bgtqs8jegro77qbpcpam82950t.apps.googleusercontent.com', // ✅ Hardcodé
+        client_secret: process.env.GOOGLE_CLIENT_SECRET, // 🔒 Reste en env var
+        redirect_uri: 'https://app.bookzy.io/api/auth/google/callback',
         grant_type: 'authorization_code',
       }),
     });
 
     const tokens = await tokenResponse.json();
-    console.log('🔵 Tokens reçus:', tokens);
 
     if (!tokens.access_token) {
-      throw new Error('No access token received');
+      console.error('❌ Token exchange failed:', tokens);
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/auth/login?error=token_failed`);
     }
 
-    // 2. Récupérer les infos utilisateur de Google
+    // ✅ Récupération des infos utilisateur
     const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: { Authorization: `Bearer ${tokens.access_token}` },
     });
 
-    const googleUser = await userInfoResponse.json();
-    console.log('🔵 User Google:', googleUser.email);
+    const profile = await userInfoResponse.json();
 
-    // 3. Créer ou récupérer l'utilisateur dans MongoDB
-    await dbConnect();
+    if (!profile.email) {
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/auth/login?error=no_email`);
+    }
 
-    let user = await User.findOne({ email: googleUser.email });
+    // ✅ Vérifier si l'utilisateur existe
+    let user = await User.findOne({ email: profile.email.toLowerCase() });
     let isNewUser = false;
 
     if (!user) {
-      // Créer un nouvel utilisateur
-      user = await User.create({
-        email: googleUser.email,
-        firstName: googleUser.given_name || '',
-        lastName: googleUser.family_name || '',
-        name: googleUser.name || `${googleUser.given_name} ${googleUser.family_name}`,
-        emailVerified: true,
+      // ✅ Créer un nouvel utilisateur
+      isNewUser = true;
+      user = new User({
+        email: profile.email.toLowerCase(),
+        name: profile.name || profile.email.split('@')[0],
+        firstName: profile.given_name || profile.name?.split(' ')[0] || '',
+        lastName: profile.family_name || profile.name?.split(' ').slice(1).join(' ') || '',
+        photo: profile.picture || null,
         authProvider: 'google',
-        googleId: googleUser.id,
-        avatar: googleUser.picture,
+        googleId: profile.id,
+        isActive: true,
+        emailVerified: true,
       });
 
-      isNewUser = true;
-      console.log('✅ Nouvel utilisateur Google créé:', user.email);
-    } else if (!user.googleId) {
-      // Lier le compte Google à un compte existant
-      user.googleId = googleUser.id;
-      user.authProvider = 'google';
-      user.emailVerified = true;
-      if (googleUser.picture && !user.avatar) {
-        user.avatar = googleUser.picture;
-      }
       await user.save();
-
-      console.log('✅ Compte Google lié à:', user.email);
     } else {
-      console.log('✅ Utilisateur Google existant connecté:', user.email);
+      // ✅ Mettre à jour les infos si nécessaire
+      if (!user.googleId) {
+        user.googleId = profile.id;
+        user.authProvider = 'google';
+      }
+      if (profile.picture && !user.photo) {
+        user.photo = profile.picture;
+      }
+      user.emailVerified = true;
+      await user.save();
     }
 
-    // 4. Créer un JWT pour la session
+    // ✅ Ajouter une valeur par défaut pour 'name' si absent
+    if (!user.name) {
+      user.name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email.split('@')[0];
+      await user.save();
+    }
+
+    // ✅ Générer le JWT avec 'id' (pas 'userId')
     const token = jwt.sign(
-      { id: user._id.toString(), email: user.email },
+      { id: user._id.toString(), email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    // 5. Déterminer la redirection
-    // ✅ CORRECTION : SEULEMENT les nouveaux users vont au setup
+    // ✅ Redirection selon le statut
     const redirectPath = isNewUser ? '/auth/callback-success' : '/dashboard';
 
-    console.log('🔵 isNewUser:', isNewUser);
-    console.log('🔵 Redirection vers:', redirectPath);
-
     const response = NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}${redirectPath}`);
-    
-    // 6. Créer le cookie de session
+
+    // ✅ Configuration cookie
+    const isProd = process.env.NODE_ENV === 'production';
+    const cookieDomain = isProd ? '.bookzy.io' : undefined;
+
     response.cookies.set('bookzy_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProd,
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 jours
       path: '/',
+      domain: cookieDomain,
+      maxAge: 60 * 60 * 24 * 7,
     });
 
-    console.log('✅ Cookie créé et redirection effectuée');
     return response;
-
   } catch (error) {
-    console.error('❌ Erreur OAuth Google:', error);
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/auth/login?error=oauth_failed`);
+    console.error('❌ Google OAuth callback error:', error);
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/auth/login?error=server_error`);
   }
 }
