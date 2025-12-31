@@ -1,13 +1,13 @@
 # 1. Image de base
 FROM node:20-bullseye-slim
 
-# 2. Installation de Chromium et des dépendances pour Puppeteer
-# Avec retry pour éviter les erreurs réseau temporaires
+# 2. Installation de Chromium avec retry + nettoyage agressif
 RUN apt-get update && \
     for i in 1 2 3; do \
       apt-get install -y \
         chromium \
         fonts-liberation \
+        fonts-noto-color-emoji \
         libnss3 \
         libatk-bridge2.0-0 \
         libdrm2 \
@@ -25,29 +25,24 @@ RUN apt-get update && \
         xdg-utils \
         --no-install-recommends && break || sleep 10; \
     done && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# 3. Configuration de Puppeteer pour utiliser Chromium installé
+# 3. Configuration Puppeteer
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
+    NODE_ENV=production
 
 WORKDIR /app
 
-# 4. Installation des dépendances
+# 4. Installation dépendances
 COPY package*.json ./
-RUN npm install
+RUN npm ci --only=production && npm cache clean --force
 
-# 5. Copie du code et Build
+# 5. Build
 COPY . .
 RUN npm run build
 
-# 6. Configuration de l'environnement de production
-ENV NODE_ENV=production
-
-# Railway utilise un port dynamique, nous ne forçons plus 8080 ici
 EXPOSE 8080
 
-# 7. COMMANDE DE DÉMARRAGE OPTIMISÉE
-# - On utilise 'node' directement pour injecter le paramètre de RAM (24Go sur tes 32Go)
-# - On utilise ${PORT:-8080} pour que Railway puisse connecter son réseau
-CMD ["sh", "-c", "node --max-old-space-size=24576 node_modules/.bin/next start -p ${PORT:-8080}"]
+# 6. Démarrage avec limite RAM optimisée (16Go au lieu de 24Go)
+CMD ["sh", "-c", "node --max-old-space-size=16384 node_modules/.bin/next start -p ${PORT:-8080}"]

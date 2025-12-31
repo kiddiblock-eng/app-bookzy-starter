@@ -30,14 +30,10 @@ function cleanMarkdown(text) {
     .replace(/```html/g, "") 
     .replace(/```/g, "")
     .replace(/---/g, "")
-    // ✅ FIX GEMINI: Supprimer caractères invisibles/contrôle (cause des rectangles)
     .replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200D\uFEFF]/g, "")
-    // ✅ OPTIONNEL: Supprimer emojis si problème persiste (décommenter si besoin)
-    // .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '')
     .trim();
 }
 
-// ✅ RETRY ROBUSTE avec 3 tentatives + délai progressif
 async function getAIWithRetry(context, prompt, maxTokens, retries = 3) {
     for (let i = 0; i < retries; i++) {
         try {
@@ -50,7 +46,7 @@ async function getAIWithRetry(context, prompt, maxTokens, retries = 3) {
                                  error.message.includes("429");
             
             if (isOverloaded && i < retries - 1) {
-                const waitTime = (i + 1) * 3000; // 3s, 6s, 9s
+                const waitTime = (i + 1) * 3000;
                 console.warn(`⚠️ IA Surchargée (Essai ${i+1}/${retries}). Pause ${waitTime}ms...`);
                 await delay(waitTime);
                 continue;
@@ -90,9 +86,6 @@ async function generatePhase1(projetId, userId, providedOutline) {
 
     console.log(`📊 [PHASE 1] Config: ${totalChapters} chapitres, ${wordsPerChapter} mots/chapitre, Template: ${template}`);
 
-    // ============================================================================
-    // ✅ OUTLINE
-    // ============================================================================
     let summaryText = "";
     if (providedOutline && Array.isArray(providedOutline) && providedOutline.length > 0) {
         console.log("✅ [PHASE 1] Utilisation outline fourni");
@@ -114,9 +107,6 @@ async function generatePhase1(projetId, userId, providedOutline) {
     await projet.save();
     console.log("✅ [PHASE 1] Outline sauvegardé");
 
-    // ============================================================================
-    // ✅ INTRODUCTION
-    // ============================================================================
     console.log("🤖 [PHASE 1] Génération introduction");
     const introWords = Math.floor(totalWordsTarget * 0.10);
     const introText = await getAIWithRetry(
@@ -166,7 +156,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
 
     const titre = projet.titre;
     const description = projet.description;
-    const template = projet.template || "modern"; // ✅ FIX: Utilise le template du projet
+    const template = projet.template || "modern";
     
     let authorName = "Auteur";
     try {
@@ -193,11 +183,8 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
 
     console.log("🤖 [PHASE 2] Début génération PAR BATCH (3 par 3) avec décalage");
     
-    // ============================================================================
-    // ✅ CHAPITRES - APPELS PARALLÈLES PAR BATCH DE 3 AVEC DÉCALAGE
-    // ============================================================================
     const chaptersArray = [];
-    const batchSize = 3; // ✅ 3 chapitres en parallèle
+    const batchSize = 3;
     
     for (let i = 0; i < totalChapters; i += batchSize) {
       const batch = [];
@@ -210,12 +197,11 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
         const chapterTitleMatch = summaryText.match(new RegExp(`Chapitre ${chapterNumber}\\s*[:：]\\s*(.+?)(?=\\n|$)`, 'i'));
         const chapterTitle = chapterTitleMatch ? chapterTitleMatch[1].trim() : `Chapitre ${chapterNumber}`;
         
-        // ✅ Décalage progressif : 0s, 2s, 4s
         const delayMs = (j - i) * 2000;
         
         batch.push(
           (async () => {
-            await delay(delayMs); // ✅ Décalage
+            await delay(delayMs);
             
             let chapterText = "";
             let retryCount = 0;
@@ -259,19 +245,15 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
         );
       }
       
-      // ✅ Attendre que le batch se termine
       const batchResults = await Promise.all(batch);
       
-      // ✅ Insérer dans l'ordre
       batchResults.forEach(({ index, content }) => {
         chaptersArray[index] = content;
       });
       
-      // ✅ Update progress
       const newProgress = 30 + Math.floor(((i + batchSize) / totalChapters) * 40);
       await Projet.findByIdAndUpdate(projetId, { progress: Math.min(newProgress, 70) });
       
-      // ✅ Pause entre batches (sauf dernier)
       if (i + batchSize < totalChapters) {
         console.log("⏸️ [PHASE 2] Pause 3s avant batch suivant...");
         await delay(3000);
@@ -280,11 +262,8 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     
     console.log(`✅ [PHASE 2] ${chaptersArray.length}/${totalChapters} chapitres générés`);
 
-    // ============================================================================
-    // ✅ CONCLUSION
-    // ============================================================================
     console.log("🤖 [PHASE 2] Génération conclusion");
-    await delay(2000); // ✅ Pause avant conclusion
+    await delay(2000);
     
     let conclusionText = "";
     try {
@@ -302,11 +281,8 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     projet.progress = 70;
     await projet.save();
 
-    // ============================================================================
-    // ✅ ADS (Facebook, WhatsApp, Landing)
-    // ============================================================================
     console.log("🤖 [PHASE 2] Génération ads");
-    await delay(2000); // ✅ Pause avant ads
+    await delay(2000);
     
     let adsTexts = { facebook: "", whatsapp: "", long: "", landing: "" };
     try {
@@ -340,7 +316,6 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       console.log("✅ [PHASE 2] Ads terminées");
     } catch (err) {
       console.error("❌ [PHASE 2] Ads ÉCHOUÉES:", err.message);
-      // ✅ Fallback ads
       adsTexts = {
         facebook: `🚀 Découvrez "${titre}" - Le guide complet pour réussir !`,
         whatsapp: `Bonjour ! Notre nouveau guide "${titre}" est disponible. Commandez maintenant !`,
@@ -349,9 +324,6 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       };
     }
 
-    // ============================================================================
-    // ✅ SAUVEGARDE TEXTE
-    // ============================================================================
     console.log(`✅ [PHASE 2] ${chaptersArray.length}/${totalChapters} chapitres générés avec succès`);
     
     projet.chapters = chaptersArray.join("\n\n");
@@ -363,7 +335,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     console.log("💾 [PHASE 2] Texte sauvegardé");
 
     // ============================================================================
-    // 🚀 PDF ULTRA-OPTIMISÉ
+    // 🚀 PDF ULTRA-ROBUSTE - GESTION MÉMOIRE + TIMEOUT + RETRY
     // ============================================================================
     console.log("📄 [PHASE 2] Génération PDF");
     
@@ -375,7 +347,6 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
         };
     });
 
-    // ✅ FIX CRITIQUE: Utilise le template du PROJET, pas "minimal"
     const html = generateStyledHTML({
       title: titre || "Mon Ebook",
       author: authorName, 
@@ -384,9 +355,8 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       conclusion: cleanMarkdown(conclusionText),
       chaptersData: chaptersStruct,
       coverImage: null 
-    }, template); // ✅ Utilise projet.template au lieu de "minimal"
+    }, template);
     
-    // ✅ FIX EMOJI: Ajouter support emoji dans le HTML
     const htmlWithEmoji = `
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
@@ -399,94 +369,116 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
 
     console.log(`🌐 [PHASE 2] Génération PDF avec template: ${template}`);
     
-    let browser;
-    try {
-      browser = await puppeteer.launch({
-        headless: 'new',
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-gpu',
-          '--no-zygote',
-          '--single-process',
-          '--disable-software-rasterizer',
-          '--disable-extensions',
-          '--disable-background-networking',
-          '--disable-default-apps',
-          '--disable-sync',
-          '--disable-translate',
-          '--hide-scrollbars',
-          '--metrics-recording-only',
-          '--mute-audio',
-          '--no-first-run',
-          '--safebrowsing-disable-auto-update',
-          '--disable-features=IsolateOrigins,site-per-process',
-          '--js-flags=--max-old-space-size=512',
-        ],
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
-        timeout: 90000,
-        protocolTimeout: 90000,
-      });
+    let browser = null;
+    let pdfBuffer = null;
+    const MAX_PDF_RETRIES = 3;
 
-      console.log("✅ [PHASE 2] Browser lancé");
+    for (let pdfAttempt = 1; pdfAttempt <= MAX_PDF_RETRIES; pdfAttempt++) {
+      try {
+        console.log(`🔄 [PHASE 2] Tentative PDF ${pdfAttempt}/${MAX_PDF_RETRIES}`);
+        
+        browser = await puppeteer.launch({
+          headless: 'new',
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--no-zygote',
+            '--single-process',
+            '--disable-software-rasterizer',
+            '--disable-extensions',
+            '--disable-background-networking',
+            '--disable-default-apps',
+            '--disable-sync',
+            '--disable-translate',
+            '--hide-scrollbars',
+            '--metrics-recording-only',
+            '--mute-audio',
+            '--no-first-run',
+            '--safebrowsing-disable-auto-update',
+            '--disable-features=IsolateOrigins,site-per-process',
+            '--js-flags=--max-old-space-size=256',
+            '--disable-web-security',
+          ],
+          executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
+          timeout: 60000,
+          protocolTimeout: 60000,
+        });
 
-      const page = await browser.newPage();
-      
-      // ✅ FIX GEMINI: networkidle0 au lieu de domcontentloaded
-      // Attend que TOUTES les polices Google Fonts soient chargées
-      await page.setContent(htmlWithEmoji, { 
-        waitUntil: "networkidle0", // ✅ Attend réseau complètement inactif
-        timeout: 90000 // ✅ Augmenté à 90s pour laisser temps aux polices
-      });
-      
-      console.log("✅ [PHASE 2] HTML chargé");
+        console.log("✅ [PHASE 2] Browser lancé");
 
-      const pdfBuffer = await page.pdf({
-        format: "A4",
-        printBackground: true,
-        margin: { top: "0mm", bottom: "0mm" },
-        timeout: 60000
-      });
+        const page = await browser.newPage();
+        
+        await page.setViewport({ width: 800, height: 600 });
+        
+        await page.setContent(htmlWithEmoji, { 
+          waitUntil: "networkidle0",
+          timeout: 45000
+        });
+        
+        console.log("✅ [PHASE 2] HTML chargé");
 
-      await browser.close();
-      console.log("✅ [PHASE 2] PDF généré");
+        pdfBuffer = await page.pdf({
+          format: "A4",
+          printBackground: true,
+          margin: { top: "0mm", bottom: "0mm" },
+          timeout: 30000
+        });
 
-      console.log("☁️ [PHASE 2] Upload Cloudinary - DÉBUT");
-      const uploadStartTime = Date.now();
-      
-      const pdfUpload = await uploadBufferToCloudinary(pdfBuffer, {
-        folder: "bookzy/ebooks",
-        publicId: `${titre || "ebook"}-${projetId}`,
-        resourceType: "raw",
-        extension: "pdf",
-        timeout: 60000
-      });
+        await browser.close();
+        browser = null;
+        
+        console.log("✅ [PHASE 2] PDF généré avec succès");
+        break;
 
-      console.log(`✅ [PHASE 2] Upload terminé en ${Date.now() - uploadStartTime}ms`);
-
-      projet.pdfUrl = pdfUpload.secure_url;
-      projet.status = "COMPLETED";
-      projet.progress = 100;
-      projet.completedAt = new Date();
-      await projet.save();
-      console.log("✅ [PHASE 2] Projet COMPLETED");
-      console.log("🎉 [PHASE 2] PDF:", pdfUpload.secure_url);
-
-    } catch (pdfError) {
-      console.error("❌ [PHASE 2] Erreur PDF:", pdfError.message);
-      console.error("❌ [PHASE 2] Stack:", pdfError.stack);
-      
-      if (browser) {
-        try { await browser.close(); } catch(e) {}
+      } catch (pdfError) {
+        console.error(`❌ [PHASE 2] Tentative ${pdfAttempt} échouée:`, pdfError.message);
+        
+        if (browser) {
+          try { 
+            await browser.close(); 
+            console.log("🔒 [PHASE 2] Browser fermé après erreur");
+          } catch(e) {
+            console.error("⚠️ [PHASE 2] Impossible de fermer browser:", e.message);
+          }
+          browser = null;
+        }
+        
+        if (pdfAttempt >= MAX_PDF_RETRIES) {
+          throw new Error(`PDF échoué après ${MAX_PDF_RETRIES} tentatives: ${pdfError.message}`);
+        }
+        
+        console.log(`⏸️ [PHASE 2] Pause 5s avant retry...`);
+        await delay(5000);
       }
-      
-      throw new Error(`Erreur génération PDF: ${pdfError.message}`);
     }
 
-    // ============================================================================
-    // ✅ EMAIL
-    // ============================================================================
+    if (!pdfBuffer) {
+      throw new Error("PDF buffer vide après toutes les tentatives");
+    }
+
+    console.log("☁️ [PHASE 2] Upload Cloudinary - DÉBUT");
+    const uploadStartTime = Date.now();
+    
+    const pdfUpload = await uploadBufferToCloudinary(pdfBuffer, {
+      folder: "bookzy/ebooks",
+      publicId: `${titre || "ebook"}-${projetId}`,
+      resourceType: "raw",
+      extension: "pdf",
+      timeout: 60000
+    });
+
+    console.log(`✅ [PHASE 2] Upload terminé en ${Date.now() - uploadStartTime}ms`);
+
+    projet.pdfUrl = pdfUpload.secure_url;
+    projet.status = "COMPLETED";
+    projet.progress = 100;
+    projet.completedAt = new Date();
+    await projet.save();
+    console.log("✅ [PHASE 2] Projet COMPLETED");
+    console.log("🎉 [PHASE 2] PDF:", pdfUpload.secure_url);
+
     if (userId) {
       try {
         const user = await User.findById(userId);
@@ -577,7 +569,6 @@ export async function POST(req) {
       
       userId = projet.userId?._id || projet.userId;
     } else {
-        // --- CAS D'UN NOUVEAU PROJET ---
         if (transactionId) {
             const existing = await Projet.findOne({ transactionId });
             if (existing) {
@@ -592,7 +583,6 @@ export async function POST(req) {
             }
         }
         
-        // ✅ 1. Récupération des données du body
         let { titre, description, tone, audience, pages, chapters, template: bodyTemplate, outline: bodyOutline } = body;
         
         let templateFinal; 
@@ -600,14 +590,12 @@ export async function POST(req) {
 
         console.log("📥 [POST] Body reçu - bodyTemplate:", bodyTemplate);
 
-        // ✅ 2. TRANSACTION = SOURCE DE VÉRITÉ (Priorité sur le body)
         if (transactionId) {
             const tx = await Transaction.findById(transactionId);
             if (tx?.kitData) {
                 console.log("📦 [POST] Transaction trouvée - kitData:", tx.kitData);
                 console.log("🎨 [POST] kitData.template:", tx.kitData.template);
                 
-                // On utilise les données que l'utilisateur a validées lors du paiement
                 titre = tx.kitData.title || titre;
                 description = tx.kitData.description || description;
                 tone = tx.kitData.tone || tone;
@@ -616,7 +604,6 @@ export async function POST(req) {
                 chapters = tx.kitData.chapters || chapters;
                 outlineFinal = tx.kitData.outline || bodyOutline;
                 
-                // ✅ FIX : On prend le template payé, même si le body renvoie "modern" par défaut
                 templateFinal = tx.kitData.template || bodyTemplate;
                 
                 console.log("🎨 [POST] Template FINAL (de la transaction):", templateFinal);
@@ -629,13 +616,11 @@ export async function POST(req) {
             console.log("🎨 [POST] Template FINAL (du body, pas de transaction):", templateFinal);
         }
 
-        // ✅ 3. Validation finale du template
         const validTemplates = ["modern", "luxe", "educatif", "energie", "minimal", "creative"];
         const validatedTemplate = validTemplates.includes(templateFinal) ? templateFinal : "modern";
         
         console.log("✅ [POST] Template validé pour création:", validatedTemplate);
 
-        // ✅ 4. Création du projet en base
         projet = await Projet.create({
             userId,
             transactionId,
@@ -645,7 +630,7 @@ export async function POST(req) {
             audience, 
             pages: pages || 20,
             chapters: chapters || 5,
-            template: validatedTemplate, // ✅ On enregistre bien le template choisi
+            template: validatedTemplate,
             isPaid: true,
             status: "processing",
             progress: 5
@@ -657,7 +642,6 @@ export async function POST(req) {
         console.log(`✅ [POST] Projet créé avec succès - Template: ${validatedTemplate}`);
     }
     
-    // ✅ Lancement asynchrone des phases de génération
     generatePhase1(projet._id, userId, outline);
     
     return NextResponse.json({ 
