@@ -122,25 +122,113 @@ function NouveauProjetPageContent() {
 
   // TÉLÉCHARGEMENT COUVERTURE 3D
   const handleDownloadCover = async () => {
-    if (!bookRef.current) return;
-    setIsDownloadingCover(true);
-    try {
-      const dataUrl = await toPng(bookRef.current, {
-        cacheBust: true,
-        pixelRatio: 8,
-        skipFonts: false,
-        fontEmbedCSS: true
-      });
+  if (!bookRef.current) return;
+  setIsDownloadingCover(true);
+  
+  try {
+    const dataUrl = await toPng(bookRef.current, {
+      cacheBust: true,
+      pixelRatio: 8,
+      skipFonts: false,
+      fontEmbedCSS: true
+    });
+    
+    // ✅ Détection mobile
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      // 🔥 MÉTHODE MOBILE : Ouvre dans un nouvel onglet
+      const newWindow = window.open();
+      if (newWindow) {
+        newWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Couverture 3D - Bookzy</title>
+              <meta name="viewport" content="width=device-width, initial-scale=1">
+              <style>
+                body { 
+                  margin: 0; 
+                  padding: 20px; 
+                  background: #0f172a; 
+                  display: flex; 
+                  flex-direction: column; 
+                  align-items: center; 
+                  justify-content: center; 
+                  min-height: 100vh; 
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+                }
+                img { 
+                  max-width: 90%; 
+                  height: auto; 
+                  border-radius: 12px; 
+                  box-shadow: 0 20px 60px rgba(99, 102, 241, 0.3); 
+                  margin-bottom: 24px;
+                }
+                .instructions {
+                  color: #e2e8f0;
+                  text-align: center;
+                  margin: 20px 0;
+                  font-size: 14px;
+                  max-width: 300px;
+                  line-height: 1.6;
+                }
+                .btn {
+                  display: inline-block;
+                  margin-top: 20px;
+                  padding: 14px 28px;
+                  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                  color: white;
+                  text-decoration: none;
+                  border-radius: 12px;
+                  font-weight: bold;
+                  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+                  transition: transform 0.2s;
+                }
+                .btn:active {
+                  transform: scale(0.95);
+                }
+                .logo {
+                  color: #818cf8;
+                  font-size: 12px;
+                  margin-top: 30px;
+                  font-weight: bold;
+                }
+              </style>
+            </head>
+            <body>
+              <img src="${dataUrl}" alt="Couverture 3D" />
+              <p class="instructions">
+                📱 <strong>Appuyez longuement</strong> sur l'image pour l'enregistrer dans votre galerie
+              </p>
+              <a href="${dataUrl}" download="bookzy-cover-3d.png" class="btn">
+                📥 Télécharger l'image
+              </a>
+              <p class="logo">⚡ Bookzy Studio</p>
+            </body>
+          </html>
+        `);
+        newWindow.document.close();
+      } else {
+        alert("Veuillez autoriser les popups pour télécharger la couverture");
+      }
+    } else {
+      // 🔥 MÉTHODE DESKTOP : Téléchargement classique
       const link = document.createElement('a');
-      link.download = `bookzy-cover-3d.png`;
+      link.download = `bookzy-cover-3d-${Date.now()}.png`;
       link.href = dataUrl;
+      document.body.appendChild(link);
       link.click();
-    } catch (err) {
-      console.error("Erreur capture:", err);
-    } finally {
-      setIsDownloadingCover(false);
+      document.body.removeChild(link);
     }
-  };
+    
+  } catch (err) {
+    console.error("❌ Erreur capture:", err);
+    alert("Erreur lors de la capture. Veuillez réessayer.");
+  } finally {
+    setIsDownloadingCover(false);
+  }
+};
 
   useEffect(() => {
     async function fetchPrice() {

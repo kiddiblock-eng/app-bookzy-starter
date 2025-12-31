@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db.js";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
@@ -9,23 +10,28 @@ export async function POST(req) {
     await dbConnect();
 
     // 🔒 Authentification
-    const token = cookies().get("bookzy_token")?.value;
-    if (!token)
-      return new Response(
-        JSON.stringify({ message: "Utilisateur non authentifié" }),
+    const cookieStore = cookies();
+    const token = cookieStore.get("bookzy_token")?.value;
+    
+    if (!token) {
+      return NextResponse.json(
+        { success: false, message: "Utilisateur non authentifié" },
         { status: 401 }
       );
+    }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.id;
 
     const body = await req.json();
+    
+    console.log("📥 [AJOUTER] Body reçu:", body);
 
     // 🧩 Contenu automatique du kit
     const contenu = [
       {
         id: "ebook",
-        nom: `${body.titre}.pdf`,
+        nom: `${body.titre || 'ebook'}.pdf`,
         url: "/kits/ebook.pdf",
         format: "PDF",
         taille: "2.4 Mo",
@@ -51,53 +57,41 @@ export async function POST(req) {
         format: "PNG",
         taille: "1.6 Mo",
       },
-      {
-        id: "texte1",
-        nom: "Texte de vente 1.txt",
-        url: "/kits/texte1.txt",
-        format: "TXT",
-        taille: "4 Ko",
-      },
-      {
-        id: "texte2",
-        nom: "Texte de vente 2.txt",
-        url: "/kits/texte2.txt",
-        format: "TXT",
-        taille: "5 Ko",
-      },
-      {
-        id: "texte3",
-        nom: "Texte de vente 3.txt",
-        url: "/kits/texte3.txt",
-        format: "TXT",
-        taille: "6 Ko",
-      },
-      {
-        id: "description",
-        nom: "Description du produit.txt",
-        url: "/kits/description.txt",
-        format: "TXT",
-        taille: "3 Ko",
-      },
     ];
 
-    // 💾 Création du projet
+    // 💾 Création du projet avec les BONS champs
     const projet = await Projet.create({
-      ...body,
       userId,
+      titre: body.titre,
+      description: body.description,
+      pages: parseInt(body.pages) || 20,
+      chapters: parseInt(body.chapitres) || 5, // ✅ Frontend envoie "chapitres", modèle attend "chapters"
+      tone: body.ton || "professionnel", // ✅ Frontend envoie "ton", modèle attend "tone"
+      audience: body.audience || "Débutants",
+      template: body.template || "modern",
+      summary: body.outline ? body.outline.join("\n") : "", // ✅ Sauvegarde l'outline
       contenu,
-      statut: "en cours",
+      status: "DRAFT", // ✅ "status" pas "statut"
       isPaid: false,
+      progress: 0
     });
 
-    return new Response(
-      JSON.stringify({ success: true, projet }),
-      { status: 201 }
-    );
+    console.log("✅ [AJOUTER] Projet créé:", projet._id);
+
+    return NextResponse.json({ 
+      success: true, 
+      projet: {
+        _id: projet._id.toString(),
+        titre: projet.titre,
+        template: projet.template,
+        summary: projet.summary
+      }
+    }, { status: 201 });
+
   } catch (error) {
     console.error("❌ Erreur /api/projets/ajouter :", error);
-    return new Response(
-      JSON.stringify({ message: "Erreur serveur", error: error.message }),
+    return NextResponse.json(
+      { success: false, message: "Erreur serveur", error: error.message },
       { status: 500 }
     );
   }

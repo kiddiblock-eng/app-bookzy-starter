@@ -31,8 +31,11 @@ const ProjetSchema = new mongoose.Schema(
       default: "DRAFT",
     },
 
-    // Progression affichée à l’utilisateur
+    // Progression affichée à l'utilisateur
     progress: { type: Number, default: 0 },
+    
+    // Message d'erreur si statut ERROR
+    errorMessage: { type: String },
 
     // ————————————————————————
     // 🟩 CONTENU TEXTE (4 étapes IA)
@@ -54,6 +57,7 @@ const ProjetSchema = new mongoose.Schema(
       facebook: { type: String },
       whatsapp: { type: String },
       long: { type: String },
+      landing: { type: String } // ✅ Ajouté
     },
 
     marketingDescription: { type: String },
@@ -62,18 +66,24 @@ const ProjetSchema = new mongoose.Schema(
       {
         nom: String,
         url: String,
+        format: String,
+        taille: String
       },
     ],
 
     isPaid: { type: Boolean, default: false },
+    transactionId: { type: String }, // ✅ AJOUTÉ
     paymentId: { type: String },
     paidAt: { type: Date },
+    completedAt: { type: Date }, // ✅ AJOUTÉ
 
     kitUrl: { type: String },
   },
   { timestamps: true }
 );
+
 ProjetSchema.index({ userId: 1, createdAt: -1 });
 ProjetSchema.index({ userId: 1, status: 1 });
+ProjetSchema.index({ transactionId: 1 }); // ✅ AJOUTÉ pour recherche rapide
 
 export default mongoose.models.Projet || mongoose.model("Projet", ProjetSchema);
