@@ -398,7 +398,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
             '--no-first-run',
             '--safebrowsing-disable-auto-update',
             '--disable-features=IsolateOrigins,site-per-process',
-            '--js-flags=--max-old-space-size=256',
+            '--js-flags=--max-old-space-size=1024',
             '--disable-web-security',
           ],
           executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
