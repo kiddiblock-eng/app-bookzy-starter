@@ -34,9 +34,9 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
 
 WORKDIR /app
 
-# 4. Installation dépendances
+# 4. Installation dépendances (TOUTES, y compris devDependencies)
 COPY package*.json ./
-RUN npm ci --only=production && npm cache clean --force
+RUN npm ci && npm cache clean --force
 
 # 5. Build
 COPY . .
@@ -44,5 +44,5 @@ RUN npm run build
 
 EXPOSE 8080
 
-# 6. Démarrage avec limite RAM optimisée (16Go au lieu de 24Go)
+# 6. Démarrage avec limite RAM optimisée
 CMD ["sh", "-c", "node --max-old-space-size=16384 node_modules/.bin/next start -p ${PORT:-8080}"]
