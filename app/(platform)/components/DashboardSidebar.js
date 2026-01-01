@@ -168,57 +168,56 @@ export default function DashboardSidebar({ open, setOpen }) {
         </div>
       </aside>
 
-      {/* SIDEBAR MOBILE - ✅ POLICES AGRANDIES SANS SCROLL */}
+      {/* SIDEBAR MOBILE - ✅ ULTRA COMPACT UNIVERSEL */}
       {open && (
         <>
           <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 lg:hidden" onClick={() => setOpen(false)} />
-          <div className={`fixed lg:hidden top-0 left-0 z-50 w-[85%] max-w-[320px] h-full bg-white shadow-2xl flex flex-col transform transition-transform duration-300 ${open ? "translate-x-0" : "-translate-x-full"}`}>
-             {/* ✅ HEADER AGRANDI */}
-        
-<div className="h-20 flex items-center justify-between px-6 border-b border-slate-50 flex-shrink-0">
-   <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
-       <div className="w-7 h-7 rounded-lg bg-slate-900 flex items-center justify-center">
-         <BookOpenSVG className="w-3.5 h-3.5 text-white" />
-       </div>
-       <span className="text-lg font-extrabold text-slate-900">Bookzy</span>
-   </Link>
-   <button onClick={() => setOpen(false)} className="p-2 text-slate-400 bg-slate-50 rounded-full">
-     <ChevronRight size={20} className="rotate-180" />
-   </button>
-</div>
+          <div className={`fixed lg:hidden top-0 left-0 z-50 w-[85%] max-w-[300px] h-full bg-white shadow-2xl flex flex-col transform transition-transform duration-300 ${open ? "translate-x-0" : "-translate-x-full"}`}>
+             {/* ✅ HEADER ULTRA COMPACT */}
+             <div className="h-14 flex items-center justify-between px-4 border-b border-slate-50 flex-shrink-0">
+                <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
+                    <div className="w-7 h-7 rounded-lg bg-slate-900 flex items-center justify-center">
+                      <BookOpenSVG className="w-3.5 h-3.5 text-white" />
+                    </div>
+                    <span className="text-base font-extrabold text-slate-900">Bookzy</span>
+                </Link>
+                <button onClick={() => setOpen(false)} className="p-1.5 text-slate-400 bg-slate-50 rounded-full">
+                  <ChevronRight size={16} className="rotate-180" />
+                </button>
+             </div>
 
-             {/* ✅ BOUTON GÉNÉRER EBOOK AGRANDI */}
-             <div className="px-6 py-4 border-b border-slate-50 flex-shrink-0">
+             {/* ✅ BOUTON GÉNÉRER EBOOK COMPACT */}
+             <div className="px-4 py-2 border-b border-slate-50 flex-shrink-0">
                 <Link
                     href="/dashboard/projets/nouveau"
                     onClick={() => setOpen(false)}
                     prefetch={true}
-                    className="w-full flex items-center justify-center gap-2.5 py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold shadow-lg transition-all active:scale-[0.98]"
+                    className="w-full flex items-center justify-center gap-2 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold shadow-lg transition-all active:scale-[0.98]"
                 >
-                    <Plus size={18} strokeWidth={3} />
-                    <span className="text-sm">Générer un ebook</span>
+                    <Plus size={14} strokeWidth={3} />
+                    <span className="text-xs">Générer un ebook</span>
                 </Link>
              </div>
 
-             {/* ✅ NAV SANS SCROLL + TEXTE AGRANDI */}
-             <nav className="flex-1 px-5 py-3 flex flex-col gap-4 overflow-hidden">
+             {/* ✅ NAV ULTRA COMPACT - AUCUN SCROLL */}
+             <nav className="flex-1 px-3 py-1.5 flex flex-col gap-1.5 overflow-hidden">
                 {sidebarConfig.map((section) => (
                   <div key={section.title}>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">{section.title}</p>
-                    <ul className="space-y-1">
+                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-0.5 px-1.5">{section.title}</p>
+                    <ul className="space-y-0">
                         {section.items.map(({ label, href, icon: Icon, badge, isSpecial }) => (
                             <li key={href}>
                                 <Link 
                                   href={href} 
                                   onClick={() => setOpen(false)} 
                                   prefetch={true}
-                                  className="flex items-center justify-between px-3 py-2.5 text-slate-600 font-medium hover:bg-slate-50 rounded-xl transition-colors"
+                                  className="flex items-center justify-between px-2 py-1.5 text-slate-600 font-medium hover:bg-slate-50 rounded-lg transition-colors"
                                 >
-                                    <div className="flex items-center gap-3">
-                                        <Icon size={19} className={isSpecial ? "text-red-500" : ""} />
-                                        <span className="text-sm font-medium">{label}</span>
+                                    <div className="flex items-center gap-2">
+                                        <Icon size={15} className={isSpecial ? "text-red-500" : "text-slate-500"} />
+                                        <span className="text-xs">{label}</span>
                                     </div>
-                                    {badge && <span className={`text-[9px] font-bold px-2 py-0.5 rounded ${badge === "NOUVEAU" ? "bg-red-600 text-white" : "bg-orange-500 text-white"}`}>{badge === "NOUVEAU" ? "NEW" : "HOT"}</span>}
+                                    {badge && <span className={`text-[7px] font-bold px-1 py-0.5 rounded ${badge === "NOUVEAU" ? "bg-red-600 text-white" : "bg-orange-500 text-white"}`}>{badge === "NOUVEAU" ? "NEW" : "HOT"}</span>}
                                 </Link>
                             </li>
                         ))}
@@ -226,19 +225,19 @@ export default function DashboardSidebar({ open, setOpen }) {
                   </div>
                 ))}
 
-                {/* ✅ SECTION AIDE AGRANDIE */}
-                <div className="pt-3 border-t border-slate-100">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Aide</p>
-                  <ul className="space-y-1">
+                {/* ✅ SECTION AIDE COMPACTE */}
+                <div className="pt-1 border-t border-slate-100">
+                  <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-0.5 px-1.5">Aide</p>
+                  <ul className="space-y-0">
                     {bottomItems.map(({ label, href, icon: Icon }) => (
                       <li key={href}>
                         <Link 
                           href={href} 
                           onClick={() => setOpen(false)} 
                           prefetch={true}
-                          className="flex items-center gap-3 px-3 py-2.5 text-slate-600 text-sm font-medium hover:bg-slate-50 rounded-xl transition-colors"
+                          className="flex items-center gap-2 px-2 py-1.5 text-slate-600 text-xs font-medium hover:bg-slate-50 rounded-lg transition-colors"
                         >
-                          <Icon size={19} />
+                          <Icon size={15} className="text-slate-500" />
                           <span>{label}</span>
                         </Link>
                       </li>
@@ -247,10 +246,10 @@ export default function DashboardSidebar({ open, setOpen }) {
                 </div>
              </nav>
              
-             {/* ✅ BOUTON DÉCONNEXION AGRANDI */}
-             <div className="p-5 bg-slate-50 border-t flex-shrink-0">
-                <button onClick={handleLogout} className="w-full py-3 flex items-center justify-center gap-2.5 text-sm text-red-600 font-bold bg-white border border-slate-200 rounded-xl hover:bg-red-50 transition-all active:scale-[0.98]">
-                    <LogOut size={17} /> 
+             {/* ✅ BOUTON DÉCONNEXION ULTRA COMPACT */}
+             <div className="p-2.5 bg-slate-50 border-t flex-shrink-0">
+                <button onClick={handleLogout} className="w-full py-2 flex items-center justify-center gap-1.5 text-xs text-red-600 font-bold bg-white border border-slate-200 rounded-lg hover:bg-red-50 transition-all active:scale-[0.98]">
+                    <LogOut size={14} /> 
                     <span>Déconnexion</span>
                 </button>
              </div>
