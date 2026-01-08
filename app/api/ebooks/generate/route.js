@@ -335,10 +335,17 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     console.log("💾 [PHASE 2] Texte sauvegardé");
 
     // ============================================================================
-    // 🚀 PDF ULTRA-ROBUSTE - GESTION MÉMOIRE + TIMEOUT + RETRY
+    // 🚀 PDF ULTRA-ROBUSTE - VERSION FINALE SANS ERREUR
     // ============================================================================
-    console.log("📄 [PHASE 2] Génération PDF");
-    
+    console.log("📄 [PHASE 2] Génération PDF - DÉBUT");
+    console.log(`⏰ [PHASE 2] Timestamp: ${new Date().toISOString()}`);
+
+    // ✅ Log RAM avant génération
+    try {
+      const memUsage = process.memoryUsage();
+      console.log(`💾 [PHASE 2] RAM avant PDF: ${Math.round(memUsage.heapUsed / 1024 / 1024)}MB / ${Math.round(memUsage.heapTotal / 1024 / 1024)}MB`);
+    } catch(e) {}
+
     const chaptersStruct = chaptersArray.map((c, i) => {
         const titleMatch = summaryText.match(new RegExp(`Chapitre ${i+1}\\s*[:：]\\s*(.+?)(?=\\n|$)`, 'i'));
         return { 
@@ -356,7 +363,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       chaptersData: chaptersStruct,
       coverImage: null 
     }, template);
-    
+
     const htmlWithEmoji = `
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
@@ -367,8 +374,8 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     ${html}
     `;
 
-    console.log(`🌐 [PHASE 2] Génération PDF avec template: ${template}`);
-    
+    console.log(`🌐 [PHASE 2] HTML généré (${Math.round(htmlWithEmoji.length / 1024)}KB) - Template: ${template}`);
+
     let browser = null;
     let pdfBuffer = null;
     const MAX_PDF_RETRIES = 3;
@@ -376,16 +383,18 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     for (let pdfAttempt = 1; pdfAttempt <= MAX_PDF_RETRIES; pdfAttempt++) {
       try {
         console.log(`🔄 [PHASE 2] Tentative PDF ${pdfAttempt}/${MAX_PDF_RETRIES}`);
+        console.log(`⏰ [PHASE 2] Timestamp tentative: ${new Date().toISOString()}`);
         
-        browser = await puppeteer.launch({
+        // ✅ Options Chromium ultra-optimisées
+        const launchOptions = {
           headless: 'new',
           args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
+            '--disable-dev-shm-usage', // ✅ CRITIQUE
             '--disable-gpu',
             '--no-zygote',
-            '--single-process',
+            '--single-process', // ✅ CRITIQUE pour économiser RAM
             '--disable-software-rasterizer',
             '--disable-extensions',
             '--disable-background-networking',
@@ -398,62 +407,98 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
             '--no-first-run',
             '--safebrowsing-disable-auto-update',
             '--disable-features=IsolateOrigins,site-per-process',
-            '--js-flags=--max-old-space-size=1024',
+            '--js-flags=--max-old-space-size=1024', // ✅ 1Go Chromium
             '--disable-web-security',
+            '--disable-accelerated-2d-canvas', // ✅ Économise GPU/RAM
+            '--disable-dev-tools', // ✅ Économise RAM
           ],
           executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
-          timeout: 60000,
-          protocolTimeout: 60000,
-        });
-
-        console.log("✅ [PHASE 2] Browser lancé");
+          timeout: 90000, // ✅ 90s
+          protocolTimeout: 90000,
+        };
+        
+        console.log(`🚀 [PHASE 2] Lancement Chromium...`);
+        browser = await puppeteer.launch(launchOptions);
+        console.log("✅ [PHASE 2] Browser lancé avec succès");
 
         const page = await browser.newPage();
+        console.log("✅ [PHASE 2] Page créée");
         
         await page.setViewport({ width: 800, height: 600 });
+        console.log("✅ [PHASE 2] Viewport configuré");
         
+        console.log(`📝 [PHASE 2] Chargement HTML...`);
         await page.setContent(htmlWithEmoji, { 
           waitUntil: "networkidle0",
-          timeout: 45000
+          timeout: 60000 // ✅ 60s pour Google Fonts
         });
-        
-        console.log("✅ [PHASE 2] HTML chargé");
+        console.log("✅ [PHASE 2] HTML chargé dans le navigateur");
 
+        // ✅ Pause pour stabilisation
+        console.log("⏳ [PHASE 2] Pause 2s pour stabilisation...");
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        console.log("🖨️ [PHASE 2] Génération du PDF...");
         pdfBuffer = await page.pdf({
           format: "A4",
           printBackground: true,
           margin: { top: "0mm", bottom: "0mm" },
-          timeout: 30000
+          timeout: 45000 // ✅ 45s max
         });
+        console.log(`✅ [PHASE 2] PDF généré (${Math.round(pdfBuffer.length / 1024)}KB)`);
 
+        // ✅ CRITIQUE : Fermer immédiatement
+        console.log("🔒 [PHASE 2] Fermeture browser...");
         await browser.close();
         browser = null;
+        console.log("✅ [PHASE 2] Browser fermé avec succès");
         
-        console.log("✅ [PHASE 2] PDF généré avec succès");
-        break;
+        // ✅ Log RAM après génération réussie
+        try {
+          const memUsage = process.memoryUsage();
+          console.log(`💾 [PHASE 2] RAM après PDF: ${Math.round(memUsage.heapUsed / 1024 / 1024)}MB`);
+        } catch(e) {}
+        
+        break; // ✅ Sortir de la boucle retry
 
       } catch (pdfError) {
-        console.error(`❌ [PHASE 2] Tentative ${pdfAttempt} échouée:`, pdfError.message);
+        console.error(`❌ [PHASE 2] Tentative ${pdfAttempt} ÉCHOUÉE`);
+        console.error(`❌ [PHASE 2] Type d'erreur: ${pdfError.name}`);
+        console.error(`❌ [PHASE 2] Message: ${pdfError.message}`);
+        console.error(`❌ [PHASE 2] Stack: ${pdfError.stack}`);
         
+        // ✅ Log RAM en cas d'erreur
+        try {
+          const memUsage = process.memoryUsage();
+          console.log(`💾 [PHASE 2] RAM après erreur: ${Math.round(memUsage.heapUsed / 1024 / 1024)}MB / ${Math.round(memUsage.heapTotal / 1024 / 1024)}MB`);
+        } catch(e) {}
+        
+        // ✅ CRITIQUE : Toujours fermer le browser
         if (browser) {
           try { 
+            console.log("🔒 [PHASE 2] Tentative fermeture browser après erreur...");
             await browser.close(); 
-            console.log("🔒 [PHASE 2] Browser fermé après erreur");
-          } catch(e) {
-            console.error("⚠️ [PHASE 2] Impossible de fermer browser:", e.message);
+            console.log("✅ [PHASE 2] Browser fermé");
+          } catch(closeErr) {
+            console.error("⚠️ [PHASE 2] Impossible de fermer browser:", closeErr.message);
           }
           browser = null;
         }
         
+        // ✅ Si dernière tentative, throw
         if (pdfAttempt >= MAX_PDF_RETRIES) {
+          console.error(`🚨 [PHASE 2] ÉCHEC FINAL après ${MAX_PDF_RETRIES} tentatives`);
           throw new Error(`PDF échoué après ${MAX_PDF_RETRIES} tentatives: ${pdfError.message}`);
         }
         
-        console.log(`⏸️ [PHASE 2] Pause 5s avant retry...`);
-        await delay(5000);
+        // ✅ Pause progressive avant retry
+        const pauseTime = pdfAttempt * 5000; // 5s, 10s, 15s
+        console.log(`⏸️ [PHASE 2] Pause ${pauseTime/1000}s avant retry ${pdfAttempt + 1}...`);
+        await new Promise(resolve => setTimeout(resolve, pauseTime));
       }
     }
 
+    // ✅ Vérification finale
     if (!pdfBuffer) {
       throw new Error("PDF buffer vide après toutes les tentatives");
     }
