@@ -34,9 +34,9 @@ export default function ProjetsPage() {
     const stats = { total: ebooks.length, kits: completed.length, enCours: enCours.length };
 
     const mapped = ebooks.map((e) => {
-      // ✅ NOUVEAU : Détecter si bloqué depuis > 10 min
       const timeElapsed = e.updatedAt ? Date.now() - new Date(e.updatedAt).getTime() : 0;
-const isStuck = (e.status === "processing" || e.status === "generated_text" || e.status === "DRAFT") && timeElapsed > 10 * 60 * 1000;      
+      const isStuck = (e.status === "processing" || e.status === "generated_text" || e.status === "DRAFT") && timeElapsed > 10 * 60 * 1000;      
+      
       return {
         _id: e._id,
         titre: e.title || "Livre sans titre",
@@ -47,7 +47,7 @@ const isStuck = (e.status === "processing" || e.status === "generated_text" || e
         colorSeed: e._id.substring(0, 6), 
         retryCount: e.retryCount || 0,
         isPaid: e.isPaid,
-        statut: e.status === "COMPLETED" || e.fileUrl ? "terminé" 
+        statut: e.status === "COMPLETED" && e.fileUrl ? "terminé" 
               : e.status === "ERROR" || isStuck ? "erreur"
               : "en cours"
       };
@@ -63,7 +63,6 @@ const isStuck = (e.status === "processing" || e.status === "generated_text" || e
     return matchesSearch && matchesFilter;
   });
 
-  // ✅ Affichage du Skeleton LOCAL si chargement
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] pb-20 font-sans">
@@ -77,10 +76,7 @@ const isStuck = (e.status === "processing" || e.status === "generated_text" || e
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-20 font-sans text-slate-900">
-      
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        
-        {/* ✅ EN-TÊTE INTÉGRÉ AU CONTENU */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
              <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
@@ -144,10 +140,6 @@ const isStuck = (e.status === "processing" || e.status === "generated_text" || e
   );
 }
 
-// ──────────────────────────────────────────────
-// SOUS-COMPOSANTS & SKELETON
-// ──────────────────────────────────────────────
-
 function ProjectsSkeleton() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-pulse">
@@ -178,7 +170,7 @@ function ProjectCard({ projet, viewMode }) {
   const bgGradient = gradients[colorIndex];
   const isList = viewMode === 'list';
 
-  // ✅ NOUVEAU : Polling pour suivre la progression
+  // ✅ CORRIGÉ : Polling avec gestion du succès
   useEffect(() => {
     if (!showProgressModal) return;
 
@@ -194,12 +186,10 @@ function ProjectCard({ projet, viewMode }) {
             pdfUrl: data.pdfUrl
           });
 
-          // ✅ Si terminé, arrêter le polling après 2s
+          // ✅ CORRIGÉ : Si terminé, arrêter le polling (pas de reload auto)
           if (data.status === 'COMPLETED' && data.pdfUrl) {
-            setTimeout(() => {
-              setShowProgressModal(false);
-              window.location.reload();
-            }, 2000);
+            // Arrêter le polling, laisser le user cliquer sur download
+            return;
           }
 
           // ✅ Si erreur, arrêter et afficher l'erreur
@@ -222,7 +212,6 @@ function ProjectCard({ projet, viewMode }) {
     return () => clearInterval(interval);
   }, [showProgressModal, projet._id]);
 
-  // ✅ MODIFIÉ : Gérer le retry avec modal
   const handleRetry = async () => {
     if (isRetrying) return;
     
@@ -243,7 +232,6 @@ function ProjectCard({ projet, viewMode }) {
         return;
       }
 
-      // ✅ MODIFIÉ : Ouvrir la modal au lieu de recharger
       setShowProgressModal(true);
       setProgressData({ progress: 5, status: 'processing' });
 
@@ -254,7 +242,7 @@ function ProjectCard({ projet, viewMode }) {
     }
   };
 
-  const canRetry = projet.isPaid && projet.statut === "erreur" && projet.retryCount < 3;
+  const canRetry = projet.isPaid && projet.statut === "erreur" && projet.retryCount < 3 && !projet.fileUrl;
 
   return (
     <>
@@ -303,7 +291,7 @@ function ProjectCard({ projet, viewMode }) {
                     )}
                   </button>
                 </div>
-              ) : projet.statut === "erreur" && !canRetry ? (
+              ) : projet.statut === "erreur" && !canRetry && projet.retryCount >= 3 ? (
                 <div className="flex-1 flex flex-col gap-1">
                   <div className="text-[9px] text-red-600 font-medium text-center mb-1">3 tentatives échouées</div>
                   <a 
@@ -326,14 +314,16 @@ function ProjectCard({ projet, viewMode }) {
         </div>
       </div>
 
-      {/* ✅ NOUVEAU : MODAL DE PROGRESSION */}
       {showProgressModal && (
         <ProgressModal 
           titre={projet.titre}
           progress={progressData.progress}
           status={progressData.status}
           pdfUrl={progressData.pdfUrl}
-          onClose={() => setShowProgressModal(false)}
+          onClose={() => {
+            setShowProgressModal(false);
+            window.location.reload();
+          }}
         />
       )}
     </>
@@ -350,7 +340,7 @@ function StatusBadge({ status, mini }) {
     return null;
 }
 
-// ✅ NOUVEAU COMPOSANT : MODAL DE PROGRESSION
+// ✅ CORRIGÉ : Modal avec download qui reload après clic
 function ProgressModal({ titre, progress, status, pdfUrl, onClose }) {
   const getStatusMessage = () => {
     if (status === 'COMPLETED' && pdfUrl) {
@@ -375,7 +365,6 @@ function ProgressModal({ titre, progress, status, pdfUrl, onClose }) {
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 animate-in fade-in duration-300">
       <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 animate-in slide-in-from-bottom-4 duration-500">
         
-        {/* Header */}
         <div className="text-center mb-6">
           <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
             {status === 'COMPLETED' && pdfUrl ? (
@@ -390,13 +379,11 @@ function ProgressModal({ titre, progress, status, pdfUrl, onClose }) {
           <p className="text-sm text-slate-600 font-medium line-clamp-2">{titre}</p>
         </div>
 
-        {/* Status message */}
         <div className="mb-6">
           <p className="text-center text-sm font-bold text-indigo-600 mb-4">
             {getStatusMessage()}
           </p>
           
-          {/* Progress bar */}
           <div className="relative w-full h-3 bg-slate-100 rounded-full overflow-hidden">
             <div 
               className="absolute inset-y-0 left-0 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full transition-all duration-500 ease-out"
@@ -406,13 +393,11 @@ function ProgressModal({ titre, progress, status, pdfUrl, onClose }) {
             </div>
           </div>
           
-          {/* Percentage */}
           <p className="text-center text-2xl font-black text-slate-900 mt-3">
             {Math.min(progress, 100)}%
           </p>
         </div>
 
-        {/* Info box */}
         {status !== 'COMPLETED' && status !== 'ERROR' && (
           <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg mb-6">
             <p className="text-xs text-blue-800 font-medium leading-relaxed">
@@ -422,7 +407,6 @@ function ProgressModal({ titre, progress, status, pdfUrl, onClose }) {
           </div>
         )}
 
-        {/* Success message */}
         {status === 'COMPLETED' && pdfUrl && (
           <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mb-6">
             <p className="text-sm text-green-800 font-bold mb-3">
@@ -431,6 +415,11 @@ function ProgressModal({ titre, progress, status, pdfUrl, onClose }) {
             <a 
               href={pdfUrl} 
               download 
+              onClick={() => {
+                setTimeout(() => {
+                  onClose();
+                }, 1000);
+              }}
               className="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-lg"
             >
               <Download className="w-4 h-4" />
@@ -439,7 +428,6 @@ function ProgressModal({ titre, progress, status, pdfUrl, onClose }) {
           </div>
         )}
 
-        {/* Error message */}
         {status === 'ERROR' && (
           <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg mb-6">
             <p className="text-sm text-red-800 font-medium">
@@ -448,7 +436,6 @@ function ProgressModal({ titre, progress, status, pdfUrl, onClose }) {
           </div>
         )}
 
-        {/* Close button */}
         {(status === 'COMPLETED' || status === 'ERROR') && (
           <button
             onClick={onClose}
@@ -458,7 +445,6 @@ function ProgressModal({ titre, progress, status, pdfUrl, onClose }) {
           </button>
         )}
 
-        {/* Can close during generation */}
         {status !== 'COMPLETED' && status !== 'ERROR' && (
           <button
             onClick={onClose}

@@ -1,4 +1,6 @@
 export const dynamic = "force-dynamic";
+export const maxDuration = 300; // ✅ AJOUTÉ : 5 minutes timeout
+
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db.js";
 import { cookies } from "next/headers";
@@ -60,30 +62,41 @@ export async function POST(req, { params }) {
 
     console.log(`🔄 [RETRY] Projet ${id} relancé par user ${userId} (tentative ${projet.retryCount}/3)`);
 
-    // ✅ CORRIGÉ : URL dynamique selon l'environnement
+    // ✅ URL dynamique selon l'environnement
     const baseUrl = process.env.NODE_ENV === 'production' 
       ? 'https://app.bookzy.io' 
       : 'http://localhost:3000';
 
     console.log(`🚀 [RETRY] Appel génération sur ${baseUrl}/api/ebooks/generate`);
 
-    // ✅ Relancer la génération (sans attendre la réponse)
-fetch(`${baseUrl}/api/ebooks/generate`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ projetId: id, force: true }) // ✅ AJOUTÉ force: true
-})
-.then(res => {
-  console.log(`✅ [RETRY] Génération lancée, status: ${res.status}`);
-  return res.json();
-})
-.then(data => {
-  console.log(`✅ [RETRY] Réponse génération:`, data);
-})
-.catch(err => {
-  console.error("❌ [RETRY] Erreur relance génération:", err.message);
-});
+    // ✅ MODIFIÉ : Fire-and-forget avec timeout de sécurité
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 280000); // 4min40s
 
+    fetch(`${baseUrl}/api/ebooks/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projetId: id, force: true }),
+      signal: controller.signal // ✅ AJOUTÉ : timeout
+    })
+    .then(res => {
+      clearTimeout(timeoutId);
+      console.log(`✅ [RETRY] Génération lancée, status: ${res.status}`);
+      return res.json();
+    })
+    .then(data => {
+      console.log(`✅ [RETRY] Réponse génération:`, data);
+    })
+    .catch(err => {
+      clearTimeout(timeoutId);
+      if (err.name === 'AbortError') {
+        console.error("❌ [RETRY] Timeout fetch après 4min40s (génération continue en arrière-plan)");
+      } else {
+        console.error("❌ [RETRY] Erreur fetch:", err.message);
+      }
+    });
+
+    // ✅ Retourner IMMÉDIATEMENT (pas d'await sur fetch)
     return NextResponse.json({ 
       success: true,
       message: "Génération relancée",
