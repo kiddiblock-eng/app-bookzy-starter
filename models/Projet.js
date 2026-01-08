@@ -36,13 +36,16 @@ const ProjetSchema = new mongoose.Schema(
     
     // Message d'erreur si statut ERROR
     errorMessage: { type: String },
+    
+    // ✅ NOUVEAU : Compteur de tentatives de relance
+    retryCount: { type: Number, default: 0 },
 
     // ————————————————————————
     // 🟩 CONTENU TEXTE (4 étapes IA)
     // ————————————————————————
     summary: { type: String },
     introduction: { type: String },
-    chapters: { type: String },      // 🔥 OK — Unifié
+    chapters: { type: String },
     conclusion: { type: String },
 
     // ————————————————————————
@@ -57,7 +60,7 @@ const ProjetSchema = new mongoose.Schema(
       facebook: { type: String },
       whatsapp: { type: String },
       long: { type: String },
-      landing: { type: String } // ✅ Ajouté
+      landing: { type: String }
     },
 
     marketingDescription: { type: String },
@@ -72,10 +75,10 @@ const ProjetSchema = new mongoose.Schema(
     ],
 
     isPaid: { type: Boolean, default: false },
-    transactionId: { type: String }, // ✅ AJOUTÉ
+    transactionId: { type: String },
     paymentId: { type: String },
     paidAt: { type: Date },
-    completedAt: { type: Date }, // ✅ AJOUTÉ
+    completedAt: { type: Date },
 
     kitUrl: { type: String },
   },
@@ -84,6 +87,6 @@ const ProjetSchema = new mongoose.Schema(
 
 ProjetSchema.index({ userId: 1, createdAt: -1 });
 ProjetSchema.index({ userId: 1, status: 1 });
-ProjetSchema.index({ transactionId: 1 }); // ✅ AJOUTÉ pour recherche rapide
+ProjetSchema.index({ transactionId: 1 });
 
 export default mongoose.models.Projet || mongoose.model("Projet", ProjetSchema);

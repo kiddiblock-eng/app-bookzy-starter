@@ -577,7 +577,7 @@ export async function POST(req) {
   try {
     await dbConnect();
     const body = await req.json();
-    let { projetId, transactionId, outline } = body;
+    let { projetId, transactionId, outline, force } = body; // ✅ AJOUTÉ force
     let userId = getUserIdFromCookie(req);
     
     if (!userId && transactionId) {
@@ -604,12 +604,18 @@ export async function POST(req) {
           });
       }
       
-      if (projet.status === "processing") {
+      // ✅ MODIFIÉ : Autoriser force retry
+      if (!force && projet.status === "processing") {
         return NextResponse.json({ 
           success: true, 
           message: "Déjà en cours",
           projetId: projet._id.toString()
         });
+      }
+      
+      // ✅ AJOUTÉ : Log si force retry
+      if (force && projet.status === "processing") {
+        console.log(`🔥 [FORCE] Régénération forcée du projet ${projetId}`);
       }
       
       userId = projet.userId?._id || projet.userId;

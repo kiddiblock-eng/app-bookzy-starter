@@ -5,8 +5,6 @@ import { dbConnect } from "@/lib/db";
 import Projet from "@/models/Projet";
 import jwt from "jsonwebtoken";
 
-// ✅ Force le recalcul à chaque appel (pas de cache serveur Next.js)
-
 export async function GET(req) {
   try {
     // 1. Connexion DB optimisée
@@ -34,11 +32,10 @@ export async function GET(req) {
     }
 
     // 3. 🚀 RÉCUPÉRATION INTELLIGENTE
-    // On doit sélectionner 'adsTexts' et 'adsImages' depuis la DB pour vérifier s'ils existent,
-    // MAIS on ne les enverra pas au client pour garder la vitesse.
+    // ✅ MODIFIÉ : Ajout de retryCount et updatedAt
     const projets = await Projet.find({ userId: decoded.id })
       .sort({ createdAt: -1 })
-      .select('titre pages status isPaid pdfUrl coverUrl createdAt adsTexts adsImages') 
+      .select('titre pages status isPaid pdfUrl coverUrl createdAt updatedAt adsTexts adsImages retryCount') 
       .lean()
       .exec();
 
@@ -58,19 +55,19 @@ export async function GET(req) {
       return {
         _id: p._id.toString(),
         title: p.titre || "Sans titre",
-        description: "", // On vide pour la vitesse
+        description: "",
         pages: p.pages || 0,
         createdAt: p.createdAt,
+        updatedAt: p.updatedAt, // ✅ AJOUTÉ
         status: p.status,
         isPaid: p.isPaid,
         fileUrl: p.pdfUrl || null,
         coverUrl: p.coverUrl || null,
+        retryCount: p.retryCount || 0, // ✅ AJOUTÉ
         
-        // ✨ NOUVEAUX CHAMPS pour tes badges
         hasMarketing: marketingExists,
         hasVisuels: imagesExist,
 
-        // 🚀 RÉGIME SEC : On renvoie vide pour ne pas ralentir le réseau
         adsImages: [], 
         adsTexts: {},
       };
