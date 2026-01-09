@@ -74,7 +74,7 @@ export async function GET(request) {
     // 5. Exécution (Limitée à 50 pour la performance)
     const trends = await Trend.find(query)
       .sort({ priority: -1, createdAt: -1 })
-      .limit(50) 
+      .limit(33350) 
       .lean();
 
     // 6. Formatage

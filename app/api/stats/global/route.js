@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 import Vente from "@/models/vente";
 import Projet from "@/models/Projet";
 
-
 function getMonthRange(offset = 0) {
   const now = new Date();
   const start = new Date(now.getFullYear(), now.getMonth() + offset, 1);
@@ -27,7 +26,7 @@ export async function GET() {
     const currentRange = getMonthRange(0);
     const previousRange = getMonthRange(-1);
 
-    // ✅ OPTIMISATION: .lean() + .select()
+    // ✅ CORRECTION : Filtre par status: "COMPLETED"
     const [currentSales, previousSales, currentProjets, previousProjets] = await Promise.all([
       Vente.find({
         userId,
@@ -39,13 +38,16 @@ export async function GET() {
         createdAt: { $gte: previousRange.start, $lte: previousRange.end },
       }).select('montant createdAt').lean().exec(),
       
+      // ✅ NE COMPTE QUE LES PROJETS TERMINÉS
       Projet.find({
         userId,
+        status: "COMPLETED", // ← AJOUTÉ !
         createdAt: { $gte: currentRange.start, $lte: currentRange.end },
       }).select('createdAt').lean().exec(),
       
       Projet.find({
         userId,
+        status: "COMPLETED", // ← AJOUTÉ !
         createdAt: { $gte: previousRange.start, $lte: previousRange.end },
       }).select('createdAt').lean().exec(),
     ]);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import useSWR, { useSWRConfig } from "swr"; // ✅ On utilise SWR pour la vitesse
+import useSWR, { useSWRConfig } from "swr";
 import {
   Loader2, Camera, Mail, Lock, ChevronRight, Activity, BarChart3,
   User, Shield, CheckCircle2, Package, FileText
@@ -51,7 +51,6 @@ function StatCard({ icon, badge, value, subtitle, trend }) {
   );
 }
 
-// ✅ SKELETON pour le profil (Rectangle gris pendant le chargement)
 function ProfileSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
@@ -81,31 +80,26 @@ function ProfileSkeleton() {
 export default function ParametresPage() {
   const { mutate } = useSWRConfig();
   
-  // 1. DATA USER (Via SWR = Instantané si déjà chargé dans le Header)
   const { data: userData, isLoading: userLoading } = useSWR("/api/profile/get", fetcher, {
-    revalidateOnFocus: false, // On évite de recharger trop souvent
+    revalidateOnFocus: false,
   });
   const user = userData?.user || userData;
 
-  // États locaux pour le formulaire
   const [userName, setUserName] = useState("");
   const [photo, setPhoto] = useState("");
   const [langue, setLangue] = useState("fr");
   const [pays, setPays] = useState("");
   
   const [activeTab, setActiveTab] = useState("profil");
-  const [periode, setPeriode] = useState("mois");
+  const [periode, setPeriode] = useState("tout"); // ✅ MODIFIÉ : Par défaut "tout"
   
-  // États de chargement action
   const [loadingSave, setLoadingSave] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(false);
 
-  // Données pays
   const normalisedCountries = useMemo(() => normaliseCountries(countriesJson), []);
   const flatCountries = useMemo(() => normalisedCountries.sort((a, b) => a.name.localeCompare(b.name, "fr")), [normalisedCountries]);
 
-  // ✅ 2. SYNC SWR -> STATE LOCAL (Une seule fois quand les données arrivent)
   useEffect(() => {
     if (user) {
         setUserName(user.displayName || `${user.firstName || ""} ${user.lastName || ""}`.trim() || "");
@@ -113,11 +107,10 @@ export default function ParametresPage() {
         setLangue(user.lang || "fr");
         setPays(user.country || "");
     }
-  }, [user]); // Ne se déclenche que si user change
+  }, [user]);
 
-  // 3. AUTO-DETECTION PAYS (Seulement si pas défini)
   useEffect(() => {
-    if (!user || user.country) return; // Si l'user a déjà un pays, on touche pas
+    if (!user || user.country) return;
     if (pays) return; 
 
     let cancelled = false;
@@ -133,48 +126,82 @@ export default function ParametresPage() {
     return () => { cancelled = true; };
   }, [user, flatCountries, pays]);
 
-  // 4. STATS (Via SWR Conditionnel)
   const shouldFetchStats = activeTab === "stats";
   const { data: statsData } = useSWR(shouldFetchStats ? "/api/ebooks/user" : null, fetcher);
   
+  // ✅ STATS CORRIGÉES AVEC "TOUT"
   const stats = useMemo(() => {
     if (!statsData?.ebooks) return { total: 0, ebooks: 0, kits: 0, data: [] };
     
     const allEbooks = statsData.ebooks;
     const now = new Date();
     
+    // ✅ FILTRE PAR PÉRIODE
     const filteredEbooks = allEbooks.filter(e => {
         if (!e.createdAt) return false;
+        
+        // ✅ SI "TOUT" : Pas de filtre de période
+        if (periode === 'tout') return true;
+        
         const d = new Date(e.createdAt);
-        if (periode === 'jour') return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-        if (periode === 'mois') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-        if (periode === 'annee') return d.getFullYear() === now.getFullYear();
+        if (periode === 'jour') {
+            return d.getDate() === now.getDate() && 
+                   d.getMonth() === now.getMonth() && 
+                   d.getFullYear() === now.getFullYear();
+        }
+        if (periode === 'mois') {
+            return d.getMonth() === now.getMonth() && 
+                   d.getFullYear() === now.getFullYear();
+        }
+        if (periode === 'annee') {
+            return d.getFullYear() === now.getFullYear();
+        }
         return true;
     });
 
+    // Construction du graphique
     const dataMap = {};
     filteredEbooks.forEach(e => {
         const d = new Date(e.createdAt);
         let key, sortKey;
-        if (periode === 'jour') { key = `${String(d.getHours()).padStart(2, '0')}h`; sortKey = d.getTime(); }
-        else if (periode === 'mois') { key = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth()+1).padStart(2, '0')}`; sortKey = d.getDate(); }
-        else { const mois = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"]; key = mois[d.getMonth()]; sortKey = d.getMonth(); }
+        
+        if (periode === 'jour') { 
+            key = `${String(d.getHours()).padStart(2, '0')}h`; 
+            sortKey = d.getTime(); 
+        }
+        else if (periode === 'mois') { 
+            key = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth()+1).padStart(2, '0')}`; 
+            sortKey = d.getDate(); 
+        }
+        else { // annee ou tout
+            const mois = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"]; 
+            key = mois[d.getMonth()]; 
+            sortKey = d.getMonth(); 
+        }
         
         if (!dataMap[key]) dataMap[key] = { date: key, montant: 0, sortKey };
         dataMap[key].montant += 1;
     });
 
     const chartData = Object.values(dataMap).sort((a, b) => a.sortKey - b.sortKey);
+    
+    // ✅ STATS COHÉRENTES AVEC DASHBOARD ET PROJETS
+    const terminés = filteredEbooks.filter(e => 
+        e.status === "COMPLETED" && e.fileUrl
+    );
+    
+    const enCours = filteredEbooks.filter(e => 
+        e.status !== "COMPLETED" || !e.fileUrl
+    );
+    
     return {
-        total: filteredEbooks.length,
-        ebooks: filteredEbooks.filter(e => e.fileUrl).length,
-        kits: filteredEbooks.filter(e => !e.fileUrl).length,
+        total: filteredEbooks.length, // TOUS les projets dans la période
+        ebooks: terminés.length, // Terminés avec PDF
+        kits: enCours.length, // En cours
         data: chartData
     };
   }, [statsData, periode]);
 
-
-  // 5. ACTIONS
   async function handlePhotoUpload(e) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -186,7 +213,7 @@ export default function ParametresPage() {
       const data = await res.json();
       if (res.ok) {
         setPhoto(data.imageUrl);
-        mutate("/api/profile/get"); // ✅ Met à jour le cache SWR (Header + Dashboard)
+        mutate("/api/profile/get");
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 2500);
       } else { alert("Erreur upload"); }
@@ -202,7 +229,7 @@ export default function ParametresPage() {
         body: JSON.stringify({ displayName: userName, country: pays, lang: langue }),
       });
       if (res.ok) {
-        mutate("/api/profile/get"); // ✅ Met à jour partout instantanément
+        mutate("/api/profile/get");
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 2500);
       } else { alert("Erreur update"); }
@@ -221,7 +248,6 @@ export default function ParametresPage() {
     <div className="min-h-screen bg-[#F8FAFC] font-sans text-slate-900 pb-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         
-        {/* HEADER DE LA PAGE */}
         <div className="flex items-center justify-between mb-8">
            <h1 className="text-2xl font-bold text-slate-900">Paramètres</h1>
            {saveSuccess && (
@@ -232,7 +258,6 @@ export default function ParametresPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* SIDEBAR NAVIGATION */}
             <div className="lg:col-span-3">
                 <nav className="space-y-1 sticky top-8">
                     {tabs.map((tab) => {
@@ -251,13 +276,11 @@ export default function ParametresPage() {
                 </nav>
             </div>
 
-            {/* CONTENU PRINCIPAL */}
             <div className="lg:col-span-9 space-y-6">
                 
                 {activeTab === "profil" && (
                     userLoading ? <ProfileSkeleton /> : (
                     <div className="space-y-6 animate-fadeIn">
-                        {/* PHOTO */}
                         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
                             <h2 className="text-base font-bold text-slate-900 mb-6 pb-4 border-b border-slate-50">Identité publique</h2>
                             <div className="flex items-center gap-6">
@@ -278,7 +301,6 @@ export default function ParametresPage() {
                             </div>
                         </div>
 
-                        {/* FORMULAIRE */}
                         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
                             <h2 className="text-base font-bold text-slate-900 mb-6 pb-4 border-b border-slate-50">Détails du compte</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -327,21 +349,20 @@ export default function ParametresPage() {
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-bold text-slate-900">Performance</h2>
                             <div className="flex bg-white border border-slate-200 rounded-lg p-1 shadow-sm">
-                                {["jour", "mois", "annee"].map((p) => (
+                                {["tout", "jour", "mois", "annee"].map((p) => (
                                     <button key={p} onClick={() => setPeriode(p)} className={`px-3 py-1 text-xs font-bold rounded transition-colors ${periode === p ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>
-                                        {p.charAt(0).toUpperCase() + p.slice(1)}
+                                        {p === "tout" ? "Tout" : p.charAt(0).toUpperCase() + p.slice(1)}
                                     </button>
                                 ))}
                             </div>
                         </div>
-                        {/* On affiche des stats vides ou nulles si pas encore chargé */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <StatCard icon={<Package size={20}/>} badge="TOTAL" value={stats.total} subtitle="Projets créés" trend={null} />
                             <StatCard icon={<FileText size={20}/>} badge="FINIS" value={stats.ebooks} subtitle="eBooks terminés" trend={null} />
                             <StatCard icon={<Activity size={20}/>} badge="WIP" value={stats.kits} subtitle="En cours" trend={null} />
                         </div>
                         <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-                            <h3 className="text-sm font-bold text-slate-900 mb-6">Activité de création ({periode})</h3>
+                            <h3 className="text-sm font-bold text-slate-900 mb-6">Activité de création ({periode === "tout" ? "Globale" : periode})</h3>
                             <div className="h-64 w-full">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <AreaChart data={stats.data.length ? stats.data : []}>
