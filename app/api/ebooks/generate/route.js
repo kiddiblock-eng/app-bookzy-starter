@@ -336,7 +336,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     console.log("💾 [PHASE 2] Texte sauvegardé");
 
     // ============================================================================
-    // 🚀 PDF ULTRA-ROBUSTE - VERSION FINALE SANS ERREUR
+    // 🚀 PDF ULTRA-OPTIMISÉ - VERSION CORRIGÉE
     // ============================================================================
     console.log("📄 [PHASE 2] Génération PDF - DÉBUT");
     console.log(`⏰ [PHASE 2] Timestamp: ${new Date().toISOString()}`);
@@ -365,17 +365,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       coverImage: null 
     }, template);
 
-    const htmlWithEmoji = `
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
-      * { 
-        font-family: inherit, "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", sans-serif !important; 
-      }
-    </style>
-    ${html}
-    `;
-
-    console.log(`🌐 [PHASE 2] HTML généré (${Math.round(htmlWithEmoji.length / 1024)}KB) - Template: ${template}`);
+    console.log(`🌐 [PHASE 2] HTML généré (${Math.round(html.length / 1024)}KB) - Template: ${template}`);
 
     let browser = null;
     let pdfBuffer = null;
@@ -386,16 +376,16 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
         console.log(`🔄 [PHASE 2] Tentative PDF ${pdfAttempt}/${MAX_PDF_RETRIES}`);
         console.log(`⏰ [PHASE 2] Timestamp tentative: ${new Date().toISOString()}`);
         
-        // ✅ Options Chromium ultra-optimisées
+        // ✅ OPTIONS CHROMIUM ULTRA-OPTIMISÉES
         const launchOptions = {
           headless: 'new',
           args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage', // ✅ CRITIQUE
+            '--disable-dev-shm-usage',
             '--disable-gpu',
             '--no-zygote',
-            '--single-process', // ✅ CRITIQUE pour économiser RAM
+            '--single-process',
             '--disable-software-rasterizer',
             '--disable-extensions',
             '--disable-background-networking',
@@ -408,80 +398,95 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
             '--no-first-run',
             '--safebrowsing-disable-auto-update',
             '--disable-features=IsolateOrigins,site-per-process',
-            '--js-flags=--max-old-space-size=1024', // ✅ 1Go Chromium
+            '--disable-accelerated-2d-canvas',
+            '--disable-dev-tools',
             '--disable-web-security',
-            '--disable-accelerated-2d-canvas', // ✅ Économise GPU/RAM
-            '--disable-dev-tools', // ✅ Économise RAM
+            '--font-render-hinting=none',
           ],
-          executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
-          timeout: 90000, // ✅ 90s
-          protocolTimeout: 90000,
+          executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
+          timeout: 60000,
+          protocolTimeout: 60000,
+          dumpio: false,
         };
         
         console.log(`🚀 [PHASE 2] Lancement Chromium...`);
         browser = await puppeteer.launch(launchOptions);
-        console.log("✅ [PHASE 2] Browser lancé avec succès");
+        console.log("✅ [PHASE 2] Browser lancé");
 
         const page = await browser.newPage();
         console.log("✅ [PHASE 2] Page créée");
         
-        await page.setViewport({ width: 800, height: 600 });
-        console.log("✅ [PHASE 2] Viewport configuré");
+        // ✅ BLOQUER RESSOURCES INUTILES (-50% RAM)
+        await page.setRequestInterception(true);
+        page.on('request', (req) => {
+          const resourceType = req.resourceType();
+          if (['image', 'media', 'websocket', 'manifest'].includes(resourceType)) {
+            req.abort();
+          } else {
+            req.continue();
+          }
+        });
+        console.log("✅ [PHASE 2] Interception activée");
+        
+        await page.setViewport({ width: 794, height: 1123 });
+        console.log("✅ [PHASE 2] Viewport A4 configuré");
         
         console.log(`📝 [PHASE 2] Chargement HTML...`);
-        await page.setContent(htmlWithEmoji, { 
-          waitUntil: "networkidle0",
-          timeout: 60000 // ✅ 60s pour Google Fonts
+        
+        // ✅ CHARGEMENT OPTIMISÉ (3x plus rapide)
+        await page.setContent(html, { 
+          waitUntil: "domcontentloaded",
+          timeout: 30000
         });
-        console.log("✅ [PHASE 2] HTML chargé dans le navigateur");
+        console.log("✅ [PHASE 2] HTML chargé");
 
-        // ✅ Pause pour stabilisation
-        console.log("⏳ [PHASE 2] Pause 2s pour stabilisation...");
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // ✅ Attendre fonts Google uniquement
+        await page.evaluate(() => document.fonts.ready);
+        console.log("✅ [PHASE 2] Fonts chargées");
 
         console.log("🖨️ [PHASE 2] Génération du PDF...");
         pdfBuffer = await page.pdf({
           format: "A4",
           printBackground: true,
           margin: { top: "0mm", bottom: "0mm" },
-          timeout: 45000 // ✅ 45s max
+          preferCSSPageSize: true,
+          timeout: 30000
         });
         console.log(`✅ [PHASE 2] PDF généré (${Math.round(pdfBuffer.length / 1024)}KB)`);
 
-        // ✅ CRITIQUE : Fermer immédiatement
+        // ✅ Fermer immédiatement
         console.log("🔒 [PHASE 2] Fermeture browser...");
         await browser.close();
         browser = null;
-        console.log("✅ [PHASE 2] Browser fermé avec succès");
+        console.log("✅ [PHASE 2] Browser fermé");
         
-        // ✅ Log RAM après génération réussie
+        // ✅ Log RAM après succès
         try {
           const memUsage = process.memoryUsage();
           console.log(`💾 [PHASE 2] RAM après PDF: ${Math.round(memUsage.heapUsed / 1024 / 1024)}MB`);
         } catch(e) {}
         
-        break; // ✅ Sortir de la boucle retry
+        break;
 
       } catch (pdfError) {
         console.error(`❌ [PHASE 2] Tentative ${pdfAttempt} ÉCHOUÉE`);
-        console.error(`❌ [PHASE 2] Type d'erreur: ${pdfError.name}`);
+        console.error(`❌ [PHASE 2] Type: ${pdfError.name}`);
         console.error(`❌ [PHASE 2] Message: ${pdfError.message}`);
-        console.error(`❌ [PHASE 2] Stack: ${pdfError.stack}`);
         
-        // ✅ Log RAM en cas d'erreur
+        // ✅ Log RAM après erreur
         try {
           const memUsage = process.memoryUsage();
-          console.log(`💾 [PHASE 2] RAM après erreur: ${Math.round(memUsage.heapUsed / 1024 / 1024)}MB / ${Math.round(memUsage.heapTotal / 1024 / 1024)}MB`);
+          console.log(`💾 [PHASE 2] RAM après erreur: ${Math.round(memUsage.heapUsed / 1024 / 1024)}MB`);
         } catch(e) {}
         
-        // ✅ CRITIQUE : Toujours fermer le browser
+        // ✅ Toujours fermer le browser
         if (browser) {
           try { 
-            console.log("🔒 [PHASE 2] Tentative fermeture browser après erreur...");
+            console.log("🔒 [PHASE 2] Fermeture browser après erreur...");
             await browser.close(); 
             console.log("✅ [PHASE 2] Browser fermé");
           } catch(closeErr) {
-            console.error("⚠️ [PHASE 2] Impossible de fermer browser:", closeErr.message);
+            console.error("⚠️ [PHASE 2] Erreur fermeture:", closeErr.message);
           }
           browser = null;
         }
@@ -492,8 +497,8 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
           throw new Error(`PDF échoué après ${MAX_PDF_RETRIES} tentatives: ${pdfError.message}`);
         }
         
-        // ✅ Pause progressive avant retry
-        const pauseTime = pdfAttempt * 5000; // 5s, 10s, 15s
+        // ✅ Pause avant retry
+        const pauseTime = pdfAttempt * 3000;
         console.log(`⏸️ [PHASE 2] Pause ${pauseTime/1000}s avant retry ${pdfAttempt + 1}...`);
         await new Promise(resolve => setTimeout(resolve, pauseTime));
       }
@@ -548,7 +553,6 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     }
 
     console.log("🎉 [PHASE 2] TERMINÉE");
-
   } catch (err) {
     console.error("❌ [PHASE 2] ERREUR FATALE:", err.message);
     console.error(err.stack);
@@ -578,7 +582,7 @@ export async function POST(req) {
   try {
     await dbConnect();
     const body = await req.json();
-    let { projetId, transactionId, outline, force } = body; // ✅ AJOUTÉ force
+    let { projetId, transactionId, outline, force } = body;
     let userId = getUserIdFromCookie(req);
     
     if (!userId && transactionId) {
@@ -597,15 +601,34 @@ export async function POST(req) {
       }
       
       if (projet.status === "COMPLETED") {
-          return NextResponse.json({ 
-              success: true, 
-              alreadyGenerated: true, 
-              pdfUrl: projet.pdfUrl,
-              adsTexts: projet.adsTexts
-          });
+        return NextResponse.json({ 
+          success: true, 
+          alreadyGenerated: true, 
+          pdfUrl: projet.pdfUrl,
+          adsTexts: projet.adsTexts
+        });
       }
       
-      // ✅ MODIFIÉ : Autoriser force retry
+      // ✅ NOUVEAU : Relancer UNIQUEMENT le PDF si bloqué à 80%
+      if (projet.status === "generated_text" && projet.progress >= 80) {
+        console.log(`♻️ [RETRY] Reprise génération PDF pour ${projetId}`);
+        
+        // Extraire les chapitres depuis projet.chapters
+        const chaptersArray = projet.chapters ? projet.chapters.split("\n\n") : [];
+        const totalChapters = chaptersArray.length || 5;
+        const wordsPerChapter = 250;
+        
+        // Relancer DIRECTEMENT generatePhase2
+        generatePhase2(projet._id, userId, projet.summary, wordsPerChapter, totalChapters);
+        
+        return NextResponse.json({ 
+          success: true, 
+          message: "Relance génération PDF",
+          projetId: projet._id.toString()
+        });
+      }
+      
+      // ✅ Autoriser force retry
       if (!force && projet.status === "processing") {
         return NextResponse.json({ 
           success: true, 
@@ -614,7 +637,7 @@ export async function POST(req) {
         });
       }
       
-      // ✅ AJOUTÉ : Log si force retry
+      // ✅ Log si force retry
       if (force && projet.status === "processing") {
         console.log(`🔥 [FORCE] Régénération forcée du projet ${projetId}`);
       }
