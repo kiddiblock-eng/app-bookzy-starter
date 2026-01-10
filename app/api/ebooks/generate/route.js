@@ -403,7 +403,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
             '--disable-web-security',
             '--font-render-hinting=none',
           ],
-          executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
+executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
           timeout: 60000,
           protocolTimeout: 60000,
           dumpio: false,
