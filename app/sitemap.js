@@ -6,26 +6,31 @@ export default async function sitemap() {
   const currentDate = new Date().toISOString();
 
   let blogPosts = [];
+  
   try {
+    console.log("🔄 Tentative de connexion DB pour le Sitemap...");
     await dbConnect();
     
-    // CORRECTION ICI : J'ai enlevé { published: true }
+    // On récupère TOUS les blogs (pas de filtre)
     const blogs = await Blog.find({})
       .select('slug updatedAt createdAt')
       .lean()
       .exec();
     
+    console.log(`✅ Blogs trouvés dans la DB : ${blogs.length}`);
+
     blogPosts = blogs.map(blog => ({
       url: `${baseUrl}/blog/${blog.slug}`,
-      // Utilise updatedAt s'il existe (timestamps: true), sinon createdAt
       lastModified: blog.updatedAt || blog.createdAt || currentDate,
       changeFrequency: 'monthly',
       priority: 0.7,
     }));
+
   } catch (error) {
-    console.error('Erreur sitemap blog:', error);
+    console.error('❌ ERREUR CRITIQUE SITEMAP :', error);
   }
 
+  // Voici la liste COMPLÈTE avec les pages légales remises
   return [
     {
       url: baseUrl,
@@ -51,7 +56,6 @@ export default async function sitemap() {
       changeFrequency: 'daily',
       priority: 0.8,
     },
-    // ... tes autres pages statiques (auth, legal, etc.) ...
     {
       url: `${baseUrl}/auth/register`,
       lastModified: currentDate,
@@ -64,7 +68,26 @@ export default async function sitemap() {
       changeFrequency: 'monthly',
       priority: 0.5,
     },
-    // On ajoute tes articles dynamiques ici
+    // --- LES PAGES LÉGALES SONT ICI ---
+    {
+      url: `${baseUrl}/legal/terms`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/legal/confidentialite`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/legal/refund`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.3,
+    },
+    // --- LES BLOGS DYNAMIQUES ---
     ...blogPosts,
   ];
 }
