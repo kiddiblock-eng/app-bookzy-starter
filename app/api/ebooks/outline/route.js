@@ -4,12 +4,12 @@ import { NextResponse } from "next/server";
 import { getAIText } from "../../../../lib/ai";
 
 export async function POST(req) {
-  let titre = "Votre ebook"; // ← DÉFINI PAR DÉFAUT AU DÉBUT
+  let titre = "Votre ebook";
   let totalChapters = 5;
   
   try {
     const body = await req.json();
-    titre = body.titre || titre; // ← Utilise le titre reçu ou garde le défaut
+    titre = body.titre || titre;
     const tone = body.tone;
     const audience = body.audience;
     totalChapters = Number(body.chapters) || 5;
@@ -22,7 +22,8 @@ export async function POST(req) {
     }
 
     const prompt = `
-Agis comme un expert en édition.
+Agis comme un expert en édition professionnelle.
+
 Génère un plan détaillé (sommaire) pour un ebook intitulé : "${titre}".
 
 Contexte :
@@ -32,22 +33,31 @@ Contexte :
 - Nombre de chapitres : ${totalChapters}
 
 RÈGLES STRICTES :
-1. Retourne UNIQUEMENT un tableau JSON de chaînes de caractères
-2. Format exact : ["Introduction", "Chapitre 1: Titre descriptif", "Chapitre 2: Titre descriptif", ..., "Conclusion"]
-3. Exactement ${totalChapters + 2} éléments (1 intro + ${totalChapters} chapitres + 1 conclusion)
-4. Pas de backticks, pas de markdown, pas de gras, pas d'explications
-5. Chaque titre de chapitre doit être concret et vendeur
-6. N'utilise PAS de guillemets simples (') dans les titres, utilise des guillemets doubles (") ou évite-les
+1. Chaque titre de chapitre doit être COMPLET et DESCRIPTIF (70-100 caractères)
+2. Format professionnel type Amazon/Kobo : "Chapitre X: Titre principal - Sous-titre explicatif"
+3. Les titres doivent être vendeurs et donner envie de lire
+4. IMPORTANT : N'utilise JAMAIS d'apostrophes (') - Remplace toujours par "de" ou reformule
+   ❌ MAUVAIS : "l'aventure", "d'Afrique", "qu'il"
+   ✅ BON : "une aventure", "de Afrique", "que il"
+5. Utilise des tirets (-) pour séparer titre principal et sous-titre
 
-Exemple de sortie valide :
-["Introduction", "Chapitre 1: Les bases essentielles", "Chapitre 2: Stratégies avancées", "Conclusion"]
+EXEMPLES DE BONS TITRES :
+✅ "Chapitre 1: Maîtriser la sous-location - Votre tremplin sans capital pour réussir sur Airbnb"
+✅ "Chapitre 2: Rendez vos meublés irrésistibles - Guide complet de décoration et tarification"
+✅ "Chapitre 3: Attirer les expatriés et la diaspora - Stratégies marketing pour louer à prix premium"
 
-COMMENCE MAINTENANT avec exactement ${totalChapters + 2} éléments :
+FORMAT DE SORTIE :
+Retourne UNIQUEMENT un tableau JSON avec exactement ${totalChapters + 2} éléments :
+["Introduction", "Chapitre 1: Titre long - Sous-titre descriptif", ..., "Conclusion"]
+
+PAS de markdown, PAS de backticks, PAS d'explications.
+AUCUNE apostrophe dans les titres.
+
+COMMENCE MAINTENANT :
 `;
 
     console.log(`🤖 [OUTLINE] Génération plan pour "${titre}" (${totalChapters} chapitres)`);
 
-    // ✅ Appel IA avec retry
     let text;
     try {
       text = await getAIText("ebook", prompt, 1000);
@@ -61,21 +71,19 @@ COMMENCE MAINTENANT avec exactement ${totalChapters + 2} éléments :
       });
     }
 
-    // ✅ Nettoyage agressif
+    // ✅ Nettoyage
     let cleanedText = text
       .replace(/```json/g, "")
       .replace(/```/g, "")
-      .replace(/^\s*[\r\n]/gm, "") // Enlever lignes vides
-      .replace(/'/g, '"') // ← REMPLACER LES APOSTROPHES PAR GUILLEMETS
+      .replace(/^\s*[\r\n]/gm, "")
       .trim();
 
-    // ✅ Si le texte commence par autre chose qu'un crochet, chercher le tableau
     if (!cleanedText.startsWith("[")) {
       const match = cleanedText.match(/\[[\s\S]*\]/);
       if (match) {
         cleanedText = match[0];
       } else {
-        console.warn("⚠️ [OUTLINE] Pas de tableau JSON trouvé, utilisation fallback");
+        console.warn("⚠️ [OUTLINE] Pas de tableau JSON trouvé");
         return NextResponse.json({ 
           success: true, 
           outline: generateFallbackOutline(titre, totalChapters),
@@ -84,39 +92,50 @@ COMMENCE MAINTENANT avec exactement ${totalChapters + 2} éléments :
       }
     }
 
-    // ✅ Parse JSON
+    // 🔥 PARSING ROBUSTE
     let outline;
     try {
       outline = JSON.parse(cleanedText);
-      
-      // ✅ Vérifier que c'est bien un tableau
-      if (!Array.isArray(outline)) {
-        throw new Error("La réponse n'est pas un tableau");
-      }
-      
-      // ✅ Vérifier que ce sont bien des strings
-      if (!outline.every(item => typeof item === "string")) {
-        throw new Error("Le tableau contient des éléments non-string");
-      }
-      
-      // ✅ Vérifier le nombre d'éléments (tolérance ±1)
-      const expectedLength = totalChapters + 2;
-      if (outline.length < expectedLength - 1 || outline.length > expectedLength + 1) {
-        console.warn(`⚠️ [OUTLINE] Mauvais nombre d'éléments (${outline.length}/${expectedLength}), ajustement`);
-        outline = adjustOutlineLength(outline, totalChapters);
-      }
-      
-      console.log(`✅ [OUTLINE] Plan généré avec succès (${outline.length} éléments)`);
-      
-      return NextResponse.json({ 
-        success: true, 
-        outline 
-      });
-
-    } catch (parseError) {
-      console.error("❌ [OUTLINE] Erreur parsing JSON:", parseError.message);
+    } catch (firstError) {
+      console.warn("⚠️ [OUTLINE] Parsing JSON échoué, essai extraction manuelle");
       console.error("📄 [OUTLINE] Texte reçu:", cleanedText.substring(0, 300));
       
+      try {
+        const matches = cleanedText.match(/"([^"\\]*(\\.[^"\\]*)*)"/g);
+        
+        if (matches && matches.length > 0) {
+          outline = matches.map(m => {
+            let str = m.slice(1, -1);
+            str = str
+              .replace(/\\"/g, '"')
+              .replace(/\\'/g, "'")
+              .replace(/\\\\/g, '\\')
+              .replace(/\\n/g, '\n');
+            return str;
+          });
+          
+          console.log(`✅ [OUTLINE] Extraction manuelle réussie (${outline.length} éléments)`);
+        } else {
+          throw new Error("Aucun élément trouvé");
+        }
+      } catch (secondError) {
+        console.error("❌ [OUTLINE] Extraction manuelle échouée:", secondError.message);
+        return NextResponse.json({ 
+          success: true, 
+          outline: generateFallbackOutline(titre, totalChapters),
+          fallback: true
+        });
+      }
+    }
+
+    // Validation
+    if (!Array.isArray(outline)) {
+      outline = [outline].flat();
+    }
+
+    outline = outline.filter(item => typeof item === "string" && item.length > 0);
+
+    if (outline.length === 0) {
       return NextResponse.json({ 
         success: true, 
         outline: generateFallbackOutline(titre, totalChapters),
@@ -124,63 +143,69 @@ COMMENCE MAINTENANT avec exactement ${totalChapters + 2} éléments :
       });
     }
 
+    // Ajuster le nombre d'éléments
+    const expectedLength = totalChapters + 2;
+    if (outline.length < expectedLength - 1 || outline.length > expectedLength + 1) {
+      console.warn(`⚠️ [OUTLINE] Ajustement: ${outline.length} → ${expectedLength}`);
+      outline = adjustOutlineLength(outline, totalChapters);
+    }
+
+    console.log(`✅ [OUTLINE] Plan validé (${outline.length} éléments)`);
+
+    return NextResponse.json({ 
+      success: true, 
+      outline 
+    });
+
   } catch (error) {
     console.error("❌ [OUTLINE] Erreur globale:", error);
-    console.error(error.stack);
-    
-    // ✅ UTILISE titre ET totalChapters définis au début
     return NextResponse.json({ 
       success: true, 
       outline: generateFallbackOutline(titre, totalChapters),
-      fallback: true,
-      error: error.message
+      fallback: true
     });
   }
 }
 
-// ✅ Fonction fallback intelligente
 function generateFallbackOutline(titre, totalChapters) {
-  const outline = [`Introduction : Comprendre ${titre}`];
+  const outline = [`Introduction : Découvrir ${titre}`];
   
   const chapterTitles = [
-    "Les fondamentaux essentiels",
-    "La méthode étape par étape",
-    "Les erreurs à éviter",
-    "Stratégies avancées",
-    "Études de cas pratiques",
-    "Techniques d'optimisation",
-    "Les outils indispensables",
-    "Passage à l'action",
-    "Aller plus loin",
-    "Les tendances futures"
+    "Les fondamentaux essentiels - Tout ce que vous devez savoir pour bien démarrer",
+    "La méthode étape par étape - Guide pratique pour passer à action rapidement",
+    "Les erreurs à éviter - Apprenez des échecs des autres pour gagner du temps",
+    "Stratégies avancées - Techniques de professionnels pour maximiser vos résultats",
+    "Études de cas pratiques - Exemples concrets de réussite inspirants",
+    "Techniques de optimisation - Améliorez vos performances avec ces astuces",
+    "Les outils indispensables - Votre boîte à outils pour réussir efficacement",
+    "Passage à action - Votre plan de route pour démarrer dès maintenant",
+    "Aller plus loin - Ressources et formations pour continuer à progresser",
+    "Les tendances futures - Anticipez les changements pour rester en avance"
   ];
   
   for (let i = 0; i < totalChapters; i++) {
-    const title = chapterTitles[i] || `Stratégies et méthodes ${i + 1}`;
+    const title = chapterTitles[i] || `Stratégies et méthodes avancées - Techniques professionnelles ${i + 1}`;
     outline.push(`Chapitre ${i + 1} : ${title}`);
   }
   
-  outline.push("Conclusion : Votre plan d'action");
+  outline.push("Conclusion : Votre plan de action pour réussir");
   
   return outline;
 }
 
-// ✅ Fonction pour ajuster la longueur de l'outline
 function adjustOutlineLength(outline, targetChapters) {
   const expectedLength = targetChapters + 2;
   
-  // Si trop court, ajouter des chapitres
   if (outline.length < expectedLength) {
     const missing = expectedLength - outline.length;
-    const lastIndex = outline.length - 1; // Position de la conclusion
+    const lastIndex = outline.length - 1;
     
     for (let i = 0; i < missing; i++) {
       const chapterNum = lastIndex + i;
-      outline.splice(lastIndex, 0, `Chapitre ${chapterNum} : Approfondissement`);
+      outline.splice(lastIndex, 0, `Chapitre ${chapterNum} : Approfondissement - Stratégies complémentaires pour aller plus loin`);
     }
   }
   
-  // Si trop long, retirer des chapitres du milieu
   if (outline.length > expectedLength) {
     const toRemove = outline.length - expectedLength;
     const middleIndex = Math.floor(outline.length / 2);
