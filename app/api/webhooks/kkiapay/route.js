@@ -11,6 +11,29 @@ import { Resend } from "resend";
 import { paymentSuccessTemplate } from "@/lib/emailTemplates/paymentSuccessTemplate";
 import KkiaPayProvider from "@/lib/payment/providers/KkiaPayProvider";
 
+// 🔥 FONCTION RETRY
+async function findTransactionWithRetry(transactionId, maxRetries = 3) {
+  for (let i = 0; i < maxRetries; i++) {
+    const tx = await Transaction.findOne({ 
+      providerTransactionId: transactionId,
+      provider: 'kkiapay'
+    });
+    
+    if (tx) {
+      console.log(`✅ Transaction trouvée (tentative ${i + 1}/${maxRetries})`);
+      return tx;
+    }
+    
+    if (i < maxRetries - 1) {
+      console.log(`⏳ Transaction non trouvée, nouvelle tentative dans 2s... (${i + 1}/${maxRetries})`);
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+  }
+  
+  console.error(`❌ Transaction introuvable après ${maxRetries} tentatives (ID: ${transactionId})`);
+  return null;
+}
+
 export async function POST(req) { 
   const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -29,44 +52,18 @@ export async function POST(req) {
 
     console.log("🔍 Webhook data traité:", {
       transactionId: webhookData.transactionId,
-      metadata: webhookData.metadata,
       status: webhookData.status
     });
 
-    // 🔥 CHERCHER PAR METADATA D'ABORD !
-    let tx;
-
-    if (webhookData.metadata) {
-      console.log("🔍 Recherche par metadata:", webhookData.metadata);
-      tx = await Transaction.findOne({ 
-        internalId: webhookData.metadata,
-        provider: 'kkiapay'
-      });
-      
-      if (tx) {
-        console.log("✅ Transaction trouvée par metadata:", tx._id);
-      }
-    }
-
-    if (!tx && webhookData.transactionId) {
-      console.log("🔍 Recherche par providerTransactionId:", webhookData.transactionId);
-      tx = await Transaction.findOne({ 
-        providerTransactionId: webhookData.transactionId,
-        provider: 'kkiapay'
-      });
-      
-      if (tx) {
-        console.log("✅ Transaction trouvée par providerTransactionId:", tx._id);
-      }
-    }
+    // 🔥 UTILISER LE RETRY ICI
+    const tx = await findTransactionWithRetry(webhookData.transactionId);
 
     if (!tx) {
-      console.warn("⚠️ Transaction introuvable:", {
-        metadata: webhookData.metadata,
-        transactionId: webhookData.transactionId
-      });
+      console.warn("⚠️ Transaction introuvable après retry:", webhookData.transactionId);
       return NextResponse.json({ success: true });
     }
+
+    console.log("✅ Transaction trouvée:", tx._id);
 
     tx.providerTransactionId = webhookData.transactionId;
     tx.status = webhookData.status;
@@ -76,7 +73,7 @@ export async function POST(req) {
       lastWebhookAt: new Date(),
     };
 
-    // ✅ CAS DE SUCCÈS
+    // CAS DE SUCCÈS
     if (webhookData.status === 'completed') {
       tx.completedAt = new Date();
       console.log("💰 Paiement confirmé:", tx.internalId);
@@ -109,13 +106,12 @@ export async function POST(req) {
       }
     }
 
-    // ❌ CAS D'ÉCHEC
+    // CAS D'ÉCHEC
     if (webhookData.status === 'failed') {
       console.log("❌ Paiement échoué:", tx.internalId);
       
       await tx.save();
 
-      // Marquer le projet en erreur
       if (tx.projetId) {
         try {
           const projet = await Projet.findById(tx.projetId);
@@ -130,7 +126,6 @@ export async function POST(req) {
         }
       }
 
-      // Email d'échec
       if (tx.userId) {
         const user = await User.findById(tx.userId);
         if (user) {
