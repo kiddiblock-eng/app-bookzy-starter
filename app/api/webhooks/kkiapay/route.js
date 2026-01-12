@@ -8,6 +8,7 @@ import User from "@/models/User";
 import { Resend } from "resend";
 import { paymentSuccessTemplate } from "@/lib/emailTemplates/paymentSuccessTemplate";
 import KkiaPayProvider from "@/lib/payment/providers/KkiaPayProvider";
+import { processCommission } from "@/utils/affiliation";
 
 export async function POST(req) { 
   const resend = new Resend(process.env.RESEND_API_KEY);
@@ -25,16 +26,51 @@ export async function POST(req) {
     const provider = new KkiaPayProvider(kkiapayConfig);
     const webhookData = await provider.handleWebhook(payload);
 
-    const tx = await Transaction.findOne({ 
-      providerTransactionId: webhookData.transactionId,
-      provider: 'kkiapay'
+    console.log("🔍 Webhook data traité:", {
+      transactionId: webhookData.transactionId,
+      metadata: webhookData.metadata,
+      status: webhookData.status
     });
 
+    // 🔥 CHERCHER PAR METADATA D'ABORD !
+    let tx;
+
+    // Option 1 : Par metadata (notre internalId)
+    if (webhookData.metadata) {
+      console.log("🔍 Recherche par metadata:", webhookData.metadata);
+      tx = await Transaction.findOne({ 
+        internalId: webhookData.metadata,
+        provider: 'kkiapay'
+      });
+      
+      if (tx) {
+        console.log("✅ Transaction trouvée par metadata:", tx._id);
+      }
+    }
+
+    // Option 2 : Fallback par providerTransactionId
+    if (!tx && webhookData.transactionId) {
+      console.log("🔍 Recherche par providerTransactionId:", webhookData.transactionId);
+      tx = await Transaction.findOne({ 
+        providerTransactionId: webhookData.transactionId,
+        provider: 'kkiapay'
+      });
+      
+      if (tx) {
+        console.log("✅ Transaction trouvée par providerTransactionId:", tx._id);
+      }
+    }
+
     if (!tx) {
-      console.warn("⚠️ Transaction introuvable:", webhookData.transactionId);
+      console.warn("⚠️ Transaction introuvable:", {
+        metadata: webhookData.metadata,
+        transactionId: webhookData.transactionId
+      });
       return NextResponse.json({ success: true });
     }
 
+    // ✅ Sauvegarder le providerTransactionId
+    tx.providerTransactionId = webhookData.transactionId;
     tx.status = webhookData.status;
     tx.providerResponse = {
       ...(tx.providerResponse || {}),
@@ -42,14 +78,24 @@ export async function POST(req) {
       lastWebhookAt: new Date(),
     };
 
-    // ✅ CAS DE SUCCÈS (ton code actuel)
+    // CAS DE SUCCÈS
     if (webhookData.status === 'completed') {
       tx.completedAt = new Date();
       console.log("💰 Paiement confirmé:", tx.internalId);
       
       await tx.save();
 
-      // Email de succès
+      // AFFILIATION
+      if (tx.userId) {
+        try {
+          await processCommission(tx.userId, tx.amount);
+          console.log(`🤝 Commission affiliation traitée pour l'utilisateur ${tx.userId}`);
+        } catch (affError) {
+          console.error("❌ Erreur traitement affiliation (non bloquant):", affError);
+        }
+      }
+
+      // EMAIL DE SUCCÈS
       if (tx.userId) {
         const user = await User.findById(tx.userId);
         if (user) {
@@ -75,7 +121,7 @@ export async function POST(req) {
       }
     }
 
-    // 🆕 CAS D'ÉCHEC (nouveau code)
+    // CAS D'ÉCHEC
     if (webhookData.status === 'failed') {
       console.log("❌ Paiement échoué:", tx.internalId);
       
