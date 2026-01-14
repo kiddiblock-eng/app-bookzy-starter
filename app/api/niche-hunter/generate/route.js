@@ -26,7 +26,7 @@ export async function POST(req) {
       );
     }
 
-    // Limite journalière : 6 recherches
+    // Limite journalière : 3 recherches
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -35,12 +35,12 @@ export async function POST(req) {
       createdAt: { $gte: today }
     });
 
-    if (countToday >= 6) {
+    if (countToday >= 3) {
       return NextResponse.json(
         {
           success: false,
           limitReached: true,
-          message: "🚫 Limite journalière atteinte (6 recherches par jour). Revenez demain."
+          message: "🚫 Limite journalière atteinte (3 recherches par jour). Revenez demain."
         },
         { status: 429 }
       );
