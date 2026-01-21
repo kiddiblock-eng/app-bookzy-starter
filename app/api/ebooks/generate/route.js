@@ -404,8 +404,8 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
             '--font-render-hinting=none',
           ],
 executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
-          timeout: 60000,
-          protocolTimeout: 60000,
+          timeout: 180000,
+          protocolTimeout: 180000,
           dumpio: false,
         };
         
@@ -436,7 +436,7 @@ executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
         // ✅ CHARGEMENT OPTIMISÉ (3x plus rapide)
         await page.setContent(html, { 
           waitUntil: "domcontentloaded",
-          timeout: 30000
+          timeout: 120000
         });
         console.log("✅ [PHASE 2] HTML chargé");
 
@@ -450,7 +450,7 @@ executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
           printBackground: true,
           margin: { top: "0mm", bottom: "0mm" },
           preferCSSPageSize: true,
-          timeout: 30000
+          timeout: 120000
         });
         console.log(`✅ [PHASE 2] PDF généré (${Math.round(pdfBuffer.length / 1024)}KB)`);
 
@@ -517,7 +517,7 @@ executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
       publicId: `${titre || "ebook"}-${projetId}`,
       resourceType: "raw",
       extension: "pdf",
-      timeout: 60000
+      timeout: 180000
     });
 
     console.log(`✅ [PHASE 2] Upload terminé en ${Date.now() - uploadStartTime}ms`);
