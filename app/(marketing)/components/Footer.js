@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Mail, Facebook, Instagram, Send } from "lucide-react";
+import { Mail, Facebook, Instagram, Send, Gift } from "lucide-react"; // J'ai ajouté 'Gift' ici
 import { usePathname } from 'next/navigation';
 
 export default function Footer() {
@@ -84,6 +84,15 @@ export default function Footer() {
                 <li><button onClick={() => scrollToSection("pricing")} className="hover:text-blue-400 transition-colors">Tarifs</button></li>
                 <li><button onClick={() => scrollToSection("examples")} className="hover:text-blue-400 transition-colors">Exemples</button></li>
                 <li><button onClick={() => scrollToSection("howitWorks")} className="hover:text-blue-400 transition-colors">Comment ça marche</button></li>
+                
+                {/* ✅ LIEN AFFILIATION ICI */}
+                <li className="pt-2">
+                  <Link href="/affiliation" className="text-slate-300 hover:text-white transition-colors flex items-center gap-2 font-medium">
+                    <Gift size={14} className="text-yellow-400" />
+                    Devenir Affilié
+                    <span className="bg-blue-600 text-[10px] px-1.5 py-0.5 rounded text-white">New</span>
+                  </Link>
+                </li>
               </ul>
             </div>
             
@@ -103,7 +112,7 @@ export default function Footer() {
               <h4 className="font-bold text-white mb-6">Légal</h4>
               <ul className="space-y-3 text-sm text-slate-400">
                 <li><Link href="/legal/terms" className="hover:text-white transition-colors">CGU / CGV</Link></li>
-               <li><Link href="/legal/cookies" className="hover:text-white transition-colors">cookies</Link></li>
+               <li><Link href="/legal/cookies" className="hover:text-white transition-colors">Cookies</Link></li>
                 <li><Link href="/legal/confidentialite" className="hover:text-white transition-colors">Confidentialité</Link></li>
                 <li><Link href="/legal/refund" className="hover:text-white transition-colors">Remboursement</Link></li>
               </ul>

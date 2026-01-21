@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Menu, X, Target, TrendingUp, Youtube, ChevronDown } from 'lucide-react';
+import { Menu, X, Target, TrendingUp, Youtube, ChevronDown, Gift } from 'lucide-react'; // ✅ J'ai ajouté 'Gift' ici
 import { usePathname } from 'next/navigation';
 
 /* --- LOGO ORIGINAL --- */
@@ -64,15 +64,24 @@ export default function Navbar() {
               </Link>
             </div>
 
-            {/* --- 2. CENTRE : NAVIGATION (EXEMPLES AJOUTÉ) --- */}
-            <div className="hidden xl:flex items-center justify-center gap-7 whitespace-nowrap">
+            {/* --- 2. CENTRE : NAVIGATION --- */}
+            <div className="hidden xl:flex items-center justify-center gap-6 whitespace-nowrap">
               <button onClick={() => scrollToSection('features')} className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors flex items-center">Fonctionnalités</button>
               <button onClick={() => scrollToSection('howitWorks')} className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors flex items-center">Comment ça marche</button>
-              {/* ✅ EXEMPLES RÉ-AJOUTÉ ICI */}
               <button onClick={() => scrollToSection('examples')} className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors flex items-center">Exemples</button>
               <button onClick={() => scrollToSection('pricing')} className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors flex items-center">Tarifs</button>
               <Link href="/blog" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors flex items-center">Blog</Link>
               
+              {/* ✅ NOUVEAU BOUTON AFFILIATION (Desktop) */}
+              <Link 
+                href="/affiliation" 
+                className="text-sm font-bold text-indigo-600 hover:text-indigo-700 transition-colors flex items-center gap-1.5 bg-indigo-50 px-3 py-1.5 rounded-full"
+              >
+                <Gift size={14} className="text-indigo-600" />
+                Affiliation
+              </Link>
+
+              {/* DROPDOWN OUTILS */}
               <div className="relative flex items-center" ref={dropdownRef}>
                 <button 
                     onClick={() => setShowTools(!showTools)}
@@ -112,15 +121,19 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* --- MENU MOBILE (EXEMPLES AJOUTÉ AUSSI) --- */}
+      {/* --- MENU MOBILE --- */}
       <div className={`fixed inset-0 z-40 bg-white transition-transform duration-300 xl:hidden ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`} style={{ paddingTop: '80px' }}>
         <div className="flex flex-col p-6 gap-2 h-full overflow-y-auto">
           <button onClick={() => scrollToSection('features')} className="text-lg font-bold text-slate-900 py-4 border-b border-slate-100 text-left">Fonctionnalités</button>
           <button onClick={() => scrollToSection('howitWorks')} className="text-lg font-bold text-slate-900 py-4 border-b border-slate-100 text-left">Comment ça marche</button>
-          {/* ✅ AJOUTÉ SUR MOBILE */}
           <button onClick={() => scrollToSection('examples')} className="text-lg font-bold text-slate-900 py-4 border-b border-slate-100 text-left">Exemples</button>
           <button onClick={() => scrollToSection('pricing')} className="text-lg font-bold text-slate-900 py-4 border-b border-slate-100 text-left">Tarifs</button>
           <Link href="/blog" className="text-lg font-bold text-slate-900 py-4 border-b border-slate-100">Blog</Link>
+          
+          {/* ✅ AJOUTÉ SUR MOBILE */}
+          <Link href="/affiliation" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-bold text-indigo-600 py-4 border-b border-slate-100 flex items-center gap-2">
+            <Gift size={20} /> Devenir Affilié
+          </Link>
           
           <div className="py-4">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Outils Gratuits</p>

@@ -47,18 +47,17 @@ export async function POST(req) {
     const callbackBase = settings.appDomain || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const returnUrl = `${callbackBase}/dashboard/projets/nouveau?tx=${tx._id.toString()}`;
 
-    // 2. Appel au Provider
-    // On garde les nouveaux champs (userId, etc) car KkiaPay les ignorera simplement s'il n'en veut pas
+    // 2. Appel au Provider (Version sécurisée pour Moneroo)
     const paymentResult = await provider.createPayment({
       amount: PRICE,
       currency: CURRENCY,
-      description: `eBook Bookzy : ${kitData?.title || "Nouveau"}`,
+      description: "Paiement eBook Bookzy", // ✅ Texte fixe court : évite l'erreur des 155 caractères
       customerEmail: user.email,
       customerName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
       customerPhone: user.phone || '',
       returnUrl,
       
-      // Données supplémentaires (utiles pour Moneroo)
+      // Données supplémentaires
       userId: authUser.id,
       projetId: projetId,
       transactionId: tx._id.toString() 
