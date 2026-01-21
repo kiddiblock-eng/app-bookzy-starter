@@ -327,7 +327,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
 
     console.log(`✅ [PHASE 2] ${chaptersArray.length}/${totalChapters} chapitres générés avec succès`);
     
-    projet.chapters = chaptersArray.join("\n\n");
+    projet.chaptersText = chaptersArray.filter(c => c).join("\n\n\n");
     projet.conclusion = cleanMarkdown(conclusionText);
     projet.adsTexts = adsTexts;
     projet.progress = 80;
@@ -347,13 +347,34 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
       console.log(`💾 [PHASE 2] RAM avant PDF: ${Math.round(memUsage.heapUsed / 1024 / 1024)}MB / ${Math.round(memUsage.heapTotal / 1024 / 1024)}MB`);
     } catch(e) {}
 
-    const chaptersStruct = chaptersArray.map((c, i) => {
-        const titleMatch = summaryText.match(new RegExp(`Chapitre ${i+1}\\s*[:：]\\s*(.+?)(?=\\n|$)`, 'i'));
-        return { 
-          title: titleMatch ? titleMatch[1].trim() : `Chapitre ${i+1}`, 
-          content: c 
-        };
-    });
+    // ✅ NOUVEAU CODE - Extraction depuis HTML
+const chaptersStruct = chaptersArray.map((c, i) => {
+  let chapterTitle = `Chapitre ${i+1}`;
+  
+  if (c && c.length > 10) {
+    const h2Match = c.match(/<h2[^>]*>(.+?)<\/h2>/i);
+    const h3Match = c.match(/<h3[^>]*>(.+?)<\/h3>/i);
+    
+    if (h2Match && h2Match[1]) {
+      chapterTitle = h2Match[1]
+        .replace(/<[^>]+>/g, '')
+        .replace(/Chapitre\s+\d+\s*[:\-]?\s*/i, '')
+        .trim();
+    } else if (h3Match && h3Match[1]) {
+      chapterTitle = h3Match[1]
+        .replace(/<[^>]+>/g, '')
+        .trim();
+    }
+    
+    if (chapterTitle.length < 3 || chapterTitle.length > 150) {
+      chapterTitle = `Chapitre ${i+1}`;
+    }
+  }
+  
+  console.log(`📖 [PHASE 2] Ch.${i+1}: "${chapterTitle}"`);
+  
+  return { title: chapterTitle, content: c };
+});
 
     const html = generateStyledHTML({
       title: titre || "Mon Ebook",
@@ -614,7 +635,7 @@ export async function POST(req) {
         console.log(`♻️ [RETRY] Reprise génération PDF pour ${projetId}`);
         
         // Extraire les chapitres depuis projet.chapters
-        const chaptersArray = projet.chapters ? projet.chapters.split("\n\n") : [];
+        const chaptersArray = projet.chaptersText ? projet.chaptersText.split("\n\n\n") : [];
         const totalChapters = chaptersArray.length || 5;
         const wordsPerChapter = 250;
         
