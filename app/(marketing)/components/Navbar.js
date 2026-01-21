@@ -44,7 +44,7 @@ export default function Navbar() {
     }
   };
 
-  const EXCLUDE_PATHS = ['/tendances', '/blog', '/niche-hunter', '/youbook', '/legal', '/auth', '/dashboard'];
+  const EXCLUDE_PATHS = ['/tendances', '/blog', '/niche-hunter', '/youbook', '/legal', '/auth', '/dashboard','/affiliation'];
   if (EXCLUDE_PATHS.some(path => pathname.startsWith(path))) return null;
 
   return (

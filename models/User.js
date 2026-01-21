@@ -117,6 +117,32 @@ const userSchema = new mongoose.Schema(
       default: []
     },
 
+    // 💸 SYSTEME D'AFFILIATION (NOUVEAU) 💸
+    // ------------------------------------------------
+    affiliateCode: { 
+      type: String, 
+      unique: true, 
+      sparse: true, // Important pour éviter les erreurs sur les anciens users sans code
+      trim: true
+    },
+    referredBy: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'User', // Lien vers le parrain qui a amené ce user
+      default: null 
+    },
+    wallet: {
+      balance: { 
+        type: Number, 
+        default: 0, 
+        min: 0 
+      }, // Argent dispo pour retrait (ex: 7500)
+      totalEarned: { 
+        type: Number, 
+        default: 0 
+      } // Total gagné à vie (statistique)
+    },
+    // ------------------------------------------------
+
     // 🔐 SÉCURITÉ / 2FA
     security: {
       twoFAEnabled: { type: Boolean, default: false },

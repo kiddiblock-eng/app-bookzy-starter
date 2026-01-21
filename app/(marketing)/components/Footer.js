@@ -16,6 +16,7 @@ export default function Footer() {
     '/legal',
     '/auth',
     '/dashboard',
+    '/affiliation',
   ];
 
   const isExcluded = EXCLUDE_PATHS.some(path => pathname.startsWith(path));

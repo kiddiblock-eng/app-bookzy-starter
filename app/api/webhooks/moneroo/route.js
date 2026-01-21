@@ -8,8 +8,8 @@ import User from "@/models/User";
 import { Resend } from "resend";
 import { paymentSuccessTemplate } from "@/lib/emailTemplates/paymentSuccessTemplate";
 import MonerooProvider from "@/lib/payment/providers/MonerooProvider";
-
-// const resend = new Resend(process.env.RESEND_API_KEY);
+// On importe ton système d'affiliation
+import { processCommission } from "@/utils/affiliation";
 
 export async function POST(req) { 
   const resend = new Resend(process.env.RESEND_API_KEY); 
@@ -19,111 +19,109 @@ export async function POST(req) {
 
     const settings = await Settings.findOne({ key: "global" }).lean();
     const monerooConfig = settings?.payment?.moneroo;
-
-    // Vérifier la signature avec le provider
-    const payload = await req.json();
-    const signature = req.headers.get("x-moneroo-signature") || req.headers.get("x-webhook-secret");
-
-    if (monerooConfig?.webhookSecret && signature !== monerooConfig.webhookSecret) {
-      console.warn("⚠️ Signature webhook invalide");
-      return NextResponse.json({ success: false }, { status: 401 });
-    }
-
-    console.log("📩 Webhook Moneroo:", payload);
-
     const provider = new MonerooProvider(monerooConfig);
+
+    const payload = await req.json();
+    console.log("📩 [Moneroo] Webhook reçu.");
+
+    // Extraction de l'ID depuis le webhook (peut être dans .data ou à la racine)
+    const webhookDataRaw = payload.data || payload; 
+    const monerooTransactionId = webhookDataRaw.id;
+
+    if (!monerooTransactionId) {
+        console.warn("⚠️ Webhook sans ID");
+        return NextResponse.json({ success: true });
+    }
+
+    // 1️⃣ SÉCURITÉ ABSOLUE : On ne fait pas confiance au webhook.
+    // On appelle Moneroo pour vérifier le vrai statut.
+    console.log(`🔍 [Moneroo] Vérification API pour ${monerooTransactionId}...`);
+    const verifiedData = await provider.verifyPayment(monerooTransactionId);
+
+    // On récupère les IDs depuis les metadata vérifiées
+    const internalTxId = verifiedData.metadata?.transactionId;
+
+    // 2️⃣ Recherche de la transaction en base
+    let tx = await Transaction.findOne({ providerTransactionId: monerooTransactionId });
     
-    let webhookData;
-    try {
-      webhookData = await provider.handleWebhook(payload, signature);
-    } catch (error) {
-      console.error('Moneroo webhook verification failed:', error);
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
+    // Fallback : Si pas trouvé par ID Moneroo, on cherche par ID interne
+    if (!tx && internalTxId) {
+        tx = await Transaction.findById(internalTxId);
     }
-
-    // Récupérer le transactionId depuis metadata
-    const txId = payload?.metadata?.transactionId || payload?.data?.metadata?.transactionId;
-
-    if (!txId) {
-      console.warn("⚠️ Webhook sans transactionId");
-      return NextResponse.json({ success: true });
-    }
-
-    // Trouver la transaction
-    const tx = await Transaction.findOne({ 
-      $or: [
-        { internalId: txId },
-        { providerTransactionId: webhookData.transactionId }
-      ],
-      provider: 'moneroo'
-    });
 
     if (!tx) {
-      console.warn("⚠️ Transaction introuvable:", txId);
-      return NextResponse.json({ success: true });
+      console.error("❌ [Moneroo] Transaction introuvable en BDD.");
+      return NextResponse.json({ success: true }); 
     }
 
-    // Mettre à jour le statut
-    tx.status = webhookData.status;
-    tx.providerResponse = {
-      ...(tx.providerResponse || {}),
-      webhook: webhookData.rawResponse,
-      lastWebhookAt: new Date(),
+    // 3️⃣ Mise à jour du statut
+    tx.status = verifiedData.status;
+    tx.providerTransactionId = verifiedData.transactionId; // On s'assure qu'il est bien enregistré
+    tx.providerResponse = { 
+        webhook: payload,
+        verification: verifiedData.rawResponse 
     };
+    
+    const isPaid = verifiedData.status === 'completed';
 
-    const paid = webhookData.status === 'completed';
-
-    if (paid) {
+    // 4️⃣ LOGIQUE MÉTIER SI PAYÉ
+    if (isPaid && !tx.completedAt) {
       tx.completedAt = new Date();
-      console.log("💰 Paiement confirmé:", tx.internalId || tx._id);
-    } else if (webhookData.status === 'failed') {
-      console.log("❌ Paiement échoué:", tx.internalId || tx._id);
-    }
+      await tx.save();
+      console.log("💰 [Moneroo] Paiement VALIDÉ pour:", tx._id);
 
-    await tx.save();
-
-    // Traiter le projet et envoyer l'email si paiement réussi
-    if (paid) {
-      const projetId = payload?.metadata?.projetId || payload?.data?.metadata?.projetId;
-      const userId = payload?.metadata?.userId || payload?.data?.metadata?.userId;
-
-      if (projetId) {
-        const projet = await Projet.findById(projetId);
-        if (projet) {
-          projet.isPaid = true;
-          projet.updatedAt = new Date();
-          projet.transactionId = tx.internalId || tx._id;
-          await projet.save();
-        }
+      // A. DÉBLOQUER LE PROJET
+      if (tx.projetId) {
+        await Projet.findByIdAndUpdate(tx.projetId, { 
+            isPaid: true, 
+            updatedAt: new Date(), 
+            transactionId: tx._id 
+        });
       }
 
-      if (userId) {
-        const user = await User.findById(userId);
-        if (user) {
+      // B. AFFILIATION (Sécurisée avec Try/Catch)
+      if (tx.userId) {
           try {
-            const html = paymentSuccessTemplate({
-              firstName: user.firstName || "cher utilisateur",
-              amount: tx.amount,
-              transactionId: tx.internalId || tx._id,
-              ebookTitle: tx.kitData?.title || "Ton eBook",
-            });
-
-            await resend.emails.send({
-              from: "Bookzy <no-reply@bookzy.io>",
-              to: user.email,
-              subject: "🎉 Paiement confirmé - Bookzy",
-              html,
-            });
-          } catch (e) {
-            console.error("❌ Email échoué:", e);
+             // Si l'affiliation plante, ça ne bloquera PAS la suite
+             await processCommission(tx.userId, tx.amount);
+             console.log(`🤝 Commission affiliation générée pour user ${tx.userId}`);
+          } catch (affError) {
+             console.error("⚠️ Erreur non-critique Affiliation:", affError.message);
           }
+      }
+
+      // C. ENVOYER L'EMAIL
+      if (tx.userId) {
+        const user = await User.findById(tx.userId);
+        if (user) {
+             try {
+                const html = paymentSuccessTemplate({
+                  firstName: user.firstName || "cher utilisateur",
+                  amount: tx.amount,
+                  transactionId: tx.internalId || "Moneroo",
+                  ebookTitle: tx.kitData?.title || "Ton eBook",
+                });
+                await resend.emails.send({
+                  from: "Bookzy <no-reply@bookzy.io>",
+                  to: user.email,
+                  subject: "🎉 Paiement confirmé - Bookzy",
+                  html,
+                });
+              } catch (e) { console.error("❌ Erreur Email:", e); }
         }
       }
+
+    } else if (verifiedData.status === 'failed') {
+        tx.status = 'failed';
+        await tx.save();
+        console.log("❌ [Moneroo] Paiement échoué confirmé par API");
     }
 
     return NextResponse.json({ success: true });
+
   } catch (error) {
-    console.error("❌ Webhook Moneroo ERR:", error);
+    console.error("❌ [Moneroo] Webhook Crash:", error);
+    // On renvoie 500 pour que Moneroo réessaie plus tard si c'est un crash serveur
     return NextResponse.json({ success: false }, { status: 500 });
   }
 }

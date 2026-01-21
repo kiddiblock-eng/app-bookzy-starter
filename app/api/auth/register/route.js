@@ -9,11 +9,8 @@ import User from "@/models/User";
 import { Resend } from "resend";
 import { welcomeEmailTemplate } from "@/lib/emailTemplates/welcomeEmailTemplate";
 import { verifyEmailTemplate } from "@/lib/emailTemplates/verifyEmailTemplate";
-
-// ⚠️ ON RETIRE L'IMPORT DE BCRYPT ICI CAR LE MODEL S'EN OCCUPE
-// import bcrypt from "bcryptjs"; 
-
-// const resend = new Resend(process.env.RESEND_API_KEY);
+// ✅ IMPORT AFFILIATION
+import { createAffiliateCode } from "@/utils/affiliation"; 
 
 export async function POST(req) { 
   const resend = new Resend(process.env.RESEND_API_KEY); 
@@ -21,7 +18,8 @@ export async function POST(req) {
   try {
     await dbConnect();
 
-    const { firstName, lastName, email, password, country, lang } = await req.json();
+    // ✅ On récupère aussi "referralCode" s'il est envoyé par le frontend
+    const { firstName, lastName, email, password, country, lang, referralCode } = await req.json();
 
     // 1. NETTOYAGE
     const cleanEmail = email.trim().toLowerCase();
@@ -36,6 +34,30 @@ export async function POST(req) {
         { status: 400 }
       );
     }
+
+    // --- 🚀 LOGIQUE AFFILIATION (START) ---
+    
+    // A. Générer le code unique pour ce nouvel utilisateur (ex: PAUL-K92)
+    const myAffiliateCode = await createAffiliateCode(cleanFirstName);
+
+    // B. Chercher le parrain (S'il vient d'un lien affilié)
+    let sponsorId = null;
+    
+    // On cherche le code soit dans le body (JSON), soit dans les cookies (bookzy_ref)
+    const cookieStore = cookies();
+    const refCookie = cookieStore.get("bookzy_ref"); // On lira ce cookie
+    const codeToFind = referralCode || (refCookie ? refCookie.value : null);
+
+    if (codeToFind) {
+      // On cherche qui possède ce code
+      const sponsor = await User.findOne({ affiliateCode: codeToFind });
+      if (sponsor) {
+        sponsorId = sponsor._id; // On a trouvé le parrain !
+        console.log(`✅ Parrain trouvé : ${sponsor.firstName} (${sponsor._id}) pour ${cleanEmail}`);
+      }
+    }
+    // --- 🚀 LOGIQUE AFFILIATION (END) ---
+
 
     // 3. CRÉATION (SANS HACHAGE MANUEL)
     
@@ -58,7 +80,12 @@ export async function POST(req) {
       lastLogin: new Date(),
       emailVerified: false,
       emailVerifiedAt: null,
-      emailVerificationSentAt: null
+      emailVerificationSentAt: null,
+
+      // ✅ AJOUT DES CHAMPS AFFILIATION
+      affiliateCode: myAffiliateCode, // Son code à lui
+      referredBy: sponsorId,          // L'ID de son parrain (ou null)
+      wallet: { balance: 0, totalEarned: 0 }
     });
 
     // 4. JWT & COOKIES
@@ -117,7 +144,8 @@ export async function POST(req) {
         user: {
           id: user._id,
           email: user.email,
-          emailVerified: user.emailVerified
+          emailVerified: user.emailVerified,
+          affiliateCode: user.affiliateCode // On renvoie le code au front si besoin
         }
       },
       { status: 201 }

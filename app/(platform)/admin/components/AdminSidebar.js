@@ -14,10 +14,11 @@ import {
   Brain,
   FileText,
   ShieldCheck,
-  X
+  X,
+  Banknote // ✅ Import ajouté
 } from "lucide-react";
 
-// Liens du menu (Ton ordre conservé)
+// Liens du menu
 const links = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/users", label: "Utilisateurs", icon: Users },
@@ -25,12 +26,14 @@ const links = [
   { href: "/admin/notifications", label: "Notifications", icon: Bell },
   { href: "/admin/tendances", label: "Tendances", icon: Flame },
   { href: "/admin/paiements", label: "Paiements", icon: CreditCard },
+  // 👇 AJOUT DE L'AFFILIATION ICI
+  { href: "/admin/affiliation", label: "Affiliation", icon: Banknote }, 
+  
   { href: "/admin/ai", label: "Centre IA", icon: Brain },
-  // ⭐ PLACÉ ICI AVANT eBooks et Paramètres
-  { href: "/admin/niche-hunter/ai-stats", label: "IA – Stats", icon: Brain, badge: "Bêta" }, // J'ai ajouté un petit badge optionnel
+  { href: "/admin/niche-hunter/ai-stats", label: "IA – Stats", icon: Brain, badge: "Bêta" },
   { href: "/admin/ebooks", label: "eBooks", icon: BookOpen },
-  { href: "/admin/settings", label: "Paramètres", icon: Settings },
   { href: "/admin/blog", label: "Blogs", icon: FileText },
+  { href: "/admin/settings", label: "Paramètres", icon: Settings },
 ];
 
 export default function AdminSidebar({ open, setOpen }) {
@@ -43,7 +46,7 @@ export default function AdminSidebar({ open, setOpen }) {
 
   return (
     <>
-      {/* 📱 MOBILE OVERLAY (Géré ici ou dans le layout, mais utile ici pour fermer) */}
+      {/* 📱 MOBILE OVERLAY */}
       <div
         className={`fixed inset-0 bg-[#0B1121]/80 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300 ${
           open ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -61,7 +64,7 @@ export default function AdminSidebar({ open, setOpen }) {
           ${open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
-        {/* HEADER / LOGO - Style "Sécure" */}
+        {/* HEADER / LOGO */}
         <div className="h-20 flex items-center justify-between px-6 border-b border-slate-800/50 bg-[#0B1121]">
           <div className="flex items-center gap-3">
             {/* Logo Icon */}
@@ -93,7 +96,6 @@ export default function AdminSidebar({ open, setOpen }) {
         <nav className="flex-1 py-6 overflow-y-auto custom-scrollbar">
           <ul className="space-y-1.5 px-4">
             
-            {/* Section Label (Optionnel, pour faire pro) */}
             <li className="px-4 mb-2 text-[10px] font-bold uppercase text-slate-600 tracking-widest">
               Menu Principal
             </li>
@@ -105,7 +107,7 @@ export default function AdminSidebar({ open, setOpen }) {
                 <li key={href}>
                   <Link
                     href={href}
-                    onClick={() => setOpen(false)} // Ferme le menu sur mobile au clic
+                    onClick={() => setOpen(false)}
                     className={`
                       group flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 border
                       ${
@@ -125,7 +127,6 @@ export default function AdminSidebar({ open, setOpen }) {
                       <span>{label}</span>
                     </div>
 
-                    {/* Active Indicator or Badge */}
                     {active ? (
                       <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(99,102,241,0.8)]"></div>
                     ) : badge ? (

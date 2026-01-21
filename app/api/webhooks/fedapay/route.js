@@ -8,6 +8,8 @@ import User from "@/models/User";
 import { Resend } from "resend";
 import { paymentSuccessTemplate } from "@/lib/emailTemplates/paymentSuccessTemplate";
 import FedaPayProvider from "@/lib/payment/providers/FedaPayProvider";
+// ✅ 1. IMPORT DE LA FONCTION AFFILIATION
+import { processCommission } from "@/utils/affiliation";
 
 // const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -80,6 +82,18 @@ export async function POST(req) {
       }
 
       if (userId) {
+        // 🔥 🚀 2. DÉBUT BLOC AFFILIATION (AJOUTÉ ICI)
+        // On traite la commission dès qu'on a l'ID utilisateur et que le paiement est confirmé
+        try {
+           // On utilise tx.amount car c'est le montant réel enregistré dans la transaction
+           await processCommission(userId, tx.amount);
+           console.log(`🤝 Commission affiliation FedaPay traitée pour l'utilisateur ${userId}`);
+        } catch (affError) {
+           // Erreur non bloquante
+           console.error("❌ Erreur traitement affiliation FedaPay:", affError);
+        }
+        // 🔥 FIN BLOC AFFILIATION
+
         const user = await User.findById(userId);
         if (user) {
           try {

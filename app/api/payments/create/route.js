@@ -18,13 +18,15 @@ export async function POST(req) {
     const { projetId, kitData } = body;
 
     const settings = await Settings.findOne({ key: "global" }).lean();
-    const activeProviderName = settings.payment.activeProvider || "kkiapay";
+    
+    // On force Moneroo si c'est ta stratégie, sinon on garde la logique dynamique
+    const activeProviderName = settings.payment.activeProvider || "moneroo"; 
     const providerConfig = settings.payment[activeProviderName];
 
-    const PRICE = settings.payment.ebookPrice || 2100;
+    const PRICE = settings.payment.ebookPrice || 2000; // Mis à 2000 FCFA comme dans ta vidéo
     const CURRENCY = providerConfig.defaultCurrency || "XOF";
 
-    // Création transaction
+    // 1. Création transaction en BDD (Pending)
     const tx = await Transaction.create({
       userId: authUser.id,
       provider: activeProviderName,
@@ -42,10 +44,12 @@ export async function POST(req) {
     });
 
     const provider = await PaymentProviderService.getProvider(activeProviderName);
-    const callbackBase = settings.appDomain || "http://localhost:3000";
+    const callbackBase = settings.appDomain || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     
+    // URL où l'user revient après paiement
     const returnUrl = `${callbackBase}/dashboard/projets/nouveau?tx=${tx._id.toString()}`;
 
+    // 2. Appel au Provider (Moneroo)
     const paymentResult = await provider.createPayment({
       amount: PRICE,
       currency: CURRENCY,
@@ -53,31 +57,25 @@ export async function POST(req) {
       customerEmail: user.email,
       customerName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
       customerPhone: user.phone || '',
-      returnUrl
+      returnUrl,
+      
+      // 👇 ICI : ON ENVOIE LES DONNÉES CRITIQUES POUR LE WEBHOOK 👇
+      userId: authUser.id,
+      projetId: projetId,
+      transactionId: tx._id.toString() 
     });
 
+    // 3. Mise à jour avec l'ID Moneroo
     tx.providerTransactionId = paymentResult.transactionId;
     tx.paymentUrl = paymentResult.paymentUrl;
     await tx.save();
 
-    // 🔥 FIX : Retourner les bonnes données selon le mode
-    if (paymentResult.useWidget) {
-      return NextResponse.json({
-        success: true,
-        useWidget: true,
-        widgetConfig: paymentResult.widgetConfig,
-        transactionId: tx._id.toString(),
-        provider: activeProviderName
-      });
-    } else {
-      return NextResponse.json({
-        success: true,
-        useWidget: false,
-        paymentUrl: paymentResult.paymentUrl,
-        transactionId: tx._id.toString(),
-        provider: activeProviderName
-      });
-    }
+    return NextResponse.json({
+      success: true,
+      paymentUrl: paymentResult.paymentUrl,
+      transactionId: tx._id.toString(),
+      provider: activeProviderName
+    });
 
   } catch (error) {
     console.error('❌ Erreur create payment:', error);
