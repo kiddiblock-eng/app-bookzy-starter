@@ -16,7 +16,7 @@ import {
   ChevronRight,
   Youtube,
   LayoutDashboard,
-  Banknote // ✅ Toujours là pour l'affiliation
+  Banknote
 } from "lucide-react";
 
 export default function DashboardSidebar({ open, setOpen }) {
@@ -33,7 +33,6 @@ export default function DashboardSidebar({ open, setOpen }) {
     };
   }, [open]);
 
-  // ✅ CONFIGURATION MISE À JOUR : SECTION BUSINESS APRÈS BIBLIOTHÈQUE
   const sidebarConfig = [
     {
       title: "Général",
@@ -56,14 +55,12 @@ export default function DashboardSidebar({ open, setOpen }) {
         { label: "Mes fichiers", href: "/dashboard/fichiers", icon: Library },
       ]
     },
-    // 👇 NOUVELLE SECTION DÉDIÉE ICI
     {
       title: "Business",
       items: [
         { label: "Affiliation", href: "/dashboard/affiliation", icon: Banknote, badge: "CASH" },
       ]
     },
-    // -----------------------------
     {
       title: "Social",
       items: [
@@ -96,6 +93,7 @@ export default function DashboardSidebar({ open, setOpen }) {
     <>
       {/* SIDEBAR DESKTOP */}
       <aside className={`hidden lg:flex flex-col fixed left-0 top-0 z-40 h-screen w-[280px] bg-white border-r border-slate-100 shadow-[2px_0_20px_rgba(0,0,0,0.02)]`}>
+        {/* HEADER DESKTOP */}
         <div className="h-20 flex items-center px-8 flex-shrink-0">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center shadow-md">
@@ -105,6 +103,7 @@ export default function DashboardSidebar({ open, setOpen }) {
           </Link>
         </div>
 
+        {/* BOUTON ACTION DESKTOP */}
         <div className="px-6 pb-4 flex-shrink-0">
             <Link 
               href="/dashboard/projets/nouveau" 
@@ -116,7 +115,8 @@ export default function DashboardSidebar({ open, setOpen }) {
             </Link>
         </div>
 
-        <nav className="flex-1 px-4 py-2 flex flex-col gap-4 overflow-hidden">
+        {/* NAV DESKTOP - AVEC SCROLL */}
+        <nav className="flex-1 px-4 py-2 flex flex-col gap-4 overflow-y-auto overflow-x-hidden">
           {sidebarConfig.map((section) => (
             <div key={section.title}>
               <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">{section.title}</p>
@@ -149,6 +149,7 @@ export default function DashboardSidebar({ open, setOpen }) {
             </div>
           ))}
 
+          {/* SECTION AIDE DESKTOP - DANS LE SCROLL */}
           <div className="pt-3 border-t border-slate-50">
              <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Aide</p>
              <ul className="space-y-0">
@@ -169,8 +170,12 @@ export default function DashboardSidebar({ open, setOpen }) {
                 })}
              </ul>
           </div>
+
+          {/* ESPACEMENT POUR LE BOUTON DÉCONNEXION */}
+          <div className="h-2"></div>
         </nav>
 
+        {/* BOUTON DÉCONNEXION DESKTOP - FIXÉ EN BAS */}
         <div className="p-4 border-t border-slate-50 flex-shrink-0">
           <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all">
             <LogOut size={16} />
@@ -184,6 +189,7 @@ export default function DashboardSidebar({ open, setOpen }) {
         <>
             <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 lg:hidden" onClick={() => setOpen(false)} />
             <div className={`fixed lg:hidden top-0 left-0 z-50 w-[85%] max-w-[320px] h-full bg-white shadow-2xl flex flex-col transform transition-transform duration-300 ${open ? "translate-x-0" : "-translate-x-full"}`}>
+            
             {/* HEADER MOBILE */}
             <div className="h-16 flex items-center justify-between px-5 border-b border-slate-50 flex-shrink-0">
                 <Link href="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
@@ -210,8 +216,8 @@ export default function DashboardSidebar({ open, setOpen }) {
                 </Link>
             </div>
 
-            {/* NAV MOBILE */}
-            <nav className="flex-1 px-4 py-2 flex flex-col gap-2.5 overflow-hidden">
+            {/* NAV MOBILE - AVEC SCROLL ET ESPACEMENT */}
+            <nav className="flex-1 px-4 py-3 flex flex-col gap-3 overflow-y-auto overflow-x-hidden">
                 {sidebarConfig.map((section) => (
                     <div key={section.title}>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 px-2">{section.title}</p>
@@ -240,7 +246,8 @@ export default function DashboardSidebar({ open, setOpen }) {
                     </div>
                 ))}
 
-                <div className="pt-2 border-t border-slate-100">
+                {/* SECTION AIDE MOBILE - DANS LE SCROLL AVEC ESPACEMENT */}
+                <div className="pt-3 mt-2 border-t border-slate-100">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 px-2">Aide</p>
                     <ul className="space-y-0.5">
                     {bottomItems.map(({ label, href, icon: Icon }) => (
@@ -258,8 +265,12 @@ export default function DashboardSidebar({ open, setOpen }) {
                     ))}
                     </ul>
                 </div>
+
+                {/* ESPACEMENT AVANT LE BOUTON - PLUS GRAND */}
+                <div className="h-6"></div>
             </nav>
             
+            {/* BOUTON DÉCONNEXION MOBILE - FIXÉ EN BAS */}
             <div className="p-4 bg-slate-50 border-t flex-shrink-0">
                 <button onClick={handleLogout} className="w-full py-2.5 flex items-center justify-center gap-2 text-sm text-red-600 font-bold bg-white border border-slate-200 rounded-xl hover:bg-red-50 transition-all active:scale-[0.98]">
                     <LogOut size={16} /> 
