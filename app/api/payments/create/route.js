@@ -19,14 +19,14 @@ export async function POST(req) {
 
     const settings = await Settings.findOne({ key: "global" }).lean();
     
-    // On force Moneroo si c'est ta stratégie, sinon on garde la logique dynamique
-    const activeProviderName = settings.payment.activeProvider || "moneroo"; 
-    const providerConfig = settings.payment[activeProviderName];
+    // Si pas de provider défini, on fallback sur kkiapay pour la sécurité
+    const activeProviderName = settings.payment?.activeProvider || "kkiapay";
+    const providerConfig = settings.payment?.[activeProviderName];
 
-    const PRICE = settings.payment.ebookPrice || 2000; // Mis à 2000 FCFA comme dans ta vidéo
-    const CURRENCY = providerConfig.defaultCurrency || "XOF";
+    const PRICE = settings.payment?.ebookPrice || 2000;
+    const CURRENCY = providerConfig?.defaultCurrency || "XOF";
 
-    // 1. Création transaction en BDD (Pending)
+    // 1. Création transaction en BDD
     const tx = await Transaction.create({
       userId: authUser.id,
       provider: activeProviderName,
@@ -45,11 +45,10 @@ export async function POST(req) {
 
     const provider = await PaymentProviderService.getProvider(activeProviderName);
     const callbackBase = settings.appDomain || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    
-    // URL où l'user revient après paiement
     const returnUrl = `${callbackBase}/dashboard/projets/nouveau?tx=${tx._id.toString()}`;
 
-    // 2. Appel au Provider (Moneroo)
+    // 2. Appel au Provider
+    // On garde les nouveaux champs (userId, etc) car KkiaPay les ignorera simplement s'il n'en veut pas
     const paymentResult = await provider.createPayment({
       amount: PRICE,
       currency: CURRENCY,
@@ -59,23 +58,36 @@ export async function POST(req) {
       customerPhone: user.phone || '',
       returnUrl,
       
-      // 👇 ICI : ON ENVOIE LES DONNÉES CRITIQUES POUR LE WEBHOOK 👇
+      // Données supplémentaires (utiles pour Moneroo)
       userId: authUser.id,
       projetId: projetId,
       transactionId: tx._id.toString() 
     });
 
-    // 3. Mise à jour avec l'ID Moneroo
+    // 3. Mise à jour transaction
     tx.providerTransactionId = paymentResult.transactionId;
     tx.paymentUrl = paymentResult.paymentUrl;
     await tx.save();
 
-    return NextResponse.json({
-      success: true,
-      paymentUrl: paymentResult.paymentUrl,
-      transactionId: tx._id.toString(),
-      provider: activeProviderName
-    });
+    // 🔥🔥 LE RETOUR DU BLOC MANQUANT (CRITIQUE POUR KKIAPAY) 🔥🔥
+    if (paymentResult.useWidget) {
+      return NextResponse.json({
+        success: true,
+        useWidget: true,
+        widgetConfig: paymentResult.widgetConfig,
+        transactionId: tx._id.toString(),
+        provider: activeProviderName
+      });
+    } else {
+      // Pour Moneroo ou autres redirigeurs
+      return NextResponse.json({
+        success: true,
+        useWidget: false,
+        paymentUrl: paymentResult.paymentUrl,
+        transactionId: tx._id.toString(),
+        provider: activeProviderName
+      });
+    }
 
   } catch (error) {
     console.error('❌ Erreur create payment:', error);
