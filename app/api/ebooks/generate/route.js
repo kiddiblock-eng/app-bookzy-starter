@@ -158,7 +158,9 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     const titre = projet.titre;
     const description = projet.description;
     const template = projet.template || "modern";
-    
+    const audience = projet.audience || "grand public francophone";  
+    const tone = projet.tone || "professionnel et motivant";          // ✅ AJOUTE
+
     let authorName = "Auteur";
     try {
       if (userId) {
