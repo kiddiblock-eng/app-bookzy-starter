@@ -57,6 +57,43 @@ function extractJson(text) {
   return JSON.parse(match[0]);
 }
 
+// ✅ NOUVELLE FONCTION : Contexte selon le marché
+function getAnalysisContext(targetMarket) {
+  if (targetMarket === "africa") {
+    return {
+      intro: "Tu es un expert en marketing digital qui aide les créateurs d'eBooks en Afrique francophone.",
+      context: "🌍 Contexte : Afrique francophone (Sénégal, Côte d'Ivoire, Cameroun, etc.)",
+      examples: `Exemples de TON à utiliser :
+✓ "Les gens cherchent vraiment ça sur WhatsApp"
+✓ "Ça marche si tu cibles bien les jeunes de 20-35 ans"
+✓ "Propose des paiements Mobile Money (Wave, Orange Money)"
+
+Exemples de public cible :
+✓ "Les jeunes de 20-30 ans qui veulent se lancer mais ont peur de se planter"
+✓ "Les mamans au foyer qui cherchent à arrondir les fins de mois"
+✓ "Les étudiants qui veulent partir à l'étranger mais galèrent avec les dossiers"`,
+      currency: "FCFA",
+      platforms: "WhatsApp, Mobile Money, réseaux sociaux"
+    };
+  }
+
+  return {
+    intro: "Tu es un expert en marketing digital qui aide les créateurs d'eBooks.",
+    context: "🌐 Contexte : Marché francophone international",
+    examples: `Exemples de TON à utiliser :
+✓ "Les gens cherchent vraiment ça en ligne"
+✓ "Ça marche si tu cibles bien ton audience"
+✓ "Propose des paiements PayPal, Stripe ou cartes bancaires"
+
+Exemples de public cible :
+✓ "Les jeunes adultes de 20-35 ans qui veulent se lancer dans ce domaine"
+✓ "Les personnes cherchant une solution concrète à ce problème"
+✓ "Les débutants qui veulent apprendre sans se ruiner"`,
+    currency: "€/$",
+    platforms: "Réseaux sociaux, email, publicité en ligne"
+  };
+}
+
 export async function POST(req) {
   try {
     await dbConnect();
@@ -106,10 +143,13 @@ export async function POST(req) {
       });
     }
 
+    // ✅ RÉCUPÉRER LE CONTEXTE SELON LE MARCHÉ
+    const ctx = getAnalysisContext(analysis.targetMarket || "africa");
+
     // ------------------------------------------------------
-    // CONTEXTE DE BASE
+    // CONTEXTE DE BASE ADAPTATIF
     // ------------------------------------------------------
-    const base = `Tu es un expert africain en marketing digital qui aide les créateurs d'eBooks.
+    const base = `${ctx.intro}
 
 📚 L'eBook à analyser :
 - Titre : "${niche.title}"
@@ -117,11 +157,10 @@ export async function POST(req) {
 - Mots-clés : ${niche.keywords.join(", ")}
 ${niche.why_sells ? `- Pourquoi ça peut marcher : ${niche.why_sells}` : ''}
 
-🌍 Contexte : Afrique francophone (Sénégal, Côte d'Ivoire, Cameroun, etc.)
+${ctx.context}
 
 ⚠️ RÈGLES D'OR :
 - Parle comme un humain, pas comme une IA
-- Utilise des expressions africaines naturelles
 - Sois direct et concret
 - Zéro jargon marketing compliqué
 - Donne des conseils actionnables, pas de la théorie
@@ -130,12 +169,12 @@ ${niche.why_sells ? `- Pourquoi ça peut marcher : ${niche.why_sells}` : ''}
     // ------------------------------------------------------
     // 🚀 4 APPELS EN PARALLÈLE AVEC TON HUMAIN
     // ------------------------------------------------------
-    console.log(`🚀 Analyse de "${niche.title}" - 4 appels parallèles...`);
+    console.log(`🚀 Analyse de "${niche.title}" (Marché: ${analysis.targetMarket || 'africa'}) - 4 appels parallèles...`);
     const startTime = Date.now();
 
     const prompt1 = `${base}
 
-💪 Dis-moi franchement : POURQUOI cet eBook peut cartonner en Afrique ?
+💪 Dis-moi franchement : POURQUOI cet eBook peut cartonner ?
 
 Liste 3 points forts concrets et 3 trucs à surveiller.
 
@@ -155,10 +194,7 @@ JSON STRICT :
   ]
 }
 
-Exemples de TON à utiliser :
-✓ "Les gens cherchent vraiment ça sur WhatsApp"
-✓ "Le problème c'est que beaucoup promettent la même chose"
-✓ "Ça marche si tu cibles bien les jeunes de 20-35 ans"
+${ctx.examples}
 
 ❌ PAS DE :
 - "Cette niche présente un potentiel intéressant..."
@@ -180,11 +216,11 @@ JSON STRICT :
   ]
 }
 
-Exemples de TON à utiliser :
-✓ "Ajoute des témoignages vidéo de vrais Africains qui ont testé"
+Exemples de stratégies adaptées :
+✓ "Ajoute des témoignages vidéo de vrais clients qui ont testé"
 ✓ "Offre une garantie satisfait ou remboursé 7 jours"
 ✓ "Fais une version courte gratuite pour donner envie"
-✓ "Utilise des exemples 100% africains, pas des trucs d'Europe"
+✓ "Utilise des exemples concrets et réalistes"
 
 ❌ PAS DE :
 - "Optimiser le positionnement stratégique..."
@@ -192,7 +228,7 @@ Exemples de TON à utiliser :
 
     const prompt3 = `${base}
 
-📊 Donne-moi les chiffres du marché en Afrique francophone.
+📊 Donne-moi les chiffres du marché.
 
 Pas besoin d'être hyper précis, juste une idée réaliste.
 
@@ -221,10 +257,7 @@ JSON STRICT :
   "publicCible": "À qui vendre exactement (2-3 phrases max, ton naturel)"
 }
 
-Exemples de bon public cible :
-✓ "Les jeunes de 20-30 ans qui veulent se lancer mais ont peur de se planter"
-✓ "Les mamans au foyer qui cherchent à arrondir les fins de mois"
-✓ "Les étudiants qui veulent partir à l'étranger mais galèrent avec les dossiers"
+${ctx.examples}
 
 ❌ PAS DE :
 - "La cible démographique principale se compose de..."

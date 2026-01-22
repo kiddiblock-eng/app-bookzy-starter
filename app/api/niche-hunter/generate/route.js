@@ -18,7 +18,8 @@ export async function POST(req) {
       );
     }
 
-    const { theme } = await req.json();
+    const { theme, targetMarket } = await req.json();
+    
     if (!theme || theme.trim().length === 0) {
       return NextResponse.json(
         { success: false, message: "Le thème est requis." },
@@ -46,69 +47,82 @@ export async function POST(req) {
       );
     }
 
-    // ----------------------------------------------------------
-    // 🔥 NOUVEAU PROMPT - TITRES SÉRIEUX ET CRÉDIBLES
-    // ----------------------------------------------------------
-    const basePrompt = `Tu es un expert en création d'eBooks à succès pour l'Afrique francophone.
+    // ✅ Adapter le prompt selon targetMarket
+    const marketContext = getMarketContext(targetMarket || "africa", theme);
+
+    const basePrompt = `Tu es un expert en création d'eBooks à succès.
+
+${marketContext}
 
 🎯 GÉNÈRE 1 TITRE D'EBOOK PROFESSIONNEL sur : "${theme}"
+
+⚠️ RÈGLE CRITIQUE DE DIVERSITÉ :
+- Chaque titre doit avoir un ANGLE UNIQUE et DIFFÉRENT
+- Varie la structure (pas toujours "Sujet : Le guide pour...")
+- Change l'approche : débutant / expert / erreurs / stratégies / outils / cas pratiques
+- NE RÉPÈTE JAMAIS la même formulation
+
+✅ EXEMPLES DE TITRES VARIÉS (BONS) :
+
+Pour "Dropshipping" :
+✓ "Lancer son dropshipping rentable en 30 jours"
+✓ "Dropshipping : Les erreurs qui coûtent cher"
+✓ "Comment trouver les meilleurs fournisseurs dropshipping"
+✓ "Automatiser son business dropshipping"
+✓ "De 0 à 10 ventes par jour en dropshipping"
+✓ "Dropshipping : Choisir sa niche gagnante"
+✓ "Stratégies avancées de marketing dropshipping"
+✓ "Créer une boutique dropshipping qui convertit"
+
+❌ À ÉVITER (RÉPÉTITIF) :
+✗ "Dropshipping : Le guide pour démarrer"
+✗ "Dropshipping : Le guide pour créer sa boutique"
+✗ "Dropshipping : Le guide pour vendre en ligne"
+→ Tous commencent pareil !
 
 ✅ RÈGLES D'OR :
 1. Le titre doit sonner SÉRIEUX et CRÉDIBLE (pas spam/arnaque)
 2. Évite les chiffres trop précis genre "50 000 FCFA" ou "21 jours"
 3. Utilise des mots-clés que les gens recherchent vraiment
 4. Promets un résultat RÉALISTE et ATTEIGNABLE
-5. Adapté au contexte africain francophone
+5. **SOIS CRÉATIF : Chaque titre doit être DIFFÉRENT des autres**
 
-🔥 EXEMPLES DE BONS TITRES (SÉRIEUX) :
+🔥 STRUCTURES VARIÉES À UTILISER :
 
-BUSINESS/ARGENT :
-✓ "Monétiser ses compétences sur Internet : Guide pratique pour l'Afrique"
-✓ "Créer et vendre un produit digital rentable"
-✓ "Business en ligne : Les stratégies qui marchent vraiment"
-✓ "Freelance en Afrique : Trouver ses premiers clients"
+Structure 1 : Action directe
+→ "Lancer son [sujet] rentable"
+→ "Créer un [sujet] qui convertit"
 
-BEAUTÉ/SANTÉ :
-✓ "Soins naturels pour une peau éclatante"
-✓ "Perdre du poids durablement : Méthode adaptée à l'Afrique"
-✓ "Cheveux crépus : Routine complète pour une pousse saine"
-✓ "Alimentation saine avec les produits locaux africains"
+Structure 2 : Transformation
+→ "De débutant à expert en [sujet]"
+→ "Comment passer de [A] à [B]"
 
-AMOUR/RELATIONS :
-✓ "Construire une relation amoureuse épanouie"
-✓ "Reconquérir son ex : Stratégies psychologiques efficaces"
-✓ "Trouver l'amour après 30 ans : Guide moderne"
-✓ "Communication de couple : Les clés d'une relation durable"
+Structure 3 : Erreurs à éviter
+→ "[Sujet] : Les erreurs qui coûtent cher"
+→ "Éviter les pièges du [sujet]"
 
-VISA/VOYAGE :
-✓ "Dossier visa Schengen : Guide complet 2024"
-✓ "Partir étudier au Canada : Démarches et conseils"
-✓ "Voyager avec un budget limité : Destinations accessibles"
-✓ "Obtenir son visa étudiant : Stratégies éprouvées"
+Structure 4 : Méthode/Stratégie
+→ "La méthode complète pour [objectif]"
+→ "Stratégies avancées de [sujet]"
 
-COMPÉTENCES/FORMATION :
-✓ "Maîtriser Excel pour booster sa carrière"
-✓ "Apprendre l'anglais efficacement en autodidacte"
-✓ "Devenir développeur web : Parcours complet"
-✓ "Marketing digital : Les bases pour entrepreneurs africains"
+Structure 5 : Focus spécifique
+→ "Trouver sa niche en [sujet]"
+→ "Automatiser son [sujet]"
+
+Structure 6 : Promesse chiffrée réaliste
+→ "30 jours pour maîtriser le [sujet]"
+→ "Les 7 piliers du [sujet] rentable"
 
 🚫 À ÉVITER ABSOLUMENT :
-- Chiffres trop précis : "50 000 FCFA", "73 techniques", "21 jours"
-- Superlatifs exagérés : "RÉVOLUTIONNAIRE", "JAMAIS VU", "SECRET"
-- Promesses irréalistes : "Devenir millionnaire", "Sans effort"
+- Répéter "[Sujet] : Le guide pour..." 10 fois
+- Chiffres irréalistes : "Gagner 500K FCFA par jour"
+- Superlatifs exagérés : "RÉVOLUTIONNAIRE", "JAMAIS VU"
 - Titres trop longs : max 60 caractères
-- Style clickbait spam
-
-✅ PRÉFÈRE :
-- Titres informatifs et directs
-- Promesses réalistes
-- Mots-clés naturels
-- Ton professionnel mais accessible
 
 📋 FORMAT JSON STRICT :
 {
   "niches": [{
-    "title": "Titre professionnel et crédible (max 60 caractères)",
+    "title": "Titre UNIQUE et CRÉATIF (max 60 caractères)",
     "description": "Explication en 1 phrase de ce qu'apporte l'ebook",
     "difficulty": Nombre entier de 1 à 10,
     "competition": Nombre entier de 1 à 10,
@@ -119,26 +133,24 @@ COMPÉTENCES/FORMATION :
   }]
 }
 
-⚡ GÉNÈRE 1 TITRE SÉRIEUX ET VENDEUR pour "${theme}" :`;
+⚡ GÉNÈRE 1 TITRE UNIQUE, CRÉATIF ET DIFFÉRENT pour "${theme}" :`;
 
-    // ----------------------------------------------------------
-    // 🚀 10 APPELS EN PARALLÈLE AVEC ANGLES VARIÉS
-    // ----------------------------------------------------------
-    console.log(`🚀 Génération de niches pour "${theme}" - 10 appels parallèles...`);
+    // ✅ 10 APPELS EN PARALLÈLE AVEC ANGLES VRAIMENT DIFFÉRENTS
+    console.log(`🚀 Génération de niches pour "${theme}" (Marché: ${targetMarket || 'africa'}) - 10 appels parallèles...`);
     
     const startTime = Date.now();
 
     const prompts = [
-      basePrompt,
-      basePrompt + "\n\n💡 Focus : Guide pratique et actionnable",
-      basePrompt + "\n\n💡 Focus : Méthode pas-à-pas pour débutants",
-      basePrompt + "\n\n💡 Focus : Stratégies éprouvées et réalistes",
-      basePrompt + "\n\n💡 Focus : Formation complète sur le sujet",
-      basePrompt + "\n\n💡 Focus : Solutions adaptées au contexte africain",
-      basePrompt + "\n\n💡 Focus : Conseils d'experts accessibles à tous",
-      basePrompt + "\n\n💡 Focus : Erreurs à éviter + bonnes pratiques",
-      basePrompt + "\n\n💡 Focus : Tendances 2024-2025 dans ce domaine",
-      basePrompt + "\n\n💡 Focus : Cas pratiques et exemples concrets"
+      basePrompt + "\n\n💡 Angle UNIQUE : Guide complet pour débutants absolus",
+      basePrompt + "\n\n💡 Angle UNIQUE : Les erreurs fatales à éviter",
+      basePrompt + "\n\n💡 Angle UNIQUE : Stratégies avancées pour experts",
+      basePrompt + "\n\n💡 Angle UNIQUE : Méthode rapide de A à Z",
+      basePrompt + "\n\n💡 Angle UNIQUE : Outils et ressources indispensables",
+      basePrompt + "\n\n💡 Angle UNIQUE : Études de cas réels et concrets",
+      basePrompt + "\n\n💡 Angle UNIQUE : Automatisation et optimisation",
+      basePrompt + "\n\n💡 Angle UNIQUE : Trouver sa niche rentable",
+      basePrompt + "\n\n💡 Angle UNIQUE : Tendances et opportunités 2025",
+      basePrompt + "\n\n💡 Angle UNIQUE : Monétisation et passage à l'échelle"
     ];
 
     const calls = prompts.map(prompt => getAIText("nicheGenerate", prompt, 1200));
@@ -147,9 +159,7 @@ COMPÉTENCES/FORMATION :
     const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
     console.log(`⚡ 10 appels terminés en ${totalTime}s`);
 
-    // ----------------------------------------------------------
-    // 📦 EXTRACTION + MERGE
-    // ----------------------------------------------------------
+    // EXTRACTION + MERGE
     let allNiches = [];
 
     for (let i = 0; i < results.length; i++) {
@@ -183,9 +193,7 @@ COMPÉTENCES/FORMATION :
 
     console.log(`📦 Total niches avant déduplication : ${allNiches.length}`);
 
-    // ----------------------------------------------------------
-    // 🔍 DÉDUPLICATION (garder 10 meilleurs)
-    // ----------------------------------------------------------
+    // DÉDUPLICATION
     const uniqueNiches = [];
     const seenTitles = new Set();
 
@@ -207,9 +215,7 @@ COMPÉTENCES/FORMATION :
 
     console.log(`✅ Niches uniques sélectionnées : ${uniqueNiches.length}/10`);
 
-    // ----------------------------------------------------------
-    // 🏷️ AJOUT DES IDs
-    // ----------------------------------------------------------
+    // AJOUT DES IDs
     const nichesWithIds = uniqueNiches.map((n, i) => ({
       nicheId: `${Date.now()}-${i}`,
       title: n.title,
@@ -223,13 +229,12 @@ COMPÉTENCES/FORMATION :
       analyzed: false
     }));
 
-    // ----------------------------------------------------------
-    // 💾 SAUVEGARDE
-    // ----------------------------------------------------------
+    // SAUVEGARDE
     const nicheAnalysis = await NicheAnalysis.create({
       userId: user.id,
       country: user.country || "",
       theme: theme.trim(),
+      targetMarket: targetMarket || "africa",
       niches: nichesWithIds,
       generatedAt: new Date(),
       ip: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || null,
@@ -261,4 +266,33 @@ COMPÉTENCES/FORMATION :
       { status: 500 }
     );
   }
+}
+
+// ✅ FONCTION : Contexte selon le marché
+function getMarketContext(targetMarket, theme) {
+  // Détection automatique de mots-clés africains
+  const africanKeywords = [
+    'afrique', 'africain', 'sénégal', 'côte d\'ivoire', 'mali', 'niger',
+    'burkina', 'bénin', 'togo', 'cameroun', 'congo', 'gabon',
+    'fcfa', 'cemac', 'uemoa', 'dakar', 'abidjan', 'yaoundé',
+    'mobile money', 'orange money', 'wave', 'mtn', 'attiéké', 'maquis'
+  ];
+
+  const isAfricanTopic = africanKeywords.some(keyword => 
+    theme.toLowerCase().includes(keyword)
+  );
+
+  if (targetMarket === "africa" || (targetMarket === "auto" && isAfricanTopic)) {
+    return `🌍 CONTEXTE MARCHÉ AFRICAIN FRANCOPHONE :
+- Exemples adaptés au contexte africain
+- Solutions accessibles et réalistes pour l'Afrique
+- Références locales quand pertinent (villes, défis, opportunités)
+- Ton professionnel et pragmatique`;
+  }
+
+  return `🌐 CONTEXTE MARCHÉ INTERNATIONAL :
+- Exemples universels et concrets
+- Stratégies applicables partout dans le monde francophone
+- Références internationales (Europe, Amérique, Asie...)
+- ⚠️ NE FORCE PAS le contexte africain si le sujet est universel`;
 }

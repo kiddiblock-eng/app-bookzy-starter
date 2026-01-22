@@ -8,7 +8,6 @@ import User from "@/models/User";
 import { Resend } from "resend";
 import { paymentSuccessTemplate } from "@/lib/emailTemplates/paymentSuccessTemplate";
 import MonerooProvider from "@/lib/payment/providers/MonerooProvider";
-// On importe ton système d'affiliation
 import { processCommission } from "@/utils/affiliation";
 
 export async function POST(req) { 
@@ -24,7 +23,6 @@ export async function POST(req) {
     const payload = await req.json();
     console.log("📩 [Moneroo] Webhook reçu.");
 
-    // Extraction de l'ID depuis le webhook (peut être dans .data ou à la racine)
     const webhookDataRaw = payload.data || payload; 
     const monerooTransactionId = webhookDataRaw.id;
 
@@ -33,18 +31,13 @@ export async function POST(req) {
         return NextResponse.json({ success: true });
     }
 
-    // 1️⃣ SÉCURITÉ ABSOLUE : On ne fait pas confiance au webhook.
-    // On appelle Moneroo pour vérifier le vrai statut.
     console.log(`🔍 [Moneroo] Vérification API pour ${monerooTransactionId}...`);
     const verifiedData = await provider.verifyPayment(monerooTransactionId);
 
-    // On récupère les IDs depuis les metadata vérifiées
     const internalTxId = verifiedData.metadata?.transactionId;
 
-    // 2️⃣ Recherche de la transaction en base
     let tx = await Transaction.findOne({ providerTransactionId: monerooTransactionId });
     
-    // Fallback : Si pas trouvé par ID Moneroo, on cherche par ID interne
     if (!tx && internalTxId) {
         tx = await Transaction.findById(internalTxId);
     }
@@ -54,9 +47,8 @@ export async function POST(req) {
       return NextResponse.json({ success: true }); 
     }
 
-    // 3️⃣ Mise à jour du statut
     tx.status = verifiedData.status;
-    tx.providerTransactionId = verifiedData.transactionId; // On s'assure qu'il est bien enregistré
+    tx.providerTransactionId = verifiedData.transactionId;
     tx.providerResponse = { 
         webhook: payload,
         verification: verifiedData.rawResponse 
@@ -64,25 +56,52 @@ export async function POST(req) {
     
     const isPaid = verifiedData.status === 'completed';
 
-    // 4️⃣ LOGIQUE MÉTIER SI PAYÉ
     if (isPaid && !tx.completedAt) {
       tx.completedAt = new Date();
       await tx.save();
       console.log("💰 [Moneroo] Paiement VALIDÉ pour:", tx._id);
 
-      // A. DÉBLOQUER LE PROJET
+      // A. DÉBLOQUER LE PROJET + 🚀 LANCER GÉNÉRATION
       if (tx.projetId) {
         await Projet.findByIdAndUpdate(tx.projetId, { 
-            isPaid: true, 
+            isPaid: true,
+            status: "processing",  // ✅ AJOUTÉ
+            progress: 5,           // ✅ AJOUTÉ
             updatedAt: new Date(), 
             transactionId: tx._id 
         });
+
+        // 🚀 NOUVEAU : Lancer la génération
+        console.log(`🚀 [Moneroo] Démarrage génération pour projet ${tx.projetId}`);
+        
+        const baseUrl = process.env.NODE_ENV === 'production' 
+          ? 'https://app.bookzy.io' 
+          : 'http://localhost:3000';
+
+        fetch(`${baseUrl}/api/ebooks/generate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            projetId: tx.projetId.toString(),
+            transactionId: tx._id.toString(),
+            force: true 
+          })
+        })
+        .then(res => {
+          console.log(`✅ [Moneroo] Génération lancée, status: ${res.status}`);
+          return res.json();
+        })
+        .then(data => {
+          console.log(`✅ [Moneroo] Réponse génération:`, data);
+        })
+        .catch(err => {
+          console.error("❌ [Moneroo] Erreur génération:", err.message);
+        });
       }
 
-      // B. AFFILIATION (Sécurisée avec Try/Catch)
+      // B. AFFILIATION (INCHANGÉ ✅)
       if (tx.userId) {
           try {
-             // Si l'affiliation plante, ça ne bloquera PAS la suite
              await processCommission(tx.userId, tx.amount);
              console.log(`🤝 Commission affiliation générée pour user ${tx.userId}`);
           } catch (affError) {
@@ -90,7 +109,7 @@ export async function POST(req) {
           }
       }
 
-      // C. ENVOYER L'EMAIL
+      // C. EMAIL (INCHANGÉ ✅)
       if (tx.userId) {
         const user = await User.findById(tx.userId);
         if (user) {
@@ -121,7 +140,6 @@ export async function POST(req) {
 
   } catch (error) {
     console.error("❌ [Moneroo] Webhook Crash:", error);
-    // On renvoie 500 pour que Moneroo réessaie plus tard si c'est un crash serveur
     return NextResponse.json({ success: false }, { status: 500 });
   }
 }
