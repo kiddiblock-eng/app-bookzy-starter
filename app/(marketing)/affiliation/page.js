@@ -131,7 +131,7 @@ const AffiliationFooter = () => {
         
         <div className="border-t border-slate-100 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-slate-400">
           <p>© 2026 Bookzy Inc.</p>
-          <p>Fait avec ❤️ à Abidjan.</p>
+          
         </div>
       </div>
     </footer>
