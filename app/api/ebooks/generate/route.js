@@ -288,24 +288,61 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     let adsTexts = { facebook: "", whatsapp: "", long: "", landing: "" };
     try {
       const promptAds = `
-        Tu es un Copywriter Expert. Rédige 4 contenus marketing distincts pour vendre l'ebook : "${titre}".
-        
-        1. FACEBOOK_INSTA: Une publicité courte et percutante avec emojis (max 150 mots).
-        2. WHATSAPP: Un message de diffusion directe pour relancer (max 100 mots).
-        3. LONG_COPY: Un post LinkedIn/Blog avec storytelling (max 300 mots).
-        4. LANDING_PAGE: Structure texte de la page de vente avec titre, sous-titre, 3 bénéfices, CTA (max 200 mots).
-        5. INTERDIT : Pas de Markdown (*, #, **), seulement du texte brut.
-
-        FORMAT STRICT :
-        ---FACEBOOK---
-        (texte facebook)
-        ---WHATSAPP---
-        (texte whatsapp)
-        ---LONG---
-        (texte long)
-        ---LANDING---
-        (texte landing)
-      `;
+  Tu es un Copywriter Expert spécialisé en marketing digital. 
+  
+  Rédige 4 contenus marketing distincts pour vendre l'ebook : "${titre}".
+  Description : ${description}
+  Audience cible : ${audience}
+  Ton : ${tone}
+  
+  CONTEXTE : Adapte le contenu en fonction du sujet de l'ebook. Si le sujet concerne l'Afrique, mentionne-le naturellement. Sinon, reste générique et universel.
+  
+  CONTENUS À CRÉER :
+  
+  1. FACEBOOK_INSTA : 
+     - Publicité courte et percutante (max 150 mots)
+     - Commence par un hook captivant
+     - Utilise des emojis pertinents
+     - Termine par un CTA clair
+  
+  2. WHATSAPP : 
+     - Message de diffusion directe (max 100 mots)
+     - Ton personnel et conversationnel
+     - Crée l'urgence ou la curiosité
+     - CTA direct et actionnable
+  
+  3. LONG_COPY : 
+     - Post LinkedIn/Blog avec storytelling (max 300 mots)
+     - Commence par une accroche émotionnelle ou un problème
+     - Développe la transformation promise
+     - Preuve sociale ou autorité (sans inventer de chiffres)
+     - CTA professionnel
+  
+  4. LANDING_PAGE :
+     - Titre percutant (promesse claire)
+     - Sous-titre (contexte/problème)
+     - 3 bénéfices concrets et spécifiques
+     - CTA irrésistible
+     - Max 200 mots au total
+  
+  RÈGLES STRICTES :
+  - Pas de Markdown (*, #, **, etc.)
+  - Pas de mentions génériques comme "mon ebook" ou "ce guide"
+  - Utilise le titre exact : "${titre}"
+  - Adapte le vocabulaire à l'audience : ${audience}
+  - Reste authentique et crédible (pas de chiffres inventés)
+  - Si le sujet ne concerne PAS l'Afrique, n'en parle PAS
+  
+  FORMAT DE SORTIE OBLIGATOIRE :
+  ---FACEBOOK---
+  (texte facebook)
+  ---WHATSAPP---
+  (texte whatsapp)
+  ---LONG---
+  (texte long)
+  ---LANDING---
+  (texte landing)
+`;
 
       const raw = await getAIWithRetry("ads", promptAds, 3000);
       
