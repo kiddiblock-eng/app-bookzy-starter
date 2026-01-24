@@ -703,23 +703,44 @@ export async function POST(req) {
       }
       
       userId = projet.userId?._id || projet.userId;
-    } else {
-        if (transactionId) {
-            const existing = await Projet.findOne({ transactionId });
-            if (existing) {
-                return NextResponse.json({ 
-                    success: true, 
-                    alreadyGenerated: existing.status === "COMPLETED",
-                    projetId: existing._id.toString(), 
-                    pdfUrl: existing.pdfUrl, 
-                    adsTexts: existing.adsTexts,
-                    status: existing.status 
-                });
-            }
-        }
-        
-        let { titre, description, tone, audience, pages, chapters, template: bodyTemplate, outline: bodyOutline } = body;
-        
+   } else {
+    // ✅ SÉCURITÉ : Vérifier que le transactionId existe
+    if (!transactionId) {
+        return NextResponse.json({ 
+            success: false, 
+            message: "Accès refusé : paiement requis" 
+        }, { status: 403 });
+    }
+
+    // ✅ SÉCURITÉ : Vérifier que la transaction est valide et payée
+    const tx = await Transaction.findById(transactionId);
+    if (!tx) {
+        return NextResponse.json({ 
+            success: false, 
+            message: "Transaction introuvable" 
+        }, { status: 404 });
+    }
+    if (tx.status !== "completed") {
+        return NextResponse.json({ 
+            success: false, 
+            message: "Paiement non confirmé" 
+        }, { status: 403 });
+    }
+
+    // ✅ Vérifier si un projet existe déjà pour cette transaction
+    const existing = await Projet.findOne({ transactionId });
+    if (existing) {
+        return NextResponse.json({ 
+            success: true, 
+            alreadyGenerated: existing.status === "COMPLETED",
+            projetId: existing._id.toString(), 
+            pdfUrl: existing.pdfUrl, 
+            adsTexts: existing.adsTexts,
+            status: existing.status 
+        });
+    }
+    
+    let { titre, description, tone, audience, pages, chapters, template: bodyTemplate, outline: bodyOutline } = body;
         let templateFinal; 
         let outlineFinal = bodyOutline;
 
