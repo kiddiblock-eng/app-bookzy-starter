@@ -83,7 +83,7 @@ async function generatePhase1(projetId, userId, providedOutline) {
     const WORDS_PER_PAGE = 220;
     const totalWordsTarget = Math.max(10, Number(pages)) * WORDS_PER_PAGE;
     const chapterWordsTotal = Math.floor(totalWordsTarget * 0.80);
-    const wordsPerChapter = Math.floor(chapterWordsTotal / totalChapters);
+    const wordsPerChapter = Math.floor((chapterWordsTotal / totalChapters) * 1.2);
 
     console.log(`📊 [PHASE 1] Config: ${totalChapters} chapitres, ${wordsPerChapter} mots/chapitre, Template: ${template}`);
 
