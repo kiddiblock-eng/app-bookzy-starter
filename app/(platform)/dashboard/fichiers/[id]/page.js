@@ -159,7 +159,9 @@ export default function FichierDetailPage({ params }) {
                                     <Download className="w-4 h-4"/> Télécharger
                                 </a>
                             ) : (
-                                <div className="py-3.5 bg-white/10 rounded-xl text-xs font-bold text-slate-400">En cours...</div>
+                                 <a href="/dashboard/projets" className="flex items-center justify-center gap-2 w-full py-3.5 bg-orange-100 hover:bg-orange-200 text-orange-700 rounded-xl font-bold text-sm transition-all border border-orange-300">
+         Aller dans Mes Projets
+    </a>
                             )}
                         </div>
                     </div>
@@ -259,7 +261,7 @@ function LoadingSkeleton() {
     return (
         <div className="min-h-screen bg-[#FAFAFA] flex flex-col items-center justify-center">
              <div className="w-10 h-10 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin mb-4"></div>
-             <p className="text-slate-400 font-bold text-xs">Récupération des données...</p>
+             <p className="text-slate-400 font-bold text-xs">Récupération...</p>
         </div>
     )
 }
