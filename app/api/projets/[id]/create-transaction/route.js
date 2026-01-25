@@ -57,7 +57,7 @@ export async function POST(req, { params }) {
       template: projet.template,
       tone: projet.tone,
       audience: projet.audience,
-      outline: projet.outline
+      outline: projet.summary ? projet.summary.split("\n") : [] // ✅ LIGNE MODIFIÉE
     };
 
     // ✅ Appel interne à /api/payments/create
