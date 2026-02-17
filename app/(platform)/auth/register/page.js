@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation"; // ✅ AJOUTÉ useSearchParams
 import { 
   Loader2, 
   Mail, 
@@ -34,6 +34,9 @@ function BookOpenSVG(props) {
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams(); // ✅ NOUVEAU
+  const refCode = searchParams.get('ref'); // ✅ NOUVEAU : Lire ?ref=XXX
+  
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -82,6 +85,7 @@ export default function RegisterPage() {
           lastName: form.lastName,
           email: form.email,
           password: form.password,
+          referralCode: refCode, // ✅ NOUVEAU : Envoyer le code au backend
         }),
       });
 
@@ -154,6 +158,8 @@ export default function RegisterPage() {
 
           {/* Form */}
           <form onSubmit={submit} className="space-y-5">
+            {/* ... tous les champs inchangés ... */}
+            
             {/* Prénom & Nom */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -322,7 +328,11 @@ export default function RegisterPage() {
           {/* Bouton Google */}
           <button
             onClick={() => {
-              window.location.href = '/api/auth/google';
+              // ✅ MODIFIÉ : Ajouter ?ref=XXX au lien Google OAuth
+              const googleUrl = refCode 
+                ? `/api/auth/google?ref=${refCode}`
+                : '/api/auth/google';
+              window.location.href = googleUrl;
             }}
             type="button"
             className="w-full py-3 bg-white border-2 border-slate-200 hover:border-slate-300 text-slate-700 font-bold rounded-xl flex items-center justify-center gap-3 transition-all hover:shadow-md mb-6"
