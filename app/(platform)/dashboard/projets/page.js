@@ -47,9 +47,7 @@ export default function ProjetsPage() {
         colorSeed: e._id.substring(0, 6), 
         retryCount: e.retryCount || 0,
         isPaid: e.isPaid,
-        transactionId: e.transactionId,
-        statut: !e.isPaid ? "attente_paiement"
-              : e.status === "COMPLETED" && e.fileUrl ? "terminé"
+        statut: e.status === "COMPLETED" && e.fileUrl ? "terminé" 
               : e.status === "ERROR" || isStuck ? "erreur"
               : "en cours"
       };
@@ -110,11 +108,9 @@ export default function ProjetsPage() {
         {projets.length > 0 && (
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
              <div className="flex gap-1 bg-slate-100 p-1 rounded-lg overflow-x-auto max-w-full no-scrollbar">
-                {['all', 'attente_paiement', 'en cours', 'terminé', 'erreur'].map(status => (
+                {['all', 'terminé', 'en cours', 'erreur'].map(status => (
                   <button key={status} onClick={() => setFilterStatus(status)} className={`px-4 py-1.5 rounded-md text-xs font-bold capitalize transition-all whitespace-nowrap ${filterStatus === status ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
-                    {status === 'all' ? 'Tout voir' 
-                     : status === 'attente_paiement' ? '⏳ En attente' 
-                     : status}
+                    {status === 'all' ? 'Tout voir' : status}
                   </button>
                 ))}
              </div>
@@ -174,6 +170,7 @@ function ProjectCard({ projet, viewMode }) {
   const bgGradient = gradients[colorIndex];
   const isList = viewMode === 'list';
 
+  // ✅ CORRIGÉ : Polling avec gestion du succès
   useEffect(() => {
     if (!showProgressModal) return;
 
@@ -189,10 +186,13 @@ function ProjectCard({ projet, viewMode }) {
             pdfUrl: data.pdfUrl
           });
 
+          // ✅ CORRIGÉ : Si terminé, arrêter le polling (pas de reload auto)
           if (data.status === 'COMPLETED' && data.pdfUrl) {
+            // Arrêter le polling, laisser le user cliquer sur download
             return;
           }
 
+          // ✅ Si erreur, arrêter et afficher l'erreur
           if (data.status === 'ERROR') {
             setTimeout(() => {
               setShowProgressModal(false);
@@ -211,75 +211,6 @@ function ProjectCard({ projet, viewMode }) {
 
     return () => clearInterval(interval);
   }, [showProgressModal, projet._id]);
-
- const handlePayment = async () => {
-  try {
-    // ✅ Si pas de transactionId, en créer une nouvelle
-    if (!projet.transactionId) {
-      console.log("⚠️ Pas de transactionId, création via API...");
-      
-      const createRes = await fetch(`/api/projets/${projet._id}/create-transaction`, {
-        method: "POST"
-      });
-      
-      const createData = await createRes.json();
-      
-      if (!createData.success) {
-        alert("Impossible de créer le paiement. Réessayez.");
-        return;
-      }
-
-      // ✅ Si widget KkiaPay (mode LIVE)
-      if (createData.useWidget) {
-        if (typeof window.openKkiapayWidget !== 'function') {
-          alert('Erreur: SDK KkiaPay non chargé. Rechargez la page.');
-          return;
-        }
-
-        window.addSuccessListener((response) => {
-          window.location.href = `/dashboard/projets?success=true`;
-        });
-
-        window.addFailedListener(() => {
-          alert('Paiement annulé');
-        });
-
-        window.openKkiapayWidget({
-          amount: createData.widgetConfig.amount,
-          key: createData.widgetConfig.api_key,
-          sandbox: createData.widgetConfig.sandbox,
-          email: createData.widgetConfig.email || '',
-          phone: createData.widgetConfig.phone || '',
-          name: createData.widgetConfig.name || 'Client Bookzy'
-        });
-      } 
-      // ✅ Sinon redirection classique (Moneroo)
-      else if (createData.paymentUrl) {
-        window.location.href = createData.paymentUrl;
-      } else {
-        alert("Erreur: pas d'URL de paiement");
-      }
-      
-      return;
-    }
-    
-    // ✅ Sinon, utiliser le transactionId existant
-    console.log("✅ transactionId existe:", projet.transactionId);
-    const res = await fetch(`/api/get-transaction/${projet.transactionId}`);
-    const data = await res.json();
-    
-    if (data.success && data.transaction?.paymentUrl) {
-      window.location.href = data.transaction.paymentUrl;
-    } else {
-      alert("URL de paiement introuvable. Réessayez.");
-    }
-  } catch (error) {
-    console.error("Erreur paiement:", error);
-    alert("Une erreur est survenue.");
-  }
-};
-
- 
 
   const handleRetry = async () => {
     if (isRetrying) return;
@@ -331,14 +262,7 @@ function ProjectCard({ projet, viewMode }) {
            <div className="flex items-center gap-4 text-xs text-slate-500 font-medium mb-4"> <span className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-md border border-slate-100"><FileText className="w-3 h-3 text-slate-400"/> {projet.pages} pages</span> </div>
            
            <div className="flex items-center gap-2 mt-auto">
-              {projet.statut === "attente_paiement" ? (
-                <button
-                  onClick={handlePayment}
-                  className="flex-1 flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white py-2.5 rounded-lg text-xs font-bold transition-all shadow-md"
-                >
-                  💳 Finaliser le paiement
-                </button>
-              ) : projet.statut === "terminé" && projet.fileUrl ? (
+              {projet.statut === "terminé" && projet.fileUrl ? (
                 <a href={projet.fileUrl} download className="flex-1 flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-lg text-xs font-bold transition-all shadow-md group-hover:shadow-lg">
                   <Download className="w-3.5 h-3.5" /> Télécharger
                 </a>
@@ -383,7 +307,6 @@ function ProjectCard({ projet, viewMode }) {
                   <AlertCircle className="w-3.5 h-3.5" /> Erreur
                 </div>
               )}
-              
               <button className="p-2.5 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-50">
                 <MoreVertical className="w-4 h-4"/>
               </button>
@@ -409,26 +332,15 @@ function ProjectCard({ projet, viewMode }) {
 
 function StatusBadge({ status, mini }) {
     if (status === "terminé") {
-        return <div className={`bg-white/90 backdrop-blur-sm text-green-600 rounded-full flex items-center justify-center ${mini ? 'w-4 h-4' : 'px-2 py-1 text-[10px] font-bold shadow-sm'}`}> 
-          {mini ? <CheckCircle2 className="w-3 h-3"/> : <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Prêt</span>} 
-        </div>
+        return <div className={`bg-white/90 backdrop-blur-sm text-green-600 rounded-full flex items-center justify-center ${mini ? 'w-4 h-4' : 'px-2 py-1 text-[10px] font-bold shadow-sm'}`}> {mini ? <CheckCircle2 className="w-3 h-3"/> : <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Prêt</span>} </div>
     }
-    
     if (status === "en cours") {
-        return <div className={`bg-white/90 backdrop-blur-sm text-indigo-600 rounded-full flex items-center justify-center ${mini ? 'w-4 h-4' : 'px-2 py-1 text-[10px] font-bold shadow-sm'}`}> 
-          {mini ? <Loader2 className="w-3 h-3 animate-spin"/> : <span className="flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin"/> En cours</span>} 
-        </div>
+        return <div className={`bg-white/90 backdrop-blur-sm text-indigo-600 rounded-full flex items-center justify-center ${mini ? 'w-4 h-4' : 'px-2 py-1 text-[10px] font-bold shadow-sm'}`}> {mini ? <Loader2 className="w-3 h-3 animate-spin"/> : <span className="flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin"/> En cours</span>} </div>
     }
-    
-    if (status === "attente_paiement") {
-        return <div className={`bg-white/90 backdrop-blur-sm text-orange-600 rounded-full flex items-center justify-center ${mini ? 'w-4 h-4' : 'px-2 py-1 text-[10px] font-bold shadow-sm'}`}> 
-          {mini ? <Clock className="w-3 h-3"/> : <span className="flex items-center gap-1"><Clock className="w-3 h-3"/> Attente</span>} 
-        </div>
-    }
-    
     return null;
 }
 
+// ✅ CORRIGÉ : Modal avec download qui reload après clic
 function ProgressModal({ titre, progress, status, pdfUrl, onClose }) {
   const getStatusMessage = () => {
     if (status === 'COMPLETED' && pdfUrl) {
