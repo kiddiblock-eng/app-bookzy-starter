@@ -58,7 +58,7 @@ export default async function middleware(req) {
     if (
       pathname.startsWith("/auth/login") || 
       pathname.startsWith("/auth/register") ||
-      pathname.startsWith("/auth/callback-success") // ← AJOUTÉ
+      pathname.startsWith("/auth/callback-success")
     ) {
       return NextResponse.next();
     }
@@ -107,11 +107,10 @@ export default async function middleware(req) {
         response = NextResponse.next();
       }
     } 
-    // 🔥 CORRECTION : Permet toujours l'accès à ces pages d'auth
     else if (
       pathname.startsWith("/auth/login") || 
       pathname.startsWith("/auth/register") ||
-      pathname.startsWith("/auth/callback-success") // ← AJOUTÉ
+      pathname.startsWith("/auth/callback-success")
     ) {
       response = NextResponse.next();
     }
@@ -140,10 +139,22 @@ export default async function middleware(req) {
     }
   } 
   else {
+    // ✅ CAS : User sur www.bookzy.io clique un lien vers app
     const authRoutes = ["/dashboard", "/admin", "/auth", "/setup"];
     
     if (authRoutes.some(route => pathname.startsWith(route))) {
-      response = NextResponse.redirect(new URL(pathname + search, APP_URL), { status: 307 });
+      // ✅ NOUVEAU : Lire le cookie bookzy_ref
+      const refCookie = req.cookies.get("bookzy_ref")?.value;
+      
+      // ✅ Construire l'URL avec ?ref= si présent
+      const targetUrl = new URL(pathname + search, APP_URL);
+      
+      // ✅ Ajouter ?ref= pour /auth/register et /api/auth/google
+      if (refCookie && (pathname.includes('/auth/register') || pathname.includes('/api/auth/google'))) {
+        targetUrl.searchParams.set('ref', refCookie);
+      }
+      
+      response = NextResponse.redirect(targetUrl, { status: 307 });
     } 
     else {
       response = NextResponse.next();
