@@ -143,14 +143,17 @@ export default async function middleware(req) {
     const authRoutes = ["/dashboard", "/admin", "/auth", "/setup"];
     
     if (authRoutes.some(route => pathname.startsWith(route))) {
-      // ✅ NOUVEAU : Lire le cookie bookzy_ref
+      // ✅ Lire le cookie bookzy_ref
       const refCookie = req.cookies.get("bookzy_ref")?.value;
       
-      // ✅ Construire l'URL avec ?ref= si présent
+      // ✅ Construire l'URL cible
       const targetUrl = new URL(pathname + search, APP_URL);
       
-      // ✅ Ajouter ?ref= pour /auth/register et /api/auth/google
-      if (refCookie && (pathname.includes('/auth/register') || pathname.includes('/api/auth/google'))) {
+      // ✅ Ajouter ?ref= pour /auth/register, /api/auth/google, et /api/auth/google/callback
+      if (refCookie && (
+        pathname.includes('/auth/register') || 
+        pathname.includes('/api/auth/google')
+      )) {
         targetUrl.searchParams.set('ref', refCookie);
       }
       
