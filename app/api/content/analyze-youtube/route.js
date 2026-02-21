@@ -48,10 +48,21 @@ export async function POST(req) {
 
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
     const { payload } = await jwtVerify(token, secret);
-    const userId = payload.userId;
+    
+    // ✅ FIX: Utiliser "id" au lieu de "userId" (c'est ce que le login envoie)
+    const userId = payload.id;
+    
+    // Debug pour vérifier
+    console.log("🔍 [AUTH] userId extrait:", userId);
+
+    if (!userId) {
+      return NextResponse.json({ success: false, message: "Session invalide" }, { status: 401 });
+    }
 
     // 2. Vérification Quota
     const todayCount = await getAnalysisCount(userId);
+    console.log("🔍 [QUOTA] todayCount:", todayCount);
+    
     if (todayCount >= 3) return NextResponse.json({ 
       success: false, 
       message: "Limite quotidienne atteinte (3 analyses/jour). Revenez demain !",

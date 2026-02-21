@@ -455,7 +455,7 @@ function NouveauProjetPageContent() {
             {/* TITRE PAGE */}
             <div className="text-center mb-10">
               <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">
-                Créez votre ebook
+                Générez votre ebook
               </h1>
               <p className="text-slate-500 text-sm">
                 En quelques clics, obtenez un ebook professionnel prêt à vendre

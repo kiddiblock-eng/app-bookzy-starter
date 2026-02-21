@@ -72,9 +72,14 @@ export default function LoginPage() {
         throw new Error(data.message);
       }
 
+      // ✅ CLEAR TOUT AVANT DE STOCKER LE NOUVEAU USER
+      sessionStorage.clear();
+      localStorage.clear();
+      
       localStorage.setItem("bookzyUserId", data.data.user.id);
       setSuccess(true);
 
+      // ✅ VIDER LE CACHE SWR
       await mutate(() => true, undefined, { revalidate: false });
 
       setTimeout(() => {
@@ -226,6 +231,9 @@ export default function LoginPage() {
               {/* Bouton Google */}
               <button
                 onClick={() => {
+                  // ✅ CLEAR AVANT GOOGLE LOGIN AUSSI
+                  sessionStorage.clear();
+                  localStorage.clear();
                   window.location.href = '/api/auth/google';
                 }}
                 type="button"
