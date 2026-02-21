@@ -574,7 +574,7 @@ function NouveauProjetPageContent() {
                     disabled={!isFormValid}
                     className="w-full py-4 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
                   >
-                    Générer l'aperçu
+                    Générer maintenant
                     <ArrowRight className="w-4 h-4" />
                   </button>
 
