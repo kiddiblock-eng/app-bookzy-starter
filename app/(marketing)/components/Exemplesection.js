@@ -8,14 +8,14 @@ const examples = [
     id: 1,
     title: "TikTok sans visage",
     category: "Business",
-    cover: "/1.png",
+    cover: "/1.PNG",
     pdfUrl: "https://res.cloudinary.com/dcmlw5hak/raw/upload/v1766663881/bookzy/ebooks/tiktok-sans-visage-monetisez-votre-compte-avec-lia-guide-debutant-694d26256694fe.pdf",
   },
   {
     id: 2,
     title: "E-commerce Afrique",
     category: "Formation",
-    cover: "/2.png",
+    cover: "/2.PNG",
     pdfUrl: "https://res.cloudinary.com/dcmlw5hak/raw/upload/v1766670419/bookzy/ebooks/e-commerce-afrique-le-guide-ultime-pour-lancer-et-generer-des-profits-a-partir-d.pdf",
   },
 ];
