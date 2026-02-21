@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import DashboardSidebar from "@/app/(platform)/components/DashboardSidebar";
 import DashboardHeader from "@/app/(platform)/components/DashboardHeader";
 import EmailVerificationBanner from "@/app/(platform)/components/EmailVerificationBanner";
+import { MessageCircle, X, Send } from "lucide-react";
 
-// ✅ Hook de tracking des utilisateurs actifs (Inchangé)
+// ✅ Hook de tracking des utilisateurs actifs
 function useActiveUserPing() {
   useEffect(() => {
     const sendPing = () => {
@@ -21,7 +22,7 @@ function useActiveUserPing() {
   }, []);
 }
 
-// 🔥 Hook OPTIMISÉ pour récupérer le user (Inchangé)
+// 🔥 Hook OPTIMISÉ pour récupérer le user
 function useCurrentUser() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -67,12 +68,12 @@ function useCurrentUser() {
 
 export default function DashboardLayout({ children }) {
   const [open, setOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   useActiveUserPing();
   const { user, loading } = useCurrentUser();
 
   return (
-    // ✅ FIX MOBILE 1: 'w-full' et 'overflow-x-hidden' empêchent le site de dépasser la largeur de l'écran
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex w-full overflow-x-hidden">
       
       {/* ─── SIDEBAR ─── */}
@@ -81,7 +82,6 @@ export default function DashboardLayout({ children }) {
       </div>
 
       {/* ─── CONTENU PRINCIPAL ─── */}
-      {/* ✅ FIX MOBILE 2: 'max-w-full' force le conteneur à rester dans les clous */}
       <div className="flex-1 flex flex-col lg:ml-[256px] relative max-w-full">
         
         {/* HEADER */}
@@ -101,13 +101,169 @@ export default function DashboardLayout({ children }) {
         </div>
 
         {/* MAIN CONTENT */}
-        {/* ✅ FIX MOBILE 3: 'overflow-x-hidden' coupe tout tableau ou image qui serait trop large */}
         <main className="bg-neutral-50 dark:bg-neutral-950 min-h-screen overflow-x-hidden">
           <div className="p-4 md:p-6 lg:p-8 w-full max-w-full">
             {children}
           </div>
         </main>
       </div>
+
+      {/* ─── BOUTON SUPPORT FLOTTANT ─── */}
+      <FloatingSupport open={chatOpen} setOpen={setChatOpen} />
     </div>
+  );
+}
+
+/* COMPOSANT SUPPORT FLOTTANT - CHAT IA */
+function FloatingSupport({ open, setOpen }) {
+  const [messages, setMessages] = useState([
+    {
+      from: "bot",
+      text: "Hey ! 👋 Comment puis-je t'aider ?",
+    },
+  ]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    if (open && chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, open]);
+
+  const sendMessage = async () => {
+    if (!input.trim() || loading) return;
+
+    const userMessage = { from: "user", text: input };
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/support/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          message: input,
+          history: messages.slice(-6) 
+        }),
+      });
+
+      const data = await res.json();
+      setMessages((prev) => [...prev, { 
+        from: "bot", 
+        text: data.reply || "Désolé, je n'ai pas compris. Reformule ? 🤔" 
+      }]);
+    } catch {
+      setMessages((prev) => [...prev, { 
+        from: "bot", 
+        text: "Oups ! Erreur de connexion. Réessaie. 🔌" 
+      }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  return (
+    <>
+      {/* Bouton flottant */}
+      <button
+        onClick={() => setOpen(!open)}
+        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all ${
+          open 
+            ? "bg-slate-700 text-white" 
+            : "bg-slate-900 hover:bg-slate-800 text-white"
+        }`}
+      >
+        {open ? (
+          <X className="w-6 h-6" />
+        ) : (
+          <MessageCircle className="w-6 h-6" />
+        )}
+      </button>
+
+      {/* Panel de chat */}
+      {open && (
+        <div className="fixed bottom-24 right-6 z-50 w-[360px] max-w-[calc(100vw-48px)] h-[480px] max-h-[70vh] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
+          
+          {/* Header */}
+          <div className="bg-slate-900 text-white px-4 py-3 flex items-center gap-3 flex-shrink-0">
+            <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+              <MessageCircle className="w-4 h-4" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-sm">Support Bookzy</h3>
+              <p className="text-[10px] text-slate-400">Réponse instantanée</p>
+            </div>
+            <button onClick={() => setOpen(false)} className="p-1 hover:bg-white/10 rounded">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50">
+            {messages.map((m, i) => (
+              <div
+                key={i}
+                className={`flex ${m.from === "user" ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`max-w-[85%] px-3 py-2 text-sm rounded-xl ${
+                    m.from === "bot"
+                      ? "bg-white text-slate-700 border border-slate-100"
+                      : "bg-slate-900 text-white"
+                  }`}
+                >
+                  {m.text}
+                </div>
+              </div>
+            ))}
+
+            {loading && (
+              <div className="flex justify-start">
+                <div className="bg-white border border-slate-100 px-4 py-2 rounded-xl">
+                  <div className="flex gap-1">
+                    <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" />
+                    <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.15s]" />
+                    <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.3s]" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Input */}
+          <div className="p-3 bg-white border-t border-slate-100 flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Écris ton message..."
+                className="flex-1 px-3 py-2.5 bg-slate-100 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+              />
+              <button
+                onClick={sendMessage}
+                disabled={loading || !input.trim()}
+                className="w-10 h-10 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-200 text-white rounded-xl flex items-center justify-center transition-all"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

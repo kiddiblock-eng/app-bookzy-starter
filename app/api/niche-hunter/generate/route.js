@@ -36,7 +36,7 @@ export async function POST(req) {
       createdAt: { $gte: today }
     });
 
-    if (countToday >= 3) {
+    if (countToday >= 6) {
       return NextResponse.json(
         {
           success: false,

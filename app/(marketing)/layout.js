@@ -1,30 +1,40 @@
 // app/(marketing)/layout.js
+
 import Navbar from '@/app/(marketing)/components/Navbar';
 import Footer from '@/app/(marketing)/components/Footer';
-import ReferralLinkHandler from './ReferralLinkHandler'; // ✅ NOUVEAU
 
 export const metadata = {
   metadataBase: new URL('https://www.bookzy.io'),
   
+  // ✅ OPTIMISÉ : Titre plus court et impactant (55-60 chars)
   title: {
     default: "Bookzy - Créer un eBook professionnel en 1 minute avec l'IA",
     template: "%s | Bookzy - Générateur eBook Pro"
   },
   
+  // ✅ OPTIMISÉ : Description plus action-oriented (150-160 chars)
   description: "Générez votre eBook professionnel en 60 secondes avec l'IA. PDF A4, textes marketing Facebook/WhatsApp, visuels 3D inclus. Essayez gratuitement dès maintenant !",
   
+  // ✅ OPTIMISÉ : Keywords ciblés Afrique francophone
   keywords: [
+    // Mots-clés principaux
     "créer ebook IA",
     "générateur ebook automatique",
     "ebook professionnel",
+    
+    // Mots-clés business
     "vendre ebook en ligne",
     "business digital Afrique",
     "infoproduit rentable",
     "gagner argent ebook",
+    
+    // Mots-clés géo
     "ebook Côte d'Ivoire",
     "ebook Sénégal",
     "ebook Cameroun",
     "business digital francophone",
+    
+    // Mots-clés techniques
     "PDF professionnel A4",
     "textes marketing IA",
     "mockup 3D ebook",
@@ -34,9 +44,14 @@ export const metadata = {
   authors: [{ name: "Bookzy", url: "https://www.bookzy.io" }],
   creator: "Bookzy",
   publisher: "Bookzy",
+  
+  // ✅ AJOUTÉ : Application Name pour iOS/Android
   applicationName: "Bookzy",
+  
+  // ✅ AJOUTÉ : Référent policy (sécurité)
   referrer: "origin-when-cross-origin",
   
+  // ✅ OPTIMISÉ : Robots plus complet
   robots: {
     index: true,
     follow: true,
@@ -51,6 +66,7 @@ export const metadata = {
     },
   },
   
+  // ✅ OPTIMISÉ : OpenGraph plus détaillé
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
@@ -69,6 +85,7 @@ export const metadata = {
     ],
   },
   
+  // ✅ OPTIMISÉ : Twitter Card plus complet
   twitter: {
     card: 'summary_large_image',
     site: '@bookzy_io',
@@ -81,6 +98,7 @@ export const metadata = {
     },
   },
   
+  // ✅ AJOUTÉ : App Links (pour partages mobiles)
   appLinks: {
     web: {
       url: 'https://www.bookzy.io',
@@ -92,20 +110,22 @@ export const metadata = {
     canonical: 'https://www.bookzy.io',
     languages: {
       'fr-FR': 'https://www.bookzy.io',
-      'fr-CI': 'https://www.bookzy.io',
-      'fr-SN': 'https://www.bookzy.io',
-      'fr-CM': 'https://www.bookzy.io',
+      'fr-CI': 'https://www.bookzy.io', // Côte d'Ivoire
+      'fr-SN': 'https://www.bookzy.io', // Sénégal
+      'fr-CM': 'https://www.bookzy.io', // Cameroun
     },
   },
   
+  // ✅ AJOUTÉ : Category (aide Google à comprendre votre niche)
   category: 'technology',
+  
+  // ✅ AJOUTÉ : Classification
   classification: 'Business Tools, AI Tools, Content Creation',
 };
 
 export default function MarketingLayout({ children }) {
   return (
     <>
-      <ReferralLinkHandler /> {/* ✅ NOUVEAU : Composant client séparé */}
       <Navbar />
       <main className="min-h-screen bg-white">
         {children}

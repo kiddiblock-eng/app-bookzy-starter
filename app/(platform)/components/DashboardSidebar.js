@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import {
   Sparkles,
   Library,
-  HelpCircle,
   Settings,
   Plus,
   LogOut,
@@ -69,8 +68,8 @@ export default function DashboardSidebar({ open, setOpen }) {
     }
   ];
 
+  // Support enlevé - seulement Paramètres
   const bottomItems = [
-    { label: "Support", href: "/dashboard/support", icon: HelpCircle },
     { label: "Paramètres", href: "/dashboard/parametres", icon: Settings },
   ];
 
@@ -149,9 +148,8 @@ export default function DashboardSidebar({ open, setOpen }) {
             </div>
           ))}
 
-          {/* SECTION AIDE DESKTOP - DANS LE SCROLL */}
+          {/* SECTION PARAMÈTRES DESKTOP */}
           <div className="pt-3 border-t border-slate-50">
-             <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Aide</p>
              <ul className="space-y-0">
                 {bottomItems.map(({ label, href, icon: Icon }) => {
                     const isActive = pathname === href;
@@ -246,9 +244,8 @@ export default function DashboardSidebar({ open, setOpen }) {
                     </div>
                 ))}
 
-                {/* SECTION AIDE MOBILE - DANS LE SCROLL AVEC ESPACEMENT */}
+                {/* PARAMÈTRES MOBILE */}
                 <div className="pt-3 mt-2 border-t border-slate-100">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 px-2">Aide</p>
                     <ul className="space-y-0.5">
                     {bottomItems.map(({ label, href, icon: Icon }) => (
                         <li key={href}>

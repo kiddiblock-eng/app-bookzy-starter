@@ -45,9 +45,9 @@ export default function HomePage() {
 
       <Hero />
       <Demo />
+      <HowitWork />
       <Exemplesection />
       <FeaturesSection />
-      <HowitWork />
       <PourquoiBookzy />
       <Testimonials />
       <Pricing />
