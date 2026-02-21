@@ -50,7 +50,7 @@ export default function Hero() {
               Génère ton 
             </span>
             <span className="block text-[2.25rem] sm:text-[2.75rem] md:text-[3.5rem] lg:text-[4rem] font-black leading-[1.08] tracking-[-0.03em]">
-              <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent"> ebook pro en 60s
+              <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent"> ebook pro en 1 min
 </span>
               <span className="text-slate-950">  avec l'IA</span>
             </span>
@@ -58,7 +58,7 @@ export default function Hero() {
 
           {/* Sous-titre */}
           <p className="hero-up text-base sm:text-lg md:text-xl text-slate-500 leading-relaxed max-w-lg mb-8" style={{ animationDelay: '0.1s' }}>
-            Décris ton sujet. L'IA structure, rédige, met en page et génère ta couverture 3D. Tu reçois un PDF prêt à vendre et un kit marketing.
+            Décris ton sujet. L'IA structure, rédige, met en page et génère ta couverture 3D. Tu reçois un PDF prêt à vendre et un kit marketing en 60 secondes
 
 
           </p>
