@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import PaymentProviderService from "@/lib/payment/PaymentProviderService";
 import { verifyAuth } from "@/lib/auth";
+import Transaction from "@/models/Transaction";
 
 // ─── CONFIG PACKS FIXES ───────────────────────────────────────────────────────
 
@@ -28,7 +29,6 @@ const MIN_RECHARGE = 10;
 const MAX_RECHARGE = 3000;
 
 // ─── PARSER RECHARGE DYNAMIQUE ────────────────────────────────────────────────
-// packId format : "recharge_{credits}_{plan}"  ex: "recharge_50_solo"
 
 function parseRechargePackId(packId) {
   const match = packId.match(/^recharge_(\d+)_(free|solo|createur|agence)$/);
@@ -45,7 +45,7 @@ function parseRechargePackId(packId) {
   return {
     credits,
     amount,
-    plan:  null, // recharge ne change pas le plan
+    plan:  null,
     label: `Recharge ${credits} crédits — Bookzy`,
     isRecharge: true,
   };
@@ -99,7 +99,7 @@ export async function POST(req) {
         plan:       pack.plan,
         label:      pack.label,
         amount:     pack.amount,
-        isRecharge, // ← le webhook sait que c'est une recharge (pas de changement de plan)
+        isRecharge,
       },
     });
 
@@ -110,7 +110,20 @@ export async function POST(req) {
       );
     }
 
+    // 5. ✅ CRÉER LA TRANSACTION EN DB AVANT LE PAIEMENT
+    const tx = await Transaction.create({
+      userId:                user.id,
+      provider:              "moneroo",
+      purpose:               "credit_pack",
+      packId,
+      amount:                pack.amount,
+      currency:              "XOF",
+      status:                "pending",
+      providerTransactionId: payment.transactionId,
+    });
+
     console.log(`💳 [Credits Purchase] ${isRecharge ? "Recharge" : "Abonnement"} — ${packId} — ${pack.amount} XOF — user: ${user.id}`);
+    console.log(`💾 [Credits] Transaction créée en DB: ${tx._id} — providerTxId: ${payment.transactionId}`);
 
     return NextResponse.json({
       success:    true,
