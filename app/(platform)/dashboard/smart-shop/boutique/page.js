@@ -385,7 +385,7 @@ const fetcher = (url) => fetch(url, {
 // MAIN COMPONENT
 // ============================================
 
-export default function BoutiquePage() {
+function BoutiquePageContent() {
   const { data: shopData, isLoading: loadingShop, mutate: mutateShop } = useSWR("/api/smart-shop/boutique", fetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 5000,
@@ -1316,5 +1316,15 @@ export default function BoutiquePage() {
         </div>
       )}
     </div>
+  );
+}
+
+import { Suspense } from "react";
+
+export default function BoutiquePage() {
+  return (
+    <Suspense fallback={null}>
+      <BoutiquePageContent />
+    </Suspense>
   );
 }
