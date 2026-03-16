@@ -119,7 +119,7 @@ function CreditTooltip({ plan }) {
   const q = plan.quotas;
   const items = [
     { label: "Générer un ebook",   cost: "20 cr." },
-    { label: "Mise en page",       cost: "10 cr." },
+    { label: "Brouillon Word en Ebook pro", cost: "10 cr." },
     { label: "Smart Shop",         cost: "5 cr."  },
     { label: "Niche Hunter",       cost: `${q.nicheHunter} gratuits/j puis 1 cr.` },
     { label: "Youbook",            cost: `${q.youtubeAnalysis} gratuits/j puis 2 cr.` },
@@ -217,11 +217,11 @@ function PlanCard({ plan, billing, loading, currentPlan, onBuy }) {
         <span style={{ fontSize: 12, fontWeight: 600, color: "#475569", marginLeft: 4 }}>
           {fmt(creditsDisplay)} crédits{isQ ? " / 3 mois" : " / mois"}
         </span>
-        <CreditTooltip plan={plan} />
+        
       </div>
 
       {/* Séparateur */}
-      <div style={{ height: 1, background: "#f1f5f9", margin: "0 0 16px" }} />
+      <div style={{ height: 1, background: "#f1f5f9", margin: "0 0 12px" }} />
 
       {/* Features */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
@@ -252,6 +252,26 @@ function PlanCard({ plan, billing, loading, currentPlan, onBuy }) {
             </div>
           );
         })}
+      </div>
+
+      {/* Coût des actions */}
+      <div style={{ background: "#f8fafc", borderRadius: 10, padding: "10px 12px", marginBottom: 14, marginTop: 16 }}>
+        <p style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>
+          Coût par action
+        </p>
+        {[
+          { label: "Générer un ebook",   cost: "20 cr." },
+          { label: "Brouillon Word en Ebook Pro", cost: "10 cr." },
+          { label: "Smart Shop",         cost: "5 cr."  },
+          { label: "Niche Hunter",       cost: `${plan.quotas.nicheHunter} gratuits/j puis 1 cr.` },
+          { label: "Youbook",            cost: `${plan.quotas.youtubeAnalysis} gratuits/j puis 2 cr.` },
+          { label: "Analyse niche",      cost: `${plan.quotas.nicheAnalysis} gratuits/j puis 1 cr.` },
+        ].map((item, i) => (
+          <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8, marginBottom: i < 5 ? 5 : 0 }}>
+            <span style={{ fontSize: 11, color: "#64748b" }}>{item.label}</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: plan.color }}>{item.cost}</span>
+          </div>
+        ))}
       </div>
 
       {/* Bouton */}
@@ -327,7 +347,7 @@ export default function TarifsPage() {
               onClick={() => router.push("/dashboard/credits/recharge")}
               style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 14px", borderRadius: 8, border: "none", fontSize: 12, fontWeight: 700, cursor: "pointer", background: "#2563eb", color: "#fff" }}
             >
-            Recharger
+            Recharge personnalisée
             </button>
           </div>
         </div>
