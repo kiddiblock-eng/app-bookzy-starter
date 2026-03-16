@@ -91,7 +91,7 @@ export async function POST(req) {
       description:   pack.label,
       customerEmail: user.email,
       customerName:  user.name || "Client Bookzy",
-      returnUrl:     returnUrl || `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/credits`,
+      returnUrl: returnUrl || `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/credits?status=success`,
       metadata: {
         userId:     user.id.toString(),
         packId,

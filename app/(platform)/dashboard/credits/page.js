@@ -1,16 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import useSWR from "swr";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import useSWR, { mutate } from "swr";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import {
   ShoppingCart, Clock, CheckCircle, XCircle, Loader2,
-  BookOpen, Palette, Store, ChevronRight, ArrowUpRight,CreditCard,
+  BookOpen, Palette, Store, ChevronRight, ArrowUpRight, CreditCard,
 } from "lucide-react";
 
 const fetcher = (url) => fetch(url, { credentials: "include" }).then((r) => r.json());
-
-// ─── CONSTANTES ──────────────────────────────────────────────────────────────
 
 const PACK_LABELS = {
   solo_monthly:       "Pass Solo — Mensuel",
@@ -22,12 +21,12 @@ const PACK_LABELS = {
 };
 
 const PACK_CREDITS = {
-  solo_monthly:        20,
-  solo_quarterly:      60,
-  createur_monthly:   110,
-  createur_quarterly: 330,
-  agence_monthly:     315,
-  agence_quarterly:   945,
+  solo_monthly:        60,
+  solo_quarterly:      180,
+  createur_monthly:    330,
+  createur_quarterly:  990,
+  agence_monthly:      700,
+  agence_quarterly:    2100,
 };
 
 const PLAN_LABELS = {
@@ -38,9 +37,9 @@ const PLAN_LABELS = {
 };
 
 const CREDIT_ACTIONS = [
-  { icon: BookOpen, label: "Générer un ebook complet",       cost: 20, color: "text-blue-600",   bg: "bg-blue-50" },
-  { icon: Palette,  label: "Designer un brouillon Word",     cost: 10, color: "text-violet-600", bg: "bg-violet-50" },
-  { icon: Store,    label: "Publier votre boutique Smart Shop", cost: 5, color: "text-emerald-600", bg: "bg-emerald-50" },
+  { icon: BookOpen, label: "Générer un ebook complet",         cost: 20, color: "text-blue-600",   bg: "bg-blue-50" },
+  { icon: Palette,  label: "Designer un brouillon Word",       cost: 10, color: "text-violet-600", bg: "bg-violet-50" },
+  { icon: Store,    label: "Publier votre boutique Smart Shop", cost: 5,  color: "text-emerald-600", bg: "bg-emerald-50" },
 ];
 
 function fmt(n) {
@@ -57,29 +56,46 @@ function timeAgo(dateStr) {
   return date.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
 }
 
-// ─── PAGE PRINCIPALE ─────────────────────────────────────────────────────────
+// ─── INNER PAGE (uses useSearchParams) ───────────────────────────────────────
 
-export default function CreditsPage() {
+function CreditsPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [page, setPage] = useState(1);
+  const [justPaid, setJustPaid] = useState(false);
 
-  const { data: balanceData } = useSWR("/api/credits/balance", fetcher, {
+  const { data: balanceData, mutate: mutateBalance } = useSWR("/api/credits/balance", fetcher, {
     revalidateOnFocus: false,
   });
 
-  const { data: historyData, isLoading: historyLoading } = useSWR(
+  const { data: historyData, isLoading: historyLoading, mutate: mutateHistory } = useSWR(
     `/api/credits/history?page=${page}&limit=10`,
     fetcher,
     { revalidateOnFocus: false }
   );
 
-  const balance     = balanceData?.credits?.balance     ?? 0;
-  const totalSpent  = balanceData?.credits?.totalSpent  ?? 0;
-  const totalPurchased = balanceData?.credits?.totalPurchased ?? 0;
-  const plan        = balanceData?.plan ?? "free";
+  // ✅ Auto-revalidation au retour du paiement
+  useEffect(() => {
+    const status = searchParams.get("status");
+    if (status === "success" || status === "completed") {
+      setJustPaid(true);
+      // Revalider après 2s pour laisser le webhook traiter
+      const timer = setTimeout(() => {
+        mutateBalance();
+        mutateHistory();
+        setJustPaid(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
 
-  const transactions  = historyData?.data?.transactions  || [];
-  const pagination    = historyData?.data?.pagination    || {};
+  const balance        = balanceData?.credits?.balance        ?? 0;
+  const totalSpent     = balanceData?.credits?.totalSpent     ?? 0;
+  const totalPurchased = balanceData?.credits?.totalPurchased ?? 0;
+  const plan           = balanceData?.plan ?? "free";
+
+  const transactions = historyData?.data?.transactions || [];
+  const pagination   = historyData?.data?.pagination   || {};
 
   return (
     <div className="min-h-screen bg-white">
@@ -98,12 +114,21 @@ export default function CreditsPage() {
         </div>
       </div>
 
+      {/* Banner succès paiement */}
+      {justPaid && (
+        <div className="bg-emerald-50 border-b border-emerald-100 px-4 py-3 text-center">
+          <p className="text-sm text-emerald-700 font-medium flex items-center justify-center gap-2">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Paiement reçu — mise à jour de vos crédits...
+          </p>
+        </div>
+      )}
+
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
 
         {/* ─── SOLDE + STATS ─────────────────────────────────────────────── */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
-          {/* Solde principal */}
           <div className="sm:col-span-1 bg-slate-900 rounded-2xl p-6 flex flex-col justify-between">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
@@ -124,7 +149,6 @@ export default function CreditsPage() {
             </div>
           </div>
 
-          {/* Stats */}
           <div className="sm:col-span-2 grid grid-cols-2 gap-4">
             <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5">
               <p className="text-xs text-slate-500 mb-1">Total acheté</p>
@@ -137,7 +161,6 @@ export default function CreditsPage() {
               <p className="text-xs text-slate-400 mt-1">crédits dépensés</p>
             </div>
 
-            {/* Coût des actions */}
             <div className="col-span-2 bg-slate-50 border border-slate-100 rounded-2xl p-4">
               <p className="text-xs font-semibold text-slate-500 mb-3 uppercase tracking-wider">Coût des actions</p>
               <div className="space-y-2">
@@ -178,7 +201,6 @@ export default function CreditsPage() {
                 <TransactionRow key={tx.id} tx={tx} />
               ))}
 
-              {/* Pagination */}
               {pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between pt-4">
                   <button
@@ -204,7 +226,7 @@ export default function CreditsPage() {
           )}
         </div>
 
-        {/* ─── CTA ACHETER ───────────────────────────────────────────────── */}
+        {/* ─── CTA ───────────────────────────────────────────────────────── */}
         <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
             <p className="font-semibold text-slate-900">Besoin de plus de crédits ?</p>
@@ -235,8 +257,6 @@ function TransactionRow({ tx }) {
   return (
     <div className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-xl hover:border-slate-200 transition-all">
       <div className="flex items-center gap-3">
-
-        {/* Icône statut */}
         <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
           isCompleted ? "bg-emerald-50" : isFailed ? "bg-red-50" : "bg-amber-50"
         }`}>
@@ -247,19 +267,13 @@ function TransactionRow({ tx }) {
             : <Clock className="w-4 h-4 text-amber-500" />
           }
         </div>
-
-        {/* Info */}
         <div>
           <p className="text-sm font-medium text-slate-900">{tx.label}</p>
           <p className="text-xs text-slate-400 mt-0.5">{timeAgo(tx.createdAt)}</p>
         </div>
       </div>
-
-      {/* Droite */}
       <div className="text-right shrink-0 ml-4">
-        <p className="text-sm font-semibold text-slate-900">
-          +{tx.credits} crédits
-        </p>
+        <p className="text-sm font-semibold text-slate-900">+{tx.credits} crédits</p>
         <p className="text-xs text-slate-400">{fmt(tx.amount)} FCFA</p>
       </div>
     </div>
@@ -271,9 +285,7 @@ function TransactionRow({ tx }) {
 function EmptyHistory({ onBuy }) {
   return (
     <div className="text-center py-14 border border-dashed border-slate-200 rounded-2xl">
-      <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-        
-      </div>
+      <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4" />
       <p className="font-medium text-slate-900 mb-1">Aucun achat pour l'instant</p>
       <p className="text-sm text-slate-500 mb-5">Achetez votre premier pack de crédits</p>
       <button
@@ -284,5 +296,15 @@ function EmptyHistory({ onBuy }) {
         <ChevronRight className="w-4 h-4" />
       </button>
     </div>
+  );
+}
+
+// ─── EXPORT ──────────────────────────────────────────────────────────────────
+
+export default function CreditsPage() {
+  return (
+    <Suspense fallback={null}>
+      <CreditsPageContent />
+    </Suspense>
   );
 }
