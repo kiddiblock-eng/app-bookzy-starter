@@ -90,7 +90,7 @@ const PAGES_OPTIONS = [20, 30, 40, 50, 60, 70, 80];
 const CHAPTERS_OPTIONS = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 // URL de l'ebook exemple
-const EXAMPLE_EBOOK_URL = "https://res.cloudinary.com/dcmlw5hak/raw/upload/v1773188104/bookzy/ebooks/maitriser-whatsapp-business-69b0b393370bdef7d6198af1.pdf";
+const EXAMPLE_EBOOK_URL = "https://res.cloudinary.com/dcmlw5hak/raw/upload/v1773635937/bookzy/ebooks/guide-importer-depuis-la-chine-69b788cadc09670f33c2b20a.pdf";
 
 /* --- BOOK 3D --- */
 const Book3D = ({ title, template }) => {
@@ -378,7 +378,7 @@ const ExampleEbookModal = ({ isOpen, onClose }) => {
               Voici un exemple d'ebook généré avec Bookzy
             </h3>
             <p className="text-sm text-slate-500 mt-1">
-              Cet ebook a été créé en 1 min avec le <span className="font-semibold text-amber-600">template Business</span>. Vous obtiendrez la même qualité professionnelle avec votre sujet et le template de votre choix.
+              Cet ebook a été créé en 1 min avec le <span className="font-semibold text-amber-600">template Corporate</span>. Vous obtiendrez la même qualité professionnelle avec votre sujet et le template de votre choix.
             </p>
           </div>
           <button 
@@ -1099,7 +1099,7 @@ function PreviewPage({ kit, onEdit, onGenerated }) {
       />
       
       {/* Header */}
-      <header className={`bg-white border-b border-slate-100 sticky top-0 ${showNoCreditsModal ? "z-0" : "z-50"}`}>
+      <header className={`bg-white border-b border-slate-100 fixed top-0 left-0 right-0 ${showNoCreditsModal ? "z-0" : "z-[10000]"}`}>
         <div className="max-w-4xl mx-auto px-4 h-12 flex items-center justify-between">
           <button onClick={onEdit} className="flex items-center gap-2 text-slate-500 hover:text-slate-900 text-sm font-medium">
             <ArrowLeft className="w-4 h-4" /> Modifier
@@ -1111,7 +1111,7 @@ function PreviewPage({ kit, onEdit, onGenerated }) {
       </header>
 
       {/* Content - Scrollable */}
-      <div className="flex-1 overflow-y-auto pb-32">
+      <div className="flex-1 overflow-y-auto pb-32 pt-12">
         <div className="max-w-4xl mx-auto px-4 py-4">
           
           {/* Book + Stats - Compact on mobile */}
@@ -1218,7 +1218,7 @@ function PreviewPage({ kit, onEdit, onGenerated }) {
               {isGenerating ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Génération en cours...</>
               ) : (
-                <><Zap className="w-4 h-4" /> Générer mon ebook pour 20 cr.</>
+                <><Zap className="w-4 h-4" /> Générer mon ebook</>
               )}
             </button>
           </div>
