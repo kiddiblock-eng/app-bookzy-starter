@@ -378,7 +378,7 @@ const ExampleEbookModal = ({ isOpen, onClose }) => {
               Voici un exemple d'ebook généré avec Bookzy
             </h3>
             <p className="text-sm text-slate-500 mt-1">
-              Cet ebook a été créé en 1 min avec le <span className="font-semibold text-amber-600">template Luxe</span>. Vous obtiendrez la même qualité professionnelle avec votre sujet et le template de votre choix.
+              Cet ebook a été créé en 1 min avec le <span className="font-semibold text-amber-600">template Business</span>. Vous obtiendrez la même qualité professionnelle avec votre sujet et le template de votre choix.
             </p>
           </div>
           <button 
@@ -1117,7 +1117,7 @@ function PreviewPage({ kit, onEdit, onGenerated }) {
           {/* Book + Stats - Compact on mobile */}
           <div className="flex items-center gap-4 mb-4 p-4 bg-slate-100 rounded-2xl">
             {/* Mini Book */}
-            <div className="relative w-20 h-28 flex-shrink-0">
+            <div className="relative w-24 h-32 flex-shrink-0">
               <div 
                 className="absolute inset-0 rounded-r-sm rounded-l-[1px] shadow-lg overflow-hidden"
                 style={{ background: `linear-gradient(135deg, ${TEMPLATES.find(t => t.id === kit.template)?.primaryColor || '#2563eb'}, ${TEMPLATES.find(t => t.id === kit.template)?.accentColor || '#7c3aed'})` }}
@@ -1125,7 +1125,7 @@ function PreviewPage({ kit, onEdit, onGenerated }) {
                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-r from-black/20 to-transparent" />
                 <div className="p-2 text-white">
                   <div className="text-[6px] uppercase tracking-wider opacity-60 mb-1">Guide</div>
-                  <h3 className="text-[8px] font-bold leading-tight line-clamp-4">{kit.title}</h3>
+                  <h3 className="text-[9px] font-bold leading-tight line-clamp-5">{kit.title}</h3>
                 </div>
               </div>
               <div className="absolute top-0.5 -right-0.5 bottom-0.5 w-1 bg-white rounded-r-sm -z-10" />
@@ -1218,7 +1218,7 @@ function PreviewPage({ kit, onEdit, onGenerated }) {
               {isGenerating ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Génération en cours...</>
               ) : (
-                <><Zap className="w-4 h-4" /> Générer mon ebook — 20 cr.</>
+                <><Zap className="w-4 h-4" /> Générer mon ebook pour 20 cr.</>
               )}
             </button>
           </div>
