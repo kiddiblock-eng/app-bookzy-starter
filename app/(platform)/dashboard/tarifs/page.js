@@ -58,11 +58,11 @@ const PLANS = [
 
 const FEATURES = [
   {
-    label: "Générer un ebook complet avec l'IA",
+    label: "Générer des ebooks complet avec l'IA",
     solo: true, createur: true, agence: true,
   },
   {
-    label: "Transformer votre brouillon Word en ebook designé",
+    label: "Transformer des brouillons Word en ebook designé",
     solo: true, createur: true, agence: true,
   },
   {
@@ -70,7 +70,7 @@ const FEATURES = [
     solo: true, createur: true, agence: true,
   },
   {
-    label: "Analyser une vidéo YouTube",
+    label: "Transformer des vidéos YouTube en ebooks complets",
     sub: "Extrait le contenu clé avant de générer",
     solo: true, createur: true, agence: true,
   },
@@ -80,7 +80,7 @@ const FEATURES = [
     solo: true, createur: true, agence: true,
   },
   {
-    label: "Analyser une niche en profondeur",
+    label: "Analyser des niches en profondeur",
     sub: "Données de marché, concurrence, potentiel",
     solo: true, createur: true, agence: true,
   },

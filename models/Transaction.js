@@ -7,20 +7,17 @@ const TransactionSchema = new mongoose.Schema({
     required: true,
   },
 
-  // 🔥 ID INTERNE (Utilisé pour le suivi avant redirection)
   internalId: {
     type: String,
     sparse: true, 
   },
 
-  // Le provider : moneroo | fedapay | kkiapay | pawapay
   provider: {
     type: String,
     enum: ["moneroo", "fedapay", "kkiapay", "pawapay"],
     required: true,
   },
 
-  // ID réel généré par le provider
   providerTransactionId: {
     type: String,
     default: null,
@@ -35,27 +32,16 @@ const TransactionSchema = new mongoose.Schema({
     default: "pending",
   },
 
-  // "ebook_kit" = génération ebook | "credit_pack" = achat de crédits
   purpose: { type: String, default: "ebook_kit" },
 
   // ─── SYSTÈME DE CRÉDITS ──────────────────────────────────────────────────
-  // Rempli uniquement si purpose === "credit_pack"
+  // Accepte les packs fixes ET les recharges dynamiques (ex: recharge_30_solo)
   packId: {
     type: String,
-    enum: [
-      "solo_monthly",
-      "solo_quarterly",
-      "createur_monthly",
-      "createur_quarterly",
-      "agence_monthly",
-      "agence_quarterly",
-      null
-    ],
     default: null,
   },
   // ─────────────────────────────────────────────────────────────────────────
 
-  // Référence au projet pour déclencher la génération après paiement
   projetId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Projet",
@@ -68,7 +54,6 @@ const TransactionSchema = new mongoose.Schema({
     default: null,
   },
 
-  // Métadonnées pour l'IA
   kitData: {
     title: String,
     description: String,
@@ -88,10 +73,10 @@ const TransactionSchema = new mongoose.Schema({
 });
 
 // INDEXATION
-TransactionSchema.index({ internalId: 1 }, { unique: true, sparse: true });
+TransactionSchema.index({ internalId: 1 }, { sparse: true });
 TransactionSchema.index({ userId: 1, status: 1 });
 TransactionSchema.index({ providerTransactionId: 1 });
-TransactionSchema.index({ packId: 1, status: 1 }); // Pour stats par pack
+TransactionSchema.index({ packId: 1, status: 1 });
 
 export default mongoose.models.Transaction ||
   mongoose.model("Transaction", TransactionSchema);
