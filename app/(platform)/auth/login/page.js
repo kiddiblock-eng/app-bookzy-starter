@@ -23,6 +23,12 @@ export default function LoginPage() {
   const router = useRouter();
   const { mutate } = useSWRConfig();
 
+  // Récupérer le redirect param depuis l'URL
+  const searchParams = typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search)
+    : null;
+  const redirectParam = searchParams?.get("redirect") || null;
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -57,6 +63,7 @@ export default function LoginPage() {
           email: cleanEmail,
           password,
           twoFA: need2FA ? twoFA : undefined,
+          redirect: redirectParam,
         }),
       });
 

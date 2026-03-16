@@ -1,226 +1,273 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { ArrowUp, BookOpen, Zap, Store, Paperclip, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
-/* Video component with autoplay on scroll */
-function AutoPlayVideo({ src, poster }) {
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) el.play().catch(() => {});
-        else el.pause();
-      },
-      { threshold: 0.3 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <video
-      ref={ref}
-      src={src}
-      poster={poster}
-      className="w-full h-full object-cover"
-      muted
-      loop
-      playsInline
-      preload="metadata"
-    />
-  );
-}
-
-const features = [
+const featuresCreate = [
   {
-    id: "generator",
-    label: "Générateur",
-    title: "Générez un ebook complet en 60 secondes",
-    description: "Entrez votre sujet, choisissez vos options. L'IA rédige 8+ chapitres, formate le PDF et génère votre cover 3D automatiquement.",
-    points: [
-      "PDF professionnel structuré",
-      "Cover 3D générée par IA",
-      "Textes marketing inclus (Facebook, WhatsApp)",
-      "6 templates premium au choix"
-    ],
-    media: {
-      type: "video",
-      src: "https://res.cloudinary.com/dcmlw5hak/video/upload/q_auto,f_auto,w_1200/plumelive_zdfw0n.mp4",
-      poster: "https://res.cloudinary.com/dcmlw5hak/video/upload/q_auto,f_auto,w_1200,so_0/plumelive_zdfw0n.jpg"
-    },
-    reverse: false
+    id: "generation",
+    title: "Génération IA",
+    description: "Décris ton sujet, choisis ton template, ton ton et ton audience. L'IA rédige un ebook complet avec sommaire, chapitres et cover 3D — prêt à vendre en moins d'une minute.",
+    image: "/screenshots/generation-ia.png",
+    bgColor: "bg-gradient-to-br from-sky-100 to-blue-200",
+    link: "/auth/register"
   },
   {
-    id: "niche-hunter",
-    label: "Niche Hunter",
-    title: "Trouvez des idées rentables en 1 clic",
-    description: "Entrez un mot-clé et l'IA génère 10 idées de niches avec score de rentabilité, analyse concurrence et profil cible.",
-    points: [
-      "10 idées générées instantanément",
-      "Score de rentabilité sur 10",
-      "Analyse de la concurrence",
-      "Suggestions de contenu"
-    ],
-    media: {
-      type: "video",
-      src: "https://res.cloudinary.com/dcmlw5hak/video/upload/q_auto,f_auto,w_1200/niche-hunter_zwrlpz.mp4",
-      poster: "https://res.cloudinary.com/dcmlw5hak/video/upload/q_auto,f_auto,w_1200,so_0/niche-hunter_zwrlpz.jpg"
-    },
-    reverse: true
+    id: "express",
+    title: "Mise en page Express",
+    description: "Tu as déjà ton contenu ? Écris-le dans l'éditeur ou importe ton fichier Word (.docx). Bookzy génère un PDF au design professionnel en moins de 20 secondes, sans effort.",
+    image: "/screenshots/express.png",
+    bgColor: "bg-gradient-to-br from-emerald-100 to-teal-200",
+    link: "/auth/register"
   },
   {
-    id: "tendances",
-    label: "Tendances",
-    title: "Surfez sur les sujets qui buzzent",
-    description: "Notre algorithme scanne les réseaux en temps réel pour détecter les sujets viraux avant tout le monde.",
-    points: [
-      "Données Facebook, TikTok, Google",
-      "Mise à jour en temps réel",
-      "Filtres par catégorie",
-      "Historique des tendances"
-    ],
-    media: {
-      type: "image",
-      src: "/images/tendance.png"
-    },
-    reverse: false
-  },
-  {
-    id: "youbook",
-    label: "Youbook",
-    title: "Transformez YouTube en ebook",
-    description: "Collez un lien YouTube et obtenez un ebook complet extrait automatiquement de la vidéo.",
-    points: [
-      "Transcription automatique",
-      "Structure en chapitres",
-      "Contenu optimisé pour la lecture",
-      "3 conversions gratuites par jour"
-    ],
-    media: {
-      type: "image",
-      src: "https://res.cloudinary.com/dcmlw5hak/image/upload/v1766646838/yoobookimg_c7ffey.png"
-    },
-    reverse: true
+    id: "smartshop",
+    title: "Smart Shop",
+    description: "Crée ta boutique en ligne en quelques clics. Choisis parmi 13 templates, configure ton lien, ajoute tes ebooks et vends via WhatsApp, lien externe ou téléchargement gratuit.",
+    image: "/screenshots/smart-shop.png",
+    bgColor: "bg-gradient-to-br from-violet-100 to-purple-200",
+    link: "/auth/register"
   }
 ];
 
-export default function Features() {
+const featuresResearch = [
+  {
+    id: "niche-hunter",
+    title: "Niche Hunter",
+    description: "Entre un thème, choisis ton marché (Afrique ou International). L'IA analyse le potentiel, la difficulté et la concurrence pour chaque niche — et tu crées ton ebook en 1 clic.",
+    image: "/screenshots/niche-hunter.png",
+    bgColor: "bg-gradient-to-br from-amber-100 to-orange-200",
+    link: "/niche-hunter"
+  },
+  {
+    id: "tendances",
+    title: "Tendances",
+    description: "Découvre en temps réel ce qui buzz sur TikTok, Instagram, YouTube et Facebook. Filtre par catégorie, réseau ou difficulté et lance la création de ton ebook directement depuis la tendance.",
+    image: "/screenshots/tendances.png",
+    bgColor: "bg-gradient-to-br from-pink-100 to-rose-200",
+    link: "/tendances"
+  },
+  {
+    id: "youbook",
+    title: "Youbook",
+    description: "Colle le lien d'une vidéo YouTube — formation, podcast, conférence ou tutoriel. L'IA extrait le contenu, le structure en chapitres et génère un ebook complet prêt à publier.",
+    image: "/screenshots/youbook.png",
+    bgColor: "bg-gradient-to-br from-red-100 to-rose-200",
+    link: "/youbook"
+  }
+];
+
+function FeatureCard({ feature }) {
   return (
-    <section id="features" className="bg-white">
-      
-      {/* Header */}
-      <div className="py-16 lg:py-20 border-b border-slate-100">
-        <div className="max-w-6xl mx-auto px-5 sm:px-6 text-center">
-          <p className="text-blue-600 text-sm font-semibold tracking-wide uppercase mb-4">
-            Fonctionnalités
-          </p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight mb-4">
-            Tout ce qu'il vous faut pour réussir
-          </h2>
-          <p className="text-slate-500 text-base sm:text-lg max-w-xl mx-auto">
-            De l'idée à la vente, Bookzy s'occupe de tout.
-          </p>
+    <Link
+      href={feature.link}
+      className="group block rounded-3xl overflow-hidden border border-slate-200/50 bg-white shadow-sm hover:shadow-xl transition-all duration-300"
+    >
+      <div className={`${feature.bgColor} p-4 lg:p-6 aspect-[4/3] flex items-center justify-center overflow-hidden`}>
+        <div className="relative w-full h-full rounded-xl lg:rounded-2xl overflow-hidden shadow-2xl border border-white/20">
+          <img
+            src={feature.image}
+            alt={feature.title}
+            className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+          />
         </div>
       </div>
+      <div className="p-5 sm:p-6 lg:p-7">
+        <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 mb-2 lg:mb-3 group-hover:text-blue-600 transition-colors">
+          {feature.title}
+        </h3>
+        <p className="text-slate-500 text-sm sm:text-base lg:text-lg leading-relaxed">
+          {feature.description}
+        </p>
+      </div>
+    </Link>
+  );
+}
 
-      {/* Features */}
-      {features.map((feature, index) => (
-        <div 
-          key={feature.id}
-          className={`py-16 lg:py-24 ${index % 2 === 1 ? 'bg-slate-50' : 'bg-white'}`}
-        >
-          <div className="max-w-6xl mx-auto px-5 sm:px-6">
-            <div className={`grid lg:grid-cols-2 gap-10 lg:gap-16 items-center ${feature.reverse ? 'lg:flex-row-reverse' : ''}`}>
-              
-              {/* Text */}
-              <div className={feature.reverse ? 'lg:order-2' : 'lg:order-1'}>
-                
-                {/* Label */}
-                <span className="inline-block text-blue-600 text-sm font-semibold tracking-wide uppercase mb-4">
-                  {feature.label}
-                </span>
+export default function HeroAndFeatures() {
+  const router = useRouter();
+  const [sujet, setSujet] = useState("");
 
-                {/* Title */}
-                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight mb-4">
-                  {feature.title}
-                </h3>
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (sujet.trim()) {
+      router.push(`/auth/register?suggestion=${encodeURIComponent(sujet)}`);
+    } else {
+      router.push('/auth/register');
+    }
+  };
 
-                {/* Description */}
-                <p className="text-slate-500 text-base sm:text-lg mb-6 leading-relaxed">
-                  {feature.description}
-                </p>
+  return (
+    <>
+      {/* ═══════════════════════════════════════════════════════════════
+          HERO — fond bleu ciel
+      ═══════════════════════════════════════════════════════════════ */}
+      <section
+        className="relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(180deg, #7DD3FC 0%, #BAE6FD 25%, #E0F2FE 55%, #BFDBFE 80%, #93C5FD 100%)'
+        }}
+      >
+        {/* Nuages décoratifs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 w-64 h-32 rounded-full opacity-60 blur-3xl" style={{ background: 'rgba(255,255,255,0.8)' }} />
+          <div className="absolute top-40 right-20 w-96 h-40 rounded-full opacity-50 blur-3xl" style={{ background: 'rgba(255,255,255,0.7)' }} />
+          <div className="absolute bottom-60 left-1/4 w-80 h-32 rounded-full opacity-40 blur-3xl" style={{ background: 'rgba(255,255,255,0.6)' }} />
+        </div>
 
-                {/* Points */}
-                <ul className="space-y-3 mb-8">
-                  {feature.points.map((point, i) => (
-                    <li key={i} className="flex items-center gap-3">
-                      <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                      <span className="text-slate-700 text-sm sm:text-base">{point}</span>
-                    </li>
-                  ))}
-                </ul>
+        {/* Contenu Hero */}
+        <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-5 sm:px-6 pt-24 pb-40">
 
+          {/* Social proof */}
+          <div className="flex items-center gap-3 px-4 py-2 bg-white/80 backdrop-blur-sm border border-white/50 rounded-full mb-8 shadow-sm">
+            <div className="flex -space-x-2">
+              <img src="https://sucesspro.io/wp-content/uploads/2025/10/bc04d7c785a05a60584b5edc85860f47.jpg" className="w-7 h-7 rounded-full border-2 border-white object-cover" alt="" />
+              <img src="https://sucesspro.io/wp-content/uploads/2025/10/IMG_4306.jpg" className="w-7 h-7 rounded-full border-2 border-white object-cover" alt="" />
+              <img src="https://sucesspro.io/wp-content/uploads/2025/10/ef7c836ef8bee61bfcb4d5ff4bde5702.jpg" className="w-7 h-7 rounded-full border-2 border-white object-cover" alt="" />
+            </div>
+            <span className="text-sm text-slate-700">
+              <span className="font-semibold text-slate-900">3,500+</span> créateurs nous font confiance
+            </span>
+          </div>
+
+          {/* Titre */}
+          <h1 className="text-center max-w-4xl mb-6">
+            <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 leading-[1.15] tracking-tight">
+              Une façon plus <em className="italic font-serif">intelligente</em>
+            </span>
+            <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 leading-[1.15] tracking-tight mt-1 sm:mt-2">
+              de créer et vendre ton ebook
+            </span>
+            <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 leading-[1.15] tracking-tight mt-1 sm:mt-2">
+              en <span className="text-blue-700">60 secondes</span>
+            </span>
+          </h1>
+
+          {/* Sous-titre */}
+          <p className="text-center text-base sm:text-lg text-slate-700 max-w-2xl mb-10 leading-relaxed">
+            Générez votre ebook avec l'IA, obtenez un design professionnel et vendez-le instantanément grâce à votre boutique Bookzy.
+          </p>
+
+          {/* Formulaire */}
+          <form onSubmit={handleSubmit} className="w-full max-w-2xl mb-8">
+            <div className="bg-white rounded-2xl shadow-xl border border-white/50 p-4 sm:p-5">
+              <input
+                type="text"
+                value={sujet}
+                onChange={(e) => setSujet(e.target.value)}
+                placeholder="Décris le sujet de ton ebook..."
+                className="w-full text-slate-900 placeholder:text-slate-400 text-base sm:text-lg bg-transparent border-0 focus:outline-none focus:ring-0 mb-4"
+              />
+              <div className="flex items-center justify-between">
+                <button type="button" className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                  <Paperclip className="w-5 h-5" />
+                </button>
+                <button type="submit" className="w-10 h-10 bg-blue-500 hover:bg-blue-600 rounded-full flex items-center justify-center text-white transition-colors shadow-lg shadow-blue-500/30">
+                  <ArrowUp className="w-5 h-5" />
+                </button>
               </div>
+            </div>
+          </form>
 
-              {/* Media */}
-              <div className={feature.reverse ? 'lg:order-1' : 'lg:order-2'}>
-                <div className="relative rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-xl">
-                  
-                  {/* Browser bar */}
-                  <div className="flex items-center gap-1.5 px-4 py-3 bg-slate-100 border-b border-slate-200">
-                    <div className="w-3 h-3 rounded-full bg-red-400" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                    <div className="w-3 h-3 rounded-full bg-green-400" />
-                  </div>
-
-                  {/* Content */}
-                  <div className="aspect-video bg-slate-900">
-                    {feature.media.type === "video" ? (
-                      <AutoPlayVideo 
-                        src={feature.media.src} 
-                        poster={feature.media.poster} 
-                      />
-                    ) : (
-                      <img 
-                        src={feature.media.src} 
-                        alt={feature.title}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    )}
-                  </div>
-
-                </div>
-              </div>
-
+          {/* Tags */}
+          <div className="text-center">
+            <p className="text-sm text-slate-600 mb-4">Commencer par :</p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <button onClick={() => router.push('/auth/register')} className="flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 border border-white/70 rounded-full text-sm font-medium text-slate-700 transition-all shadow-sm">
+                <BookOpen className="w-4 h-4 text-blue-500" />
+                Générer avec l'IA
+              </button>
+              <button onClick={() => router.push('/auth/register')} className="flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 border border-white/70 rounded-full text-sm font-medium text-slate-700 transition-all shadow-sm">
+                <Zap className="w-4 h-4 text-amber-500" />
+                Mise en page Express
+              </button>
+              <button onClick={() => router.push('/auth/register')} className="flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 border border-white/70 rounded-full text-sm font-medium text-slate-700 transition-all shadow-sm">
+                <Store className="w-4 h-4 text-emerald-500" />
+                Créer ma boutique
+              </button>
             </div>
           </div>
         </div>
-      ))}
 
-      {/* CTA */}
-      <div className="py-12 lg:py-16">
-        <div className="text-center">
-          <Link 
-            href="/auth/register"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl transition-colors"
+        {/* ═══════════════════════════════════════════════════════════════
+            VAGUE SVG — colle au bas du Hero, mange le blanc en dessous
+            Même technique que Dokie / Linear / Vercel
+        ═══════════════════════════════════════════════════════════════ */}
+        <div className="absolute bottom-0 left-0 right-0 z-20" style={{ lineHeight: 0 }}>
+          <svg
+            viewBox="0 0 1440 120"
+            xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="none"
+            style={{ display: 'block', width: '100%', height: '120px' }}
           >
-            Voir plus de fonctionnalités
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+            <path
+              d="M0,40 C180,100 360,0 540,60 C720,120 900,20 1080,70 C1260,120 1350,50 1440,60 L1440,120 L0,120 Z"
+              fill="white"
+            />
+          </svg>
         </div>
-      </div>
+      </section>
 
-    </section>
+      {/* ═══════════════════════════════════════════════════════════════
+          FEATURES — fond blanc, commence exactement là où la vague finit
+      ═══════════════════════════════════════════════════════════════ */}
+      <section id="features" className="bg-white">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-4 pb-16 lg:pb-24">
+
+          {/* Header Section 1 */}
+          <div className="text-center mb-12 lg:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-slate-900 mb-4 lg:mb-6">
+              La plateforme IA{' '}
+              <span className="relative inline-block">
+                <span className="relative z-10">#1</span>
+                <span
+                  className="absolute inset-x-0 bottom-1 h-3 lg:h-4 -z-0 rounded"
+                  style={{ background: 'linear-gradient(90deg, #93C5FD, #60A5FA)' }}
+                />
+              </span>{' '}
+              pour créer et vendre des ebooks
+            </h2>
+            <p className="text-slate-500 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto">
+              Génération IA, mise en page professionnelle, boutique intégrée — tout ce dont tu as besoin, en un seul endroit.
+            </p>
+          </div>
+
+          {/* Cards Création */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {featuresCreate.map((feature) => (
+              <FeatureCard key={feature.id} feature={feature} />
+            ))}
+          </div>
+
+          {/* Section 2 */}
+          <div className="mt-24 lg:mt-36">
+            <div className="text-center mb-12 lg:mb-16">
+              <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-slate-900 mb-4 lg:mb-6">
+                Trouvez les idées qui cartonnent
+              </h2>
+              <p className="text-slate-500 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto">
+                Analysez le marché, découvrez les tendances et créez des ebooks sur des sujets rentables.
+              </p>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+              {featuresResearch.map((feature) => (
+                <FeatureCard key={feature.id} feature={feature} />
+              ))}
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="text-center mt-20 lg:mt-28">
+            <Link href="/auth/register" className="inline-flex items-center gap-2 px-8 py-4 lg:px-10 lg:py-5 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-base lg:text-lg rounded-full transition-all">
+              Commencer gratuitement
+              <ArrowRight className="w-5 h-5 lg:w-6 lg:h-6" />
+            </Link>
+          </div>
+
+        </div>
+      </section>
+    </>
   );
 }

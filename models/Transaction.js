@@ -10,8 +10,6 @@ const TransactionSchema = new mongoose.Schema({
   // 🔥 ID INTERNE (Utilisé pour le suivi avant redirection)
   internalId: {
     type: String,
-    // On retire "unique: true" ici car l'index est défini plus bas
-    // pour éviter le "Duplicate schema index"
     sparse: true, 
   },
 
@@ -22,7 +20,7 @@ const TransactionSchema = new mongoose.Schema({
     required: true,
   },
 
-  // ID réel généré par Kkiapay (ex: 222689...)
+  // ID réel généré par le provider
   providerTransactionId: {
     type: String,
     default: null,
@@ -37,7 +35,25 @@ const TransactionSchema = new mongoose.Schema({
     default: "pending",
   },
 
+  // "ebook_kit" = génération ebook | "credit_pack" = achat de crédits
   purpose: { type: String, default: "ebook_kit" },
+
+  // ─── SYSTÈME DE CRÉDITS ──────────────────────────────────────────────────
+  // Rempli uniquement si purpose === "credit_pack"
+  packId: {
+    type: String,
+    enum: [
+      "solo_monthly",
+      "solo_quarterly",
+      "createur_monthly",
+      "createur_quarterly",
+      "agence_monthly",
+      "agence_quarterly",
+      null
+    ],
+    default: null,
+  },
+  // ─────────────────────────────────────────────────────────────────────────
 
   // Référence au projet pour déclencher la génération après paiement
   projetId: {
@@ -56,7 +72,7 @@ const TransactionSchema = new mongoose.Schema({
   kitData: {
     title: String,
     description: String,
-    template: String, // Crucial pour le design choisi par l'utilisateur
+    template: String,
     pages: Number,
     chapters: Number,
     tone: String,
@@ -64,18 +80,18 @@ const TransactionSchema = new mongoose.Schema({
   },
 
   providerResponse: { type: Object, default: {} },
-  paymentUrl: { type: String, default: null }, // Stocke le lien de redirection Kkiapay
+  paymentUrl: { type: String, default: null },
   errorMessage: { type: String, default: null },
   completedAt: { type: Date, default: null },
 }, {
   timestamps: true,
 });
 
-// 🔥 INDEXATION UNIQUE (Correction du Warning)
-// On définit l'index unique ici proprement une seule fois
+// INDEXATION
 TransactionSchema.index({ internalId: 1 }, { unique: true, sparse: true });
 TransactionSchema.index({ userId: 1, status: 1 });
 TransactionSchema.index({ providerTransactionId: 1 });
+TransactionSchema.index({ packId: 1, status: 1 }); // Pour stats par pack
 
 export default mongoose.models.Transaction ||
   mongoose.model("Transaction", TransactionSchema);

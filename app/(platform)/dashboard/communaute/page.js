@@ -1,197 +1,317 @@
+// app/(platform)/dashboard/communaute/page.js
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
-  Sparkles,
-  Trophy,
-  MessageCircle,
-  Video,
-  Gift,
-  TrendingUp,
-  CheckCircle2,
-  ArrowRight,
-  Zap,
-  Target,
-  Send,
-  Lock
+  X, ArrowRight, Send, CheckCircle2, Lock, MessageCircle,
+  Zap, Sparkles, Gift, TrendingUp, Trophy, Target
 } from "lucide-react";
 
 export default function CommunautePage() {
-  const [telegramLink] = useState("https://t.me/+Yad7Hj17d445Mzdk"); 
+  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+  const telegramLink = "https://t.me/+Yad7Hj17d445Mzdk";
+
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return null;
 
   const features = [
-    {
-      icon: Zap,
-      title: "Idées de Contenus HOT",
-      description: "Découvrez des titres et thèmes validés, prêts à exploiter immédiatement.",
-      color: "from-red-500 to-red-600"
-    },
-    {
-      icon: Sparkles,
-      title: "Conseils Experts Quotidiens",
-      description: "Recevez des stratégies éprouvées et des astuces pour créer des eBooks ultra-rentables.",
-      color: "from-blue-500 to-blue-600"
-    },
-    {
-      icon: Gift,
-      title: "Ressources PREMIUM Gratuites",
-      description: "Téléchargez des templates, checklists et outils pour booster vos ventes d'eBooks.",
-      color: "from-amber-500 to-orange-600"
-    },
-    {
-      icon: TrendingUp,
-      title: "Tendances du Marché",
-      description: "Restez informé des niches porteuses et opportunités du moment via nos analyses rapides.",
-      color: "from-green-500 to-emerald-600"
-    },
-    {
-      icon: Video,
-      title: "Mini-Formations Actionnables",
-      description: "Accédez à des vidéos courtes et astuces marketing pour passer à l'action.",
-      color: "from-indigo-500 to-purple-600"
-    },
-    {
-      icon: Trophy,
-      title: "Inspiration et Motivation",
-      description: "Inspirez-vous des résultats concrets d'autres créateurs (Success Stories).",
-      color: "from-pink-500 to-rose-600"
-    }
+    { Icon: Zap,        bg: "#FEF3F2", color: "#EF4444", title: "Idées HOT",           desc: "Titres et thèmes validés, prêts à exploiter." },
+    { Icon: MessageCircle,   bg: "#EFF6FF", color: "#3B82F6", title: "Conseils Experts",     desc: "Stratégies pour créer des eBooks rentables." },
+    { Icon: Gift,       bg: "#FFFBEB", color: "#F59E0B", title: "Ressources Gratuites", desc: "Templates et outils pour booster vos ventes." },
+    { Icon: TrendingUp, bg: "#F0FDF4", color: "#22C55E", title: "Tendances Marché",     desc: "Niches porteuses et opportunités en temps réel." },
+    { Icon: Trophy,     bg: "#FDF4FF", color: "#A855F7", title: "Success Stories",      desc: "Inspirez-vous des résultats d'autres créateurs." },
+    { Icon: Target,     bg: "#F0F9FF", color: "#0EA5E9", title: "Ciblage Précis",       desc: "Identifiez les micro-niches les plus chaudes." },
   ];
 
-  const handleJoinCommunity = () => {
-    window.open(telegramLink, "_blank");
-  };
-
   return (
-    // AJOUT DE overflow-x-hidden POUR ÉVITER LE SCROLL HORIZONTAL
-    <div className="min-h-screen bg-slate-50 font-sans text-neutral-900 pb-20 overflow-x-hidden">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-12">
+    <>
+      <style>{`
+        .cm-overlay {
+          position: fixed; inset: 0;
+          background: rgba(0,0,0,0.42);
+          display: flex; align-items: flex-end; justify-content: center;
+          z-index: 1000;
+          animation: cm-fade .18s ease;
+        }
+        @keyframes cm-fade { from{opacity:0} to{opacity:1} }
 
-        {/* 1. HERO SECTION */}
-        <div className="relative overflow-hidden bg-[#24A1DE] border border-blue-400/50 rounded-2xl sm:rounded-3xl p-6 sm:p-12 md:p-16 text-white shadow-xl sm:shadow-2xl shadow-blue-500/30">
-          
-          {/* Pattern background */}
-          <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{
-            backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="20" fill="rgba(255,255,255,0.4)">✈️</text></svg>')`,
-            backgroundSize: '60px 60px'
-          }}></div>
+        .cm-sheet {
+          background: #fff;
+          width: 100%;
+          border-radius: 20px 20px 0 0;
+          overflow: hidden;
+          animation: cm-up .24s ease;
+          font-family: -apple-system,'Helvetica Neue',sans-serif;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          max-height: 88svh;
+        }
+        @keyframes cm-up { from{transform:translateY(50px);opacity:0} to{transform:translateY(0);opacity:1} }
 
-          <div className="relative z-10 text-center max-w-4xl mx-auto space-y-5">
-            
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full">
-              <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">CANAL TÉLÉGRAM OFFICIEL</span>
+        @media (min-width: 700px) {
+          .cm-overlay { align-items: center; padding: 24px; }
+          .cm-sheet {
+            max-width: 900px;
+            border-radius: 22px;
+            flex-direction: row;
+            max-height: 600px;
+            animation: cm-pop .22s ease;
+          }
+          @keyframes cm-pop { from{opacity:0;transform:scale(.97)} to{opacity:1;transform:scale(1)} }
+          .cm-handle { display: none !important; }
+          .cm-left   { display: flex !important; }
+          .cm-hero-mob { display: none !important; }
+        }
+
+        /* HANDLE */
+        .cm-handle {
+          width: 36px; height: 4px;
+          background: #E2E2E0; border-radius: 99px;
+          margin: 12px auto 0; flex-shrink: 0;
+        }
+
+        /* CLOSE */
+        .cm-close {
+          position: absolute; top: 14px; right: 14px;
+          width: 32px; height: 32px; border-radius: 50%;
+          border: 1.5px solid #E0E0E0;
+          background: #fff; color: #111;
+          display: flex; align-items: center; justify-content: center;
+          cursor: pointer; z-index: 30;
+          box-shadow: 0 1px 6px rgba(0,0,0,0.12);
+          transition: background .12s;
+        }
+        .cm-close:hover { background: #F5F5F3; }
+
+        /* LEFT desktop */
+        .cm-left {
+          display: none;
+          width: 300px; flex-shrink: 0;
+          background: #111;
+          padding: 44px 32px;
+          flex-direction: column;
+          justify-content: space-between;
+        }
+        .cm-eyebrow {
+          font-size: 10px; font-weight: 700;
+          letter-spacing: .13em; text-transform: uppercase;
+          color: rgba(255,255,255,.28); margin: 0 0 24px;
+        }
+        .cm-left-title {
+          font-size: 30px; font-weight: 800;
+          line-height: 1.1; letter-spacing: -.03em;
+          color: #fff; margin: 0 0 14px;
+        }
+        .cm-left-title em { font-style: italic; font-weight: 300; color: rgba(255,255,255,.35); }
+        .cm-left-desc {
+          font-size: 13px; line-height: 1.7;
+          color: rgba(255,255,255,.38); font-weight: 300; margin: 0;
+        }
+        .cm-proof-row { display: flex; flex-direction: column; gap: 9px; margin-top: 36px; }
+        .cm-proof-item {
+          display: flex; align-items: center; gap: 8px;
+          font-size: 12px; color: rgba(255,255,255,.38);
+        }
+        .cm-proof-dot {
+          width: 5px; height: 5px; border-radius: 50%;
+          background: rgba(255,255,255,.2); flex-shrink: 0;
+        }
+
+        /* RIGHT */
+        .cm-right {
+          flex: 1; display: flex; flex-direction: column;
+          overflow: hidden;
+        }
+
+        /* inner scroll — masqué visuellement */
+        .cm-scroll {
+          flex: 1; overflow-y: auto;
+          display: flex; flex-direction: column;
+        }
+        .cm-scroll::-webkit-scrollbar { display: none; }
+        .cm-scroll { scrollbar-width: none; }
+
+        /* HERO mobile */
+        .cm-hero-mob {
+          background: #24A1DE;
+          padding: 24px 22px 20px;
+          text-align: center; flex-shrink: 0;
+        }
+        .cm-badge {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 4px 12px;
+          background: rgba(255,255,255,.18);
+          border: 1px solid rgba(255,255,255,.28);
+          border-radius: 99px;
+          font-size: 9px; font-weight: 700;
+          letter-spacing: .1em; text-transform: uppercase;
+          color: #fff; margin-bottom: 12px;
+        }
+        .cm-mob-title {
+          font-size: 22px; font-weight: 800;
+          color: #fff; letter-spacing: -.02em;
+          line-height: 1.15; margin: 0 0 8px;
+        }
+        .cm-mob-sub {
+          font-size: 13px; color: rgba(255,255,255,.85);
+          line-height: 1.6; margin: 0;
+        }
+
+        /* FEATURES */
+        .cm-content {
+          padding: 20px 22px 0; flex-shrink: 0;
+        }
+        @media (min-width: 700px) { .cm-content { padding: 32px 32px 0; } }
+
+        .cm-section-label {
+          font-size: 10px; font-weight: 700;
+          letter-spacing: .1em; text-transform: uppercase;
+          color: #BBBAB7; margin: 0 0 12px;
+        }
+
+        .cm-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
+        }
+        @media (max-width: 699px) {
+          .cm-grid { grid-template-columns: 1fr; gap: 0; }
+        }
+
+        .cm-feature {
+          display: flex; align-items: flex-start; gap: 11px;
+          padding: 11px 0;
+        }
+        @media (max-width: 699px) {
+          .cm-feature { border-bottom: 1px solid #F2F2F0; }
+          .cm-feature:last-child { border-bottom: none; }
+        }
+        @media (min-width: 700px) {
+          .cm-feature {
+            padding: 11px 12px; border-radius: 11px;
+            transition: background .12s;
+          }
+          .cm-feature:hover { background: #F8F8F6; }
+        }
+
+        .cm-feat-icon {
+          width: 34px; height: 34px; border-radius: 9px;
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+        }
+        .cm-feat-text h4 { font-size: 12.5px; font-weight: 600; color: #0D0D0D; margin: 0 0 2px; }
+        .cm-feat-text p  { font-size: 11.5px; color: #999; line-height: 1.5; margin: 0; }
+
+        /* FOOTER */
+        .cm-footer {
+          padding: 16px 22px 24px; flex-shrink: 0;
+        }
+        @media (min-width: 700px) { .cm-footer { padding: 20px 32px 32px; } }
+
+        .cm-btn {
+          width: 100%;
+          display: flex; align-items: center; justify-content: center; gap: 8px;
+          padding: 14px 20px;
+          background: #24A1DE; color: #fff;
+          border: none; border-radius: 12px;
+          font-size: 14px; font-weight: 700;
+          font-family: -apple-system,'Helvetica Neue',sans-serif;
+          cursor: pointer;
+          transition: opacity .15s, transform .1s;
+          -webkit-appearance: none; margin-bottom: 10px;
+        }
+        .cm-btn:hover { opacity: .88; }
+        .cm-btn:active { transform: scale(.98); }
+
+        .cm-trust {
+          display: flex; align-items: center; justify-content: center; gap: 14px;
+          font-size: 11px; color: #C0BFBC; font-weight: 500;
+        }
+        .cm-trust span { display: flex; align-items: center; gap: 4px; }
+      `}</style>
+
+      <div className="cm-overlay" onClick={(e) => e.target === e.currentTarget && router.back()}>
+        <div className="cm-sheet">
+
+          <button className="cm-close" onClick={() => router.back()} aria-label="Fermer">
+            <X size={14} strokeWidth={2.5} />
+          </button>
+
+          <div className="cm-handle" />
+
+          {/* LEFT desktop */}
+          <div className="cm-left">
+            <div>
+              <p className="cm-eyebrow">Bookzy — Communauté</p>
+              <h2 className="cm-left-title">
+                Votre réseau<br /><em>de créateurs.</em>
+              </h2>
+              <p className="cm-left-desc">
+                Rejoignez des centaines de créateurs francophones qui construisent leur business d'ebooks chaque jour.
+              </p>
+              <div className="cm-proof-row">
+                {["100% sans pub","Validation experte","Contenu exclusif","Accès immédiat"].map(t => (
+                  <div key={t} className="cm-proof-item">
+                    <div className="cm-proof-dot" />{t}
+                  </div>
+                ))}
+              </div>
             </div>
-
-            {/* Title - Ajustement tailles mobiles */}
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-black leading-tight drop-shadow-lg">
-              Rejoignez le <br className="sm:hidden" /> Club Secret Bookzy
-            </h1>
-
-            {/* Subtitle */}
-            <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed px-2">
-              Accédez gratuitement aux <strong>stratégies d'experts</strong> et aux <strong>idées de contenus</strong> les plus rentables.
-            </p>
-
-            {/* CTA */}
-            <div className="pt-4 w-full sm:w-auto">
-              <button
-                onClick={handleJoinCommunity}
-                className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-6 py-4 bg-white hover:bg-slate-100 text-blue-700 rounded-xl font-bold text-base sm:text-lg shadow-xl hover:scale-105 transition-all active:scale-95 touch-manipulation"
-              >
-                <Send className="w-5 h-5 flex-shrink-0" />
-                <span className="truncate">Accès Gratuit & Immédiat</span>
-                <ArrowRight className="w-4 h-4 flex-shrink-0 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </div>
-            
-            {/* Small Proof - Flex wrap important ici */}
-            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 pt-2 text-[10px] sm:text-xs font-semibold text-white/80">
-              <div className="flex items-center gap-1.5"><Lock className="w-3 h-3" /> 100% sans pub</div>
-              <div className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-green-300" /> Validation experte</div>
-            </div>
-
-          </div>
-        </div>
-
-        {/* 2. CE QUE VOUS ALLEZ RECEVOIR */}
-        <div className="space-y-6 pt-2 sm:pt-6">
-          <div className="text-center px-2">
-            <h2 className="text-2xl sm:text-3xl font-black text-neutral-900 mb-2">
-              Votre Avantage Compétitif
-            </h2>
-            <p className="text-base sm:text-lg text-neutral-600">
-              Des idées qui font la différence, livrées directement sur votre téléphone.
-            </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {features.map((feature, index) => (
-              <FeatureCardV2 key={index} {...feature} />
-            ))}
-          </div>
-        </div>
+          {/* RIGHT */}
+          <div className="cm-right">
+            <div className="cm-scroll">
 
-        {/* 3. POURQUOI REJOINDRE */}
-        <div className="bg-white border border-neutral-200 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg sm:shadow-xl">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-2xl sm:text-3xl font-black text-neutral-900 mb-6">
-              Plus qu'un canal, <br className="sm:hidden" /> c'est votre mentor IA
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-2">
-              <BenefitItem icon={Zap} title="Boost Productivité" text="Idées déjà filtrées par l'IA pour ne plus perdre de temps." />
-              <BenefitItem icon={Trophy} title="Progression" text="Restez motivé et suivez les challenges réguliers." />
-              <BenefitItem icon={Target} title="Ciblage Parfait" text="Identifiez les niches de micro-marché les plus chaudes." />
+              {/* Hero mobile */}
+              <div className="cm-hero-mob">
+                <div className="cm-badge">
+                  <MessageCircle size={10} /> Canal Telegram Officiel
+                </div>
+                <h1 className="cm-mob-title">Club Secret Bookzy</h1>
+                <p className="cm-mob-sub">Stratégies d'experts et idées de contenus rentables, gratuitement.</p>
+              </div>
+
+              {/* Features */}
+              <div className="cm-content">
+                <p className="cm-section-label">Ce que vous recevez</p>
+                <div className="cm-grid">
+                  {features.map(({ Icon, bg, color, title, desc }, i) => (
+                    <div key={i} className="cm-feature">
+                      <div className="cm-feat-icon" style={{ background: bg }}>
+                        <Icon size={16} color={color} strokeWidth={2} />
+                      </div>
+                      <div className="cm-feat-text">
+                        <h4>{title}</h4>
+                        <p>{desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="cm-footer">
+                <button className="cm-btn" onClick={() => window.open(telegramLink, "_blank")}>
+                  <Send size={14} />
+                  Rejoindre le Canal Telegram
+                  <ArrowRight size={14} />
+                </button>
+                <div className="cm-trust">
+                  <span><Lock size={11} /> Sans pub</span>
+                  <span><CheckCircle2 size={11} color="#86efac" /> Gratuit</span>
+                  <span><CheckCircle2 size={11} color="#86efac" /> Immédiat</span>
+                </div>
+              </div>
+
             </div>
           </div>
-        </div>
 
-        {/* 4. CTA FINAL */}
-        <div className="text-center pt-4 sm:pt-8 px-2">
-            <h2 className="text-2xl sm:text-3xl font-black text-neutral-900 mb-3">
-              Ne ratez pas les prochaines pépites.
-            </h2>
-            <p className="text-base sm:text-lg text-neutral-600 mb-6">
-              Rejoignez maintenant et recevez votre première stratégie exclusive.
-            </p>
-            <button
-                onClick={handleJoinCommunity}
-                className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-5 bg-slate-900 hover:bg-blue-700 text-white rounded-xl font-bold text-base sm:text-lg shadow-2xl hover:scale-105 transition-all active:scale-95 touch-manipulation"
-              >
-                <Send className="w-5 h-5 flex-shrink-0" />
-                <span className="truncate">Je Rejoins le Canal Telegram</span>
-                <ArrowRight className="w-5 h-5 flex-shrink-0 group-hover:translate-x-1 transition-transform" />
-              </button>
         </div>
-
       </div>
-    </div>
+    </>
   );
-}
-
-/* --- COMPONENTS ADAPTÉS MOBILE --- */
-
-function FeatureCardV2({ icon: Icon, title, description, color }) {
-  return (
-    <div className="group bg-white border border-neutral-200 rounded-2xl p-5 hover:shadow-xl transition-all duration-300 flex flex-col active:scale-[0.98]">
-      <div className={`inline-flex w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${color} rounded-xl items-center justify-center mb-3 sm:mb-4 transition-transform`}>
-        <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-      </div>
-      <h3 className="font-extrabold text-base sm:text-lg text-neutral-900 mb-1.5">{title}</h3>
-      <p className="text-sm text-neutral-600 leading-relaxed">{description}</p>
-    </div>
-  );
-}
-
-function BenefitItem({ icon: Icon, title, text }) {
-    return (
-        <div className="space-y-2 p-4 border border-neutral-100 rounded-xl bg-slate-50">
-            <div className={`flex items-center justify-center mx-auto w-10 h-10 bg-indigo-100 rounded-lg text-indigo-600 mb-2`}>
-                <Icon className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-lg text-neutral-900">{title}</h3>
-            <p className="text-sm text-neutral-600 leading-relaxed">{text}</p>
-        </div>
-    );
 }

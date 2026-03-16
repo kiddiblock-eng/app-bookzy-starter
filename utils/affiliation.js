@@ -2,7 +2,7 @@ import User from "@/models/User";
 import Commission from "@/models/Commission";
 
 // 💰 CONFIGURATION
-const COMMISSION_FIXE = 600; // Montant de la commission en FCFA
+const COMMISSION_RATE = 0.10; // 10% du montant payé
 
 /**
  * Génère un code parrain unique basé sur le prénom
@@ -50,7 +50,7 @@ export async function processCommission(buyerId, amountPaid) {
     const parrainId = buyer.referredBy;
 
     // 2. Calculer la commission (Ici c'est fixe à 600, mais modifiable)
-    const commissionAmount = COMMISSION_FIXE;
+    const commissionAmount = Math.round(amountPaid * COMMISSION_RATE);
 
     // 3. Créer l'historique de commission (Preuve)
     const newCommission = await Commission.create({
@@ -59,7 +59,7 @@ export async function processCommission(buyerId, amountPaid) {
       amount: commissionAmount,
       sourceAmount: amountPaid,
       status: "VALIDATED",
-      description: "Commission sur achat Pack Ebook"
+      description: `Commission 10% sur achat de ${amountPaid} FCFA`
     });
 
     // 4. Mettre à jour le portefeuille du Parrain

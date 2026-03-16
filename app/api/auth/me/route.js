@@ -68,6 +68,9 @@ export async function GET() {
         avatar: user.avatar || "",
         emailVerified: user.emailVerified,
         role: user.role,
+        credits: user.credits,
+        plan: user.plan,
+whatsNewSeenAt: user.whatsNewSeenAt || null,
       }),
       { status: 200 }
     );

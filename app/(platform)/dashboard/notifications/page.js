@@ -183,7 +183,7 @@ export default function AllNotificationsPage() {
                           href={notif.link}
                           className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 mt-3 inline-flex items-center gap-1"
                         >
-                          Voir le détail <ArrowLeft className="w-3 h-3 rotate-180" />
+                          Générer l'ebook <ArrowLeft className="w-3 h-3 rotate-180" />
                         </Link>
                       )}
                     </div>

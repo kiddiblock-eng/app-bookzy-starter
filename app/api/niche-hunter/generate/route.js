@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db.js";
 import NicheAnalysis from "@/models/NicheAnalysis.js";
+import User, { DAILY_LIMITS } from "@/models/User.js";
 import { verifyAuth } from "@/lib/auth.js";
 import { getAIText } from "@/lib/ai.js";
 
@@ -27,24 +28,36 @@ export async function POST(req) {
       );
     }
 
-    // Limite journalière : 3 recherches
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const countToday = await NicheAnalysis.countDocuments({
-      userId: user.id,
-      createdAt: { $gte: today }
-    });
-
-    if (countToday >= 6) {
+    const userDoc = await User.findById(user.id);
+    if (!userDoc) {
       return NextResponse.json(
-        {
-          success: false,
-          limitReached: true,
-          message: "🚫 Limite journalière atteinte (3 recherches par jour). Revenez demain."
-        },
-        { status: 429 }
+        { success: false, message: "Utilisateur introuvable." },
+        { status: 404 }
       );
+    }
+
+    // ✅ Quota journalier dispo → gratuit, sinon débit 1 crédit
+    const canUseQuota = userDoc.canDoDaily("nicheHunter");
+    let usedQuota = false;
+
+    if (canUseQuota) {
+      await userDoc.incrementDaily("nicheHunter");
+      usedQuota = true;
+    } else {
+      const balance = userDoc.credits?.balance ?? 0;
+      if (balance < 1) {
+        return NextResponse.json({
+          success: false,
+          quotaExceeded: true,
+          insufficientCredits: true,
+          plan: userDoc.plan,
+          balance,
+          message: "Quota journalier épuisé et crédits insuffisants."
+        }, { status: 402 });
+      }
+      userDoc.credits.balance -= 1;
+      userDoc.credits.totalSpent = (userDoc.credits.totalSpent || 0) + 1;
+      await userDoc.save();
     }
 
     // ✅ Adapter le prompt selon targetMarket
@@ -244,6 +257,9 @@ Structure 6 : Promesse chiffrée réaliste
 
     console.log(`✅ ${nichesWithIds.length} niches sauvegardées en ${totalTime}s`);
 
+    const limit = DAILY_LIMITS[userDoc.plan]?.nicheHunter;
+    const remainingQuota = limit === Infinity ? Infinity : Math.max(0, (limit || 0) - (userDoc.dailyUsage?.nicheHunter || 0));
+
     return NextResponse.json({
       success: true,
       data: {
@@ -252,7 +268,10 @@ Structure 6 : Promesse chiffrée réaliste
         niches: nichesWithIds,
         generationTime: totalTime,
         message: `${nichesWithIds.length} idées d'eBooks générées`
-      }
+      },
+      usedQuota,
+      remainingQuota,
+      newBalance: !usedQuota ? userDoc.credits?.balance : undefined
     });
 
   } catch (error) {
@@ -270,7 +289,6 @@ Structure 6 : Promesse chiffrée réaliste
 
 // ✅ FONCTION : Contexte selon le marché
 function getMarketContext(targetMarket, theme) {
-  // Détection automatique de mots-clés africains
   const africanKeywords = [
     'afrique', 'africain', 'sénégal', 'côte d\'ivoire', 'mali', 'niger',
     'burkina', 'bénin', 'togo', 'cameroun', 'congo', 'gabon',

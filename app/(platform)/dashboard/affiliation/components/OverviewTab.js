@@ -47,8 +47,8 @@ export default function OverviewTab({ stats, wallet, history, charts, loading })
         />
         <KpiCard 
           title="Commission actuelle"
-          value="600 FCFA"
-          sub="par vente confirmée"
+          value="10% récurrent"
+          sub="sur chaque achat de vos filleuls, à vie"
           icon={DollarSign}
         />
       </div>

@@ -137,6 +137,11 @@ export default function AdminUserDetailsPage({ params }) {
   const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" }) : "—";
   const isActive = user.isActive ?? true;
   const ebooksCount = ebooks.length || user.ebooksCreated || 0;
+  const plan = user.credits?.plan || user.plan || "free";
+  const creditBalance = user.credits?.balance ?? 0;
+  const creditTotal = user.credits?.totalAdded ?? 0;
+  const PLAN_LABELS = { free: "Gratuit", solo: "Pass Solo", createur: "Pack Créateur", agence: "Pack Agence" };
+  const PLAN_COLORS = { free: "text-slate-400 border-slate-700 bg-slate-800", solo: "text-blue-400 border-blue-500/20 bg-blue-500/10", createur: "text-indigo-400 border-indigo-500/20 bg-indigo-500/10", agence: "text-emerald-400 border-emerald-500/20 bg-emerald-500/10" };
 
   return (
     <div className="min-h-screen bg-[#020617] text-slate-200 p-6 md:p-8 font-sans">
@@ -306,6 +311,30 @@ export default function AdminUserDetailsPage({ params }) {
                  <button className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition-all">
                     <Mail size={16} /> Envoyer un email
                  </button>
+              </div>
+           </div>
+
+           {/* Plan & Crédits */}
+           <div className="bg-[#0f1623] border border-slate-800 rounded-xl p-5">
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                 <Crown size={14} className="text-amber-400" /> Plan & Crédits
+              </h3>
+              <div className="space-y-3">
+                 <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-400">Plan actuel</span>
+                    <span className={`px-2.5 py-1 rounded text-xs font-bold uppercase border ${PLAN_COLORS[plan] || PLAN_COLORS.free}`}>
+                       {PLAN_LABELS[plan] || plan}
+                    </span>
+                 </div>
+                 <div className="h-px bg-slate-800"></div>
+                 <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-400">Crédits restants</span>
+                    <span className="text-white font-mono font-bold">{creditBalance.toLocaleString()}</span>
+                 </div>
+                 <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-400">Total ajouté</span>
+                    <span className="text-slate-300 font-mono">{creditTotal.toLocaleString()}</span>
+                 </div>
               </div>
            </div>
 

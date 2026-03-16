@@ -1,196 +1,255 @@
 "use client";
 
 import Link from "next/link";
-import { 
-  RefreshCcw, 
-  ShieldCheck, 
-  XCircle, 
-  CheckCircle2, 
-  HelpCircle, 
-  Mail, 
-  ArrowLeft,
-  FileText,
-  Smartphone,
-  Layout,
-  Clock,
-  Wallet
+import {
+  RefreshCcw, ShieldCheck, XCircle, CheckCircle2,
+  HelpCircle, Mail, ArrowLeft, FileText,
+  Smartphone, Layout, Clock, Wallet, Coins
 } from "lucide-react";
 
-export default function RefundPolicy() {
-  
-  const scrollTo = (id) => {
-    const element = document.getElementById(id);
-    if (element) {
-      window.scrollTo({ top: element.offsetTop - 100, behavior: "smooth" });
-    }
-  };
+const GRAIN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`;
 
+function BookOpenSVG(props) {
   return (
-    <div className="min-h-screen bg-[#FDFDFD] font-sans selection:bg-red-50">
-      
-      {/* --- MINI HEADER --- */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group">
-             <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center transition-transform group-hover:scale-105">
-                <RefreshCcw className="w-4 h-4 text-white" />
-             </div>
-             <span className="font-bold text-slate-900">Bookzy <span className="text-slate-400 font-medium">Refund</span></span>
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+    </svg>
+  );
+}
+
+export default function RefundPolicy() {
+  return (
+    <div className="min-h-screen font-sans" style={{ background: "#F5F2ED" }}>
+
+      {/* Grain global */}
+      <div className="fixed inset-0 opacity-[0.03] pointer-events-none z-0"
+        style={{ backgroundImage: GRAIN, backgroundRepeat: "repeat", backgroundSize: "128px" }} />
+
+      {/* NAV */}
+      <nav className="sticky top-0 z-50 bg-[#F5F2ED]/90 backdrop-blur-md border-b border-[#C8BFB0]"
+        style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center">
+              <BookOpenSVG className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <span className="font-black text-slate-900 tracking-tight">Bookzy</span>
+              <span className="text-slate-400 font-bold"> Refund</span>
+            </div>
           </Link>
-          <Link href="/" className="text-sm font-bold text-slate-500 hover:text-slate-900 flex items-center gap-1.5 transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Retour
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-black text-slate-500 hover:text-slate-900 uppercase tracking-widest transition-colors">
+            <ArrowLeft className="w-3.5 h-3.5" /> Retour
           </Link>
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-6 py-12 lg:py-20">
-        
-        {/* --- HERO SECTION --- */}
-        <div className="max-w-3xl mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-red-700 text-[10px] font-bold uppercase tracking-wider mb-6">
-                <ShieldCheck className="w-3 h-3" /> Garantie de Service
-            </div>
-            <h1 className="text-4xl lg:text-6xl font-black text-slate-900 tracking-tight mb-6 leading-tight">
-                Transparence sur <br /><span className="text-red-600">nos remboursements.</span>
-            </h1>
-            <p className="text-xl text-slate-500 leading-relaxed font-medium">
-                Notre priorité est votre succès. En raison de la nature numérique instantanée 
-                de nos produits (IA), voici les règles qui encadrent nos services.
-            </p>
+      <div className="relative z-10 max-w-6xl mx-auto px-6 py-16 lg:py-24">
+
+        {/* HERO */}
+        <div className="max-w-3xl mb-16 pb-12 border-b border-[#C8BFB0]">
+          <div className="inline-flex items-center gap-2 px-4 py-2 border border-[#C8BFB0] rounded-full bg-white/60 mb-8">
+            <ShieldCheck className="w-3.5 h-3.5 text-slate-500" />
+            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">Garantie de Service</span>
+          </div>
+          <h1 className="font-black text-slate-900 tracking-tight leading-[0.92] mb-6" style={{ fontSize: "clamp(2.5rem, 7vw, 5rem)" }}>
+            Transparence sur<br />
+            <span className="text-blue-500">nos remboursements.</span>
+          </h1>
+          <p className="text-lg text-slate-500 leading-relaxed max-w-xl">
+            Notre priorité est votre succès. Bookzy fonctionne avec un système de crédits.
+            En cas de problème avéré, nous remboursons les <strong className="text-slate-900">crédits utilisés</strong> directement sur votre compte , pas l'argent de votre achat initial.
+          </p>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-16">
-          
-          <div className="flex-1 max-w-4xl space-y-20">
-            
-            {/* 1. OFFRE COMPLÈTE */}
-            <section id="offre">
-                <h2 className="text-2xl font-black text-slate-900 mb-6">1. Ce que comprend votre achat</h2>
-                <div className="p-8 bg-slate-900 rounded-[32px] text-white">
-                    <p className="text-slate-400 text-sm font-bold mb-6 uppercase tracking-widest">Le Pack Bookzy à 2 000 FCFA :</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {[
-                            { icon: FileText, t: "Ebook Pro PDF", d: "Design & Contenu IA" },
-                            { icon: Layout, t: "Page de Vente", d: "Copywriting complet" },
-                            { icon: Smartphone, t: "Pack Réseaux", d: "Facebook & WhatsApp" },
-                            { icon: CheckCircle2, t: "Prêt à l'emploi", d: "Téléchargement immédiat" }
-                        ].map((item, i) => (
-                            <div key={i} className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
-                                <item.icon className="w-5 h-5 text-red-400" />
-                                <div>
-                                    <p className="font-bold text-sm">{item.t}</p>
-                                    <p className="text-[10px] text-slate-400 font-medium">{item.d}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
 
-            {/* 2. CONDITIONS (VERTS / ROUGE) */}
-            <section id="conditions">
-                <h2 className="text-2xl font-black text-slate-900 mb-8">2. Conditions de remboursement</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* ÉLIGIBLE */}
-                    <div className="p-8 bg-emerald-50/50 border border-emerald-100 rounded-[32px]">
-                        <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mb-6">
-                            <CheckCircle2 className="w-6 h-6" />
-                        </div>
-                        <h3 className="text-lg font-black text-emerald-900 mb-4">Remboursement accepté</h3>
-                        <ul className="space-y-3">
-                            {["Échec technique de génération", "Double facturation système", "Fichiers corrompus/illisibles", "Demande sous 24h avant téléchargement"].map((t, i) => (
-                                <li key={i} className="flex items-start gap-2 text-sm text-emerald-700 font-semibold">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0"></div>
-                                    {t}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+          {/* CONTENU PRINCIPAL */}
+          <div className="flex-1 max-w-4xl space-y-16">
 
-                    {/* REFUSÉ */}
-                    <div className="p-8 bg-red-50/50 border border-red-100 rounded-[32px]">
-                        <div className="w-10 h-10 bg-red-100 text-red-600 rounded-xl flex items-center justify-center mb-6">
-                            <XCircle className="w-6 h-6" />
-                        </div>
-                        <h3 className="text-lg font-black text-red-900 mb-4">Remboursement refusé</h3>
-                        <ul className="space-y-3">
-                            {["Génération réussie", "Insatisfaction subjective du style", "Changement d'avis après téléchargement", "Erreur de titre/sujet par l'utilisateur"].map((t, i) => (
-                                <li key={i} className="flex items-start gap-2 text-sm text-red-700 font-semibold">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-shrink-0"></div>
-                                    {t}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </div>
-            </section>
-
-            {/* 3. DÉLAIS (TIMELINE) */}
-            <section id="delais">
-                <h2 className="text-2xl font-black text-slate-900 mb-8">3. Délais et Procédure</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {/* 1. COMMENT ÇA MARCHE */}
+            <section id="credits">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-3">Comprendre le système</p>
+              <h2 className="text-3xl font-black text-slate-900 mb-8 tracking-tight">1. Remboursement en crédits</h2>
+              <div className="bg-slate-900 rounded-2xl p-6 lg:p-8 relative overflow-hidden">
+                <div className="absolute inset-0 opacity-[0.06] pointer-events-none"
+                  style={{ backgroundImage: GRAIN, backgroundRepeat: "repeat", backgroundSize: "128px" }} />
+                <div className="relative z-10">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-6">Principe important</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                     {[
-                        { icon: Clock, t: "24 Heures", d: "Pour soumettre votre demande" },
-                        { icon: Mail, t: "48 Heures", d: "Temps moyen de réponse" },
-                        { icon: Wallet, t: "3 à 7 Jours", d: "Remboursement effectif" }
+                      { icon: Coins, t: "Crédits remboursés", d: "Pas l'argent payé pour les crédits" },
+                      { icon: RefreshCcw, t: "Remise immédiate", d: "Les crédits reviennent sur votre compte" },
+                      { icon: FileText, t: "Après enquête", d: "Vérification du problème signalé" },
+                      { icon: CheckCircle2, t: "Si vous avez raison", d: "Crédits restitués intégralement" },
                     ].map((item, i) => (
-                        <div key={i} className="p-6 bg-white border border-slate-100 rounded-3xl text-center">
-                            <div className="w-10 h-10 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <item.icon className="w-5 h-5" />
-                            </div>
-                            <p className="font-black text-slate-900 mb-1">{item.t}</p>
-                            <p className="text-xs text-slate-500 font-medium">{item.d}</p>
+                      <div key={i} className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <item.icon className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                        <div>
+                          <p className="font-black text-white text-sm">{item.t}</p>
+                          <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-0.5">{item.d}</p>
                         </div>
+                      </div>
                     ))}
+                  </div>
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+                    <p className="text-white/60 text-sm leading-relaxed">
+                      Exemple : vous avez acheté 330 crédits pour 19 125 FCFA et utilisé 20 crédits pour générer un ebook défectueux.
+                      Après enquête favorable, nous restituons les <strong className="text-white">20 crédits</strong> sur votre solde.
+                      L'argent des 19 125 FCFA ne fait pas l'objet d'un remboursement monétaire.
+                    </p>
+                  </div>
                 </div>
+              </div>
+            </section>
+
+            {/* 2. CONDITIONS */}
+            <section id="conditions">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-3">Éligibilité</p>
+              <h2 className="text-3xl font-black text-slate-900 mb-8 tracking-tight">2. Conditions de remboursement</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                {/* ÉLIGIBLE */}
+                <div className="bg-white border border-[#C8BFB0] rounded-2xl overflow-hidden">
+                  <div className="px-6 py-4 border-b border-[#E8E2D9] flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Crédits remboursés</p>
+                  </div>
+                  <div className="p-6 space-y-3">
+                    {[
+                      "Échec technique de génération prouvé",
+                      "Fichiers corrompus ou illisibles",
+                      "Double débit de crédits par erreur système",
+                      "Demande soumise sous 48h après le problème",
+                    ].map((t, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0 mt-1.5" />
+                        <span className="text-sm text-slate-600 font-medium">{t}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* REFUSÉ */}
+                <div className="bg-white border border-[#C8BFB0] rounded-2xl overflow-hidden">
+                  <div className="px-6 py-4 border-b border-[#E8E2D9] flex items-center gap-2">
+                    <XCircle className="w-4 h-4 text-red-400" />
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Crédits non remboursés</p>
+                  </div>
+                  <div className="p-6 space-y-3">
+                    {[
+                      "Génération réussie et PDF téléchargé",
+                      "Insatisfaction subjective du style ou du contenu",
+                      "Changement d'avis après génération",
+                      "Erreur de sujet ou de titre saisie par l'utilisateur",
+                    ].map((t, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0 mt-1.5" />
+                        <span className="text-sm text-slate-600 font-medium">{t}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Note importante */}
+              <div className="mt-5 bg-amber-50 border border-amber-200 rounded-2xl p-5 flex items-start gap-3">
+                <ShieldCheck className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-amber-800 leading-relaxed">
+                  <strong>Important :</strong> L'achat de crédits (Pass Solo, Pack Créateur, Pack Agence) ne fait en aucun cas l'objet d'un remboursement monétaire. Les crédits non utilisés restent valables indéfiniment sur votre compte.
+                </p>
+              </div>
+            </section>
+
+            {/* 3. PROCÉDURE */}
+            <section id="delais">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-3">Procédure</p>
+              <h2 className="text-3xl font-black text-slate-900 mb-8 tracking-tight">3. Délais et étapes</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {[
+                  { icon: Clock,  num: "01", t: "48 Heures", d: "Pour soumettre votre demande après le problème" },
+                  { icon: Mail,   num: "02", t: "48 Heures", d: "Temps moyen de réponse et d'enquête" },
+                  { icon: Coins,  num: "03", t: "Immédiat",  d: "Crédits remis sur votre solde si éligible" },
+                ].map((item, i) => (
+                  <div key={i} className="bg-white border border-[#C8BFB0] rounded-2xl p-6 hover:border-slate-400 transition-all">
+                    <div className="flex items-center justify-between mb-5">
+                      <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{item.num}</span>
+                      <item.icon className="w-4 h-4 text-slate-300" />
+                    </div>
+                    <p className="text-2xl font-black text-slate-900 mb-1">{item.t}</p>
+                    <p className="text-xs text-slate-500 leading-relaxed">{item.d}</p>
+                  </div>
+                ))}
+              </div>
             </section>
 
             {/* 4. ALTERNATIVE */}
             <section id="alternative">
-                <div className="p-10 bg-indigo-50 rounded-[40px] border border-indigo-100 flex flex-col md:flex-row items-center gap-8">
-                    <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-200">
-                        <RefreshCcw className="w-8 h-8 text-white" />
-                    </div>
-                    <div>
-                        <h3 className="text-xl font-bold text-indigo-900 mb-2">Relance gratuite de génération</h3>
-                        <p className="text-indigo-700 font-medium leading-relaxed">
-                            Si votre ebook présente un défaut technique, nous relançons la génération 
-                            immédiatement et <strong>gratuitement</strong>. C'est l'option la plus rapide pour obtenir votre produit.
-                        </p>
-                    </div>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-3">Alternative rapide</p>
+              <h2 className="text-3xl font-black text-slate-900 mb-8 tracking-tight">4. Relance gratuite</h2>
+              <div className="bg-white border border-[#C8BFB0] rounded-2xl p-6 lg:p-8 flex flex-col md:flex-row items-start gap-6 hover:border-slate-400 transition-all">
+                <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <RefreshCcw className="w-5 h-5 text-white" />
                 </div>
+                <div>
+                  <p className="font-black text-slate-900 text-lg mb-2 tracking-tight">Régénération sans frais de crédits</p>
+                  <p className="text-slate-500 text-sm leading-relaxed">
+                    Si votre ebook présente un défaut technique avéré, nous relançons la génération <strong className="text-slate-900">immédiatement et gratuitement</strong>, sans déduire de crédits supplémentaires. C'est l'option la plus rapide pour obtenir votre produit final.
+                  </p>
+                </div>
+              </div>
             </section>
 
             {/* CONTACT */}
-            <section className="pt-12 border-t border-slate-100">
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-8 p-10 bg-slate-50 rounded-[32px]">
-                    <div>
-                        <p className="text-xl font-black text-slate-900 mb-2">Besoin d'aide ?</p>
-                        <p className="text-slate-500 font-medium">Contactez notre support client dédié.</p>
-                    </div>
-                    <a 
-                      href="mailto:support@bookzy.io" 
-                      className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black shadow-xl hover:scale-105 transition-transform"
-                    >
-                        support@bookzy.io
-                    </a>
+            <section className="pt-4">
+              <div className="w-full h-px bg-[#C8BFB0] mb-10" />
+              <div className="bg-white border border-[#C8BFB0] rounded-2xl p-6 lg:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Support</p>
+                  <p className="font-black text-slate-900 text-xl tracking-tight mb-1">Besoin d'aide ?</p>
+                  <p className="text-slate-500 text-sm">Contactez notre équipe support.</p>
                 </div>
+                <a href="mailto:support@bookzy.io"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-black rounded-xl text-xs uppercase tracking-widest transition-all flex-shrink-0">
+                  <Mail className="w-3.5 h-3.5" />
+                  support@bookzy.io
+                </a>
+              </div>
             </section>
 
           </div>
 
-          {/* --- SIDEBAR --- */}
-          <aside className="hidden lg:block w-72 flex-shrink-0 sticky top-32 h-fit">
-              <div className="p-8 bg-white border border-slate-100 rounded-[32px] shadow-sm">
-                  <HelpCircle className="w-6 h-6 text-slate-300 mb-4" />
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Juridique</p>
-                  <p className="text-sm font-black text-slate-900 mb-6">Mise à jour : Nov. 2024</p>
-                  
-                  <div className="space-y-4 pt-6 border-t border-slate-50">
-                      <Link href="/legal/confidentialite" className="text-xs font-bold text-slate-500 hover:text-slate-900 block">Politique de confidentialité</Link>
-                      <Link href="/legal/cookies" className="text-xs font-bold text-slate-500 hover:text-slate-900 block">Gestion des cookies</Link>
-                  </div>
+          {/* SIDEBAR */}
+          <aside className="hidden lg:block w-64 flex-shrink-0">
+            <div className="sticky top-24 space-y-4">
+              <div className="bg-white border border-[#C8BFB0] rounded-2xl p-6">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Juridique</p>
+                <p className="font-black text-slate-900 text-sm mb-5">Mise à jour : Jan. 2026</p>
+                <div className="w-full h-px bg-[#E8E2D9] mb-5" />
+                <div className="space-y-3">
+                  {[
+                    { label: "Confidentialité", href: "/legal/confidentialite" },
+                    { label: "Cookies", href: "/legal/cookies" },
+                    { label: "CGU / CGV", href: "/legal/terms" },
+                  ].map(l => (
+                    <Link key={l.href} href={l.href}
+                      className="block text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest">
+                      {l.label}
+                    </Link>
+                  ))}
+                </div>
               </div>
+
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+                <Coins className="w-5 h-5 text-amber-600 mb-3" />
+                <p className="text-xs font-black text-amber-900 uppercase tracking-widest mb-2">Rappel</p>
+                <p className="text-xs text-amber-800 leading-relaxed">
+                  Nous remboursons les <strong>crédits</strong>, pas l'argent. Les crédits n'expirent jamais.
+                </p>
+              </div>
+            </div>
           </aside>
 
         </div>

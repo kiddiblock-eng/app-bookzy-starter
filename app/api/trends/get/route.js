@@ -4,13 +4,12 @@ import Trend from "@/models/Trend";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
 
-// ✅ Force le mode dynamique (Données toujours fraîches)
+const UNLOCK_DURATION_MS = 24 * 60 * 60 * 1000; // 24h glissantes
 
 export async function GET(request) {
   try {
     await dbConnect();
 
-    // 1. Authentification
     const cookie = request.headers.get("cookie") || "";
     const token = cookie.split(";").map(c => c.trim()).find(c => c.startsWith("bookzy_token="))?.split("=")[1];
 
@@ -27,42 +26,44 @@ export async function GET(request) {
 
     const userId = decoded.userId || decoded.id || decoded._id;
 
-    // 2. 🚀 OPTIMISATION FAVORIS : On ne charge QUE le tableau favorites
-    // On utilise .lean() pour la vitesse
-    const user = await User.findById(userId).select("favorites").lean();
-    
-    // Transformation en Set pour une vérification instantanée O(1)
+    const user = await User.findById(userId).select("favorites plan credits unlockedTrendsAt unlockedTrendsCount").lean();
     const favSet = new Set((user?.favorites || []).map(id => id.toString()));
 
-    // 3. Paramètres URL
-    const { searchParams } = new URL(request.url);
-    const filter = searchParams.get("filter") || "all";
-    const network = searchParams.get("network") || "all";
-    const category = searchParams.get("category") || "all";
-    const difficulty = searchParams.get("difficulty") || "all";
-    const search = searchParams.get("search") || ""; // ✅ Mot-clé de recherche
+    const isPaidPlan = ["solo", "createur", "agence"].includes(user?.plan);
 
-    // 4. Construction de la Query
-    let query = { isActive: true };
+    // ✅ 24h glissantes
+    const now = new Date();
+    const lastUnlock = user?.unlockedTrendsAt;
+    const isActive = lastUnlock && (now - new Date(lastUnlock)) < UNLOCK_DURATION_MS;
+    const unlockedCount = isActive ? (user?.unlockedTrendsCount || 0) : 0;
 
-    // 🔥 GESTION DES FAVORIS (Côté Serveur)
-    if (filter === "favorites") {
-        // On demande à Mongo de ne sortir QUE les items qui sont dans la liste des favoris
-        query._id = { $in: user?.favorites || [] };
+    let trendLimit;
+    if (isPaidPlan) {
+      trendLimit = 33350;
+    } else {
+      trendLimit = 10 + unlockedCount; // 10 de base + ce qu'il a débloqué
     }
 
-    if (network !== "all") query.network = network;
-    if (category !== "all") query.categories = category;
-    if (difficulty !== "all") query.difficulty = difficulty;
+    const { searchParams } = new URL(request.url);
+    const filter     = searchParams.get("filter")     || "all";
+    const network    = searchParams.get("network")    || "all";
+    const category   = searchParams.get("category")   || "all";
+    const difficulty = searchParams.get("difficulty") || "all";
+    const search     = searchParams.get("search")     || "";
 
-    if (filter === "hot") query.isHot = true;
-    if (filter === "rising") query.isRising = true;
-    if (filter === "easy") query.difficulty = "Facile";
+    let query = { isActive: true };
+
+    if (filter === "favorites") query._id = { $in: user?.favorites || [] };
+    if (network !== "all")     query.network = network;
+    if (category !== "all")    query.categories = category;
+    if (difficulty !== "all")  query.difficulty = difficulty;
+    if (filter === "hot")        query.isHot = true;
+    if (filter === "rising")     query.isRising = true;
+    if (filter === "easy")       query.difficulty = "Facile";
     if (filter === "profitable") query.isProfitable = true;
 
-    // 🔥 RECHERCHE GLOBALE (Sur toute la DB)
     if (search) {
-      const regex = new RegExp(search, 'i'); // Insensible à la casse
+      const regex = new RegExp(search, 'i');
       query.$or = [
         { title: { $regex: regex } },
         { description: { $regex: regex } },
@@ -71,41 +72,35 @@ export async function GET(request) {
       ];
     }
 
-    // 5. Exécution (Limitée à 50 pour la performance)
-    const trends = await Trend.find(query)
-      .sort({ priority: -1, createdAt: -1 })
-      .limit(33350) 
-      .lean();
+    const trends = await Trend.aggregate([
+      { $match: query },
+      // Score = priority + aléatoire → mélange anciens et nouveaux
+      { $addFields: {
+        _score: {
+          $add: [
+            "$priority",
+            { $multiply: [{ $rand: {} }, 40] } // variance de 0 à 40
+          ]
+        }
+      }},
+      { $sort: { _score: -1 } },
+      { $limit: trendLimit },
+      { $project: { _score: 0 } },
+    ]);
 
-    // 6. Formatage
     const formattedTrends = trends.map((t) => {
       const id = t._id.toString();
-      
       return {
-        id,
-        title: t.title,
-        description: t.description,
-        emoji: t.emoji,
-        gradient: t.gradient,
-        network: t.network,
-        potential: t.potential,
-        difficulty: t.difficulty,
-        searches: t.searches,
-        competition: t.competition,
-        growth: t.growth,
-        isHot: t.isHot,
-        isRising: t.isRising,
-        isProfitable: t.isProfitable,
-        categories: t.categories,
-        trendDate: t.trendDate,
-        tags: t.tags || [],
-        
-        // Est-ce un favori ?
+        id, title: t.title, description: t.description, emoji: t.emoji,
+        gradient: t.gradient, network: t.network, potential: t.potential,
+        difficulty: t.difficulty, searches: t.searches, competition: t.competition,
+        growth: t.growth, isHot: t.isHot, isRising: t.isRising,
+        isProfitable: t.isProfitable, categories: t.categories,
+        trendDate: t.trendDate, tags: t.tags || [],
         isFavorite: favSet.has(id),
       };
     });
 
-    // 7. Stats Simples (Basées sur le résultat actuel)
     const stats = {
       total: formattedTrends.length,
       hot: formattedTrends.filter((t) => t.isHot).length,
@@ -113,10 +108,24 @@ export async function GET(request) {
       favorites: formattedTrends.filter((t) => t.isFavorite).length,
     };
 
+    // Expiration dans X heures
+    let unlockedExpiresIn = null;
+    if (isActive && lastUnlock) {
+      const expiresAt = new Date(new Date(lastUnlock).getTime() + UNLOCK_DURATION_MS);
+      unlockedExpiresIn = Math.ceil((expiresAt - now) / (1000 * 60 * 60)); // en heures
+    }
+
     return Response.json({
       success: true,
       trends: formattedTrends,
       stats,
+      isPaidPlan,
+      isUnlocked: isActive && unlockedCount > 0,
+      unlockedCount,
+      unlockedExpiresIn, // ex: "expire dans 22h"
+      plan: user?.plan || "free",
+      creditsBalance: user?.credits?.balance ?? 0,
+      canUnlock: !isPaidPlan, // toujours afficher le bouton si free
     });
 
   } catch (error) {

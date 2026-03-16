@@ -1,4 +1,4 @@
-import { Copy, Check, Zap } from "lucide-react";
+import { Copy, Check, Zap, ArrowLeftFromLineIcon } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useState } from "react";
 
@@ -21,7 +21,7 @@ export default function AffiliateHeader({ wallet, referralLink, loading }) {
           Affiliation
         </h1>
         <p className="text-slate-600 text-base">
-          Partagez Bookzy et gagnez 600 FCFA par vente confirmée.
+          Gagnez 10% sur chaque achat de vos filleuls à vie.
         </p>
       </div>
 
@@ -31,26 +31,12 @@ export default function AffiliateHeader({ wallet, referralLink, loading }) {
         {/* 💳 BOOKZY WALLET CARD - Réduite */}
         <div className="relative h-[200px] rounded-3xl overflow-hidden shadow-2xl group">
           
-          {/* 🎨 Background gradient Bookzy */}
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-violet-700"></div>
-          
-          {/* ✨ Overlay pattern holographique */}
-          <div className="absolute inset-0 opacity-20" style={{
-            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(255,255,255,0.3) 0%, transparent 50%), 
-                              radial-gradient(circle at 80% 80%, rgba(255,255,255,0.2) 0%, transparent 50%),
-                              radial-gradient(circle at 40% 20%, rgba(255,255,255,0.15) 0%, transparent 50%)`
-          }}></div>
-
-          {/* 🌟 Sparkles animés flottants */}
-          <div className="absolute top-8 right-12 w-2 h-2 bg-white rounded-full animate-pulse opacity-60"></div>
-          <div className="absolute top-16 right-24 w-1 h-1 bg-white rounded-full animate-pulse opacity-40" style={{ animationDelay: '0.5s' }}></div>
-          <div className="absolute bottom-20 left-16 w-1.5 h-1.5 bg-white rounded-full animate-pulse opacity-50" style={{ animationDelay: '1s' }}></div>
-
-          {/* 🔆 Mesh grid subtil */}
-          <div className="absolute inset-0 opacity-5" style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-            backgroundSize: '30px 30px'
+          {/* Background slate-900 style dashboard */}
+          <div className="absolute inset-0 bg-slate-900"></div>
+          <div className="absolute top-0 right-0 w-48 h-48 rounded-full opacity-10" style={{ background: "radial-gradient(circle, #6366f1 0%, transparent 70%)" }}></div>
+          <div className="absolute inset-0 opacity-10 rounded-3xl" style={{
+            backgroundImage: "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)",
+            backgroundSize: "30px 30px"
           }}></div>
 
           {/* 💎 Contenu de la carte */}
@@ -125,7 +111,7 @@ export default function AffiliateHeader({ wallet, referralLink, loading }) {
                   Programme
                 </div>
                 <div className="text-white text-xs font-mono font-bold tracking-wider flex items-center gap-1">
-                  <Zap className="w-3 h-3" />
+                 
                   AFFILIÉ
                 </div>
               </div>
@@ -133,13 +119,7 @@ export default function AffiliateHeader({ wallet, referralLink, loading }) {
 
           </div>
 
-          {/* ✨ Shine effect au survol */}
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-          </div>
-
-          {/* 🌈 Effet holographique bord */}
-          <div className="absolute inset-0 rounded-3xl ring-1 ring-white/20 ring-inset"></div>
+          <div className="absolute inset-0 rounded-3xl ring-1 ring-white/10 ring-inset"></div>
         </div>
 
         {/* 📋 LIEN DE PARRAINAGE - Sans icône, sans stats */}

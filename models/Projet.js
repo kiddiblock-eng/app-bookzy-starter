@@ -27,6 +27,7 @@ const ProjetSchema = new mongoose.Schema(
         "ASSEMBLING",
         "COMPLETED",
         "ERROR",
+        "PREVIEW_READY",
       ],
       default: "DRAFT",
     },
@@ -47,11 +48,24 @@ const ProjetSchema = new mongoose.Schema(
     introduction: { type: String },
     chaptersText: { type: String },
     conclusion: { type: String },
-
+// ————————————————————————
+// ✨ BOOKZY EXPRESS (Mise en page uniquement)
+// ————————————————————————
+expressMode: { type: Boolean, default: false },
+expressChapters: [{
+  number: { type: Number },
+  title: { type: String },
+  content: { type: String }
+}],
+// ✅ AJOUTE ICI ⬇️
+aiImprovementsUsed: { type: Number, default: 0 },
+aiIncluded: { type: Number, default: 5 },
+aiExtraCost: { type: Number, default: 0 },
     // ————————————————————————
     // 🟨 ASSETS GÉNÉRÉS
     // ————————————————————————
     pdfUrl: { type: String },
+    previewPdfUrl: { type: String },
     coverUrl: { type: String },
 
     adsImages: [{ type: String }],

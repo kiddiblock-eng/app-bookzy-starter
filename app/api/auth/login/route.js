@@ -9,7 +9,7 @@ export async function POST(req) {
   try {
     await dbConnect();
 
-    const { email, password, twoFA } = await req.json();
+    const { email, password, twoFA, redirect } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json(
@@ -91,7 +91,7 @@ export async function POST(req) {
       { expiresIn: "7d" }
     );
 
-    let redirectTo = "/dashboard";
+    let redirectTo = redirect || "/dashboard";
     if (isAdmin) redirectTo = "/admin";
 
     const response = NextResponse.json({

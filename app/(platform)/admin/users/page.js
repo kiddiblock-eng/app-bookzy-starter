@@ -307,6 +307,8 @@ export default function UsersPage() {
                            <th className="px-6 py-4">Rôle</th>
                            <th className="px-6 py-4">Pays</th>
                            <th className="px-6 py-4">Date Inscription</th>
+                           <th className="px-6 py-4">Plan</th>
+                           <th className="px-6 py-4">Crédits</th>
                            <th className="px-6 py-4">Statut</th>
                            <th className="px-6 py-4 text-right">Actions</th>
                         </tr>
@@ -346,6 +348,17 @@ export default function UsersPage() {
                                  </td>
                                  <td className="px-6 py-4 text-sm text-slate-500 font-mono text-xs">
                                     {user.createdAt ? new Date(user.createdAt).toLocaleDateString("fr-FR") : "—"}
+                                 </td>
+                                 <td className="px-6 py-4">
+                                    {(() => {
+                                       const p = user.credits?.plan || user.plan || "free";
+                                       const labels = { free: "Gratuit", solo: "Solo", createur: "Créateur", agence: "Agence" };
+                                       const colors = { free: "text-slate-400 border-slate-700 bg-slate-800", solo: "text-blue-400 border-blue-500/20 bg-blue-500/10", createur: "text-indigo-400 border-indigo-500/20 bg-indigo-500/10", agence: "text-emerald-400 border-emerald-500/20 bg-emerald-500/10" };
+                                       return <span className={`px-2 py-0.5 rounded text-xs font-bold border ${colors[p] || colors.free}`}>{labels[p] || p}</span>;
+                                    })()}
+                                 </td>
+                                 <td className="px-6 py-4 text-sm font-mono font-bold text-slate-300">
+                                    {(user.credits?.balance ?? 0).toLocaleString()}
                                  </td>
                                  <td className="px-6 py-4">
                                     {isActive ? (

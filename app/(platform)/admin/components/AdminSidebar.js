@@ -15,7 +15,10 @@ import {
   FileText,
   ShieldCheck,
   X,
-  Banknote // ✅ Import ajouté
+  Banknote,
+  Store,
+  FileEdit,
+  Lightbulb
 } from "lucide-react";
 
 // Liens du menu
@@ -26,9 +29,10 @@ const links = [
   { href: "/admin/notifications", label: "Notifications", icon: Bell },
   { href: "/admin/tendances", label: "Tendances", icon: Flame },
   { href: "/admin/paiements", label: "Paiements", icon: CreditCard },
-  // 👇 AJOUT DE L'AFFILIATION ICI
-  { href: "/admin/affiliation", label: "Affiliation", icon: Banknote }, 
-  
+  { href: "/admin/affiliation", label: "Affiliation", icon: Banknote },
+  { href: "/admin/smart-shop", label: "Smart Shop", icon: Store },
+  { href: "/admin/express", label: "Mises en Page", icon: FileEdit },
+  { href: "/admin/suggestions", label: "Suggestions", icon: Lightbulb },
   { href: "/admin/ai", label: "Centre IA", icon: Brain },
   { href: "/admin/niche-hunter/ai-stats", label: "IA – Stats", icon: Brain, badge: "Bêta" },
   { href: "/admin/ebooks", label: "eBooks", icon: BookOpen },
@@ -67,12 +71,9 @@ export default function AdminSidebar({ open, setOpen }) {
         {/* HEADER / LOGO */}
         <div className="h-20 flex items-center justify-between px-6 border-b border-slate-800/50 bg-[#0B1121]">
           <div className="flex items-center gap-3">
-            {/* Logo Icon */}
             <div className="w-9 h-9 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.15)]">
               <ShieldCheck className="w-5 h-5 text-indigo-400" />
             </div>
-
-            {/* Logo Text */}
             <div className="flex flex-col">
               <span className="text-white font-bold text-base tracking-wide leading-none">
                 BOOKZY
@@ -82,10 +83,8 @@ export default function AdminSidebar({ open, setOpen }) {
               </span>
             </div>
           </div>
-
-          {/* Close Button (Mobile Only) */}
-          <button 
-            onClick={() => setOpen(false)} 
+          <button
+            onClick={() => setOpen(false)}
             className="lg:hidden text-slate-500 hover:text-white transition-colors"
           >
             <X size={20} />
@@ -95,14 +94,12 @@ export default function AdminSidebar({ open, setOpen }) {
         {/* NAVIGATION */}
         <nav className="flex-1 py-6 overflow-y-auto custom-scrollbar">
           <ul className="space-y-1.5 px-4">
-            
             <li className="px-4 mb-2 text-[10px] font-bold uppercase text-slate-600 tracking-widest">
               Menu Principal
             </li>
 
             {links.map(({ href, label, icon: Icon, exact, badge }) => {
               const active = isLinkActive(href, exact);
-
               return (
                 <li key={href}>
                   <Link
@@ -110,17 +107,18 @@ export default function AdminSidebar({ open, setOpen }) {
                     onClick={() => setOpen(false)}
                     className={`
                       group flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 border
-                      ${
-                        active
-                          ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-300 shadow-[0_0_20px_rgba(99,102,241,0.1)]"
-                          : "bg-transparent border-transparent text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+                      ${active
+                        ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-300 shadow-[0_0_20px_rgba(99,102,241,0.1)]"
+                        : "bg-transparent border-transparent text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
                       }
                     `}
                   >
                     <div className="flex items-center gap-3.5">
                       <Icon
                         className={`w-5 h-5 transition-colors ${
-                          active ? "text-indigo-400 drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]" : "text-slate-500 group-hover:text-slate-300"
+                          active
+                            ? "text-indigo-400 drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]"
+                            : "text-slate-500 group-hover:text-slate-300"
                         }`}
                         strokeWidth={1.5}
                       />
@@ -128,7 +126,7 @@ export default function AdminSidebar({ open, setOpen }) {
                     </div>
 
                     {active ? (
-                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(99,102,241,0.8)]"></div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
                     ) : badge ? (
                       <span className="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">
                         {badge}
@@ -141,15 +139,17 @@ export default function AdminSidebar({ open, setOpen }) {
           </ul>
         </nav>
 
-        {/* FOOTER DISCRET */}
+        {/* FOOTER */}
         <div className="p-6 border-t border-slate-800/50 bg-[#0B1121]">
-            <div className="flex items-center gap-3 bg-slate-900/50 p-3 rounded-lg border border-slate-800">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                <p className="text-xs text-slate-400 font-medium">Système : <span className="text-emerald-400">Stable</span></p>
-            </div>
-            <p className="text-[10px] text-slate-600 text-center mt-3 font-medium">
-              v2.4.0 • Bookzy Admin
+          <div className="flex items-center gap-3 bg-slate-900/50 p-3 rounded-lg border border-slate-800">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <p className="text-xs text-slate-400 font-medium">
+              Système : <span className="text-emerald-400">Stable</span>
             </p>
+          </div>
+          <p className="text-[10px] text-slate-600 text-center mt-3 font-medium">
+            v2.4.0 • Bookzy Admin
+          </p>
         </div>
       </aside>
     </>

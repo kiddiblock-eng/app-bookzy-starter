@@ -20,6 +20,9 @@ import {
 import jwt from "jsonwebtoken";
 import puppeteer from "puppeteer";
 
+// ✅ AJOUT : Import middleware crédits
+import { checkCredits } from "../../../../middleware/checkCredits";
+
 const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
 function cleanMarkdown(text) {
@@ -35,7 +38,10 @@ function cleanMarkdown(text) {
     .trim();
 }
 
-async function getAIWithRetry(context, prompt, maxTokens, retries = 3) {
+async function getAIWithRetry(context, prompt, maxTokens, retries = 5) {
+    // Backoff exponentiel avec jitter : 5s, 10s, 20s, 30s, 45s
+    const BACKOFF = [5000, 10000, 20000, 30000, 45000];
+
     for (let i = 0; i < retries; i++) {
         try {
             const result = await getAIText(context, prompt, maxTokens);
@@ -44,11 +50,16 @@ async function getAIWithRetry(context, prompt, maxTokens, retries = 3) {
             const isOverloaded = error.message.includes("503") || 
                                  error.message.includes("Overloaded") || 
                                  error.message.includes("fetch failed") ||
-                                 error.message.includes("429");
+                                 error.message.includes("429") ||
+                                 error.message.includes("ECONNRESET") ||
+                                 error.message.includes("network");
             
             if (isOverloaded && i < retries - 1) {
-                const waitTime = (i + 1) * 3000;
-                console.warn(`⚠️ IA Surchargée (Essai ${i+1}/${retries}). Pause ${waitTime}ms...`);
+                // Jitter : +/- 20% du délai pour éviter les appels simultanés
+                const base = BACKOFF[i] || 45000;
+                const jitter = Math.floor(base * 0.2 * (Math.random() * 2 - 1));
+                const waitTime = base + jitter;
+                console.warn(`⚠️ IA Surchargée (Essai ${i+1}/${retries}). Pause ${Math.round(waitTime/1000)}s...`);
                 await delay(waitTime);
                 continue;
             }
@@ -445,7 +456,6 @@ const chaptersStruct = chaptersArray.map((c, i) => {
             '--disable-dev-shm-usage',
             '--disable-gpu',
             '--no-zygote',
-            '--single-process',
             '--disable-software-rasterizer',
             '--disable-extensions',
             '--disable-background-networking',
@@ -520,10 +530,13 @@ executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
         browser = null;
         console.log("✅ [PHASE 2] Browser fermé");
         
-        // ✅ Log RAM après succès
+        // Libérer mémoire Node.js
+        if (global.gc) { try { global.gc(); } catch(e) {} }
+        
+        // Log RAM (heapUsed Node — pas RAM totale Chromium)
         try {
           const memUsage = process.memoryUsage();
-          console.log(`💾 [PHASE 2] RAM après PDF: ${Math.round(memUsage.heapUsed / 1024 / 1024)}MB`);
+          console.log(`💾 [PHASE 2] RAM heap Node: ${Math.round(memUsage.heapUsed / 1024 / 1024)}MB / RSS total: ${Math.round(memUsage.rss / 1024 / 1024)}MB`);
         } catch(e) {}
         
         break;
@@ -617,10 +630,29 @@ executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
     console.error("❌ [PHASE 2] ERREUR FATALE:", err.message);
     console.error(err.stack);
     try {
-      await Projet.findByIdAndUpdate(projetId, { 
+      // ✅ Rembourser les crédits automatiquement si PDF échoue
+      const projetFailed = await Projet.findById(projetId);
+      const refundUserId = userId || projetFailed?.userId?.toString();
+      if (projetFailed?.isPaid && refundUserId) {
+        try {
+          const userToRefund = await User.findById(refundUserId);
+          if (userToRefund) {
+            userToRefund.credits.balance = (userToRefund.credits.balance || 0) + 20;
+            await userToRefund.save();
+            console.log(`💰 [PHASE 2] 20 crédits remboursés → user ${userId} solde: ${userToRefund.credits.balance}`);
+          }
+        } catch(refundErr) {
+          console.error("❌ [PHASE 2] Erreur remboursement:", refundErr.message);
+        }
+      }
+      await Projet.findByIdAndUpdate(projetId, {
         status: "ERROR",
-        errorMessage: `Phase 2: ${err.message}`
+        isPaid: false,
+        progress: 0,
+        errorMessage: `Phase 2: ${err.message}`,
+        $inc: { retryCount: 1 }
       });
+      console.log("✅ [PHASE 2] ERROR sauvegardé + crédits remboursés + isPaid reset");
     } catch(e) {
       console.error("❌ Impossible de sauvegarder l'erreur:", e.message);
     }
@@ -669,21 +701,44 @@ export async function POST(req) {
         });
       }
       
-      // ✅ NOUVEAU : Relancer UNIQUEMENT le PDF si bloqué à 80%
+      // ✅ Relancer UNIQUEMENT le PDF si bloqué à 80%
       if (projet.status === "generated_text" && projet.progress >= 80) {
         console.log(`♻️ [RETRY] Reprise génération PDF pour ${projetId}`);
-        
-        // Extraire les chapitres depuis projet.chapters
         const chaptersArray = projet.chaptersText ? projet.chaptersText.split("\n\n\n") : [];
         const totalChapters = chaptersArray.length || 5;
         const wordsPerChapter = 250;
-        
-        // Relancer DIRECTEMENT generatePhase2
         generatePhase2(projet._id, userId, projet.summary, wordsPerChapter, totalChapters);
-        
         return NextResponse.json({ 
           success: true, 
           message: "Relance génération PDF",
+          projetId: projet._id.toString()
+        });
+      }
+
+      // ✅ RETRY depuis ERROR — re-débiter les crédits et relancer Phase 2
+      // isPaid a été reset à false lors du remboursement automatique
+      if (projet.status === "ERROR" && !projet.isPaid) {
+        console.log(`🔁 [RETRY] Projet ERROR → relance Phase 2 pour ${projetId}`);
+        // Vérifier et débiter les crédits
+        const { user: userWithCredits, error: creditError } = await checkCredits(req, "ebook");
+        if (creditError) return creditError;
+        await userWithCredits.spendCredits("ebook");
+        userId = userWithCredits._id;
+        console.log(`💳 [RETRY] 20 crédits déduits pour retry — solde: ${userWithCredits.credits.balance}`);
+        // Reset le projet pour la relance
+        projet.status = "generated_text";
+        projet.isPaid = true;
+        projet.progress = 75;
+        projet.errorMessage = null;
+        await projet.save();
+        // Relancer uniquement Phase 2 (contenu déjà en base)
+        const chaptersArray = projet.chaptersText ? projet.chaptersText.split("\n\n\n") : [];
+        const totalChapters = chaptersArray.length || projet.chapters || 5;
+        const wordsPerChapter = 250;
+        generatePhase2(projet._id, userId, projet.summary, wordsPerChapter, totalChapters);
+        return NextResponse.json({
+          success: true,
+          message: "Relance PDF en cours",
           projetId: projet._id.toString()
         });
       }
@@ -701,101 +756,114 @@ export async function POST(req) {
       if (force && projet.status === "processing") {
         console.log(`🔥 [FORCE] Régénération forcée du projet ${projetId}`);
       }
-      
-      userId = projet.userId?._id || projet.userId;
-   } else {
-    // ✅ SÉCURITÉ : Vérifier que le transactionId existe
-    if (!transactionId) {
-        return NextResponse.json({ 
-            success: false, 
-            message: "Accès refusé : paiement requis" 
-        }, { status: 403 });
-    }
 
-    // ✅ SÉCURITÉ : Vérifier que la transaction est valide et payée
-    const tx = await Transaction.findById(transactionId);
-    if (!tx) {
-        return NextResponse.json({ 
-            success: false, 
-            message: "Transaction introuvable" 
-        }, { status: 404 });
-    }
-    if (tx.status !== "completed") {
-        return NextResponse.json({ 
-            success: false, 
-            message: "Paiement non confirmé" 
-        }, { status: 403 });
-    }
+      // ✅ Débiter les crédits si projet DRAFT et pas encore payé (protection double débit via isPaid)
+      if (projet.status === "DRAFT" && !projet.isPaid) {
+        const { user: userWithCredits, error: creditError } = await checkCredits(req, "ebook");
+        if (creditError) return creditError;
+        await userWithCredits.spendCredits("ebook");
+        projet.isPaid = true;
+        await projet.save();
+        userId = userWithCredits._id;
+        console.log(`💳 [Generate] 20 crédits déduits (DRAFT→processing) — solde: ${userWithCredits.credits.balance}`);
+      } else {
+        userId = projet.userId?._id || projet.userId;
+      }
 
-    // ✅ Vérifier si un projet existe déjà pour cette transaction
-    const existing = await Projet.findOne({ transactionId });
-    if (existing) {
-        return NextResponse.json({ 
+    } else {
+      // ─── NOUVEAU PROJET ────────────────────────────────────────────────────
+
+      // ✅ AJOUT : Vérifier et déduire 20 crédits avant tout
+      const { user: userWithCredits, error: creditError } = await checkCredits(req, "ebook");
+      if (creditError) return creditError;
+      await userWithCredits.spendCredits("ebook");
+      userId = userWithCredits._id;
+      console.log(`💳 [Generate] 20 crédits déduits — solde restant: ${userWithCredits.credits.balance}`);
+
+      // ✅ SÉCURITÉ : Vérifier que le transactionId existe (garde compatibilité anciennes transactions)
+      if (!transactionId) {
+        // Nouveau flow crédits — pas de transactionId requis
+        console.log("✅ [POST] Nouveau flow crédits — pas de transactionId");
+      } else {
+        // Ancien flow — vérifier la transaction existante
+        const tx = await Transaction.findById(transactionId);
+        if (!tx) {
+          return NextResponse.json({ success: false, message: "Transaction introuvable" }, { status: 404 });
+        }
+        if (tx.status !== "completed") {
+          return NextResponse.json({ success: false, message: "Paiement non confirmé" }, { status: 403 });
+        }
+
+        // ✅ Vérifier si un projet existe déjà pour cette transaction
+        const existing = await Projet.findOne({ transactionId });
+        if (existing) {
+          return NextResponse.json({ 
             success: true, 
             alreadyGenerated: existing.status === "COMPLETED",
             projetId: existing._id.toString(), 
             pdfUrl: existing.pdfUrl, 
             adsTexts: existing.adsTexts,
             status: existing.status 
-        });
-    }
-    
-    let { titre, description, tone, audience, pages, chapters, template: bodyTemplate, outline: bodyOutline } = body;
-        let templateFinal; 
-        let outlineFinal = bodyOutline;
-
-        console.log("📥 [POST] Body reçu - bodyTemplate:", bodyTemplate);
-
-        if (transactionId) {
-            const tx = await Transaction.findById(transactionId);
-            if (tx?.kitData) {
-                console.log("📦 [POST] Transaction trouvée - kitData:", tx.kitData);
-                console.log("🎨 [POST] kitData.template:", tx.kitData.template);
-                
-                titre = tx.kitData.title || titre;
-                description = tx.kitData.description || description;
-                tone = tx.kitData.tone || tone;
-                audience = tx.kitData.audience || audience;
-                pages = tx.kitData.pages || pages;
-                chapters = tx.kitData.chapters || chapters;
-                outlineFinal = tx.kitData.outline || bodyOutline;
-                
-                templateFinal = tx.kitData.template || bodyTemplate;
-                
-                console.log("🎨 [POST] Template FINAL (de la transaction):", templateFinal);
-            } else {
-                templateFinal = bodyTemplate;
-                console.log("🎨 [POST] Template FINAL (du body, pas de kitData):", templateFinal);
-            }
-        } else {
-            templateFinal = bodyTemplate;
-            console.log("🎨 [POST] Template FINAL (du body, pas de transaction):", templateFinal);
+          });
         }
+      }
 
-        const validTemplates = ["modern", "luxe", "educatif", "energie", "minimal", "creative"];
-        const validatedTemplate = validTemplates.includes(templateFinal) ? templateFinal : "modern";
-        
-        console.log("✅ [POST] Template validé pour création:", validatedTemplate);
+      let { titre, description, tone, audience, pages, chapters, template: bodyTemplate, outline: bodyOutline } = body;
+      let templateFinal; 
+      let outlineFinal = bodyOutline;
 
-        projet = await Projet.create({
-            userId,
-            transactionId,
-            titre,
-            description,
-            tone,
-            audience, 
-            pages: pages || 20,
-            chapters: chapters || 5,
-            template: validatedTemplate,
-            isPaid: true,
-            status: "processing",
-            progress: 5
-        });
-        
-        projetId = projet._id.toString();
-        outline = outlineFinal;
-        
-        console.log(`✅ [POST] Projet créé avec succès - Template: ${validatedTemplate}`);
+      console.log("📥 [POST] Body reçu - bodyTemplate:", bodyTemplate);
+
+      // ✅ Récupérer kitData depuis la transaction si elle existe
+      if (transactionId) {
+        const tx = await Transaction.findById(transactionId);
+        if (tx?.kitData) {
+          console.log("📦 [POST] Transaction trouvée - kitData:", tx.kitData);
+          console.log("🎨 [POST] kitData.template:", tx.kitData.template);
+          
+          titre = tx.kitData.title || titre;
+          description = tx.kitData.description || description;
+          tone = tx.kitData.tone || tone;
+          audience = tx.kitData.audience || audience;
+          pages = tx.kitData.pages || pages;
+          chapters = tx.kitData.chapters || chapters;
+          outlineFinal = tx.kitData.outline || bodyOutline;
+          templateFinal = tx.kitData.template || bodyTemplate;
+          
+          console.log("🎨 [POST] Template FINAL (de la transaction):", templateFinal);
+        } else {
+          templateFinal = bodyTemplate;
+          console.log("🎨 [POST] Template FINAL (du body, pas de kitData):", templateFinal);
+        }
+      } else {
+        templateFinal = bodyTemplate;
+        console.log("🎨 [POST] Template FINAL (du body, pas de transaction):", templateFinal);
+      }
+
+      const validTemplates = ["modern", "luxe", "educatif", "energie", "minimal", "creative"];
+      const validatedTemplate = validTemplates.includes(templateFinal) ? templateFinal : "modern";
+      
+      console.log("✅ [POST] Template validé pour création:", validatedTemplate);
+
+      projet = await Projet.create({
+        userId,
+        transactionId,
+        titre,
+        description,
+        tone,
+        audience, 
+        pages: pages || 20,
+        chapters: chapters || 5,
+        template: validatedTemplate,
+        isPaid: true,
+        status: "processing",
+        progress: 5
+      });
+      
+      projetId = projet._id.toString();
+      outline = outlineFinal;
+      
+      console.log(`✅ [POST] Projet créé avec succès - Template: ${validatedTemplate}`);
     }
     
     generatePhase1(projet._id, userId, outline);

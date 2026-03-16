@@ -2,28 +2,9 @@
 
 import { useEffect, useState } from "react";
 import {
-  PlusCircle,
-  TrendingUp,
-  Flame,
-  Trash2,
-  Globe,
-  Loader2,
-  Eye,
-  CheckCircle2,
-  Search,
-  Calendar,
-  DollarSign,
-  Target,
-  BarChart3,
-  Sparkles,
-  RefreshCw,
-  Tag,
-  Network,
-  AlertCircle,
-  X,
-  List,
-  Layers,
-  ArrowRight
+  PlusCircle, TrendingUp, Flame, Trash2, Globe, Loader2, Eye, CheckCircle2,
+  Search, Calendar, DollarSign, Target, BarChart3, Sparkles, RefreshCw,
+  Tag, AlertCircle, X, List, Upload, Bot, Check, FileText, ChevronDown
 } from "lucide-react";
 
 export default function AdminTendancesPage() {
@@ -99,22 +80,19 @@ export default function AdminTendancesPage() {
              
              {/* TABS SEGMENTED */}
              <div className="flex p-1 bg-slate-900/50 border border-slate-800 rounded-lg">
-                <button
-                  onClick={() => setTab("list")}
-                  className={`px-4 py-2 text-xs font-bold rounded-md transition-all flex items-center gap-2 ${
-                    tab === "list" ? "bg-slate-800 text-white shadow-sm" : "text-slate-500 hover:text-slate-300"
-                  }`}
-                >
+                <button onClick={() => setTab("list")} className={`px-3 py-2 text-xs font-bold rounded-md transition-all flex items-center gap-2 ${tab === "list" ? "bg-slate-800 text-white shadow-sm" : "text-slate-500 hover:text-slate-300"}`}>
                   <List size={14} /> Catalogue
                 </button>
-                <button
-                  onClick={() => setTab("create")}
-                  className={`px-4 py-2 text-xs font-bold rounded-md transition-all flex items-center gap-2 ${
-                    tab === "create" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-500 hover:text-slate-300"
-                  }`}
-                >
-                  <PlusCircle size={14} /> Nouvelle
+                <button onClick={() => setTab("create")} className={`px-3 py-2 text-xs font-bold rounded-md transition-all flex items-center gap-2 ${tab === "create" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-500 hover:text-slate-300"}`}>
+                  <PlusCircle size={14} /> Manuelle
                 </button>
+                <button onClick={() => setTab("ia")} className={`px-3 py-2 text-xs font-bold rounded-md transition-all flex items-center gap-2 ${tab === "ia" ? "bg-violet-600 text-white shadow-sm" : "text-slate-500 hover:text-slate-300"}`}>
+                  <Bot size={14} /> IA
+                </button>
+                <button onClick={() => setTab("csv")} className={`px-3 py-2 text-xs font-bold rounded-md transition-all flex items-center gap-2 ${tab === "csv" ? "bg-emerald-600 text-white shadow-sm" : "text-slate-500 hover:text-slate-300"}`}>
+                  <Upload size={14} /> Import CSV
+                </button>
+
              </div>
              
              <button onClick={loadTendances} className="p-2 text-slate-500 hover:text-white hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-slate-700">
@@ -138,8 +116,269 @@ export default function AdminTendancesPage() {
            )}
 
            {tab === "create" && <CreateTendanceForm reload={loadTendances} />}
+           {tab === "ia" && <GenerateIAForm reload={loadTendances} />}
+           {tab === "csv" && <ImportCSVForm reload={loadTendances} />}
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ==========================================
+   LISTE DES TENDANCES (Design Grid Technical)
+   ========================================== */
+/* ==========================================
+   GÉNÉRATION IA
+   ========================================== */
+function GenerateIAForm({ reload }) {
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [config, setConfig] = useState({
+    count: 20,
+    region: "Afrique",
+    categories: [],
+    network: "Multi-plateformes",
+    theme: "",
+  });
+
+  const categoriesList = ["Business", "Santé", "Finance", "Beauté", "Alimentation", "Éducation", "Lifestyle", "Marketing", "Entrepreneuriat", "Technologie", "Mode", "Sport"];
+
+  const toggleCat = (cat) => setConfig(prev => ({
+    ...prev,
+    categories: prev.categories.includes(cat) ? prev.categories.filter(c => c !== cat) : [...prev.categories, cat]
+  }));
+
+  const generate = async () => {
+    setLoading(true);
+    setResult(null);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/tendances/generate-ia", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-secret": process.env.NEXT_PUBLIC_ADMIN_SECRET },
+        body: JSON.stringify(config),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setResult(data);
+        reload();
+      } else {
+        setError(data.message || "Erreur génération");
+      }
+    } catch (err) {
+      setError("Erreur réseau");
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="max-w-3xl space-y-6">
+      <div className="p-6 border border-slate-800 rounded-xl bg-[#0f1623]">
+        <h3 className="text-sm font-bold text-white uppercase tracking-wide mb-1 flex items-center gap-2">
+          <Bot size={16} className="text-violet-400" /> Génération IA
+        </h3>
+        <p className="text-xs text-slate-500 mb-6">Gemini génère des tendances pertinentes pour ton marché cible et les ajoute directement en base.</p>
+
+        <div className="grid grid-cols-2 gap-4 mb-5">
+          <div>
+            <label className="text-xs font-semibold text-slate-500 uppercase mb-2 block">Nombre à générer</label>
+            <select value={config.count} onChange={e => setConfig(p => ({ ...p, count: Number(e.target.value) }))}
+              className="w-full bg-[#1a202c] border border-slate-700 text-slate-200 text-sm rounded-lg p-3 focus:border-violet-500 focus:outline-none">
+              {[10, 20, 30, 50,100].map(n => <option key={n} value={n}>{n} tendances</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-slate-500 uppercase mb-2 block">Région cible</label>
+            <select value={config.region} onChange={e => setConfig(p => ({ ...p, region: e.target.value }))}
+              className="w-full bg-[#1a202c] border border-slate-700 text-slate-200 text-sm rounded-lg p-3 focus:border-violet-500 focus:outline-none">
+              {["Afrique", "Global", "France", "Europe"].map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <div className="mb-5">
+          <label className="text-xs font-semibold text-slate-500 uppercase mb-2 block">Thème libre (optionnel)</label>
+          <input type="text" value={config.theme} onChange={e => setConfig(p => ({ ...p, theme: e.target.value }))}
+            placeholder="Ex: santé naturelle, dropshipping, ebooks..."
+            className="w-full bg-[#1a202c] border border-slate-700 text-slate-200 text-sm rounded-lg p-3 focus:border-violet-500 focus:outline-none" />
+        </div>
+
+        <div className="mb-6">
+          <label className="text-xs font-semibold text-slate-500 uppercase mb-2 block">Catégories (optionnel)</label>
+          <div className="flex flex-wrap gap-2">
+            {categoriesList.map(cat => (
+              <button key={cat} onClick={() => toggleCat(cat)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${config.categories.includes(cat) ? "bg-violet-500/20 border-violet-500 text-violet-300" : "bg-slate-900 border-slate-700 text-slate-500 hover:text-slate-300"}`}>
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <button onClick={generate} disabled={loading}
+          className="w-full py-4 bg-violet-600 hover:bg-violet-500 text-white font-black text-xs uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 transition disabled:opacity-50">
+          {loading ? <><Loader2 size={16} className="animate-spin" /> Génération en cours...</> : <><Bot size={16} /> Générer {config.count} tendances avec Gemini</>}
+        </button>
+      </div>
+
+      {result && (
+        <div className="p-5 border border-emerald-500/30 bg-emerald-500/5 rounded-xl">
+          <div className="flex items-center gap-2 text-emerald-400 font-black text-sm mb-3">
+            <Check size={16} /> {result.created} tendances ajoutées en base
+          </div>
+          {result.skipped > 0 && <p className="text-xs text-slate-500">{result.skipped} doublons ignorés</p>}
+        </div>
+      )}
+
+      {error && (
+        <div className="p-4 border border-red-500/30 bg-red-500/10 rounded-xl text-red-400 text-sm">{error}</div>
+      )}
+    </div>
+  );
+}
+
+/* ==========================================
+   IMPORT CSV
+   ========================================== */
+function ImportCSVForm({ reload }) {
+  const [file, setFile] = useState(null);
+
+  const downloadTemplate = () => {
+    const headers = "title,description,emoji,network,region,categories,difficulty,competition,growth,searches,potential,isHot,isRising,isProfitable,period,monetizationPotential,estimatedRevenue,tags,priority,notes";
+    const example1 = `"Ebook perte de poids naturelle","Guide complet pour maigrir avec des methodes naturelles","🥗","TikTok","Afrique","Sante|Lifestyle","Facile","Faible",75,52000,3200,true,true,true,"Mois","Eleve","300-900 euros/mois","sante|minceur|naturel",80,""`;
+    const example2 = `"Formation dropshipping Afrique","Comment lancer un business de dropshipping ciblant les marches africains","💰","Multi-plateformes","Afrique","Business|Entrepreneuriat","Moyen","Moyenne",60,38000,2800,false,true,true,"Mois","Eleve","200-600 euros/mois","dropshipping|business|afrique",70,""`;
+    const example3 = `"Recettes cuisine ivoirienne moderne","50 recettes traditionnelles revisitees pour la diaspora africaine","🍽️","Instagram","Afrique","Alimentation|Lifestyle","Facile","Faible",90,67000,1800,true,false,true,"Mois","Moyen","150-400 euros/mois","cuisine|recettes",65,""`;
+    const csv = [headers, example1, example2, example3].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "bookzy-tendances-template.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [preview, setPreview] = useState([]);
+
+  const handleFile = (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    setFile(f);
+    setResult(null);
+    setError(null);
+    // Preview des 3 premières lignes
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const lines = ev.target.result.split("\n").slice(0, 4).filter(Boolean);
+      setPreview(lines);
+    };
+    reader.readAsText(f);
+  };
+
+  const importCSV = async () => {
+    if (!file) return;
+    setLoading(true);
+    setResult(null);
+    setError(null);
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const res = await fetch("/api/admin/tendances/import-csv", {
+        method: "POST",
+        headers: { "x-admin-secret": process.env.NEXT_PUBLIC_ADMIN_SECRET },
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        setResult(data);
+        reload();
+        setFile(null);
+        setPreview([]);
+      } else {
+        setError(data.message || "Erreur import");
+      }
+    } catch (err) {
+      setError("Erreur réseau");
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="max-w-3xl space-y-6">
+      <div className="p-6 border border-slate-800 rounded-xl bg-[#0f1623]">
+        <h3 className="text-sm font-bold text-white uppercase tracking-wide mb-1 flex items-center gap-2">
+          <Upload size={16} className="text-emerald-400" /> Import CSV en masse
+        </h3>
+        <p className="text-xs text-slate-500 mb-6">Importe des centaines de tendances d'un coup depuis un fichier CSV.</p>
+
+        {/* Format attendu + téléchargement template */}
+        <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-4 mb-5">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Format CSV attendu</p>
+            <button onClick={downloadTemplate}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 text-[10px] font-black rounded-lg hover:bg-emerald-600/30 transition-colors uppercase tracking-wider">
+              <FileText size={11} /> Télécharger le template
+            </button>
+          </div>
+          <code className="text-[10px] text-emerald-400 leading-loose block">
+            title,description,emoji,network,region,categories,difficulty,competition,growth,searches,potential,isHot,isRising<br/>
+            "Ebook santé","Guide bien-être...","💊","TikTok","Afrique","Santé|Lifestyle","Facile","Faible",80,45000,3500,true,false
+          </code>
+          <p className="text-[10px] text-slate-600 mt-2">Colonnes obligatoires : title, description. Catégories séparées par |</p>
+        </div>
+
+        {/* Upload zone */}
+        <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-700 rounded-xl p-8 cursor-pointer hover:border-emerald-500/50 transition-colors mb-4">
+          <FileText size={24} className="text-slate-600 mb-2" />
+          <span className="text-sm font-bold text-slate-400">{file ? file.name : "Cliquer pour choisir un fichier CSV"}</span>
+          <span className="text-xs text-slate-600 mt-1">.csv uniquement</span>
+          <input type="file" accept=".csv" onChange={handleFile} className="hidden" />
+        </label>
+
+        {/* Preview */}
+        {preview.length > 0 && (
+          <div className="bg-slate-900 rounded-lg p-3 mb-4 overflow-x-auto">
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-600 mb-2">Aperçu</p>
+            {preview.map((line, i) => (
+              <p key={i} className={`text-[10px] font-mono truncate ${i === 0 ? "text-slate-500" : "text-slate-300"}`}>{line}</p>
+            ))}
+          </div>
+        )}
+
+        <button onClick={importCSV} disabled={!file || loading}
+          className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 transition disabled:opacity-40">
+          {loading ? <><Loader2 size={16} className="animate-spin" /> Import en cours...</> : <><Upload size={16} /> Importer le CSV</>}
+        </button>
+      </div>
+
+      {result && (
+        <div className="p-5 border border-emerald-500/30 bg-emerald-500/5 rounded-xl">
+          <div className="flex items-center gap-2 text-emerald-400 font-black text-sm mb-2">
+            <Check size={16} /> Import terminé
+          </div>
+          <div className="grid grid-cols-3 gap-3 text-xs">
+            <div className="bg-slate-900 rounded-lg p-3 text-center">
+              <p className="text-2xl font-black text-emerald-400">{result.created}</p>
+              <p className="text-slate-500 uppercase tracking-wider">Créées</p>
+            </div>
+            <div className="bg-slate-900 rounded-lg p-3 text-center">
+              <p className="text-2xl font-black text-amber-400">{result.skipped}</p>
+              <p className="text-slate-500 uppercase tracking-wider">Ignorées</p>
+            </div>
+            <div className="bg-slate-900 rounded-lg p-3 text-center">
+              <p className="text-2xl font-black text-red-400">{result.errors}</p>
+              <p className="text-slate-500 uppercase tracking-wider">Erreurs</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="p-4 border border-red-500/30 bg-red-500/10 rounded-xl text-red-400 text-sm">{error}</div>
+      )}
     </div>
   );
 }
@@ -428,6 +667,10 @@ function CreateTendanceForm({ reload }) {
   );
 }
 
+
+/* ==========================================
+   GÉNÉRATION IA
+   ========================================== */
 function TendancePreview({ form }) {
   return (
     <div className="xl:col-span-1">

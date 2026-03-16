@@ -3,10 +3,7 @@
 
 import { useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-
 import Hero from "@/app/(marketing)/components/Hero";
-import Demo from "@/app/(marketing)/components/Demo";
-import FeaturesSection from "@/app/(marketing)/components/FeaturesSection";
 import Exemplesection from "@/app/(marketing)/components/Exemplesection";
 import HowitWork from "@/app/(marketing)/components/HowitWork";
 import Pricing from "@/app/(marketing)/components/Pricing";
@@ -14,7 +11,8 @@ import PourquoiBookzy from "@/app/(marketing)/components/PourquoiBookzy";
 import FAQ from "@/app/(marketing)/components/FAQ";
 import Testimonials from "@/app/(marketing)/components/Testimonials";
 import CTA from "@/app/(marketing)/components/CTA";
-
+import TemplatesSection from "./components/TemplatesSection";
+ 
 function AffiliateTracker() {
   const searchParams = useSearchParams();
 
@@ -44,10 +42,10 @@ export default function HomePage() {
       </Suspense>
 
       <Hero />
-      <Demo />
+
       <HowitWork />
-      <Exemplesection />
-      <FeaturesSection />
+      <TemplatesSection />
+     <Exemplesection />
       <PourquoiBookzy />
       <Testimonials />
       <Pricing />

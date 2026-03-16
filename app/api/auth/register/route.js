@@ -68,7 +68,9 @@ export async function POST(req) {
       emailVerificationSentAt: null,
       affiliateCode: myAffiliateCode,
       referredBy: sponsorId,
-      wallet: { balance: 0, totalEarned: 0 }
+      wallet: { balance: 0, totalEarned: 0 },
+      credits: { balance: 4 } // 4 crédits offerts à l'inscription
+
     });
 
     // 4. JWT & COOKIES

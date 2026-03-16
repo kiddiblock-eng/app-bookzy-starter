@@ -1,224 +1,202 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { Play, Pause, Volume2, VolumeX, Maximize } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
-export default function Demo() {
-  const videoRef = useRef(null);
-  const containerRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
-  const [showControls, setShowControls] = useState(true);
+const features = [
+  {
+    id: 1,
+    icon: "⚡",
+    title: "Génération IA",
+    desc: "Ebook complet en 60 secondes",
+    color: "#EFF6FF",
+    border: "#BFDBFE",
+    accent: "#2563EB",
+    desktop: { top: "4%", left: "2%" },
+    mobile: { top: "2%", left: "0%" },
+  },
+  {
+    id: 2,
+    icon: "✏️",
+    title: "Mise en page Express",
+    desc: "PDF pro depuis ton texte",
+    color: "#F0FDF4",
+    border: "#BBF7D0",
+    accent: "#16A34A",
+    desktop: { top: "4%", right: "2%" },
+    mobile: { top: "2%", right: "0%" },
+  },
+  {
+    id: 3,
+    icon: "🏪",
+    title: "Smart Shop",
+    desc: "Boutique en ligne gratuite",
+    color: "#FFF7ED",
+    border: "#FED7AA",
+    accent: "#EA580C",
+    desktop: { top: "38%", left: "0%" },
+    mobile: { top: "38%", left: "0%" },
+  },
+  {
+    id: 4,
+    icon: "🎯",
+    title: "Niche Hunter",
+    desc: "Niches rentables en 1 clic",
+    color: "#FDF4FF",
+    border: "#E9D5FF",
+    accent: "#9333EA",
+    desktop: { top: "38%", right: "0%" },
+    mobile: { top: "38%", right: "0%" },
+  },
+  {
+    id: 5,
+    icon: "🔥",
+    title: "Tendances",
+    desc: "Ce qui buzz en temps réel",
+    color: "#FFF1F2",
+    border: "#FECDD3",
+    accent: "#E11D48",
+    desktop: { bottom: "4%", left: "2%" },
+    mobile: { bottom: "2%", left: "0%" },
+  },
+  {
+    id: 6,
+    icon: "🎬",
+    title: "Youbook",
+    desc: "YouTube → Ebook en 1 clic",
+    color: "#FEFCE8",
+    border: "#FEF08A",
+    accent: "#CA8A04",
+    desktop: { bottom: "4%", right: "2%" },
+    mobile: { bottom: "2%", right: "0%" },
+  },
+];
 
-  const cloudName = "dcmlw5hak";
-  const videoId = "generateur_g1nl9o";
-  const videoUrl = `https://res.cloudinary.com/${cloudName}/video/upload/q_auto,f_auto/${videoId}.mov`;
-  const thumbnailUrl = `https://res.cloudinary.com/${cloudName}/video/upload/so_0,w_1280,h_720,c_fill,q_auto,f_jpg/${videoId}.jpg`;
+const CenterContent = ({ small = false }) => (
+  <div className={`text-center ${small ? "px-1" : "max-w-xs px-4"}`}>
+    <span className={`inline-block px-3 py-1 bg-slate-100 rounded-full font-semibold text-slate-400 uppercase tracking-widest mb-3 ${small ? "text-[9px]" : "text-[11px]"}`}>
+      L'écosystème Bookzy
+    </span>
+    <h2 className={`font-bold text-slate-900 tracking-tight leading-tight mb-2 ${small ? "text-lg" : "text-4xl lg:text-5xl"}`}>
+      Tout pour{" "}
+      <span className="text-blue-600">créer & vendre</span>
+    </h2>
+    <p className={`text-slate-400 leading-relaxed mb-5 ${small ? "text-[10px]" : "text-sm"}`}>
+      6 outils. Une seule plateforme.
+    </p>
+    <Link
+      href="/auth/register"
+      className={`inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-full transition-all ${small ? "px-4 py-2 text-[10px]" : "px-7 py-3.5 text-sm"}`}
+    >
+      Commencer
+      <ArrowRight className={small ? "w-3 h-3" : "w-4 h-4"} />
+    </Link>
+  </div>
+);
 
-  const togglePlay = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
+const OrbitalLayout = ({ cardWidth, height, positions, small = false }) => (
+  <div className="relative w-full" style={{ height }}>
+    {/* Lignes SVG */}
+    <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
+      {[
+        { x1: "50%", y1: "50%", x2: "18%", y2: "14%" },
+        { x1: "50%", y1: "50%", x2: "82%", y2: "14%" },
+        { x1: "50%", y1: "50%", x2: "10%", y2: "50%" },
+        { x1: "50%", y1: "50%", x2: "90%", y2: "50%" },
+        { x1: "50%", y1: "50%", x2: "18%", y2: "86%" },
+        { x1: "50%", y1: "50%", x2: "82%", y2: "86%" },
+      ].map((line, i) => (
+        <line key={i} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2}
+          stroke="#E2E8F0" strokeWidth="1" strokeDasharray="4 4" />
+      ))}
+      <circle cx="50%" cy="50%" r="4" fill="#CBD5E1" />
+    </svg>
+
+    {/* Cards */}
+    {features.map((f) => (
+      <div
+        key={f.id}
+        className="absolute rounded-2xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+        style={{
+          backgroundColor: f.color,
+          borderColor: f.border,
+          width: cardWidth,
+          padding: small ? "10px" : "16px",
+          ...positions[f.id],
+        }}
+      >
+        <div className="flex items-center gap-2 mb-1.5">
+          <div
+            className="rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{
+              backgroundColor: f.border,
+              width: small ? "28px" : "36px",
+              height: small ? "28px" : "36px",
+              fontSize: small ? "14px" : "18px",
+            }}
+          >
+            {f.icon}
+          </div>
+          <span className="font-bold text-slate-900" style={{ fontSize: small ? "11px" : "14px" }}>
+            {f.title}
+          </span>
+        </div>
+        <p style={{ color: f.accent, fontSize: small ? "9px" : "12px" }} className="leading-relaxed">
+          {f.desc}
+        </p>
+      </div>
+    ))}
+
+    {/* Centre */}
+    <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 1 }}>
+      <CenterContent small={small} />
+    </div>
+  </div>
+);
+
+export default function Ecosystem() {
+  // Positions desktop
+  const desktopPositions = {
+    1: { top: "4%", left: "2%" },
+    2: { top: "4%", right: "2%" },
+    3: { top: "38%", left: "0%" },
+    4: { top: "38%", right: "0%" },
+    5: { bottom: "4%", left: "2%" },
+    6: { bottom: "4%", right: "2%" },
   };
 
-  const toggleMute = () => {
-    if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
-  };
-
-  const toggleFullscreen = () => {
-    const container = containerRef.current;
-    const video = videoRef.current;
-    
-    if (!container || !video) return;
-
-    // Check if already fullscreen
-    if (document.fullscreenElement || document.webkitFullscreenElement) {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-      }
-      return;
-    }
-
-    // Try fullscreen on container first (better for desktop)
-    // On mobile, use video element directly for native controls
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    
-    if (isMobile) {
-      // Mobile: use native video fullscreen
-      if (video.webkitEnterFullscreen) {
-        video.webkitEnterFullscreen();
-      } else if (video.requestFullscreen) {
-        video.requestFullscreen();
-      }
-    } else {
-      // Desktop: fullscreen the container
-      if (container.requestFullscreen) {
-        container.requestFullscreen();
-      } else if (container.webkitRequestFullscreen) {
-        container.webkitRequestFullscreen();
-      }
-    }
+  // Positions mobile — plus serrées
+  const mobilePositions = {
+    1: { top: "2%", left: "0%" },
+    2: { top: "2%", right: "0%" },
+    3: { top: "37%", left: "0%" },
+    4: { top: "37%", right: "0%" },
+    5: { bottom: "2%", left: "0%" },
+    6: { bottom: "2%", right: "0%" },
   };
 
   return (
-    <section id="demo" className="relative bg-white py-20 lg:py-28 overflow-hidden">
-      
-      {/* Subtle background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-50/50 to-white pointer-events-none" />
+    <section className="bg-white py-20 lg:py-32 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-5 sm:px-6">
 
-      <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-6">
-        
-        {/* Header */}
-        <div className="text-center mb-12 lg:mb-16">
-          <p className="text-blue-600 text-sm font-semibold tracking-wide uppercase mb-4">
-            Démo
-          </p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight mb-5">
-            60 secondes, un ebook complet
-          </h2>
-          <p className="text-slate-500 text-base sm:text-lg max-w-xl mx-auto">
-            Regardez comment Bookzy transforme une simple idée en ebook professionnel prêt à vendre.
-          </p>
+        {/* MOBILE */}
+        <div className="lg:hidden">
+          <OrbitalLayout
+            cardWidth="130px"
+            height="520px"
+            positions={mobilePositions}
+            small={true}
+          />
         </div>
 
-        {/* Video Container */}
-        <div 
-          className="relative max-w-4xl mx-auto"
-          onMouseEnter={() => setShowControls(true)}
-          onMouseLeave={() => setShowControls(isPlaying ? false : true)}
-        >
-          
-          {/* Video wrapper with browser-like frame */}
-          <div 
-            ref={containerRef}
-            className="relative rounded-2xl overflow-hidden bg-white shadow-2xl shadow-slate-900/10 border border-slate-200"
-          >
-            
-            {/* Browser top bar */}
-            <div className="flex items-center gap-2 px-4 py-3 bg-slate-100 border-b border-slate-200">
-              <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                <div className="w-3 h-3 rounded-full bg-green-400"></div>
-              </div>
-              <div className="flex-1 mx-4">
-                <div className="bg-white rounded-lg px-3 py-1.5 text-xs text-slate-500 font-medium text-center border border-slate-200">
-                  app.bookzy.io
-                </div>
-              </div>
-              <div className="w-16"></div>
-            </div>
-
-            {/* Video */}
-            <div className="relative bg-slate-900">
-              <video
-                ref={videoRef}
-                src={videoUrl}
-                poster={thumbnailUrl}
-                className="w-full aspect-video object-cover"
-                playsInline
-                webkit-playsinline="true"
-                muted={isMuted}
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-                onEnded={() => setIsPlaying(false)}
-              />
-
-              {/* Play overlay - only when not playing */}
-              {!isPlaying && (
-                <div 
-                  className="absolute inset-0 bg-slate-900/40 flex items-center justify-center cursor-pointer group/play"
-                  onClick={togglePlay}
-                >
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white flex items-center justify-center shadow-xl transition-transform duration-200 group-hover/play:scale-105 active:scale-95">
-                    <Play className="w-6 h-6 sm:w-8 sm:h-8 text-slate-900 ml-1" fill="currentColor" />
-                  </div>
-                </div>
-              )}
-
-              {/* Bottom controls */}
-              <div 
-                className={`
-                  absolute bottom-0 left-0 right-0 
-                  bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-transparent 
-                  p-3 sm:p-4 pt-10
-                  transition-opacity duration-300 
-                  ${showControls ? 'opacity-100' : 'opacity-0'}
-                `}
-              >
-                <div className="flex items-center gap-2 sm:gap-3">
-                  
-                  {/* Play/Pause */}
-                  <button
-                    onClick={togglePlay}
-                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors"
-                  >
-                    {isPlaying ? (
-                      <Pause className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" fill="white" />
-                    ) : (
-                      <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white ml-0.5" fill="white" />
-                    )}
-                  </button>
-
-                  {/* Mute */}
-                  <button
-                    onClick={toggleMute}
-                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors"
-                  >
-                    {isMuted ? (
-                      <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
-                    ) : (
-                      <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
-                    )}
-                  </button>
-
-                  <div className="flex-1"></div>
-
-                  {/* Fullscreen */}
-                  <button
-                    onClick={toggleFullscreen}
-                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors"
-                  >
-                    <Maximize className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
-                  </button>
-
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Caption */}
-          <p className="text-center text-slate-400 text-sm mt-6">
-            De l'idée au PDF en moins d'une minute
-          </p>
-
-        </div>
-
-        {/* Features under video */}
-        <div className="grid grid-cols-3 gap-4 sm:gap-8 max-w-2xl mx-auto mt-12 lg:mt-16">
-          <div className="text-center">
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 mb-1">8</div>
-            <div className="text-xs sm:text-sm text-slate-500">Chapitres générés</div>
-          </div>
-          <div className="text-center border-x border-slate-200">
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 mb-1">60s</div>
-            <div className="text-xs sm:text-sm text-slate-500">Temps de création</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 mb-1">3</div>
-            <div className="text-xs sm:text-sm text-slate-500">Fichiers livrés</div>
-          </div>
+        {/* DESKTOP */}
+        <div className="hidden lg:block">
+          <OrbitalLayout
+            cardWidth="210px"
+            height="640px"
+            positions={desktopPositions}
+            small={false}
+          />
         </div>
 
       </div>
