@@ -1273,7 +1273,7 @@ function GeneratingOverlay({ progress = 0 }) {
     "Terminé !";
 
   return (
-    <div className="fixed inset-0 bg-slate-900 flex flex-col items-center justify-center z-50 p-6">
+    <div className="fixed inset-0 bg-slate-900 flex flex-col items-center justify-center z-[200] p-6">
       <div className="w-20 h-20 mb-6 relative">
         <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
           <circle cx="40" cy="40" r="34" strokeWidth="5" fill="none" className="stroke-slate-700" />
