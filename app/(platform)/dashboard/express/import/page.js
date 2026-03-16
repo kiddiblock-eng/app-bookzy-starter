@@ -243,7 +243,7 @@ const PreviewModal = ({ isOpen, onClose, projetId, onBuy }) => {
           {/* Warning */}
           <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-3 mb-4">
             <p className="text-yellow-200 text-center text-sm">
-              ⚠️ Aperçu limité ({images.length} premières pages en images avec watermark). Après paiement, vous recevrez le PDF complet sans watermark.
+              ⚠️ Aperçu limité ({images.length} premières pages en images avec watermark). En cliquant sur générer le PDF, vous recevrez le PDF complet sans watermark.
             </p>
           </div>
 

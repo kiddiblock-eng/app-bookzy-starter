@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import DashboardSidebar from "@/app/(platform)/components/DashboardSidebar";
 import DashboardHeader from "@/app/(platform)/components/DashboardHeader";
 import EmailVerificationBanner from "@/app/(platform)/components/EmailVerificationBanner";
@@ -111,7 +111,24 @@ function FloatingSupport({ open, setOpen }) {
   const [messages, setMessages] = useState([{ from: "bot", text: "Hey ! 👋 Comment puis-je t'aider ?" }]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const chatEndRef = useState(null)[0];
+  const [visible, setVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
+  // ✅ Cache le bouton quand on scrolle vers le bas, réaffiche quand on remonte
+  useEffect(() => {
+    if (open) return; // Si le chat est ouvert, toujours visible
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        setVisible(false); // Scroll vers le bas → cacher
+      } else {
+        setVisible(true);  // Scroll vers le haut → afficher
+      }
+      lastScrollY.current = currentScrollY;
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [open]);
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
@@ -136,9 +153,12 @@ function FloatingSupport({ open, setOpen }) {
 
   return (
     <>
+      {/* Bouton flottant — caché au scroll bas, visible au scroll haut */}
       <button
         onClick={() => setOpen(!open)}
-        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all ${open ? "bg-slate-700 text-white" : "bg-slate-900 hover:bg-slate-800 text-white"}`}
+        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${
+          open ? "bg-slate-700 text-white" : "bg-slate-900 hover:bg-slate-800 text-white"
+        } ${visible || open ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16 pointer-events-none"}`}
       >
         {open ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
       </button>
