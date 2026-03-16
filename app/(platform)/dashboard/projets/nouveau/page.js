@@ -90,7 +90,7 @@ const PAGES_OPTIONS = [20, 30, 40, 50, 60, 70, 80];
 const CHAPTERS_OPTIONS = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 // URL de l'ebook exemple
-const EXAMPLE_EBOOK_URL = "https://res.cloudinary.com/dcmlw5hak/raw/upload/v1766670419/bookzy/ebooks/e-commerce-afrique-le-guide-ultime-pour-lancer-et-generer-des-profits-a-partir-d.pdf";
+const EXAMPLE_EBOOK_URL = "https://res.cloudinary.com/dcmlw5hak/raw/upload/v1773188104/bookzy/ebooks/maitriser-whatsapp-business-69b0b393370bdef7d6198af1.pdf";
 
 /* --- BOOK 3D --- */
 const Book3D = ({ title, template }) => {
@@ -392,7 +392,7 @@ const ExampleEbookModal = ({ isOpen, onClose }) => {
         {/* PDF Preview */}
         <div className="flex-1 bg-slate-100 overflow-hidden min-h-[400px]">
           <iframe 
-            src={`${EXAMPLE_EBOOK_URL}#toolbar=0&navpanes=0`}
+            src={`https://docs.google.com/viewer?url=${encodeURIComponent(EXAMPLE_EBOOK_URL)}&embedded=true`}
             className="w-full h-full min-h-[450px] sm:min-h-[550px]"
             title="Exemple d'ebook Bookzy"
           />
@@ -945,7 +945,7 @@ function NouveauProjetPageContent() {
         {finalKitData && (
           <div
             style={{
-              position: "fixed", inset: 0, zIndex: 100,
+              position: "fixed", inset: 0, zIndex: 9999,
               transform: showPreview ? "translateX(0)" : "translateX(100%)",
               transition: "transform 0ms",
               willChange: "transform",
