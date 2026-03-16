@@ -408,6 +408,73 @@ export default function TarifsPage() {
           </div>
         )}
 
+        {/* ─── RECHARGE RAPIDE ─────────────────────────────────────────────── */}
+        <div style={{ marginBottom: 48 }}>
+          <div style={{ textAlign: "center", marginBottom: 20 }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 999, padding: "5px 14px", fontSize: 12, fontWeight: 700, color: "#0f172a" }}>
+              <Zap size={13} /> Recharge rapide — sans abonnement
+            </span>
+            <p style={{ fontSize: 13, color: "#64748b", marginTop: 8 }}>Paye quand tu veux. Pas d'engagement. Crédits valables à vie.</p>
+          </div>
+          {(() => {
+            const isPaid = currentPlan && currentPlan !== "free";
+            const pricePerCredit = isPaid ? 100 : 150;
+            const planSuffix = isPaid ? currentPlan : "free";
+            const recharges = [
+              { credits: 10, badge: null },
+              { credits: 30, badge: "Populaire" },
+              { credits: 60, badge: null },
+              { credits: 100, badge: null },
+            ];
+            return (
+              <div>
+                {!isPaid && (
+                  <p style={{ textAlign: "center", fontSize: 12, color: "#475569", marginBottom: 12, fontWeight: 600 }}>
+                    💡 Abonne-toi pour plus d'avantages — crédits moins chers, quotas journaliers et plus
+                  </p>
+                )}
+                <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
+                  {recharges.map((r) => (
+                    <button
+                      key={r.credits}
+                      onClick={() => handleBuy(`recharge_${r.credits}_${planSuffix}`)}
+                      disabled={!!loading}
+                      style={{
+                        position: "relative",
+                        flex: "1 1 160px", maxWidth: 200,
+                        background: "#fff",
+                        border: r.badge ? "2px solid #0f172a" : "1.5px solid #e2e8f0",
+                        borderRadius: 14, padding: "16px 14px",
+                        cursor: loading ? "default" : "pointer",
+                        textAlign: "center",
+                        opacity: loading && loading !== `recharge_${r.credits}_${planSuffix}` ? 0.5 : 1,
+                        boxShadow: r.badge ? "0 4px 20px rgba(0,0,0,0.10)" : "0 1px 4px rgba(0,0,0,0.05)",
+                        transition: "all .15s",
+                      }}
+                    >
+                      {r.badge && (
+                        <span style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)", background: "#0f172a", color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 10px", borderRadius: 999, whiteSpace: "nowrap" }}>
+                          {r.badge}
+                        </span>
+                      )}
+                      <p style={{ fontSize: 15, fontWeight: 800, color: "#0f172a", margin: "0 0 10px" }}>{r.credits} crédits</p>
+                      <p style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", margin: 0 }}>{fmt(r.credits * pricePerCredit)} FCFA</p>
+                      {loading === `recharge_${r.credits}_${planSuffix}` && <Loader2 size={14} className="animate-spin" style={{ margin: "6px auto 0" }} />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* ─── OU ABONNEMENT ───────────────────────────────────────────────── */}
+        <div style={{ textAlign: "center", marginBottom: 24 }}>
+          <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+            — Ou économise avec un abonnement —
+          </span>
+        </div>
+
         {/* Cards */}
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "stretch" }}>
           {PLANS.map((plan) => (
