@@ -22,8 +22,24 @@ export const viewport = {
 };
 
 export const metadata = {
-  title: "Bookzy — Créez vos ebooks et produits digitaux",
-  description: "Bookzy vous aide à créer, et automatiser vos ebooks et produits digitaux facilement.",
+  title: "Bookzy — Génère ton ebook en 60 secondes",
+  description: "La plateforme  de génération d'ebooks par IA pour les créateurs africains. 16 templates, Smart Shop, Niche Hunter, Youbook. +10 000 créateurs.",
+  metadataBase: new URL("https://bookzy.io"),
+  openGraph: {
+    title: "Bookzy — Génère ton ebook en 60 secondes",
+    description: "La plateforme ebook des créateurs africains. +10 000 créateurs font confiance à Bookzy.",
+    url: "https://bookzy.io",
+    siteName: "Bookzy",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Bookzy — Génère ton ebook en 60 secondes" }],
+    locale: "fr_FR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Bookzy — Génère ton ebook en 60 secondes",
+    description: "La plateforme ebook des créateurs africains.",
+    images: ["/og-image.png"],
+  },
   icons: {
     icon: '/favicon.ico',
     apple: '/apple-icon.png',

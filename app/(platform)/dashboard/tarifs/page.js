@@ -412,7 +412,7 @@ export default function TarifsPage() {
         <div style={{ marginBottom: 48 }}>
           <div style={{ textAlign: "center", marginBottom: 20 }}>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 999, padding: "5px 14px", fontSize: 12, fontWeight: 700, color: "#0f172a" }}>
-              <Zap size={13} /> Recharge rapide — sans abonnement
+               Recharge rapide sans abonnement
             </span>
             <p style={{ fontSize: 13, color: "#64748b", marginTop: 8 }}>Paye quand tu veux. Pas d'engagement. Crédits valables à vie.</p>
           </div>

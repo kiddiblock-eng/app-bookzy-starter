@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import { getAIText } from "@/lib/ai";
+import { verifyAdmin } from "@/lib/auth";
 import Trend from "@/models/Trend";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(req) {
   try {
-    const adminSecret = req.headers.get("x-admin-secret");
-    if (adminSecret !== process.env.NEXT_PUBLIC_ADMIN_SECRET) {
+    const adminResult = await verifyAdmin(req);
+    if (!adminResult?.authorized) {
       return NextResponse.json({ success: false, message: "Non autorisé" }, { status: 401 });
     }
 
@@ -21,7 +24,7 @@ export async function POST(req) {
     const year = new Date().getFullYear();
 
     const prompt = [
-      "Tu es un expert en tendances de contenu digital et monétisation pour les marchés francophones africains.",
+      "Tu es un expert en tendances des ebooks qui se vends reelement et monétisation pour les marchés francophones africains.",
       "",
       "Génère exactement " + count + " tendances de contenu/niches rentables " + categoriesStr + " " + themeStr + " pour la région " + region + ".",
       "",
@@ -33,10 +36,10 @@ export async function POST(req) {
       "Valeurs autorisées pour categories: Technologie, Business, Santé, Fitness, Alimentation, Éducation, Divertissement, Lifestyle, Finance, Mode, Beauté, Voyage, Gaming, Sport, Art & Design, Musique, Immobilier, Entrepreneuriat, Marketing, Développement personnel, Environnement, Famille & Parentalité, Autre",
       "",
       "Règles importantes:",
-      "- Tendances pertinentes pour l'Afrique francophone en " + year,
+      "- Tendances d'ebook pertinentes pour l'Afrique francophone en " + year,
       "- Monétisables via ebooks, formations ou coaching",
       "- Variées, pas toutes dans la même niche",
-      "- Ne commence jamais une tendance par 'Comment' ou 'Pourquoi', juste un titre accrocheur de 6 à 9 mots",
+      "- Ne commence jamais une tendance par 'Comment' ou 'Pourquoi', juste un titre accrocheur de 4 à 6 mots",
       "- La description doit être concise, 1 à 2 phrases max, pas de listes à puces",
       "- RÈGLE ABSOLUE : le champ title ne doit JAMAIS commencer par : Ebook, Formation, Coaching, Guide, Manuel, Tutoriel. Si un titre commence par ces mots, reformule-le. Ex: 'Ebook perte de poids' → 'Perdre du poids naturellement'. Le type de monétisation va dans monetizationMethods uniquement.",
       "- Les textes peuvent contenir des apostrophes normalement",
