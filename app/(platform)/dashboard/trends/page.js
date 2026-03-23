@@ -68,19 +68,8 @@ export default function TrendsPage() {
     return true;
   });
 
-  const now = new Date();
-  const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
-
-  // Tendances ajoutées aujourd'hui — triées par date desc (plus récente en premier)
-  const todayTrends = [...filteredTrends]
-    .filter(t => new Date(t.createdAt || t.trendDate) >= todayStart)
-    .sort((a, b) => new Date(b.createdAt || b.trendDate) - new Date(a.createdAt || a.trendDate));
-
-  const todayIds = new Set(todayTrends.map(t => t.id));
-
-  // Les 5 plus récentes hors aujourd'hui pour le carousel "Tendances du moment"
+  // 5 dernières ajoutées pour le carousel
   const latestTrends = [...filteredTrends]
-    .filter(t => !todayIds.has(t.id))
     .sort((a, b) => new Date(b.createdAt || b.trendDate) - new Date(a.createdAt || a.trendDate))
     .slice(0, 5);
 
@@ -88,7 +77,7 @@ export default function TrendsPage() {
 
   // Le reste — récentes intercalées avec anciennes (1 ancienne toutes les 4 récentes)
   const restSorted = filteredTrends
-    .filter(t => !todayIds.has(t.id) && !latestIds.has(t.id))
+    .filter(t => !latestIds.has(t.id))
     .sort((a, b) => new Date(b.createdAt || b.trendDate) - new Date(a.createdAt || a.trendDate));
 
   const recentRest = restSorted.slice(0, Math.floor(restSorted.length * 0.7));
@@ -211,27 +200,6 @@ export default function TrendsPage() {
           <EmptyState resetFilters={resetFilters} />
         ) : (
           <>
-            {/* NOUVELLES AUJOURD'HUI */}
-            {todayTrends.length > 0 && !searchQuery && (
-              <div className="mb-8">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-base">✨</span>
-                  <h2 className="text-base font-semibold text-slate-900">Nouvelles aujourd'hui</h2>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold">
-                    {todayTrends.length} ajoutée{todayTrends.length > 1 ? "s" : ""}
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {todayTrends.map((trend, i) => (
-                    <div key={trend.id} className={!isPaidPlan && i >= 3 ? "blur-sm opacity-60 pointer-events-none select-none" : ""}>
-                      <TrendCard trend={trend} />
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6 border-b border-slate-100" />
-              </div>
-            )}
-
             {/* TOP 5 tendances du moment */}
             {latestTrends.length > 0 && !searchQuery && (
               <div className="mb-8">
