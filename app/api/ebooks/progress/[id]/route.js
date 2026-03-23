@@ -42,6 +42,7 @@ export async function GET(req, { params }) {
       chapters: projet.chapters,
       conclusion: projet.conclusion,
       pdfUrl: projet.pdfUrl,
+      docxUrl: projet.docxUrl || null,
       coverUrl: projet.coverUrl,
       kitUrl: projet.kitUrl,
       adsTexts: projet.adsTexts,

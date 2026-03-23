@@ -65,6 +65,7 @@ aiExtraCost: { type: Number, default: 0 },
     // 🟨 ASSETS GÉNÉRÉS
     // ————————————————————————
     pdfUrl: { type: String },
+    docxUrl: { type: String }, 
     previewPdfUrl: { type: String },
     coverUrl: { type: String },
 

@@ -57,6 +57,7 @@ export default function EbookDetailPage({ params }) {
   const visibleSections = activeTab === "tous" ? sections : sections.filter(s => s.id === activeTab);
   const adsImages = ebook.adsImages || [];
   const pdfUrl = ebook.pdfUrl || ebook.fileUrl;
+  const docxUrl = ebook.docxUrl || null;
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] font-sans text-slate-900 pb-20">
@@ -119,6 +120,23 @@ export default function EbookDetailPage({ params }) {
                 )}
               </div>
             </div>
+
+            {/* DOCX card */}
+            {docxUrl && (
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-blue-500" />
+                  <h4 className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Version Word</h4>
+                </div>
+                <div className="p-4">
+                  <p className="text-xs text-slate-400 mb-3">Fichier .docx éditable dans Microsoft Word ou Google Docs.</p>
+                  <a href={docxUrl} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-2.5 bg-blue-600 text-white rounded-lg font-semibold text-sm hover:bg-blue-700 transition-colors">
+                    <Download className="w-4 h-4" /> Télécharger .docx
+                  </a>
+                </div>
+              </div>
+            )}
 
             {/* Images marketing */}
             {adsImages.length > 0 && (

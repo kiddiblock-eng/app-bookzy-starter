@@ -128,9 +128,11 @@ export async function POST(req) {
       tx.completedAt = new Date();
       await tx.save();
       console.log("💰 [Moneroo] Paiement VALIDÉ pour:", tx._id);
-    } else if (isPaid && tx.completedAt) {
-      console.log(`⚠️ [Moneroo] Transaction ${tx._id} déjà complétée, skip.`);
+    } else if (isPaid && tx.completedAt && tx.creditsAdded) {
+      console.log(`⚠️ [Moneroo] Transaction ${tx._id} déjà complétée et crédits ajoutés, skip.`);
       return NextResponse.json({ success: true });
+    } else if (isPaid && tx.completedAt && !tx.creditsAdded) {
+      console.log(`⚠️ [Moneroo] Transaction ${tx._id} complétée MAIS crédits manquants — on re-crédite.`);
     } else {
       await tx.save();
     }
@@ -183,6 +185,10 @@ export async function POST(req) {
         await user.addCredits(credits, plan);
         console.log(`✅ [Credits] +${credits} crédits — Plan: ${plan} — User: ${tx.userId}`);
       }
+
+      // ✅ Marquer les crédits comme ajoutés — évite le double crédit si webhook rejoué
+      tx.creditsAdded = true;
+      await tx.save();
 
       // Email confirmation
       try {

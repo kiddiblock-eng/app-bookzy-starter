@@ -9,6 +9,7 @@ import { Resend } from "resend";
 import { ebookReadyTemplate } from "../../../../lib/emailTemplates/ebookReadyTemplate";
 import { getAIText } from "../../../../lib/ai";
 import { generateStyledHTML } from "../../../../lib/pdf/htmlGenerator"; 
+import { generateDocx } from "../../../../lib/pdf/docxGenerator";
 import { uploadBufferToCloudinary } from "../../../../lib/cloudinary";
 import {
   getSummaryPrompt,
@@ -584,7 +585,32 @@ executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
 
     console.log("☁️ [PHASE 2] Upload Cloudinary - DÉBUT");
     const uploadStartTime = Date.now();
-    
+
+    // ✅ Génération DOCX (non bloquant — PDF livré même si DOCX fail)
+    console.log("📝 [PHASE 2] Génération DOCX...");
+    let docxUrl = null;
+    try {
+      const docxBuffer = await generateDocx({
+        title: titre || "Mon Ebook",
+        author: authorName || "",
+        subtitle: projet.description || "",
+        intro: projet.introduction || "",
+        conclusion: cleanMarkdown(conclusionText),
+        chaptersData: chaptersStruct,
+      });
+      const docxUpload = await uploadBufferToCloudinary(docxBuffer, {
+        folder: "bookzy/ebooks",
+        publicId: `${titre || "ebook"}-${projetId}-docx`,
+        resourceType: "raw",
+        extension: "docx",
+        timeout: 120000
+      });
+      docxUrl = docxUpload.secure_url;
+      console.log("✅ [PHASE 2] DOCX uploadé:", docxUrl);
+    } catch (docxErr) {
+      console.error("⚠️ [PHASE 2] DOCX échoué (non bloquant):", docxErr.message);
+    }
+
     const pdfUpload = await uploadBufferToCloudinary(pdfBuffer, {
       folder: "bookzy/ebooks",
       publicId: `${titre || "ebook"}-${projetId}`,
@@ -596,6 +622,7 @@ executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
     console.log(`✅ [PHASE 2] Upload terminé en ${Date.now() - uploadStartTime}ms`);
 
     projet.pdfUrl = pdfUpload.secure_url;
+    if (docxUrl) projet.docxUrl = docxUrl;
     projet.status = "COMPLETED";
     projet.progress = 100;
     projet.completedAt = new Date();

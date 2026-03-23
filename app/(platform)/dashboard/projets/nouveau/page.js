@@ -1036,7 +1036,7 @@ function PreviewPage({ kit, onEdit, onGenerated }) {
             setRealProgress(100);
             setIsGenerating(false);
             await mutateBalance?.();
-            setDownloadKit({ pdfUrl: statusData.pdfUrl, title: kit.title, projetId });
+            setDownloadKit({ pdfUrl: statusData.pdfUrl, docxUrl: statusData.docxUrl || null, title: kit.title, projetId });
           } else if (statusData.status === "ERROR") {
             alert("Erreur lors de la génération. Réessayez.");
             setIsGenerating(false);
@@ -1296,51 +1296,111 @@ function GeneratingOverlay({ progress = 0 }) {
 
 function DownloadKitModal({ kit, router }) {
   return (
-    <div className="fixed inset-0 bg-white flex items-center justify-center z-50 p-6">
-      <div className="max-w-sm w-full text-center">
-        <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
+    <div className="fixed inset-0 bg-white flex items-center justify-center z-50 p-6 overflow-y-auto">
+      <div className="max-w-sm w-full text-center py-4">
+
+        {/* Header */}
+        <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <CheckCircle2 className="w-7 h-7 text-green-600" />
         </div>
         <h2 className="text-xl font-bold text-slate-900 mb-1">C'est prêt ! 🎉</h2>
         <p className="text-slate-500 text-sm mb-6">Votre ebook a été généré avec succès</p>
-        
-        <div className="space-y-3 mb-4">
-          <a href={kit.pdfUrl} download className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-slate-300 transition-all">
-            <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-              <FileText className="w-5 h-5 text-red-600" />
-            </div>
-            <div className="flex-1 text-left">
-              <div className="font-semibold text-slate-900 text-sm">Télécharger le PDF</div>
-              <div className="text-xs text-slate-400">Votre ebook complet</div>
-            </div>
-            <Download className="w-5 h-5 text-slate-400" />
-          </a>
 
+        {/* PDF principal */}
+        <a
+          href={kit.pdfUrl}
+          download
+          className="flex items-center gap-3 p-4 rounded-xl border-2 border-slate-900 bg-slate-900 hover:bg-slate-800 transition-all mb-6"
+        >
+          <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <FileText className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1 text-left">
+            <div className="font-semibold text-white text-sm">Télécharger mon ebook (PDF)</div>
+            <div className="text-xs text-slate-400">Version complète· prêt à vendre</div>
+          </div>
+          <Download className="w-5 h-5 text-white flex-shrink-0" />
+        </a>
+
+        {/* Séparateur Bonus */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex-1 h-px bg-slate-100" />
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest px-2">Inclus avec votre ebook</span>
+          <div className="flex-1 h-px bg-slate-100" />
+        </div>
+
+        {/* Bonus items */}
+        <div className="space-y-2 mb-6">
+
+          {/* Format Word */}
+          {kit.docxUrl ? (
+            <a
+              href={kit.docxUrl}
+              download
+              className="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 transition-all"
+            >
+              <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <FileCheck2 className="w-4 h-4 text-blue-600" />
+              </div>
+              <div className="flex-1 text-left">
+                <div className="font-semibold text-slate-900 text-sm">Version modifiable offerte (.docx)</div>
+                <div className="text-xs text-slate-400">Éditable dans Word ou Google Docs</div>
+              </div>
+              <Download className="w-4 h-4 text-slate-400 flex-shrink-0" />
+            </a>
+          ) : (
+            <div className="flex items-center gap-3 p-3.5 rounded-xl border border-slate-100 bg-slate-50 opacity-50">
+              <div className="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <FileCheck2 className="w-4 h-4 text-slate-400" />
+              </div>
+              <div className="flex-1 text-left">
+                <div className="font-semibold text-slate-400 text-sm">Version modifiable offerte (.docx)</div>
+                <div className="text-xs text-slate-300">En cours de préparation...</div>
+              </div>
+            </div>
+          )}
+
+          {/* Publier sur boutique */}
           <button
             onClick={() => router.push('/dashboard/smart-shop/boutique?fromEbook=' + encodeURIComponent(kit.title) + (kit.projetId ? '&projetId=' + kit.projetId : ''))}
-            className="flex items-center gap-3 p-4 rounded-xl border-2 border-slate-900 bg-slate-900 hover:bg-slate-800 transition-all w-full"
+            className="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all w-full"
           >
-            <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
+            <div className="w-9 h-9 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Zap className="w-4 h-4 text-emerald-600" />
             </div>
             <div className="flex-1 text-left">
-              <div className="font-semibold text-white text-sm">Vendre sur ma boutique</div>
-              <div className="text-xs text-slate-300">Publier sur Smart Shop</div>
+              <div className="font-semibold text-slate-900 text-sm">Publier sur ma boutique</div>
+              <div className="text-xs text-slate-400">Vendre via Smart Shop</div>
             </div>
-            <ArrowRight className="w-5 h-5 text-white" />
+            <ArrowRight className="w-4 h-4 text-slate-400 flex-shrink-0" />
           </button>
 
-          <button onClick={() => router.push('/dashboard/fichiers')} className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-slate-300 transition-all w-full">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-blue-600" />
+          {/* Kits marketing */}
+          <button
+            onClick={() => router.push('/dashboard/fichiers/' + kit.projetId)}
+            className="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-purple-300 hover:bg-purple-50/50 transition-all w-full"
+          >
+            <div className="w-9 h-9 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <MessageCircle className="w-4 h-4 text-purple-600" />
             </div>
             <div className="flex-1 text-left">
-              <div className="font-semibold text-slate-900 text-sm">Mon Fichier</div>
-              <div className="text-xs text-slate-400">Voir mon ebook et mes kits</div>
+              <div className="font-semibold text-slate-900 text-sm">Kits marketing</div>
+              <div className="text-xs text-slate-400">Posts prêts pour Facebook, WhatsApp, email...</div>
             </div>
-            <ArrowRight className="w-5 h-5 text-slate-400" />
+            <ArrowRight className="w-4 h-4 text-slate-400 flex-shrink-0" />
           </button>
+
         </div>
+
+        {/* CTA bibliothèque */}
+        <button
+          onClick={() => router.push('/dashboard/fichiers')}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-slate-200 text-slate-500 hover:text-slate-900 hover:border-slate-300 text-sm font-medium transition-all"
+        >
+          <BookOpen className="w-4 h-4" />
+          Voir tout dans ma bibliothèque
+        </button>
+
       </div>
     </div>
   );
