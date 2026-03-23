@@ -308,7 +308,7 @@ const steps = [
     number: "02",
     label: "Générez",
     title: "L'IA rédige tout",
-    description: "Contenu complet, mise en page PDF, cover 3D et textes marketing. En 60 secondes.",
+    description: "Contenu ebook complet, mise en page PDF, version Word éditable (.docx) et textes marketing. En 60 secondes.",
     accent: "#34D399",
     visual: (
       <div className="rounded-2xl overflow-hidden border border-[#C8BFB0] bg-white p-5">
@@ -346,7 +346,7 @@ const steps = [
     number: "03",
     label: "Vendez",
     title: "Téléchargez et monétisez",
-    description: "PDF pro, cover 3D, posts réseaux sociaux, scripts WhatsApp. Tout est prêt.",
+    description: "Ebook en PDF pro, version Word éditable (.docx), posts réseaux sociaux, scripts WhatsApp. Tout est prêt.",
     accent: "#F472B6",
     visual: (
       <div className="rounded-2xl overflow-hidden border border-[#C8BFB0] bg-white p-4">
