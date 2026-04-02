@@ -17,6 +17,23 @@ function extractVideoId(url) {
   return null;
 }
 
+// ─── RETRY HELPER ─────────────────────────────────────────────────────────────
+async function getAITextWithRetry(model, prompt, maxTokens, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const result = await getAIText(model, prompt, maxTokens);
+      if (result) return result;
+      throw new Error("Réponse vide");
+    } catch (err) {
+      const isLast = attempt === maxRetries;
+      console.warn(`⚠️ Appel IA tentative ${attempt}/${maxRetries} échouée: ${err.message}`);
+      if (isLast) return null;
+      await new Promise(r => setTimeout(r, 1000 * attempt));
+    }
+  }
+  return null;
+}
+
 export async function POST(req) {
   try {
     await dbConnect();
@@ -28,16 +45,11 @@ export async function POST(req) {
     const { payload } = await jwtVerify(token, secret);
     const userId = payload.id;
 
-    if (!userId) {
-      return NextResponse.json({ success: false, message: "Session invalide" }, { status: 401 });
-    }
+    if (!userId) return NextResponse.json({ success: false, message: "Session invalide" }, { status: 401 });
 
     const userDoc = await User.findById(userId);
-    if (!userDoc) {
-      return NextResponse.json({ success: false, message: "Utilisateur introuvable." }, { status: 404 });
-    }
+    if (!userDoc) return NextResponse.json({ success: false, message: "Utilisateur introuvable." }, { status: 404 });
 
-    // ✅ Quota journalier dispo → gratuit, sinon débit 2 crédits
     const canUseQuota = userDoc.canDoDaily("youtubeAnalysis");
     let usedQuota = false;
 
@@ -76,11 +88,13 @@ export async function POST(req) {
 
     console.log(`📡 [YOUBOOK] Analyse pour videoId: ${videoId}`);
 
-    const response = await fetch(`https://youtube-transcript3.p.rapidapi.com/api/transcript?videoId=${videoId}`, {
+    // ✅ NOUVEAU URL RapidAPI
+    const response = await fetch(`https://youtube-transcripts.p.rapidapi.com/youtube/transcript?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D${videoId}&videoId=${videoId}&chunkSize=500&text=false&lang=fr`, {
       method: 'GET',
       headers: {
+        'Content-Type': 'application/json',
         'x-rapidapi-key': process.env.RAPIDAPI_KEY,
-        'x-rapidapi-host': 'youtube-transcript3.p.rapidapi.com'
+        'x-rapidapi-host': 'youtube-transcripts.p.rapidapi.com'
       }
     });
 
@@ -162,7 +176,17 @@ RÉPONDS UNIQUEMENT AU FORMAT JSON PUR (sans markdown, sans backticks) :
   "tone": "..."
 }`;
 
-    const aiResponse = await getAIText("ebook", prompt, 600, "gemini-1.5-flash");
+    // ✅ Appel IA avec retry
+    const aiResponse = await getAITextWithRetry("ebook", prompt, 600, 3);
+
+    if (!aiResponse) {
+      if (!usedQuota) {
+        userDoc.credits.balance += 2;
+        userDoc.credits.totalSpent -= 2;
+        await userDoc.save();
+      }
+      return NextResponse.json({ success: false, message: "L'IA n'a pas répondu après plusieurs tentatives." }, { status: 500 });
+    }
 
     let analysis;
     try {

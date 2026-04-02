@@ -1,316 +1,353 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
-import { dbConnect } from "@/lib/db.js";
-import NicheAnalysis from "@/models/NicheAnalysis.js";
-import User, { DAILY_LIMITS } from "@/models/User.js";
-import { verifyAuth } from "@/lib/auth.js";
-import { getAIText } from "@/lib/ai.js";
+import { dbConnect } from "@/lib/db";
+import Transaction from "@/models/Transaction";
+import Settings from "@/models/settings";
+import Projet from "@/models/Projet";
+import User from "@/models/User";
+import { Resend } from "resend";
+import { paymentSuccessTemplate } from "@/lib/emailTemplates/paymentSuccessTemplate";
+import MonerooProvider from "@/lib/payment/providers/MonerooProvider";
+import { processCommission } from "@/utils/affiliation";
+import crypto from "crypto";
 
+// ─── PACKS FIXES ─────────────────────────────────────────────────────────────
+
+const PACK_PLAN = {
+  solo_monthly:       "solo",
+  solo_quarterly:     "solo",
+  createur_monthly:   "createur",
+  createur_quarterly: "createur",
+  agence_monthly:     "agence",
+  agence_quarterly:   "agence",
+};
+
+const PACK_CREDITS = {
+  solo_monthly:       60,
+  solo_quarterly:     180,
+  createur_monthly:   330,
+  createur_quarterly: 990,
+  agence_monthly:     700,
+  agence_quarterly:   2100,
+};
+
+// ─── PARSER RECHARGE DYNAMIQUE ───────────────────────────────────────────────
+// packId format : "recharge_{credits}_{plan}"  ex: "recharge_50_solo"
+
+const RECHARGE_PRICE_PER_CREDIT = {
+  free: 150, solo: 100, createur: 100, agence: 100,
+};
+
+function parseRechargePackId(packId) {
+  const match = packId?.match(/^recharge_(\d+)_(free|solo|createur|agence)$/);
+  if (!match) return null;
+  const credits = parseInt(match[1]);
+  if (credits < 10 || credits > 3000) return null;
+  return { credits, plan: null, isRecharge: true };
+}
+
+// ─── RETRY HELPER ────────────────────────────────────────────────────────────
+async function getAITextWithRetry(model, prompt, maxTokens, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const result = await getAIText(model, prompt, maxTokens);
+      if (result) return result;
+      throw new Error("Réponse vide");
+    } catch (err) {
+      const isLast = attempt === maxRetries;
+      console.warn(`⚠️ Appel IA tentative ${attempt}/${maxRetries} échouée: ${err.message}`);
+      if (isLast) return null;
+      // Attendre avant de réessayer (1s, 2s, 4s)
+      await new Promise(r => setTimeout(r, 1000 * attempt));
+    }
+  }
+  return null;
+}
 
 export async function POST(req) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
   try {
     await dbConnect();
 
-    const user = await verifyAuth(req);
-    if (!user) {
-      return NextResponse.json(
-        { success: false, message: "Non authentifié" },
-        { status: 401 }
-      );
+    const settings = await Settings.findOne({ key: "global" }).lean();
+    const monerooConfig = settings?.payment?.moneroo;
+    const provider = new MonerooProvider(monerooConfig);
+
+    const payload = await req.json();
+    console.log("📩 [Moneroo] Webhook reçu.");
+
+    const webhookDataRaw = payload.data || payload;
+    const monerooTransactionId = webhookDataRaw.id;
+
+    if (!monerooTransactionId) {
+      console.warn("⚠️ Webhook sans ID");
+      return NextResponse.json({ success: true });
     }
 
-    const { theme, targetMarket } = await req.json();
-    
-    if (!theme || theme.trim().length === 0) {
-      return NextResponse.json(
-        { success: false, message: "Le thème est requis." },
-        { status: 400 }
-      );
+    console.log(`🔍 [Moneroo] Vérification API pour ${monerooTransactionId}...`);
+    const verifiedData = await provider.verifyPayment(monerooTransactionId);
+
+    const isPaid = verifiedData.status === "completed";
+    const metadata = verifiedData.metadata || {};
+
+    // ─── CHERCHER OU CRÉER LA TRANSACTION ────────────────────────────────────
+    let tx = await Transaction.findOne({ providerTransactionId: monerooTransactionId });
+
+    if (!tx) {
+      const internalTxId = metadata.transactionId;
+      if (internalTxId) tx = await Transaction.findById(internalTxId);
     }
 
-    const userDoc = await User.findById(user.id);
-    if (!userDoc) {
-      return NextResponse.json(
-        { success: false, message: "Utilisateur introuvable." },
-        { status: 404 }
-      );
+    if (!tx && metadata.packId) {
+      if (!isPaid) {
+        console.log(`⏳ [Credits] Paiement non confirmé, rien à créer.`);
+        return NextResponse.json({ success: true });
+      }
+
+      const existing = await Transaction.findOne({ providerTransactionId: monerooTransactionId });
+      if (existing) {
+        console.log(`⚠️ [Credits] Transaction déjà créée pour ${monerooTransactionId}`);
+        return NextResponse.json({ success: true });
+      }
+
+      tx = await Transaction.create({
+        userId:                metadata.userId,
+        provider:              "moneroo",
+        purpose:               "credit_pack",
+        packId:                metadata.packId,
+        amount:                metadata.amount || verifiedData.amount,
+        currency:              "XOF",
+        status:                "completed",
+        completedAt:           new Date(),
+        providerTransactionId: monerooTransactionId,
+        providerResponse: {
+          webhook:      payload,
+          verification: verifiedData.rawResponse,
+        },
+      });
+
+      console.log(`💾 [Credits] Transaction créée: ${tx._id}`);
     }
 
-    // ✅ Quota journalier dispo → gratuit, sinon débit 1 crédit
-    const canUseQuota = userDoc.canDoDaily("nicheHunter");
-    let usedQuota = false;
+    if (!tx) {
+      console.error("❌ [Moneroo] Transaction introuvable et aucune metadata pour la créer.");
+      return NextResponse.json({ success: true });
+    }
 
-    if (canUseQuota) {
-      await userDoc.incrementDaily("nicheHunter");
-      usedQuota = true;
+    // ─── METTRE À JOUR LE STATUT ─────────────────────────────────────────────
+    if (tx.status !== "completed") {
+      tx.status = verifiedData.status;
+      tx.providerTransactionId = verifiedData.transactionId;
+      tx.providerResponse = { webhook: payload, verification: verifiedData.rawResponse };
+    }
+
+    if (isPaid && !tx.completedAt) {
+      tx.completedAt = new Date();
+      await tx.save();
+      console.log("💰 [Moneroo] Paiement VALIDÉ pour:", tx._id);
+    } else if (isPaid && tx.completedAt) {
+      console.log(`⚠️ [Moneroo] Transaction ${tx._id} déjà complétée, skip.`);
+      return NextResponse.json({ success: true });
     } else {
-      const balance = userDoc.credits?.balance ?? 0;
-      if (balance < 1) {
-        return NextResponse.json({
-          success: false,
-          quotaExceeded: true,
-          insufficientCredits: true,
-          plan: userDoc.plan,
-          balance,
-          message: "Quota journalier épuisé et crédits insuffisants."
-        }, { status: 402 });
-      }
-      userDoc.credits.balance -= 1;
-      userDoc.credits.totalSpent = (userDoc.credits.totalSpent || 0) + 1;
-      await userDoc.save();
+      await tx.save();
     }
 
-    // ✅ Adapter le prompt selon targetMarket
-    const marketContext = getMarketContext(targetMarket || "africa", theme);
-
-    const basePrompt = `Tu es un expert en création d'eBooks à succès.
-
-${marketContext}
-
-🎯 GÉNÈRE 1 TITRE D'EBOOK PROFESSIONNEL sur : "${theme}"
-
-⚠️ RÈGLE CRITIQUE DE DIVERSITÉ :
-- Chaque titre doit avoir un ANGLE UNIQUE et DIFFÉRENT
-- Varie la structure (pas toujours "Sujet : Le guide pour...")
-- Change l'approche : débutant / expert / erreurs / stratégies / outils / cas pratiques
-- NE RÉPÈTE JAMAIS la même formulation
-
-✅ EXEMPLES DE TITRES VARIÉS (BONS) :
-
-Pour "Dropshipping" :
-✓ "Lancer son dropshipping rentable en 30 jours"
-✓ "Dropshipping : Les erreurs qui coûtent cher"
-✓ "Comment trouver les meilleurs fournisseurs dropshipping"
-✓ "Automatiser son business dropshipping"
-✓ "De 0 à 10 ventes par jour en dropshipping"
-✓ "Dropshipping : Choisir sa niche gagnante"
-✓ "Stratégies avancées de marketing dropshipping"
-✓ "Créer une boutique dropshipping qui convertit"
-
-❌ À ÉVITER (RÉPÉTITIF) :
-✗ "Dropshipping : Le guide pour démarrer"
-✗ "Dropshipping : Le guide pour créer sa boutique"
-✗ "Dropshipping : Le guide pour vendre en ligne"
-→ Tous commencent pareil !
-
-✅ RÈGLES D'OR :
-1. Le titre doit sonner SÉRIEUX et CRÉDIBLE (pas spam/arnaque)
-2. Évite les chiffres trop précis genre "50 000 FCFA" ou "21 jours"
-3. Utilise des mots-clés que les gens recherchent vraiment
-4. Promets un résultat RÉALISTE et ATTEIGNABLE
-5. **SOIS CRÉATIF : Chaque titre doit être DIFFÉRENT des autres**
-
-🔥 STRUCTURES VARIÉES À UTILISER :
-
-Structure 1 : Action directe
-→ "Lancer son [sujet] rentable"
-→ "Créer un [sujet] qui convertit"
-
-Structure 2 : Transformation
-→ "De débutant à expert en [sujet]"
-→ "Comment passer de [A] à [B]"
-
-Structure 3 : Erreurs à éviter
-→ "[Sujet] : Les erreurs qui coûtent cher"
-→ "Éviter les pièges du [sujet]"
-
-Structure 4 : Méthode/Stratégie
-→ "La méthode complète pour [objectif]"
-→ "Stratégies avancées de [sujet]"
-
-Structure 5 : Focus spécifique
-→ "Trouver sa niche en [sujet]"
-→ "Automatiser son [sujet]"
-
-Structure 6 : Promesse chiffrée réaliste
-→ "30 jours pour maîtriser le [sujet]"
-→ "Les 7 piliers du [sujet] rentable"
-
-🚫 À ÉVITER ABSOLUMENT :
-- Répéter "[Sujet] : Le guide pour..." 10 fois
-- Chiffres irréalistes : "Gagner 500K FCFA par jour"
-- Superlatifs exagérés : "RÉVOLUTIONNAIRE", "JAMAIS VU"
-- Titres trop longs : max 60 caractères
-
-📋 FORMAT JSON STRICT :
-{
-  "niches": [{
-    "title": "Titre UNIQUE et CRÉATIF (max 60 caractères)",
-    "description": "Explication en 1 phrase de ce qu'apporte l'ebook",
-    "difficulty": Nombre entier de 1 à 10,
-    "competition": Nombre entier de 1 à 10,
-    "potential": Nombre entier de 1 à 10,
-    "formatRecommande": "ebook",
-    "keywords": ["mot-clé 1", "mot-clé 2", "mot-clé 3", "mot-clé 4", "mot-clé 5"],
-    "why_sells": "Pourquoi ce sujet intéresse les gens (ton naturel)"
-  }]
-}
-
-⚡ GÉNÈRE 1 TITRE UNIQUE, CRÉATIF ET DIFFÉRENT pour "${theme}" :`;
-
-    // ✅ 10 APPELS EN PARALLÈLE AVEC ANGLES VRAIMENT DIFFÉRENTS
-    console.log(`🚀 Génération de niches pour "${theme}" (Marché: ${targetMarket || 'africa'}) - 10 appels parallèles...`);
-    
-    const startTime = Date.now();
-
-    const prompts = [
-      basePrompt + "\n\n💡 Angle UNIQUE : Guide complet pour débutants absolus",
-      basePrompt + "\n\n💡 Angle UNIQUE : Les erreurs fatales à éviter",
-      basePrompt + "\n\n💡 Angle UNIQUE : Stratégies avancées pour experts",
-      basePrompt + "\n\n💡 Angle UNIQUE : Méthode rapide de A à Z",
-      basePrompt + "\n\n💡 Angle UNIQUE : Outils et ressources indispensables",
-      basePrompt + "\n\n💡 Angle UNIQUE : Études de cas réels et concrets",
-      basePrompt + "\n\n💡 Angle UNIQUE : Automatisation et optimisation",
-      basePrompt + "\n\n💡 Angle UNIQUE : Trouver sa niche rentable",
-      basePrompt + "\n\n💡 Angle UNIQUE : Tendances et opportunités 2025",
-      basePrompt + "\n\n💡 Angle UNIQUE : Monétisation et passage à l'échelle"
-    ];
-
-    const calls = prompts.map(prompt => getAIText("nicheGenerate", prompt, 1200));
-    const results = await Promise.all(calls);
-    
-    const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
-    console.log(`⚡ 10 appels terminés en ${totalTime}s`);
-
-    // EXTRACTION + MERGE
-    let allNiches = [];
-
-    for (let i = 0; i < results.length; i++) {
-      const answer = results[i];
-      if (!answer) {
-        console.warn(`⚠️ Appel ${i + 1} : réponse vide`);
-        continue;
+    if (!isPaid) {
+      if (verifiedData.status === "failed") {
+        tx.status = "failed";
+        await tx.save();
+        console.log("❌ [Moneroo] Paiement échoué confirmé par API");
       }
-      
-      const jsonMatch = answer.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        console.warn(`⚠️ Appel ${i + 1} : pas de JSON trouvé`);
-        continue;
+      return NextResponse.json({ success: true });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // ✅ FLOW CRÉDITS (purpose === "credit_pack")
+    // ═══════════════════════════════════════════════════════════════════════
+    if (tx.purpose === "credit_pack" && tx.packId) {
+
+      let credits, plan, isRecharge = false;
+
+      const recharge = parseRechargePackId(tx.packId);
+      if (recharge) {
+        // Recharge dynamique — crédits sans changement de plan
+        credits    = recharge.credits;
+        plan       = null;
+        isRecharge = true;
+      } else {
+        // Pack fixe abonnement
+        credits = PACK_CREDITS[tx.packId];
+        plan    = PACK_PLAN[tx.packId];
       }
 
+      if (!credits) {
+        console.error(`❌ [Credits] Pack inconnu ou crédits invalides: ${tx.packId}`);
+        return NextResponse.json({ success: true });
+      }
+
+      const user = await User.findById(tx.userId);
+      if (!user) {
+        console.error(`❌ [Credits] User introuvable: ${tx.userId}`);
+        return NextResponse.json({ success: true });
+      }
+
+      if (isRecharge) {
+        // Recharge : addCredits sans plan → ne change pas le plan actuel
+        await user.addCredits(credits);
+        console.log(`✅ [Recharge] +${credits} crédits (plan inchangé) — User: ${tx.userId}`);
+      } else {
+        // Abonnement : crédits + mise à jour du plan
+        await user.addCredits(credits, plan);
+        console.log(`✅ [Credits] +${credits} crédits — Plan: ${plan} — User: ${tx.userId}`);
+      }
+
+      // Email confirmation
       try {
-        const parsed = JSON.parse(jsonMatch[0]);
-        if (Array.isArray(parsed.niches)) {
-          console.log(`✅ Appel ${i + 1} : ${parsed.niches.length} niches extraites`);
-          allNiches = allNiches.concat(parsed.niches);
-        }
+        const label = isRecharge
+          ? `Recharge ${credits} crédits`
+          : `Pack ${tx.packId.replace(/_/g, " ")} — ${credits} crédits`;
+
+        await resend.emails.send({
+          from:    "Bookzy <no-reply@bookzy.io>",
+          to:      user.email,
+          subject: `✅ ${credits} crédits ajoutés à votre compte Bookzy`,
+          html: paymentSuccessTemplate({
+            firstName:     user.firstName || "cher utilisateur",
+            amount:        tx.amount,
+            transactionId: tx.internalId || tx._id.toString(),
+            ebookTitle:    label,
+          }),
+        });
+        console.log(`📧 [Credits] Email envoyé à ${user.email}`);
       } catch (e) {
-        console.warn(`⚠️ Appel ${i + 1} : erreur parsing JSON:`, e.message);
-        continue;
+        console.error("❌ [Credits] Erreur email:", e.message);
+      }
+
+      // Affiliation
+      try {
+        await processCommission(tx.userId, tx.amount);
+      } catch (affError) {
+        console.error("⚠️ Erreur affiliation:", affError.message);
+      }
+
+      return NextResponse.json({ success: true });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // ANCIEN FLOW : GÉNÉRATION EBOOK (purpose === "ebook_kit")
+    // ═══════════════════════════════════════════════════════════════════════
+
+    if (tx.projetId) {
+      await Projet.findByIdAndUpdate(tx.projetId, {
+        isPaid:        true,
+        status:        "processing",
+        progress:      5,
+        updatedAt:     new Date(),
+        transactionId: tx._id,
+      });
+
+      console.log(`🚀 [Moneroo] Démarrage génération pour projet ${tx.projetId}`);
+
+      const projet = await Projet.findById(tx.projetId);
+      const isExpress = projet?.expressMode === true;
+
+      const baseUrl = process.env.NODE_ENV === "production"
+        ? "https://app.bookzy.io"
+        : "http://localhost:3000";
+
+      const generateUrl = isExpress
+        ? `${baseUrl}/api/express/generate`
+        : `${baseUrl}/api/ebooks/generate`;
+
+      fetch(generateUrl, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projetId:      tx.projetId.toString(),
+          transactionId: tx._id.toString(),
+          force:         true,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => console.log("✅ [Moneroo] Réponse génération:", data))
+        .catch((err) => console.error("❌ [Moneroo] Erreur génération:", err.message));
+    }
+
+    if (tx.userId) {
+      try {
+        await processCommission(tx.userId, tx.amount);
+      } catch (affError) {
+        console.error("⚠️ Erreur non-critique Affiliation:", affError.message);
       }
     }
 
-    if (allNiches.length === 0) {
-      throw new Error("Aucune niche générée par l'IA");
-    }
-
-    console.log(`📦 Total niches avant déduplication : ${allNiches.length}`);
-
-    // DÉDUPLICATION
-    const uniqueNiches = [];
-    const seenTitles = new Set();
-
-    allNiches.sort((a, b) => (b.potential || 0) - (a.potential || 0));
-
-    for (const niche of allNiches) {
-      const normalizedTitle = niche.title
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9]/g, '');
-      
-      if (!seenTitles.has(normalizedTitle)) {
-        seenTitles.add(normalizedTitle);
-        uniqueNiches.push(niche);
+    if (tx.userId) {
+      const user = await User.findById(tx.userId);
+      if (user) {
+        try {
+          await resend.emails.send({
+            from:    "Bookzy <no-reply@bookzy.io>",
+            to:      user.email,
+            subject: "🎉 Paiement confirmé - Bookzy",
+            html: paymentSuccessTemplate({
+              firstName:     user.firstName || "cher utilisateur",
+              amount:        tx.amount,
+              transactionId: tx.internalId || "Moneroo",
+              ebookTitle:    tx.kitData?.title || "Ton eBook",
+            }),
+          });
+        } catch (e) {
+          console.error("❌ Erreur Email:", e);
+        }
       }
-      
-      if (uniqueNiches.length >= 10) break;
     }
 
-    console.log(`✅ Niches uniques sélectionnées : ${uniqueNiches.length}/10`);
+    if (tx.userId && process.env.FACEBOOK_ACCESS_TOKEN) {
+      try {
+        const user = await User.findById(tx.userId);
+        const eventId = `purchase_${tx._id}_${Date.now()}`;
 
-    // AJOUT DES IDs
-    const nichesWithIds = uniqueNiches.map((n, i) => ({
-      nicheId: `${Date.now()}-${i}`,
-      title: n.title,
-      description: n.description,
-      difficulty: n.difficulty || 5,
-      competition: n.competition || 5,
-      potential: n.potential || 7,
-      keywords: Array.isArray(n.keywords) ? n.keywords : [],
-      formatRecommande: n.formatRecommande || "ebook",
-      why_sells: n.why_sells || "",
-      analyzed: false
-    }));
+        await fetch(
+          `https://graph.facebook.com/v18.0/9384354691604798/events?access_token=${process.env.FACEBOOK_ACCESS_TOKEN}`,
+          {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              data: [{
+                event_name:       "Purchase",
+                event_id:         eventId,
+                event_time:       Math.floor(Date.now() / 1000),
+                event_source_url: "https://app.bookzy.io",
+                user_data: {
+                  em: user?.email
+                    ? crypto.createHash("sha256").update(user.email.toLowerCase().trim()).digest("hex")
+                    : null,
+                  fn: user?.firstName
+                    ? crypto.createHash("sha256").update(user.firstName.toLowerCase().trim()).digest("hex")
+                    : null,
+                },
+                custom_data: {
+                  currency:     "XOF",
+                  value:        tx.amount,
+                  content_name: tx.kitData?.title || "Ebook Bookzy",
+                  content_type: "product",
+                },
+                action_source: "website",
+              }],
+            }),
+          }
+        );
+        console.log(`✅ [Facebook] Purchase event envoyé (event_id: ${eventId})`);
+      } catch (fbErr) {
+        console.error("❌ [Facebook] Erreur pixel:", fbErr.message);
+      }
+    }
 
-    // SAUVEGARDE
-    const nicheAnalysis = await NicheAnalysis.create({
-      userId: user.id,
-      country: user.country || "",
-      theme: theme.trim(),
-      targetMarket: targetMarket || "africa",
-      niches: nichesWithIds,
-      generatedAt: new Date(),
-      ip: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || null,
-      totalNiches: nichesWithIds.length,
-      generationTime: totalTime
-    });
-
-    console.log(`✅ ${nichesWithIds.length} niches sauvegardées en ${totalTime}s`);
-
-    const limit = DAILY_LIMITS[userDoc.plan]?.nicheHunter;
-    const remainingQuota = limit === Infinity ? Infinity : Math.max(0, (limit || 0) - (userDoc.dailyUsage?.nicheHunter || 0));
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        id: nicheAnalysis._id,
-        theme: nicheAnalysis.theme,
-        niches: nichesWithIds,
-        generationTime: totalTime,
-        message: `${nichesWithIds.length} idées d'eBooks générées`
-      },
-      usedQuota,
-      remainingQuota,
-      newBalance: !usedQuota ? userDoc.credits?.balance : undefined
-    });
+    return NextResponse.json({ success: true });
 
   } catch (error) {
-    console.error("❌ Erreur génération niches:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Erreur lors de la génération des niches.",
-        error: error.message
-      },
-      { status: 500 }
-    );
+    console.error("❌ [Moneroo] Webhook Crash:", error);
+    return NextResponse.json({ success: false }, { status: 500 });
   }
-}
-
-// ✅ FONCTION : Contexte selon le marché
-function getMarketContext(targetMarket, theme) {
-  const africanKeywords = [
-    'afrique', 'africain', 'sénégal', 'côte d\'ivoire', 'mali', 'niger',
-    'burkina', 'bénin', 'togo', 'cameroun', 'congo', 'gabon',
-    'fcfa', 'cemac', 'uemoa', 'dakar', 'abidjan', 'yaoundé',
-    'mobile money', 'orange money', 'wave', 'mtn', 'attiéké', 'maquis'
-  ];
-
-  const isAfricanTopic = africanKeywords.some(keyword => 
-    theme.toLowerCase().includes(keyword)
-  );
-
-  if (targetMarket === "africa" || (targetMarket === "auto" && isAfricanTopic)) {
-    return `🌍 CONTEXTE MARCHÉ AFRICAIN FRANCOPHONE :
-- Exemples adaptés au contexte africain
-- Solutions accessibles et réalistes pour l'Afrique
-- Références locales quand pertinent (villes, défis, opportunités)
-- Ton professionnel et pragmatique`;
-  }
-
-  return `🌐 CONTEXTE MARCHÉ INTERNATIONAL :
-- Exemples universels et concrets
-- Stratégies applicables partout dans le monde francophone
-- Références internationales (Europe, Amérique, Asie...)
-- ⚠️ NE FORCE PAS le contexte africain si le sujet est universel`;
 }
