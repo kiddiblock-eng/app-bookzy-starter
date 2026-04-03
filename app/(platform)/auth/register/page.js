@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation"; // ✅ AJOUTÉ useSearchParams
+import { useRouter, useSearchParams } from "next/navigation";
 import { 
   Loader2, 
   Mail, 
@@ -31,10 +31,11 @@ function BookOpenSVG(props) {
         </svg>
     );
 }
+
 function RegisterForm() {
   const router = useRouter();
-  const searchParams = useSearchParams(); // ✅ NOUVEAU
-  const refCode = searchParams.get('ref'); // ✅ NOUVEAU : Lire ?ref=XXX
+  const searchParams = useSearchParams();
+  const refCode = searchParams.get('ref');
   
   const [form, setForm] = useState({
     firstName: "",
@@ -84,7 +85,7 @@ function RegisterForm() {
           lastName: form.lastName,
           email: form.email,
           password: form.password,
-          referralCode: refCode, // ✅ NOUVEAU : Envoyer le code au backend
+          referralCode: refCode,
         }),
       });
 
@@ -111,19 +112,15 @@ function RegisterForm() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-slate-50 relative overflow-hidden px-4 py-8">
       
-      {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
          <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-indigo-50/50 rounded-full blur-3xl"></div>
          <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-blue-50/50 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Main Container */}
       <div className="relative w-full max-w-[520px] z-10">
         
-        {/* Card */}
         <div className="relative bg-white border border-slate-100 rounded-2xl shadow-xl shadow-slate-200/50 p-8 sm:p-10">
           
-          {/* Header */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2 mb-6 group">
               <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center shadow-lg shadow-slate-900/20 transition-transform group-hover:scale-105">
@@ -139,7 +136,6 @@ function RegisterForm() {
             </p>
           </div>
 
-          {/* Success Message */}
           {success && (
             <div className="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
@@ -147,7 +143,6 @@ function RegisterForm() {
             </div>
           )}
 
-          {/* Error Message */}
           {message && !success && (
             <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
@@ -155,9 +150,8 @@ function RegisterForm() {
             </div>
           )}
 
-          {/* Form */}
-          <form onSubmit={submit} className="space-y-5">
-            {/* ... tous les champs inchangés ... */}
+          {/* ✅ FIX: autoComplete="on" sur le form */}
+          <form onSubmit={submit} autoComplete="on" className="space-y-5">
             
             {/* Prénom & Nom */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -167,10 +161,12 @@ function RegisterForm() {
                 </label>
                 <div className="relative group">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
+                  {/* ✅ FIX: autoComplete="given-name" */}
                   <input
                     name="firstName"
                     value={form.firstName}
                     onChange={onChange}
+                    autoComplete="given-name"
                     className={`w-full pl-11 pr-4 py-3 bg-slate-50 border ${
                       errors.firstName ? "border-red-300 bg-red-50/50" : "border-slate-200"
                     } rounded-xl text-slate-900 text-sm font-medium placeholder:text-slate-400 focus:bg-white focus:border-slate-900 focus:ring-0 transition-all`}
@@ -188,10 +184,12 @@ function RegisterForm() {
                 </label>
                 <div className="relative group">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
+                  {/* ✅ FIX: autoComplete="family-name" */}
                   <input
                     name="lastName"
                     value={form.lastName}
                     onChange={onChange}
+                    autoComplete="family-name"
                     className={`w-full pl-11 pr-4 py-3 bg-slate-50 border ${
                       errors.lastName ? "border-red-300 bg-red-50/50" : "border-slate-200"
                     } rounded-xl text-slate-900 text-sm font-medium placeholder:text-slate-400 focus:bg-white focus:border-slate-900 focus:ring-0 transition-all`}
@@ -211,11 +209,13 @@ function RegisterForm() {
               </label>
               <div className="relative group">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
+                {/* ✅ FIX: autoComplete="email" */}
                 <input
                   name="email"
                   type="email"
                   value={form.email}
                   onChange={onChange}
+                  autoComplete="email"
                   className={`w-full pl-11 pr-4 py-3 bg-slate-50 border ${
                     errors.email ? "border-red-300 bg-red-50/50" : "border-slate-200"
                   } rounded-xl text-slate-900 text-sm font-medium placeholder:text-slate-400 focus:bg-white focus:border-slate-900 focus:ring-0 transition-all`}
@@ -234,11 +234,13 @@ function RegisterForm() {
               </label>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
+                {/* ✅ FIX: autoComplete="new-password" */}
                 <input
                   name="password"
                   type={showPassword ? "text" : "password"}
                   value={form.password}
                   onChange={onChange}
+                  autoComplete="new-password"
                   className={`w-full pl-11 pr-12 py-3 bg-slate-50 border ${
                     errors.password ? "border-red-300 bg-red-50/50" : "border-slate-200"
                   } rounded-xl text-slate-900 text-sm font-medium placeholder:text-slate-400 focus:bg-white focus:border-slate-900 focus:ring-0 transition-all`}
@@ -264,11 +266,13 @@ function RegisterForm() {
               </label>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
+                {/* ✅ FIX: autoComplete="new-password" */}
                 <input
                   name="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   value={form.confirmPassword}
                   onChange={onChange}
+                  autoComplete="new-password"
                   className={`w-full pl-11 pr-12 py-3 bg-slate-50 border ${
                     errors.confirmPassword ? "border-red-300 bg-red-50/50" : "border-slate-200"
                   } rounded-xl text-slate-900 text-sm font-medium placeholder:text-slate-400 focus:bg-white focus:border-slate-900 focus:ring-0 transition-all`}
@@ -327,7 +331,6 @@ function RegisterForm() {
           {/* Bouton Google */}
           <button
             onClick={() => {
-              // ✅ MODIFIÉ : Ajouter ?ref=XXX au lien Google OAuth
               const googleUrl = refCode 
                 ? `/api/auth/google?ref=${refCode}`
                 : '/api/auth/google';
@@ -365,7 +368,8 @@ function RegisterForm() {
       </div>
     </main>
   );
-}// ✅ NOUVEAU : Export avec Suspense
+}
+
 export default function RegisterPage() {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50">Chargement...</div>}>

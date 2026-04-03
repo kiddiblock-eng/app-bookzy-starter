@@ -23,7 +23,6 @@ export default function LoginPage() {
   const router = useRouter();
   const { mutate } = useSWRConfig();
 
-  // Récupérer le redirect param depuis l'URL
   const searchParams = typeof window !== "undefined"
     ? new URLSearchParams(window.location.search)
     : null;
@@ -79,14 +78,12 @@ export default function LoginPage() {
         throw new Error(data.message);
       }
 
-      // ✅ CLEAR TOUT AVANT DE STOCKER LE NOUVEAU USER
       sessionStorage.clear();
       localStorage.clear();
       
       localStorage.setItem("bookzyUserId", data.data.user.id);
       setSuccess(true);
 
-      // ✅ VIDER LE CACHE SWR
       await mutate(() => true, undefined, { revalidate: false });
 
       setTimeout(() => {
@@ -142,18 +139,21 @@ export default function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={onSubmit} className="space-y-5">
+          {/* ✅ FIX: autoComplete="on" sur le form */}
+          <form onSubmit={onSubmit} autoComplete="on" className="space-y-5">
             {!need2FA ? (
               <>
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-700 uppercase tracking-wide ml-1">Email</label>
                   <div className="relative group">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
+                    {/* ✅ FIX: autoComplete="email" */}
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      autoComplete="email"
                       className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium placeholder:text-slate-400 focus:bg-white focus:border-slate-900 focus:ring-0 transition-all"
                       placeholder="nom@exemple.com"
                     />
@@ -167,11 +167,13 @@ export default function LoginPage() {
                   </div>
                   <div className="relative group">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
+                    {/* ✅ FIX: autoComplete="current-password" */}
                     <input
                       type={showPassword ? "text" : "password"}
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="current-password"
                       className="w-full pl-11 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium placeholder:text-slate-400 focus:bg-white focus:border-slate-900 focus:ring-0 transition-all"
                       placeholder="••••••••"
                     />
@@ -190,6 +192,7 @@ export default function LoginPage() {
                     type="text"
                     maxLength={6}
                     autoFocus
+                    autoComplete="one-time-code"
                     value={twoFA}
                     onChange={(e) => setTwoFA(e.target.value.replace(/\D/g, ''))}
                     className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-lg font-bold tracking-widest placeholder:text-slate-400 focus:bg-white focus:border-slate-900 focus:ring-0 transition-all"
@@ -225,7 +228,6 @@ export default function LoginPage() {
 
           {!need2FA && (
             <>
-              {/* Séparateur */}
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-slate-200"></div>
@@ -235,10 +237,8 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Bouton Google */}
               <button
                 onClick={() => {
-                  // ✅ CLEAR AVANT GOOGLE LOGIN AUSSI
                   sessionStorage.clear();
                   localStorage.clear();
                   window.location.href = '/api/auth/google';
