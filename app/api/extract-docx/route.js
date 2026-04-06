@@ -125,7 +125,6 @@ export async function POST(req) {
 function extractTableOfContents(html) {
   const tocEntries = [];
   
-  // ✅ PATTERN 1 : Détecter une liste (UL/OL) après "SOMMAIRE", "AU PROGRAMME", etc.
   const tocPatterns = [
     /(?:AU PROGRAMME|SOMMAIRE|TABLE DES MATI[EÈ]RES|PLAN)[\s\S]*?<(?:ul|ol)>([\s\S]*?)<\/(?:ul|ol)>/i
   ];
@@ -138,9 +137,7 @@ function extractTableOfContents(html) {
       
       liMatches.forEach(li => {
         let entry = cleanText(li);
-        // Nettoyer les numéros de page et autres artefacts
         entry = entry.replace(/\.{2,}/g, '').replace(/\d+\s*$/, '').trim();
-        
         if (entry.length >= 5 && entry.length <= 200) {
           tocEntries.push(entry);
         }
@@ -153,7 +150,6 @@ function extractTableOfContents(html) {
     }
   }
   
-  // ✅ PATTERN 2 : Détecter des lignes avec points de suite (.......)
   const dotPattern = /^(.+?)\s*\.{3,}\s*\d*$/gm;
   const dotMatches = [...html.matchAll(dotPattern)];
   
@@ -164,7 +160,6 @@ function extractTableOfContents(html) {
         tocEntries.push(entry);
       }
     });
-    
     if (tocEntries.length >= 3) {
       console.log(`📑 [TOC-Extract] Sommaire détecté via points de suite (${tocEntries.length} entrées)`);
       return tocEntries;
@@ -185,7 +180,6 @@ function evaluateTOCQuality(tocEntries, analysis) {
   let score = 0;
   let reasons = [];
   
-  // ✅ CRITÈRE 1 : Nombre d'entrées (30 points max)
   if (tocEntries.length >= 5 && tocEntries.length <= 20) {
     score += 30;
     reasons.push(`✅ Nombre optimal (${tocEntries.length})`);
@@ -200,7 +194,6 @@ function evaluateTOCQuality(tocEntries, analysis) {
     reasons.push(`❌ Trop peu d'entrées (${tocEntries.length})`);
   }
   
-  // ✅ CRITÈRE 2 : Correspondance avec les textes en MAJUSCULES (40 points max)
   const uppercaseTexts = analysis.uppercaseStrongs.map(s => s.text.toLowerCase());
   let matchCount = 0;
   
@@ -220,7 +213,6 @@ function evaluateTOCQuality(tocEntries, analysis) {
   score += matchScore;
   reasons.push(`${matchRatio >= 0.5 ? '✅' : '⚠️'} ${matchCount}/${tocEntries.length} correspondances (${Math.round(matchRatio * 100)}%)`);
   
-  // ✅ CRITÈRE 3 : Cohérence des entrées (30 points max)
   const avgLength = tocEntries.reduce((sum, e) => sum + e.length, 0) / tocEntries.length;
   const hasNumericPattern = tocEntries.some(e => /^\d+\./.test(e) || /^(Chapitre|Module|Partie)\s+\d+/i.test(e));
   const allUppercase = tocEntries.every(e => /^[A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÇ\s'-]+$/.test(e));
@@ -241,7 +233,6 @@ function evaluateTOCQuality(tocEntries, analysis) {
     reasons.push(`⚠️ Structure variable`);
   }
   
-  // ✅ DÉTERMINATION DU STATUT
   let status = "";
   let reliable = false;
   
@@ -270,26 +261,19 @@ function evaluateTOCQuality(tocEntries, analysis) {
 // ============================================================================
 function analyzeDocumentIntelligently(html) {
   const analysis = {
-    // Compteurs de base
     h1Count: (html.match(/<h1[^>]*>/gi) || []).length,
     h2Count: (html.match(/<h2[^>]*>/gi) || []).length,
     h3Count: (html.match(/<h3[^>]*>/gi) || []).length,
     strongCount: (html.match(/<strong[^>]*>/gi) || []).length,
     pCount: (html.match(/<p[^>]*>/gi) || []).length,
-    
-    // Listes
     olCount: (html.match(/<ol[^>]*>/gi) || []).length,
     ulCount: (html.match(/<ul[^>]*>/gi) || []).length,
     liCount: (html.match(/<li[^>]*>/gi) || []).length,
-    
-    // Patterns avancés
     uppercaseStrongs: [],
     bulletPatterns: [],
     numberedPatterns: [],
     tableOfContents: [],
     tocQuality: null,
-    
-    // Indicateurs de structure
     hasH1: false,
     hasH2: false,
     hasH3: false,
@@ -298,8 +282,6 @@ function analyzeDocumentIntelligently(html) {
     hasUppercaseChapters: false,
     hasNumberedChapters: false,
     hasLists: false,
-    
-    // Métadonnées
     estimatedWordCount: 0,
     averageParagraphLength: 0,
     structureType: null,
@@ -308,7 +290,7 @@ function analyzeDocumentIntelligently(html) {
     titleConfidence: 0
   };
 
-  // ✅ ANALYSE DES PATTERNS DE MAJUSCULES (RATIO STRICT + DEBUG)
+  // ✅ ANALYSE DES PATTERNS DE MAJUSCULES
   const strongMatches = html.match(/<strong[^>]*>(.*?)<\/strong>/gi) || [];
   console.log(`🔍 [Analyze] ${strongMatches.length} balises <strong> détectées au total`);
 
@@ -316,25 +298,14 @@ function analyzeDocumentIntelligently(html) {
     const text = cleanText(strong);
     const letters = text.match(/[a-zA-ZÀ-ÿ]/g) || [];
     if (letters.length === 0) return;
-    
     const uppercaseLetters = text.match(/[A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÇ]/g) || [];
     const uppercaseRatio = uppercaseLetters.length / letters.length;
-    
-    // ✅ DEBUG : Afficher les 30 premiers
     if (index < 30) {
       console.log(`  [${index + 1}] "${text.substring(0, 50)}${text.length > 50 ? '...' : ''}" - Ratio: ${(uppercaseRatio * 100).toFixed(0)}% (${uppercaseLetters.length}/${letters.length})`);
     }
-    
-    // ✅ RATIO ULTRA-STRICT >= 0.95 (95% de majuscules minimum)
     if (uppercaseRatio >= 0.95 && text.length >= 5 && text.length <= 200) {
-      analysis.uppercaseStrongs.push({
-        text,
-        ratio: uppercaseRatio,
-        length: text.length
-      });
-      if (index < 30) {
-        console.log(`    ✅ VALIDÉ comme chapitre potentiel (ratio ${(uppercaseRatio * 100).toFixed(0)}%)`);
-      }
+      analysis.uppercaseStrongs.push({ text, ratio: uppercaseRatio, length: text.length });
+      if (index < 30) console.log(`    ✅ VALIDÉ comme chapitre potentiel (ratio ${(uppercaseRatio * 100).toFixed(0)}%)`);
     }
   });
 
@@ -342,25 +313,16 @@ function analyzeDocumentIntelligently(html) {
 
   // ✅ ANALYSE DES BULLETS
   const bulletRegex = /[•\*\-]\s*([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÇ][^\n<]{5,100})/g;
-  const bulletMatches = [...html.matchAll(bulletRegex)];
-  analysis.bulletPatterns = bulletMatches.map(m => m[1].trim());
+  analysis.bulletPatterns = [...html.matchAll(bulletRegex)].map(m => m[1].trim());
 
   // ✅ ANALYSE DES CHAPITRES NUMÉROTÉS
   const numberedRegex = /(Chapitre|CHAPITRE|Chapter|MODULE|Module|Partie|PARTIE)\s+(\d+|[IVX]+)/gi;
-  const numberedMatches = [...html.matchAll(numberedRegex)];
-  analysis.numberedPatterns = numberedMatches.map(m => m[0]);
+  analysis.numberedPatterns = [...html.matchAll(numberedRegex)].map(m => m[0]);
 
   // ✅ DÉTECTION TABLE DES MATIÈRES
-  const tocPatterns = [
-    /AU PROGRAMME/i,
-    /SOMMAIRE/i,
-    /TABLE DES MATI[EÈ]RES/i,
-    /PLAN\s+(DU\s+)?DOCUMENT/i,
-    /INDEX/i
-  ];
+  const tocPatterns = [/AU PROGRAMME/i, /SOMMAIRE/i, /TABLE DES MATI[EÈ]RES/i, /PLAN\s+(DU\s+)?DOCUMENT/i, /INDEX/i];
   analysis.hasTableOfContents = tocPatterns.some(p => p.test(html));
 
-  // ✅ MISE À JOUR DES INDICATEURS
   analysis.hasH1 = analysis.h1Count > 0;
   analysis.hasH2 = analysis.h2Count >= 2;
   analysis.hasH3 = analysis.h3Count >= 2;
@@ -369,54 +331,101 @@ function analyzeDocumentIntelligently(html) {
   analysis.hasNumberedChapters = analysis.numberedPatterns.length >= 2;
   analysis.hasLists = analysis.olCount > 0 || analysis.ulCount > 0;
 
-  // ✅ CALCUL DU NOMBRE DE MOTS
   const textContent = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
   analysis.estimatedWordCount = textContent.split(' ').length;
 
-  // ✅ LONGUEUR MOYENNE DES PARAGRAPHES
   const pMatches = html.match(/<p[^>]*>.*?<\/p>/gi) || [];
   if (pMatches.length > 0) {
     const totalLength = pMatches.reduce((sum, p) => sum + cleanText(p).length, 0);
     analysis.averageParagraphLength = Math.round(totalLength / pMatches.length);
   }
 
+  // ✅ NOUVEAU : Analyser la qualité des H1 et H2 pour choisir le meilleur niveau
+  const chapterPrefixRegex = /^(chapitre|chapter|module|partie|section)\s*\d+$/i;
+  const metaRegex = /^(table des mati[eè]res|sommaire|index|plan|introduction|conclusion|bibliographie|annexe|remerciements|d[eé]dicace|préface|avant-propos)$/i;
+
+  const h1Texts = [...html.matchAll(/<h1[^>]*>(.*?)<\/h1>/gi)].map(m => cleanText(m[1]));
+  const h2Texts = [...html.matchAll(/<h2[^>]*>(.*?)<\/h2>/gi)].map(m => cleanText(m[1]));
+
+  // H2 génériques = tous les h2 sont juste "Chapitre X", "Module X", etc.
+  const h2AllGeneric = h2Texts.length > 0 && h2Texts.every(t => chapterPrefixRegex.test(t.trim()));
+
+  // H1 riches = au moins 3 h1 non-méta, non-génériques, avec du vrai contenu
+  const h1Rich = h1Texts.filter(t => !metaRegex.test(t.trim()) && !chapterPrefixRegex.test(t.trim()) && t.length > 10);
+  const h1HasRealContent = h1Rich.length >= 3;
+
+  console.log(`🔍 [Analyze] H2 tous génériques: ${h2AllGeneric}, H1 riches: ${h1Rich.length}`);
+  if (h2AllGeneric) console.log(`  ⚠️ H2 génériques détectés: [${h2Texts.join(', ')}]`);
+  if (h1HasRealContent) console.log(`  ✅ H1 riches détectés: [${h1Rich.slice(0, 3).join(', ')}...]`);
+
   // ✅ DÉTERMINATION INTELLIGENTE DE LA STRUCTURE
-  if (analysis.h2Count >= 3 && analysis.h1Count >= 1) {
+  // CAS 1 : H2 génériques + H1 riches → utiliser H1
+  if (h2AllGeneric && h1HasRealContent) {
+    analysis.structureType = "h1_over_generic_h2";
+    analysis.bestMethod = "h1";
+    analysis.confidence = 96;
+    analysis.titleConfidence = 90;
+    console.log(`✅ [Analyze] Stratégie: H1 prioritaire (H2 génériques détectés)`);
+  }
+  // CAS 2 : H2 et H1 présents, H2 non génériques → hierarchical_perfect, utiliser H2
+  else if (analysis.h2Count >= 3 && analysis.h1Count >= 1 && !h2AllGeneric) {
     analysis.structureType = "hierarchical_perfect";
     analysis.bestMethod = "h2";
     analysis.confidence = 98;
     analysis.titleConfidence = 95;
-  } else if (analysis.hasUppercaseChapters && analysis.strongCount >= 5) {
+  }
+  // CAS 3 : Seulement H1 riches (pas de H2)
+  else if (h1HasRealContent && analysis.h2Count < 2) {
+    analysis.structureType = "h1_only";
+    analysis.bestMethod = "h1";
+    analysis.confidence = 90;
+    analysis.titleConfidence = 85;
+    console.log(`✅ [Analyze] Stratégie: H1 uniquement`);
+  }
+  // CAS 4 : Majuscules en gras
+  else if (analysis.hasUppercaseChapters && analysis.strongCount >= 5) {
     analysis.structureType = "uppercase_strong_chapters";
     analysis.bestMethod = "uppercase_strong";
     analysis.confidence = 92;
     analysis.titleConfidence = 85;
-  } else if (analysis.hasNumberedChapters && analysis.numberedPatterns.length >= 3) {
+  }
+  // CAS 5 : Chapitres numérotés
+  else if (analysis.hasNumberedChapters && analysis.numberedPatterns.length >= 3) {
     analysis.structureType = "numbered_chapters";
     analysis.bestMethod = "numbered";
     analysis.confidence = 88;
     analysis.titleConfidence = 80;
-  } else if (analysis.h2Count >= 2) {
+  }
+  // CAS 6 : H2 partiels
+  else if (analysis.h2Count >= 2) {
     analysis.structureType = "partial_hierarchy";
     analysis.bestMethod = "h2";
     analysis.confidence = 85;
     analysis.titleConfidence = 75;
-  } else if (analysis.hasBulletChapters) {
+  }
+  // CAS 7 : Bullets
+  else if (analysis.hasBulletChapters) {
     analysis.structureType = "bullet_structure";
     analysis.bestMethod = "bullets";
     analysis.confidence = 75;
     analysis.titleConfidence = 70;
-  } else if (analysis.strongCount >= 5) {
+  }
+  // CAS 8 : Tous les gras
+  else if (analysis.strongCount >= 5) {
     analysis.structureType = "bold_sections";
     analysis.bestMethod = "all_strong";
     analysis.confidence = 65;
     analysis.titleConfidence = 60;
-  } else if (analysis.pCount > 10) {
+  }
+  // CAS 9 : Paragraphes
+  else if (analysis.pCount > 10) {
     analysis.structureType = "paragraph_based";
     analysis.bestMethod = "paragraphs";
     analysis.confidence = 50;
     analysis.titleConfidence = 45;
-  } else {
+  }
+  // CAS 10 : Fallback
+  else {
     analysis.structureType = "unstructured";
     analysis.bestMethod = "fallback";
     analysis.confidence = 30;
@@ -432,7 +441,6 @@ function analyzeDocumentIntelligently(html) {
 function intelligentCleanup(html, analysis) {
   let cleaned = html;
 
-  // ✅ SUPPRESSION INTELLIGENTE DU SOMMAIRE
   if (analysis.hasTableOfContents) {
     console.log("🗑️ [AI-Cleanup] Détection et suppression du sommaire...");
     
@@ -474,11 +482,21 @@ function extractTitleIntelligently(html, analysis) {
   let candidates = [];
 
   if (analysis.hasH1) {
-    const h1Match = html.match(/<h1[^>]*>(.*?)<\/h1>/i);
-    if (h1Match) {
+    // ✅ FIX : Chercher le premier H1 qui n'est ni méta ni générique
+    const metaTitleRegex = /^(table des mati[eè]res|sommaire|index|plan|introduction|conclusion|bibliographie|annexe|remerciements|d[eé]dicace|préface|avant-propos)$/i;
+    const chapterPrefixRegex = /^(chapitre|chapter|module|partie|section)\s*\d+$/i;
+    const allH1Matches = [...html.matchAll(/<h1[^>]*>(.*?)<\/h1>/gi)];
+    
+    for (const h1Match of allH1Matches) {
       const candidate = cleanText(h1Match[1]);
-      if (candidate.length >= 5 && candidate.length <= 150) {
+      if (
+        candidate.length >= 5 &&
+        candidate.length <= 150 &&
+        !metaTitleRegex.test(candidate.trim()) &&
+        !chapterPrefixRegex.test(candidate.trim())
+      ) {
         candidates.push({ text: candidate, score: 100, source: "h1" });
+        break; // On prend le premier H1 valide
       }
     }
   }
@@ -489,7 +507,6 @@ function extractTitleIntelligently(html, analysis) {
     if (candidate.length >= 10 && candidate.length <= 100) {
       const isUppercase = /^[A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÇ\s'-]+$/.test(candidate);
       const score = isUppercase ? 85 : 70;
-      
       if (!/^(AU PROGRAMME|SOMMAIRE|Introduction|Chapitre|TABLE)/i.test(candidate)) {
         candidates.push({ text: candidate, score, source: "strong" });
       }
@@ -530,8 +547,9 @@ function extractChaptersIntelligently(html, analysis, titre) {
 
   // ✅ PASSE 1 : Méthode principale
   switch (analysis.bestMethod) {
+    case "h1":       // ✅ NOUVEAU CAS
     case "h2":
-      chapters = extractByH2Advanced(html, analysis);
+      chapters = extractByHeadingAdvanced(html, analysis);
       break;
     
     case "uppercase_strong":
@@ -565,7 +583,8 @@ function extractChaptersIntelligently(html, analysis, titre) {
     console.log("⚠️ [AI-Chapters-Pass2] Trop peu de chapitres, essai méthode secondaire...");
     
     const allMethods = [
-      { name: "h2", fn: () => extractByH2Advanced(html, analysis) },
+      { name: "h1", fn: () => extractByHeadingAdvanced(html, { ...analysis, bestMethod: "h1", structureType: "h1_only" }) },
+      { name: "h2", fn: () => extractByHeadingAdvanced(html, { ...analysis, bestMethod: "h2", structureType: "partial_hierarchy" }) },
       { name: "uppercase_strong", fn: () => extractByUppercaseStrongAdvanced(html, titre, analysis) },
       { name: "numbered", fn: () => extractByNumberedAdvanced(html, analysis) },
       { name: "all_strong", fn: () => extractByAllStrongAdvanced(html, titre, analysis) },
@@ -576,11 +595,9 @@ function extractChaptersIntelligently(html, analysis, titre) {
     
     allMethods.forEach(method => {
       if (method.name === analysis.bestMethod) return;
-      
       try {
         const result = method.fn();
         console.log(`  🔍 [Pass2] ${method.name}: ${result.length} chapitres`);
-        
         if (result.length > bestAlternative.count && result.length >= 3) {
           bestAlternative = { chapters: result, count: result.length, method: method.name };
         }
@@ -605,15 +622,10 @@ function extractChaptersIntelligently(html, analysis, titre) {
     const combined = [...chapters];
     
     uppercaseChapters.forEach(ch => {
-      if (!combined.find(c => c.title === ch.title)) {
-        combined.push(ch);
-      }
+      if (!combined.find(c => c.title === ch.title)) combined.push(ch);
     });
-    
     strongChapters.forEach(ch => {
-      if (!combined.find(c => c.title === ch.title)) {
-        combined.push(ch);
-      }
+      if (!combined.find(c => c.title === ch.title)) combined.push(ch);
     });
     
     if (combined.length > chapters.length) {
@@ -635,24 +647,80 @@ function extractChaptersIntelligently(html, analysis, titre) {
 }
 
 // ============================================================================
-// 📚 MÉTHODE AVANCÉE : EXTRACTION PAR H2
+// 📚 MÉTHODE AVANCÉE : EXTRACTION PAR HEADING (H1 ou H2 selon stratégie)
 // ============================================================================
-function extractByH2Advanced(html, analysis) {
+function extractByHeadingAdvanced(html, analysis) {
   const chapters = [];
-  const h2Matches = html.match(/<h2[^>]*>.*?<\/h2>/gi) || [];
-  
-  console.log(`🔍 [H2-Advanced] ${h2Matches.length} balises H2 détectées`);
 
-  h2Matches.forEach((h2, index) => {
-    const title = cleanText(h2);
-    
-    const startIndex = html.indexOf(h2) + h2.length;
-    const nextH2 = h2Matches[index + 1];
-    const endIndex = nextH2 ? html.indexOf(nextH2) : html.length;
-    
-    const chapterHTML = html.substring(startIndex, endIndex);
+  const metaChapters = /^(table des mati[eè]res|sommaire|index|plan|introduction|conclusion|bibliographie|annexe|remerciements|d[eé]dicace|préface|avant-propos)$/i;
+  const chapterPrefix = /^(chapitre|chapter|module|partie|section)\s*\d+$/i;
+
+  // ✅ Choisir H1 ou H2 selon la stratégie détectée
+  const useH1 = analysis.bestMethod === "h1" || 
+                analysis.structureType === "h1_over_generic_h2" || 
+                analysis.structureType === "h1_only";
+
+  const h1Matches = html.match(/<h1[^>]*>.*?<\/h1>/gi) || [];
+  const h2Matches = html.match(/<h2[^>]*>.*?<\/h2>/gi) || [];
+
+  let headingMatches, tag;
+
+  if (useH1) {
+    // Sauter le 1er H1 = titre global du document
+    headingMatches = h1Matches.slice(1);
+    tag = "h1";
+    console.log(`🔍 [Heading-Advanced] Stratégie H1 (${headingMatches.length} candidats après skip titre)`);
+  } else {
+    headingMatches = h2Matches.length >= 2 ? h2Matches : h1Matches;
+    tag = h2Matches.length >= 2 ? "h2" : "h1";
+    console.log(`🔍 [Heading-Advanced] Stratégie ${tag.toUpperCase()} (${headingMatches.length} balises)`);
+  }
+
+  const validHeadings = headingMatches.filter(h => {
+    const title = cleanText(h);
+    if (metaChapters.test(title.trim())) {
+      console.log(`  ⏭️ Ignoré (méta): "${title}"`);
+      return false;
+    }
+    // En mode H1, exclure aussi les génériques ("Chapitre 1", "Module 2")
+    if (useH1 && chapterPrefix.test(title.trim())) {
+      console.log(`  ⏭️ Ignoré (générique): "${title}"`);
+      return false;
+    }
+    return true;
+  });
+
+  console.log(`🔍 [Heading-Advanced] ${validHeadings.length} chapitres valides`);
+
+  validHeadings.forEach((heading, index) => {
+    let title = cleanText(heading);
+    const headingIdx = html.indexOf(heading);
+    let contentStart = headingIdx + heading.length;
+
+    // En mode H2, si le titre est générique ("Chapitre X"), enrichir avec le H1 suivant
+    if (!useH1 && chapterPrefix.test(title)) {
+      const afterHeading = html.substring(contentStart, contentStart + 500);
+      const nextH1Match = afterHeading.match(/<h1[^>]*>(.*?)<\/h1>/i);
+      if (nextH1Match) {
+        const h1Title = cleanText(nextH1Match[1]);
+        if (!metaChapters.test(h1Title) && h1Title.length > 5) {
+          title = title + " : " + h1Title;
+          console.log(`  🔗 Titre fusionné: "${title}"`);
+          contentStart += nextH1Match.index + nextH1Match[0].length;
+        }
+      }
+    }
+
+    const nextHeading = validHeadings[index + 1];
+    const endIndex = nextHeading ? html.indexOf(nextHeading) : html.length;
+
+    let chapterHTML = html.substring(contentStart, endIndex);
+
+    // ✅ FIX : Supprimer les H2 génériques dans le contenu avant nettoyage
+    chapterHTML = chapterHTML.replace(/<h2[^>]*>(?:chapitre|chapter|module|partie|section)\s*\d+<\/h2>/gi, '');
+
     const content = cleanHTMLToHTML(chapterHTML);
-    
+
     const wordCount = content.split(' ').length;
     if (wordCount >= 30) {
       chapters.push({ title, content });
@@ -665,6 +733,11 @@ function extractByH2Advanced(html, analysis) {
   return chapters;
 }
 
+// Alias pour rétrocompatibilité avec les appels existants dans Pass2
+function extractByH2Advanced(html, analysis) {
+  return extractByHeadingAdvanced(html, analysis);
+}
+
 // ============================================================================
 // 📚 MÉTHODE AVANCÉE : EXTRACTION PAR MAJUSCULES + GRAS (ADAPTATIF)
 // ============================================================================
@@ -673,7 +746,6 @@ function extractByUppercaseStrongAdvanced(html, titre, analysis) {
   
   console.log(`🔍 [Uppercase-Advanced] Début analyse avec ${analysis.uppercaseStrongs.length} candidats`);
   
-  // ✅ DÉCISION INTELLIGENTE : Utiliser le sommaire si fiable
   const useTOC = analysis.tocQuality && analysis.tocQuality.reliable;
   const tocEntries = useTOC ? (analysis.tableOfContents || []) : [];
   
@@ -683,28 +755,12 @@ function extractByUppercaseStrongAdvanced(html, titre, analysis) {
     console.log(`📑 [Uppercase-Advanced] Sommaire ${analysis.tocQuality?.status || 'absent'} - Filtrage par ratio uniquement`);
   }
   
-  // ✅ FILTRE ULTRA-STRICT
   const uppercaseStrongs = analysis.uppercaseStrongs
     .filter(s => {
-      // Exclure le titre
-      if (s.text === titre) {
-        console.log(`  ⏭️ Ignoré (titre): "${s.text}"`);
-        return false;
-      }
+      if (s.text === titre) { console.log(`  ⏭️ Ignoré (titre): "${s.text}"`); return false; }
+      if (s.length < 5) { console.log(`  ⏭️ Ignoré (trop court): "${s.text}"`); return false; }
+      if (s.ratio < 0.95) { console.log(`  ⏭️ Ignoré (ratio ${(s.ratio * 100).toFixed(0)}% < 95%): "${s.text}"`); return false; }
       
-      // Longueur minimale
-      if (s.length < 5) {
-        console.log(`  ⏭️ Ignoré (trop court): "${s.text}"`);
-        return false;
-      }
-      
-      // ✅ RATIO ULTRA-STRICT >= 0.95
-      if (s.ratio < 0.95) {
-        console.log(`  ⏭️ Ignoré (ratio ${(s.ratio * 100).toFixed(0)}% < 95%): "${s.text}"`);
-        return false;
-      }
-      
-      // ✅ SI SOMMAIRE FIABLE : Vérifier correspondance
       if (useTOC) {
         const normalizedText = s.text.toLowerCase().trim();
         const isInTOC = tocEntries.some(entry => {
@@ -713,61 +769,29 @@ function extractByUppercaseStrongAdvanced(html, titre, analysis) {
                  normalizedText.includes(normalizedEntry) ||
                  similarity(normalizedText, normalizedEntry) > 0.7;
         });
-        
-        if (!isInTOC) {
-          console.log(`  ⏭️ Ignoré (absent du sommaire fiable): "${s.text}"`);
-          return false;
-        } else {
-          console.log(`  ✅ Trouvé dans le sommaire: "${s.text}"`);
-        }
+        if (!isInTOC) { console.log(`  ⏭️ Ignoré (absent du sommaire fiable): "${s.text}"`); return false; }
+        else { console.log(`  ✅ Trouvé dans le sommaire: "${s.text}"`); }
       }
       
-      // ✅ SINON : Filtrer les mots-clés méta/conclusion
       if (!useTOC) {
         const metaKeywords = [
-          /^AU PROGRAMME$/i,
-          /^SOMMAIRE$/i,
-          /^TABLE DES MATI[EÈ]RES$/i,
-          /^INDEX$/i,
-          /^PLAN$/i,
-          /^FIN$/i,
-          /^BIOGRAPHIE.*AUTEUR$/i,
-          /^NOTE.*AUTEUR$/i,
-          /^AVIS PERSONNEL$/i,
-          /^LIENS.*SOCIAL/i,
-          /^AVERTISSEMENT/i,
-          /^RÉSUMÉ DES/i,
-          /^SYNTHÈSE DES/i,
-          /^REMERCIEMENTS$/i,
-          /^DÉDICACE$/i
+          /^AU PROGRAMME$/i, /^SOMMAIRE$/i, /^TABLE DES MATI[EÈ]RES$/i,
+          /^INDEX$/i, /^PLAN$/i, /^FIN$/i, /^BIOGRAPHIE.*AUTEUR$/i,
+          /^NOTE.*AUTEUR$/i, /^AVIS PERSONNEL$/i, /^LIENS.*SOCIAL/i,
+          /^AVERTISSEMENT/i, /^RÉSUMÉ DES/i, /^SYNTHÈSE DES/i,
+          /^REMERCIEMENTS$/i, /^DÉDICACE$/i
         ];
-        
-        if (metaKeywords.some(p => p.test(s.text))) {
-          console.log(`  ⏭️ Ignoré (méta/conclusion): "${s.text}"`);
-          return false;
-        }
+        if (metaKeywords.some(p => p.test(s.text))) { console.log(`  ⏭️ Ignoré (méta/conclusion): "${s.text}"`); return false; }
       }
       
-      // ✅ EXCLURE LES PATTERNS DE SOUS-TITRES
       const excludePatterns = [
-        /^(I+|V+|X+)\s*[\.:\-]/,
-        /^\d+\s*[\.:\-]/,
-        /^[A-Z]\s*[\.:\-]/,
-        /^[a-z]\s*[\.\)]/i,
-        /^\d+\.\d+/,
+        /^(I+|V+|X+)\s*[\.:\-]/, /^\d+\s*[\.:\-]/, /^[A-Z]\s*[\.:\-]/,
+        /^[a-z]\s*[\.\)]/i, /^\d+\.\d+/,
       ];
+      if (excludePatterns.some(p => p.test(s.text))) { console.log(`  ⏭️ Ignoré (pattern sous-titre): "${s.text}"`); return false; }
       
-      if (excludePatterns.some(p => p.test(s.text))) {
-        console.log(`  ⏭️ Ignoré (pattern sous-titre): "${s.text}"`);
-        return false;
-      }
-      
-      // ✅ EXCLURE SI TROP COURT APRÈS NETTOYAGE
       const cleanedText = s.text.replace(/^[\d\.\s\-:IVX]+/, '').trim();
-      if (cleanedText.length < 5) {
-        console.log(`  ⏭️ Ignoré (texte nettoyé trop court): "${s.text}"`);
-        return false;
-      }
+      if (cleanedText.length < 5) { console.log(`  ⏭️ Ignoré (texte nettoyé trop court): "${s.text}"`); return false; }
       
       console.log(`  ✅ VALIDÉ: "${s.text}" (ratio: ${(s.ratio * 100).toFixed(0)}%)`);
       return true;
@@ -779,26 +803,18 @@ function extractByUppercaseStrongAdvanced(html, titre, analysis) {
   uppercaseStrongs.forEach((titleText, index) => {
     const strongPattern = new RegExp(`<strong[^>]*>${escapeRegex(titleText)}</strong>`, 'i');
     const match = html.match(strongPattern);
-    
-    if (!match) {
-      console.log(`  ⚠️ Pattern non trouvé dans HTML: "${titleText}"`);
-      return;
-    }
+    if (!match) { console.log(`  ⚠️ Pattern non trouvé dans HTML: "${titleText}"`); return; }
 
     const startIndex = html.indexOf(match[0]) + match[0].length;
-    
     let endIndex = html.length;
     if (index < uppercaseStrongs.length - 1) {
       const nextPattern = new RegExp(`<strong[^>]*>${escapeRegex(uppercaseStrongs[index + 1])}</strong>`, 'i');
       const nextMatch = html.match(nextPattern);
-      if (nextMatch) {
-        endIndex = html.indexOf(nextMatch[0]);
-      }
+      if (nextMatch) endIndex = html.indexOf(nextMatch[0]);
     }
     
     const chapterHTML = html.substring(startIndex, endIndex);
     const content = cleanHTMLToHTML(chapterHTML);
-    
     const wordCount = content.split(' ').length;
     if (wordCount >= 50) {
       chapters.push({ title: titleText, content });
@@ -813,14 +829,12 @@ function extractByUppercaseStrongAdvanced(html, titre, analysis) {
 }
 
 // ============================================================================
-// 🔧 FONCTION SIMILARITÉ (POUR COMPARAISON SOMMAIRE)
+// 🔧 FONCTION SIMILARITÉ
 // ============================================================================
 function similarity(s1, s2) {
   const longer = s1.length > s2.length ? s1 : s2;
   const shorter = s1.length > s2.length ? s2 : s1;
-  
   if (longer.length === 0) return 1.0;
-  
   const editDistance = levenshteinDistance(longer, shorter);
   return (longer.length - editDistance) / longer.length;
 }
@@ -830,9 +844,8 @@ function levenshteinDistance(s1, s2) {
   for (let i = 0; i <= s1.length; i++) {
     let lastValue = i;
     for (let j = 0; j <= s2.length; j++) {
-      if (i === 0) {
-        costs[j] = j;
-      } else if (j > 0) {
+      if (i === 0) { costs[j] = j; }
+      else if (j > 0) {
         let newValue = costs[j - 1];
         if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
           newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
@@ -853,22 +866,16 @@ function extractByNumberedAdvanced(html, analysis) {
   const chapters = [];
   const numberedRegex = /(Chapitre|CHAPITRE|Chapter|MODULE|Module|Partie|PARTIE)\s+(\d+|[IVX]+)[:\s\-]*(.*?)(?=<\/p>|<br>|<\/h)/gi;
   const matches = [...html.matchAll(numberedRegex)];
-  
   console.log(`🔍 [Numbered-Advanced] ${matches.length} chapitres numérotés détectés`);
 
   matches.forEach((match, index) => {
     const titleSuffix = match[3] ? match[3].trim() : "";
-    const title = titleSuffix 
-      ? `${match[1]} ${match[2]}: ${titleSuffix}`
-      : `${match[1]} ${match[2]}`;
-    
+    const title = titleSuffix ? `${match[1]} ${match[2]}: ${titleSuffix}` : `${match[1]} ${match[2]}`;
     const startIndex = match.index + match[0].length;
     const nextMatch = matches[index + 1];
     const endIndex = nextMatch ? nextMatch.index : html.length;
-    
     const chapterHTML = html.substring(startIndex, endIndex);
     const content = cleanHTMLToHTML(chapterHTML);
-    
     const wordCount = content.split(' ').length;
     if (wordCount >= 50) {
       chapters.push({ title, content });
@@ -886,19 +893,15 @@ function extractByBulletsAdvanced(html, analysis) {
   const chapters = [];
   const bulletRegex = /[•\*\-]\s*([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÇ][^\n<]{5,150})/g;
   const matches = [...html.matchAll(bulletRegex)];
-  
   console.log(`🔍 [Bullets-Advanced] ${matches.length} bullets détectés`);
 
   matches.forEach((match, index) => {
     const title = match[1].trim();
-    
     const startIndex = match.index + match[0].length;
     const nextMatch = matches[index + 1];
     const endIndex = nextMatch ? nextMatch.index : html.length;
-    
     const chapterHTML = html.substring(startIndex, endIndex);
     const content = cleanHTMLToHTML(chapterHTML);
-    
     const wordCount = content.split(' ').length;
     if (wordCount >= 50) {
       chapters.push({ title, content });
@@ -915,24 +918,19 @@ function extractByBulletsAdvanced(html, analysis) {
 function extractByAllStrongAdvanced(html, titre, analysis) {
   const chapters = [];
   const strongMatches = html.match(/<strong[^>]*>.*?<\/strong>/gi) || [];
-  
   const validStrongs = strongMatches.filter(s => {
     const text = cleanText(s);
     return text.length >= 8 && text.length <= 200 && text !== titre;
   });
-  
   console.log(`🔍 [AllStrong-Advanced] ${validStrongs.length} textes en gras validés`);
 
   validStrongs.forEach((strong, index) => {
     const title = cleanText(strong);
-    
     const startIndex = html.indexOf(strong) + strong.length;
     const nextStrong = validStrongs[index + 1];
     const endIndex = nextStrong ? html.indexOf(nextStrong) : html.length;
-    
     const chapterHTML = html.substring(startIndex, endIndex);
     const content = cleanHTMLToHTML(chapterHTML);
-    
     const wordCount = content.split(' ').length;
     if (wordCount >= 50) {
       chapters.push({ title, content });
@@ -950,7 +948,6 @@ function extractByParagraphsAdvanced(html, analysis) {
   const chapters = [];
   const content = cleanHTMLToHTML(html);
   const paragraphs = content.split('\n\n').filter(p => p.trim().length > 100);
-  
   console.log(`🔍 [Paragraphs-Advanced] ${paragraphs.length} paragraphes détectés`);
 
   let currentChapter = "";
@@ -960,12 +957,8 @@ function extractByParagraphsAdvanced(html, analysis) {
   paragraphs.forEach(p => {
     const currentWords = currentChapter.split(' ').length;
     const pWords = p.split(' ').length;
-    
     if (currentWords + pWords > targetWordsPerChapter && currentWords > 200) {
-      chapters.push({
-        title: `Section ${chapterNum}`,
-        content: currentChapter.trim()
-      });
+      chapters.push({ title: `Section ${chapterNum}`, content: currentChapter.trim() });
       console.log(`  ✅ Section ${chapterNum} (${currentWords} mots)`);
       currentChapter = "";
       chapterNum++;
@@ -974,10 +967,7 @@ function extractByParagraphsAdvanced(html, analysis) {
   });
   
   if (currentChapter.trim().length > 200) {
-    chapters.push({
-      title: `Section ${chapterNum}`,
-      content: currentChapter.trim()
-    });
+    chapters.push({ title: `Section ${chapterNum}`, content: currentChapter.trim() });
     console.log(`  ✅ Section ${chapterNum} (${currentChapter.split(' ').length} mots)`);
   }
 
@@ -989,15 +979,11 @@ function extractByParagraphsAdvanced(html, analysis) {
 // ============================================================================
 function extractByFallbackMethod(html) {
   console.log("🆘 [Fallback] Méthode de secours activée");
-  
   const content = cleanHTMLToHTML(html);
   const words = content.split(' ').length;
   
   if (words < 500) {
-    return [{
-      title: "Contenu complet",
-      content
-    }];
+    return [{ title: "Contenu complet", content }];
   }
 
   const paragraphs = content.split('\n\n').filter(p => p.trim().length > 50);
@@ -1009,12 +995,8 @@ function extractByFallbackMethod(html) {
     const start = i * parasPerSection;
     const end = Math.min((i + 1) * parasPerSection, paragraphs.length);
     const sectionContent = paragraphs.slice(start, end).join('\n\n');
-    
     if (sectionContent.trim().length > 200) {
-      chapters.push({
-        title: `Partie ${i + 1}`,
-        content: sectionContent
-      });
+      chapters.push({ title: `Partie ${i + 1}`, content: sectionContent });
     }
   }
 
@@ -1026,70 +1008,48 @@ function extractByFallbackMethod(html) {
 // ============================================================================
 function postProcessChaptersIntelligently(chapters, analysis) {
   let processed = [...chapters];
-  
   console.log(`🔧 [AI-PostProcess] Début: ${processed.length} chapitres`);
 
-  // ✅ ÉTAPE 1 : Suppression des doublons
   processed = processed.filter((ch, index, self) =>
     index === self.findIndex(c => c.title === ch.title)
   );
   console.log(`🔧 [AI-PostProcess] Après doublons: ${processed.length}`);
 
-  // ✅ ÉTAPE 2 : Fusion des chapitres trop courts
   if (processed.length > 10) {
     const merged = [];
     let buffer = null;
-    
     processed.forEach((ch, index) => {
       const wordCount = ch.content.split(' ').length;
-      
       if (wordCount < 80 && buffer) {
         buffer.content += "\n\n" + ch.content;
         buffer.title = buffer.title + " & " + ch.title;
       } else if (wordCount < 80) {
         buffer = { ...ch };
       } else {
-        if (buffer) {
-          merged.push(buffer);
-          buffer = null;
-        }
+        if (buffer) { merged.push(buffer); buffer = null; }
         merged.push(ch);
       }
     });
-    
     if (buffer) merged.push(buffer);
-    
     processed = merged;
     console.log(`🔧 [AI-PostProcess] Après fusion: ${processed.length}`);
   }
 
-  // ✅ ÉTAPE 3 : Limitation intelligente si trop de chapitres
   if (processed.length > 15) {
     console.log(`⚠️ [AI-PostProcess] ${processed.length} chapitres (trop!), application filtre strict`);
-    
     processed = processed
-      .map(ch => ({
-        ...ch,
-        wordCount: ch.content.split(' ').length,
-        isMajor: /^[A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÇ\s'-]+$/.test(ch.title)
-      }))
+      .map(ch => ({ ...ch, wordCount: ch.content.split(' ').length, isMajor: /^[A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÇ\s'-]+$/.test(ch.title) }))
       .filter(ch => ch.wordCount >= 100 || ch.isMajor)
       .map(({ wordCount, isMajor, ...ch }) => ch);
-    
     console.log(`🔧 [AI-PostProcess] Après filtre: ${processed.length}`);
   }
 
-  // ✅ ÉTAPE 4 : Validation finale
   if (processed.length === 0) {
     console.log(`⚠️ [AI-PostProcess] Aucun chapitre valide, création par défaut`);
-    processed = [{
-      title: "Contenu du document",
-      content: "Contenu extrait"
-    }];
+    processed = [{ title: "Contenu du document", content: "Contenu extrait" }];
   }
 
   console.log(`✅ [AI-PostProcess] Résultat final: ${processed.length} chapitres`);
-  
   return processed;
 }
 
@@ -1098,27 +1058,17 @@ function postProcessChaptersIntelligently(chapters, analysis) {
 // ============================================================================
 function calculateQualityScore(chapters, analysis) {
   let score = 0;
-
-  if (chapters.length >= 3 && chapters.length <= 10) {
-    score += 30;
-  } else if (chapters.length >= 2 && chapters.length <= 15) {
-    score += 20;
-  } else {
-    score += 10;
-  }
+  if (chapters.length >= 3 && chapters.length <= 10) score += 30;
+  else if (chapters.length >= 2 && chapters.length <= 15) score += 20;
+  else score += 10;
 
   score += Math.round(analysis.confidence * 0.4);
 
   const avgLength = chapters.reduce((sum, ch) => sum + ch.content.length, 0) / chapters.length;
-  if (avgLength >= 500 && avgLength <= 5000) {
-    score += 20;
-  } else if (avgLength >= 200) {
-    score += 10;
-  }
+  if (avgLength >= 500 && avgLength <= 5000) score += 20;
+  else if (avgLength >= 200) score += 10;
 
-  if (analysis.hasLists) {
-    score += 10;
-  }
+  if (analysis.hasLists) score += 10;
 
   return Math.min(100, score);
 }
