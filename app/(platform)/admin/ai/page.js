@@ -26,7 +26,9 @@ const OPENAI_TEXT_MODELS = [
 const OPENAI_IMAGE_MODELS = ["dall-e-3", "dall-e-2"];
 
 const GEMINI_TEXT_MODELS = [
-  "gemini-3-pro-preview",
+  "gemini-3.1-pro-preview",
+  "gemini-3.1-flash-lite-preview",
+  "gemini-3-flash-preview",
   "gemini-2.5-pro",
   "gemini-2.5-flash",
   "gemini-2.5-flash-lite",
@@ -35,8 +37,8 @@ const GEMINI_TEXT_MODELS = [
 ];
 
 const GEMINI_IMAGE_MODELS = [
-  "gemini-2.5-flash-image",
   "gemini-3-pro-image-preview",
+  "gemini-3.1-flash-image-preview",
 ];
 
 // ✅ NOUVEAU : Modèles Flux SEULEMENT AJOUTÉ

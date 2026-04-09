@@ -9,7 +9,6 @@ const nicheAnalysisSchema = new mongoose.Schema(
       index: true
     },
 
-    // 📌 Pays de l'utilisateur (pour stats admin)
     country: {
       type: String,
       default: ""
@@ -21,49 +20,39 @@ const nicheAnalysisSchema = new mongoose.Schema(
       trim: true
     },
 
+    targetMarket: {
+      type: String,
+      default: "africa"
+    },
+
     niches: [
       {
-        nicheId: {
-          type: String,
-          required: true,
-          unique: true
-        },
+        nicheId: { type: String, required: true },
         title: { type: String, required: true },
         description: { type: String, required: true },
-
         difficulty: { type: Number, min: 1, max: 10, required: true },
         competition: { type: Number, min: 1, max: 10, required: true },
         potential: { type: Number, min: 1, max: 10, required: true },
-
         keywords: [String],
-
+        formatRecommande: { type: String, default: "ebook" },
+        why_sells: { type: String, default: "" },
+        prixMin: { type: Number, default: 2000 },
+        prixMax: { type: Number, default: 6000 },
+        publicCible: { type: String, default: "" },
+        tendance2026: { type: String, default: "" },
+        badge: { type: String, default: "fire" },
+        adsContext: { type: mongoose.Schema.Types.Mixed, default: [] },
         analyzed: { type: Boolean, default: false },
-
-        analysis: {
-          volumeEstime: String,
-          tendance: String,
-          difficulteSEO: Number,
-          concurrenceDetailed: String,
-          opportunites: [String],
-          anglesUniques: [String],
-          structureSuggeree: [String],
-          recommendationIA: String,
-          cpcMoyen: String,
-          topConcurrents: [
-            {
-              nom: String,
-              pointsForts: String
-            }
-          ],
-          forces: [String],
-          pointsAttention: [String],
-          conseilsDiff: [String],
-          titreOptimise: String,
-          publicCible: String
-        }
+        analysisCompletedAt: { type: Date },
+        // ✅ Mixed — accepte tous les champs sans restriction
+        analysis: { type: mongoose.Schema.Types.Mixed, default: {} },
       }
     ],
 
+    generatedAt: { type: Date },
+    totalNiches: { type: Number, default: 0 },
+    generationTime: { type: String, default: "" },
+    ip: { type: String, default: null },
     aiUsed: { type: Number, default: 0 },
     aiTokens: { type: Number, default: 0 }
   },
@@ -72,9 +61,8 @@ const nicheAnalysisSchema = new mongoose.Schema(
   }
 );
 
-// Index utiles pour le Dashboard Admin
 nicheAnalysisSchema.index({ userId: 1, createdAt: -1 });
-nicheAnalysisSchema.index({ country: 1 }); // 📌 pour le graph des pays
+nicheAnalysisSchema.index({ country: 1 });
 
 export default mongoose.models.NicheAnalysis ||
   mongoose.model("NicheAnalysis", nicheAnalysisSchema);

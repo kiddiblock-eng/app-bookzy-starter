@@ -6,21 +6,15 @@ import User, { DAILY_LIMITS } from "@/models/User";
 import { verifyAuth } from "@/lib/auth";
 import { getAIText } from "@/lib/ai";
 
-
 function cleanMarkdown(text) {
-  if (typeof text !== 'string') return text;
-  return text
-    .replace(/\*\*/g, '')
-    .replace(/\*/g, '')
-    .replace(/`/g, '')
-    .replace(/#/g, '')
-    .trim();
+  if (typeof text !== "string") return text;
+  return text.replace(/\*\*/g, "").replace(/\*/g, "").replace(/`/g, "").replace(/#/g, "").trim();
 }
 
 function cleanJsonMarkdown(obj) {
-  if (typeof obj === 'string') return cleanMarkdown(obj);
+  if (typeof obj === "string") return cleanMarkdown(obj);
   if (Array.isArray(obj)) return obj.map(item => cleanJsonMarkdown(item));
-  if (obj !== null && typeof obj === 'object') {
+  if (obj !== null && typeof obj === "object") {
     const cleaned = {};
     for (const key in obj) cleaned[key] = cleanJsonMarkdown(obj[key]);
     return cleaned;
@@ -28,34 +22,21 @@ function cleanJsonMarkdown(obj) {
   return obj;
 }
 
-// ✅ Extraction JSON robuste — résiste aux apostrophes et trailing commas
 function extractJson(text) {
   if (!text) throw new Error("Réponse IA vide");
-
-  let cleaned = text
-    .replace(/```json/g, "")
-    .replace(/```/g, "")
-    .trim();
-
+  let cleaned = text.replace(/```json/g, "").replace(/```/g, "").trim();
   const match = cleaned.match(/\{[\s\S]*\}/);
   if (!match) throw new Error("Impossible d'extraire le JSON.");
-
   let jsonStr = match[0];
-
-  // Supprimer trailing commas
   jsonStr = jsonStr.replace(/,\s*([\]}])/g, "$1");
-
   try {
     return JSON.parse(jsonStr);
   } catch (e1) {
-    // Remplacer les apostrophes dans les valeurs string
     try {
-      const fixed = jsonStr.replace(/"([^"]*)"/g, (_, val) => {
-        return '"' + val.replace(/'/g, "\u2019") + '"';
-      });
+      const fixed = jsonStr.replace(/"([^"]*)"/g, (_, val) => '"' + val.replace(/'/g, "\u2019") + '"');
       return JSON.parse(fixed);
     } catch (e2) {
-      throw new Error("JSON invalide après tentatives de réparation: " + e1.message);
+      throw new Error("JSON invalide: " + e1.message);
     }
   }
 }
@@ -63,35 +44,17 @@ function extractJson(text) {
 function getAnalysisContext(targetMarket) {
   if (targetMarket === "africa") {
     return {
-      intro: "Tu es un expert en marketing digital qui aide les créateurs d'eBooks en Afrique francophone.",
-      context: "🌍 Contexte : Afrique francophone (Sénégal, Côte d'Ivoire, Cameroun, etc.)",
-      examples: `Exemples de TON à utiliser :
-✓ "Les gens cherchent vraiment ça sur WhatsApp"
-✓ "Ça marche si tu cibles bien les jeunes de 20-35 ans"
-✓ "Propose des paiements Mobile Money (Wave, Orange Money)"
-
-Exemples de public cible :
-✓ "Les jeunes de 20-30 ans qui veulent se lancer mais ont peur de se planter"
-✓ "Les mamans au foyer qui cherchent à arrondir les fins de mois"
-✓ "Les étudiants qui veulent partir à l'étranger mais galèrent avec les dossiers"`,
+      intro: "Expert marketing digital et vente eBooks Afrique francophone.",
+      context: "Marche : Afrique francophone (CI, Senegal, Cameroun, Mali, Benin, Togo)",
       currency: "FCFA",
-      platforms: "WhatsApp, Mobile Money, réseaux sociaux"
+      platforms: "WhatsApp, Instagram, Mobile Money (Wave, Orange Money, MTN)"
     };
   }
   return {
-    intro: "Tu es un expert en marketing digital qui aide les créateurs d'eBooks.",
-    context: "🌐 Contexte : Marché francophone international",
-    examples: `Exemples de TON à utiliser :
-✓ "Les gens cherchent vraiment ça en ligne"
-✓ "Ça marche si tu cibles bien ton audience"
-✓ "Propose des paiements PayPal, Stripe ou cartes bancaires"
-
-Exemples de public cible :
-✓ "Les jeunes adultes de 20-35 ans qui veulent se lancer dans ce domaine"
-✓ "Les personnes cherchant une solution concrète à ce problème"
-✓ "Les débutants qui veulent apprendre sans se ruiner"`,
-    currency: "€/$",
-    platforms: "Réseaux sociaux, email, publicité en ligne"
+    intro: "Expert marketing digital et vente eBooks marche francophone international.",
+    context: "Marche : France, Belgique, Suisse, Canada, Maroc",
+    currency: "EUR",
+    platforms: "Instagram, TikTok, YouTube, Stripe, PayPal"
   };
 }
 
@@ -100,37 +63,24 @@ export async function POST(req) {
     await dbConnect();
 
     const user = await verifyAuth(req);
-    if (!user) {
-      return NextResponse.json({ success: false, message: "Non authentifié" }, { status: 401 });
-    }
+    if (!user) return NextResponse.json({ success: false, message: "Non authentifié" }, { status: 401 });
 
     const { analysisId, nicheId } = await req.json();
-    if (!analysisId || !nicheId) {
-      return NextResponse.json({ success: false, message: "Paramètres manquants." }, { status: 400 });
-    }
+    if (!analysisId || !nicheId) return NextResponse.json({ success: false, message: "Paramètres manquants." }, { status: 400 });
 
     const analysis = await NicheAnalysis.findOne({ _id: analysisId, userId: user.id });
-    if (!analysis) {
-      return NextResponse.json({ success: false, message: "Analyse introuvable." }, { status: 404 });
-    }
+    if (!analysis) return NextResponse.json({ success: false, message: "Analyse introuvable." }, { status: 404 });
 
     const niche = analysis.niches.find(n => n.nicheId === nicheId);
-    if (!niche) {
-      return NextResponse.json({ success: false, message: "Niche introuvable." }, { status: 404 });
-    }
+    if (!niche) return NextResponse.json({ success: false, message: "Niche introuvable." }, { status: 404 });
 
-    // Déjà analysée → renvoyer directement sans déduire
     if (niche.analyzed && niche.analysis) {
       return NextResponse.json({ success: true, data: { niche } });
     }
 
-    // ✅ Vérification crédits
     const userDoc = await User.findById(user.id);
-    if (!userDoc) {
-      return NextResponse.json({ success: false, message: "Utilisateur introuvable." }, { status: 404 });
-    }
+    if (!userDoc) return NextResponse.json({ success: false, message: "Utilisateur introuvable." }, { status: 404 });
 
-    // ✅ Quota journalier dispo → gratuit, sinon débit 1 crédit
     const canUseQuota = userDoc.canDoDaily("nicheAnalysis");
     let usedQuota = false;
 
@@ -141,12 +91,8 @@ export async function POST(req) {
       const balance = userDoc.credits?.balance ?? 0;
       if (balance < 1) {
         return NextResponse.json({
-          success: false,
-          quotaExceeded: true,
-          insufficientCredits: true,
-          plan: userDoc.plan,
-          balance,
-          message: "Quota journalier épuisé et crédits insuffisants."
+          success: false, quotaExceeded: true, insufficientCredits: true,
+          plan: userDoc.plan, balance, message: "Quota journalier épuisé et crédits insuffisants."
         }, { status: 402 });
       }
       userDoc.credits.balance -= 1;
@@ -156,93 +102,120 @@ export async function POST(req) {
 
     const ctx = getAnalysisContext(analysis.targetMarket || "africa");
 
+    // ✅ Base ultra-courte = moins de tokens = plus rapide
     const base = `${ctx.intro}
+eBook: "${niche.title}" — ${niche.description}
+Prix: ${niche.prixMin || 2000}-${niche.prixMax || 6000} ${ctx.currency}
+${ctx.context} | Plateformes: ${ctx.platforms}
+REGLES: JSON strict, sans apostrophes, réponses courtes et concrètes.`;
 
-📚 L'eBook à analyser :
-- Titre : "${niche.title}"
-- Description : "${niche.description}"
-- Mots-clés : ${niche.keywords.join(", ")}
-${niche.why_sells ? `- Pourquoi ça peut marcher : ${niche.why_sells}` : ''}
-
-${ctx.context}
-
-⚠️ RÈGLES D'OR :
-- Parle comme un humain, pas comme une IA
-- Sois direct et concret
-- Zéro jargon marketing compliqué
-- Donne des conseils actionnables, pas de la théorie
-- IMPORTANT : Dans tes réponses JSON, n'utilise PAS d'apostrophes (') dans les textes, utilise plutôt des formulations sans apostrophe
-`;
-
-    console.log(`🚀 Analyse de "${niche.title}" (Marché: ${analysis.targetMarket || 'africa'}) - 4 appels parallèles...`);
+    console.log(`🚀 Analyse "${niche.title}" — 3 appels parallèles...`);
     const startTime = Date.now();
 
+    // ── APPEL 1 : Score + verdict + forces + risques + pays (fusionné)
     const prompt1 = `${base}
 
-💪 Dis-moi franchement : POURQUOI cet eBook peut cartonner ?
-
-Liste 3 points forts concrets et 3 trucs à surveiller.
-
-JSON STRICT (sans apostrophes dans les textes) :
-{
-  "forces": ["Point fort 1", "Point fort 2", "Point fort 3"],
-  "pointsAttention": ["Risque 1", "Risque 2", "Risque 3"]
-}`;
-
-    const prompt2 = `${base}
-
-🎯 Comment se démarquer pour que les gens achètent CET eBook ?
-
-Donne 3 stratégies concrètes applicables dès aujourd'hui.
-
-JSON STRICT (sans apostrophes dans les textes) :
-{"conseilsDiff": ["Stratégie 1", "Stratégie 2", "Stratégie 3"]}`;
-
-    const prompt3 = `${base}
-
-📊 Donne-moi les chiffres du marché.
+Retourne UN seul JSON avec score global, forces/risques, et top 5 pays.
 
 JSON STRICT :
 {
-  "volumeEstime": "ex: 2k-5k ou 10k+ ou Peu",
-  "tendance": "ex: Monte fort ou Stable ou Baisse",
-  "difficulteSEO": 4,
-  "cpcMoyen": "ex: 0.30 euros ou Quasi gratuit"
+  "scoreGlobal": 78,
+  "verdict": "Phrase courte sur le potentiel (max 12 mots)",
+  "forces": ["Force concrete 1", "Force concrete 2", "Force concrete 3"],
+  "risques": ["Risque reel 1", "Risque reel 2", "Risque reel 3"],
+  "paysTop": [
+    { "pays": "Cote d Ivoire", "score": 95, "raison": "Raison courte" },
+    { "pays": "Senegal", "score": 88, "raison": "Raison courte" },
+    { "pays": "Cameroun", "score": 80, "raison": "Raison courte" },
+    { "pays": "Mali", "score": 72, "raison": "Raison courte" },
+    { "pays": "Benin", "score": 65, "raison": "Raison courte" }
+  ]
 }`;
 
-    const prompt4 = `${base}
+    // ── APPEL 2 : Plan 100 ventes + tactiques + message accroche
+    const prompt2 = `${base}
 
-✍️ Améliore le titre et dis-moi à QUI vendre cet eBook.
+Plan concret 100 ventes ce mois. Boutique : Taliopay (taliopay.com) — Mobile Money integre.
 
-JSON STRICT (sans apostrophes dans les textes) :
+JSON STRICT :
 {
-  "titreOptimise": "Titre ultra-vendeur (max 60 caracteres)",
-  "publicCible": "A qui vendre exactement (2-3 phrases max, ton naturel)"
+  "prixIdeal": 3500,
+  "plateformeVente": "Taliopay",
+  "planSemaines": [
+    { "semaine": "Semaine 1", "objectif": "20 ventes", "action": "Action cle a faire" },
+    { "semaine": "Semaine 2", "objectif": "30 ventes", "action": "Action cle a faire" },
+    { "semaine": "Semaine 3", "objectif": "30 ventes", "action": "Action cle a faire" },
+    { "semaine": "Semaine 4", "objectif": "20 ventes", "action": "Action cle a faire" }
+  ],
+  "tactiquesVente": ["Tactique 1", "Tactique 2", "Tactique 3"],
+  "messageAccroche": "Message WhatsApp/Instagram ultra-vendeur 2 phrases max"
 }`;
 
-    const [raw1, raw2, raw3, raw4] = await Promise.all([
+    // ── APPEL 3 : Positionnement + projections revenus + Taliopay conseil
+    const prompt3 = `${base}
+
+Positionnement pour dominer la niche et projections revenus. Recommande Taliopay pour vendre.
+
+JSON STRICT :
+{
+  "angleUnique": "Angle unique percutant 1 phrase",
+  "ceQueLaConcFaitMal": "Ce que les concurrents ratent",
+  "messageCle": "Message marketing principal 1 phrase",
+  "titreOptimise": "Titre vendeur max 60 caracteres",
+  "publicCible": "A qui vendre exactement 2 phrases",
+  "projections": [
+    { "scenario": "50 ventes", "revenus": 175000, "label": "Objectif minimal" },
+    { "scenario": "100 ventes", "revenus": 350000, "label": "Objectif du mois" },
+    { "scenario": "200 ventes", "revenus": 700000, "label": "Objectif ambitieux" }
+  ],
+  "conseilsTaliopay": "Pourquoi Taliopay est ideal pour vendre cet ebook 1 phrase"
+}`;
+
+    // ✅ 3 appels parallèles — tokens complets pour des réponses riches
+    const [raw1, raw2, raw3] = await Promise.all([
       getAIText("nicheAnalyze", prompt1, 1500),
-      getAIText("nicheAnalyze", prompt2, 1200),
-      getAIText("nicheAnalyze", prompt3, 1200),
-      getAIText("nicheAnalyze", prompt4, 1200)
+      getAIText("nicheAnalyze", prompt2, 1500),
+      getAIText("nicheAnalyze", prompt3, 1500),
     ]);
 
     const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
-    console.log(`⚡ 4 analyses terminées en ${totalTime}s`);
+    console.log(`⚡ 3 analyses terminées en ${totalTime}s`);
+
+    if (!raw1 && !raw2 && !raw3) {
+      console.warn("⚠️ Tous les appels IA null — highDemand");
+      return NextResponse.json({ success: false, highDemand: true, message: "Demande élevée actuellement." }, { status: 503 });
+    }
+
+    const safeExtract = (raw, label) => {
+      if (!raw) { console.warn(`⚠️ ${label}: réponse vide`); return {}; }
+      try {
+        const result = cleanJsonMarkdown(extractJson(raw));
+        console.log(`✅ ${label} keys:`, Object.keys(result));
+        return result;
+      } catch (e) {
+        console.warn(`⚠️ ${label} extractJson échoué:`, e.message);
+        return {};
+      }
+    };
 
     const merged = {
-      ...cleanJsonMarkdown(extractJson(raw1)),
-      ...cleanJsonMarkdown(extractJson(raw2)),
-      ...cleanJsonMarkdown(extractJson(raw3)),
-      ...cleanJsonMarkdown(extractJson(raw4)),
+      ...safeExtract(raw1, "raw1 (score+pays)"),
+      ...safeExtract(raw2, "raw2 (plan100)"),
+      ...safeExtract(raw3, "raw3 (positionnement)"),
       analysisTime: totalTime,
-      analyzedAt: new Date().toISOString()
+      analyzedAt: new Date().toISOString(),
     };
+
+    console.log("📦 MERGED keys:", Object.keys(merged));
+    console.log("📦 paysTop:", JSON.stringify(merged.paysTop?.slice(0, 2)));
+    console.log("📦 projections:", JSON.stringify(merged.projections));
+    console.log("📦 planSemaines count:", merged.planSemaines?.length);
 
     const index = analysis.niches.findIndex(n => n.nicheId === nicheId);
     analysis.niches[index].analysis = merged;
     analysis.niches[index].analyzed = true;
     analysis.niches[index].analysisCompletedAt = new Date();
+    analysis.markModified(`niches.${index}.analysis`); // ✅ requis pour Mixed
     await analysis.save();
 
     console.log(`✅ Analyse complétée en ${totalTime}s pour "${niche.title}"`);
@@ -255,11 +228,11 @@ JSON STRICT (sans apostrophes dans les textes) :
       data: { niche: analysis.niches[index], analysisTime: totalTime },
       usedQuota,
       remainingQuota,
-      newBalance: !usedQuota ? userDoc.credits?.balance : undefined
+      newBalance: !usedQuota ? userDoc.credits?.balance : undefined,
     });
 
   } catch (e) {
     console.error("❌ Erreur analyse niche:", e);
-    return NextResponse.json({ success: false, message: "Erreur lors de l'analyse.", error: e.message }, { status: 500 });
+    return NextResponse.json({ success: false, message: "Erreur lors de l analyse.", error: e.message }, { status: 500 });
   }
 }
