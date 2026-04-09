@@ -1,6 +1,6 @@
 // app/api/smart-shop/check-slug/route.js
 // Vérifier si un slug de boutique est disponible
-
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import Shop from "@/models/Shop";
