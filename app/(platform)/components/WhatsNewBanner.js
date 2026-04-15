@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { X, ArrowRight } from "lucide-react";
 
-const DEPLOY_DATE = new Date("2026-04-13T00:00:00Z");
+const DEPLOY_DATE = new Date("2026-04-15T00:00:00Z");
 const BANNER_DURATION_DAYS = 14;
 
 export default function WhatsNewBanner({ user }) {

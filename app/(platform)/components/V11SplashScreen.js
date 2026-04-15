@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight, X } from "lucide-react";
 
-const DEPLOY_DATE = new Date("2026-04-13T00:00:00Z");
+const DEPLOY_DATE = new Date("2026-04-15T00:00:00Z");
 
 export default function V12SplashScreen({ user }) {
   const [visible, setVisible] = useState(false);
