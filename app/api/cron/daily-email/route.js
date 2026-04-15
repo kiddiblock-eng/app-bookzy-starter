@@ -6,47 +6,45 @@ import { getAIText } from "@/lib/ai";
 import { dailyLessonEmail } from "@/lib/emailTemplates/dailyLesson";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 // ── THÈMES PAR JOUR ──────────────────────────────────────────────────────────
 const THEMES = {
-  1: { // Lundi
+  1: {
     label: "Lundi — Trouver un sujet winner",
     theme: "comment trouver un sujet d'ebook qui se vend bien en Afrique francophone en 2026",
     cta: "Trouver mon sujet winner",
     ctaUrl: "https://app.bookzy.io/dashboard/niche-hunter",
   },
-  2: { // Mardi
+  2: {
     label: "Mardi — Fixer le bon prix",
     theme: "comment fixer le prix idéal d'un ebook pour maximiser les ventes en Afrique francophone",
     cta: "Créer mon ebook",
     ctaUrl: "https://app.bookzy.io/dashboard/projets/nouveau",
   },
-  3: { // Mercredi
+  3: {
     label: "Mercredi — Vendre sur WhatsApp",
     theme: "stratégies concrètes pour vendre des ebooks via WhatsApp et augmenter ses conversions",
     cta: "Voir mes ebooks",
     ctaUrl: "https://app.bookzy.io/dashboard/mes-ebooks",
   },
-  4: { // Jeudi
+  4: {
     label: "Jeudi — Promouvoir sur les réseaux",
     theme: "comment promouvoir et vendre ses ebooks sur Instagram, TikTok et Facebook en 2026",
     cta: "Analyser une niche",
     ctaUrl: "https://app.bookzy.io/dashboard/niche-hunter",
   },
-  5: { // Vendredi
+  5: {
     label: "Vendredi — Produit winner de la semaine",
     theme: "quel type d'ebook cartonne le plus en ce moment sur le marché francophone africain et pourquoi",
     cta: "Espionner les pubs",
     ctaUrl: "https://app.bookzy.io/dashboard/radar-cash",
   },
-  6: { // Samedi
+  6: {
     label: "Samedi — Stratégie avancée",
     theme: "une stratégie avancée pour créer une source de revenus passifs avec des ebooks numériques",
     cta: "Créer un roman IA",
     ctaUrl: "https://app.bookzy.io/dashboard/romans",
   },
-  0: { // Dimanche
+  0: {
     label: "Dimanche — Rapport de la semaine",
     theme: "pourquoi créer et vendre des ebooks est l'une des meilleures opportunités business en Afrique en 2026",
     cta: "Voir mes opportunités",
@@ -55,8 +53,10 @@ const THEMES = {
 };
 
 export async function GET(req) {
+  // ✅ Instancié dans la fonction — pas au niveau module
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
   try {
-    // ── Vérifier le secret cron ───────────────────────────────────────────────
     const secret = req.headers.get("x-cron-secret");
     if (secret !== process.env.CRON_SECRET) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
@@ -65,11 +65,10 @@ export async function GET(req) {
     await dbConnect();
 
     const now = new Date();
-    const dayOfWeek = now.getDay(); // 0=dimanche, 1=lundi...
+    const dayOfWeek = now.getDay();
     const isDimanche = dayOfWeek === 0;
     const config = THEMES[dayOfWeek];
 
-    // ── Générer le contenu avec Gemini ────────────────────────────────────────
     const prompt = `Tu es un expert en marketing digital et vente d'ebooks en Afrique francophone.
 
 Écris une leçon email quotidienne sur : "${config.theme}"
@@ -100,12 +99,10 @@ Réponds en JSON STRICT :
       return NextResponse.json({ error: "Erreur parsing IA" }, { status: 500 });
     }
 
-    // ── Mode test — envoyer uniquement à un email spécifique ─────────────────
     const { searchParams } = new URL(req.url);
     const testEmail = searchParams.get("email");
     const isTest = searchParams.get("test") === "true" && testEmail;
 
-    // ── Récupérer les users actifs ────────────────────────────────────────────
     let users;
     if (isTest) {
       users = [{ name: "Roddy", firstName: "Roddy", email: testEmail, plan: "agence", ebooksCreated: 10, credits: { balance: 60 } }];
@@ -124,11 +121,9 @@ Réponds en JSON STRICT :
 
     console.log(`📧 [DAILY EMAIL] ${config.label} — ${users.length} users`);
 
-    // ── Envoyer en batch via Resend ───────────────────────────────────────────
     let sent = 0;
     let errors = 0;
 
-    // Batch de 50 pour respecter les limites Resend
     const BATCH_SIZE = 50;
     for (let i = 0; i < users.length; i += BATCH_SIZE) {
       const batch = users.slice(i, i + BATCH_SIZE);
@@ -137,7 +132,6 @@ Réponds en JSON STRICT :
         try {
           const userName = user.firstName || user.name?.split(" ")[0] || "toi";
 
-          // Rapport dimanche — données personnalisées
           const reportData = isDimanche ? {
             potentielFCFA: `${Math.floor(Math.random() * 200 + 100)}k FCFA`,
             nichesActives: Math.floor(Math.random() * 20 + 5),
@@ -169,7 +163,6 @@ Réponds en JSON STRICT :
         }
       }));
 
-      // Pause entre les batches
       if (i + BATCH_SIZE < users.length) {
         await new Promise(r => setTimeout(r, 1000));
       }
