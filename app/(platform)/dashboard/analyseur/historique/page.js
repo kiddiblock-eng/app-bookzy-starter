@@ -13,18 +13,16 @@ const VERDICT_CONFIG = {
 export default function AnalyseurHistoriquePage() {
   const router = useRouter();
   const [analyses, setAnalyses] = useState([]);
-  const [isPremium, setIsPremium] = useState(false);
+  const [isPremium, setIsPremium] = useState(true); // Tous les résultats sont visibles
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/analyseur/list", { credentials: "include" }).then(r => r.json()),
-      fetch("/api/auth/me", { credentials: "include" }).then(r => r.json()),
-    ]).then(([listData, meData]) => {
-      if (listData.success) setAnalyses(listData.data);
-      const plan = meData?.user?.plan || meData?.plan || "free";
-      setIsPremium(["solo", "createur", "agence"].includes(plan));
-    }).finally(() => setLoading(false));
+    fetch("/api/analyseur/list", { credentials: "include" })
+      .then(r => r.json())
+      .then(listData => {
+        if (listData.success) setAnalyses(listData.data);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   if (loading) return (
@@ -77,12 +75,12 @@ export default function AnalyseurHistoriquePage() {
                 <svg width="52" height="52" viewBox="0 0 52 52">
                   <circle cx="26" cy="26" r="22" fill="none" stroke="#f1f5f9" strokeWidth="5" />
                   <circle cx="26" cy="26" r="22" fill="none"
-                    stroke={isPremium ? verdict.color : "#e2e8f0"} strokeWidth="5"
+                    stroke={verdict.color} strokeWidth="5"
                     strokeDasharray={`${2 * Math.PI * 22 * (a.scoreGlobal || 0) / 100} ${2 * Math.PI * 22}`}
                     strokeLinecap="round" strokeDashoffset={2 * Math.PI * 22 * 0.25}
                     style={{ transform: "rotate(-90deg)", transformOrigin: "26px 26px" }} />
-                  <text x="26" y="30" textAnchor="middle" fontSize="11" fontWeight="900" fill={isPremium ? "#0f172a" : "#94a3b8"}>
-                    {isPremium ? a.scoreGlobal : "??"}
+                  <text x="26" y="30" textAnchor="middle" fontSize="11" fontWeight="900" fill="#0f172a">
+                    {a.scoreGlobal}
                   </text>
                 </svg>
               </div>
@@ -90,23 +88,12 @@ export default function AnalyseurHistoriquePage() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontSize: "14px", fontWeight: "700", color: "#0f172a", margin: "0 0 4px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.sujet}</p>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                  {isPremium ? (
-                    <span style={{ fontSize: "11px", fontWeight: "700", color: verdict.color, background: verdict.bg, padding: "2px 8px", borderRadius: "20px" }}>
-                      {verdict.label}
-                    </span>
-                  ) : (
-                    <span style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", background: "#f1f5f9", padding: "2px 8px", borderRadius: "20px" }}>
-                      🔒 Verdict caché
-                    </span>
-                  )}
-                  {isPremium && a.revenus?.prixRecommande && (
+                  <span style={{ fontSize: "11px", fontWeight: "700", color: verdict.color, background: verdict.bg, padding: "2px 8px", borderRadius: "20px" }}>
+                    {verdict.label}
+                  </span>
+                  {a.revenus?.prixRecommande && (
                     <span style={{ fontSize: "11px", color: "#64748b" }}>
                       {a.revenus.prixRecommande.toLocaleString()} FCFA
-                    </span>
-                  )}
-                  {!isPremium && (
-                    <span style={{ fontSize: "11px", color: "#f59e0b", fontWeight: "600", background: "#fffbeb", padding: "2px 8px", borderRadius: "20px" }}>
-                      Rapport flouté
                     </span>
                   )}
                   <span style={{ fontSize: "11px", color: "#94a3b8" }}>

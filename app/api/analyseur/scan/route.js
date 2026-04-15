@@ -139,16 +139,21 @@ export async function POST(req) {
     const userDoc = await (await import("@/models/User")).default.findById(user.id).select("plan credits");
     const isPremium = ["solo", "createur", "agence"].includes(userDoc?.plan);
 
-    // Free : vérifier le quota permanent AVANT de faire les appels API
+    // Free : vérifier le quota AVANT les appels API
     if (!isPremium) {
-      const totalFreeAnalyses = userDoc?.credits?.freeProductAnalyses || 0;
       const existingCount = await (await import("@/models/ProductAnalysis")).default.countDocuments({ userId: user.id });
-      if (totalFreeAnalyses >= 1 || existingCount >= 1) {
+      if (existingCount >= 1) {
+        // 2ème analyse+ → abonnement requis
+        return NextResponse.json({ success: false, limitReached: true }, { status: 402 });
+      }
+      // 1ère analyse → vérifier si 4 crédits disponibles
+      const balance = userDoc?.credits?.balance ?? 0;
+      if (balance < 4) {
         return NextResponse.json({ success: false, limitReached: true }, { status: 402 });
       }
     }
 
-    // Si checkOnly → juste vérifier le quota, pas faire les appels API
+    // Si checkOnly → juste vérifier le quota
     if (checkOnly) return NextResponse.json({ success: true });
 
     // Extraire keyword via Gemini

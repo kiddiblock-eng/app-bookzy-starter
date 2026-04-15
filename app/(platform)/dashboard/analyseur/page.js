@@ -105,7 +105,7 @@ export default function AnalyseurPage() {
       if (!analyseData.success) {
         setPhase("idle");
         if (analyseData.limitReached) setLimitReached(true);
-        else if (analyseData.insufficientCredits) setError(`Crédits insuffisants. Il vous faut ${analyseData.required} crédits.`);
+        else if (analyseData.insufficientCredits) setLimitReached(true); // Pas assez de crédits → même UI abonnement
         else setError(analyseData.message || "Erreur.");
         return;
       }
@@ -119,7 +119,7 @@ export default function AnalyseurPage() {
 
       setPhase("done");
       await wait(400);
-      router.push(`/dashboard/analyseur/${analyseData.data.id}?premium=${analyseData.isPremium}`);
+      router.push(`/dashboard/analyseur/${analyseData.data.id}?premium=true`);
 
     } catch {
       setPhase("idle");

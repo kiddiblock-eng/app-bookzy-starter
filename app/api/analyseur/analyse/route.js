@@ -361,30 +361,38 @@ export async function POST(req) {
       userDoc.dailyUsage = { date: today, youtubeAnalysis: 0, nicheHunter: 0, nicheAnalysis: 0, productAnalysis: 0 };
     }
     const usedToday = userDoc.dailyUsage?.productAnalysis || 0;
-    // Compteur total permanent pour les free (ne se remet jamais à zéro)
-    const totalFreeAnalyses = userDoc.credits?.freeProductAnalyses || 0;
-    console.log(`📊 [QUOTA] plan: ${userDoc.plan} | isPremium: ${isPremium} | usedToday: ${usedToday} | totalFree: ${totalFreeAnalyses}`);
+    const existingCount = await ProductAnalysis.countDocuments({ userId: user.id });
+    console.log(`📊 [QUOTA] plan: ${userDoc.plan} | isPremium: ${isPremium} | usedToday: ${usedToday} | total: ${existingCount}`);
 
     if (!isPremium) {
-      // Free : 1 seule analyse gratuite à vie
-      // Double vérification : compteur permanent OU analyses existantes en DB
-      const totalFreeAnalyses = userDoc.credits?.freeProductAnalyses || 0;
-      const existingCount = await ProductAnalysis.countDocuments({ userId: user.id });
-      if (totalFreeAnalyses >= 1 || existingCount >= 1) {
+      if (existingCount === 0) {
+        // 1ère analyse → débiter 4 crédits (offerts à l'inscription)
+        const balance = userDoc.credits?.balance ?? 0;
+        if (balance < CREDITS_PAR_ANALYSE) {
+          return NextResponse.json({
+            success: false,
+            limitReached: true,
+            message: "Crédits insuffisants. Passez à Solo pour continuer.",
+          }, { status: 402 });
+        }
+        userDoc.credits.balance -= CREDITS_PAR_ANALYSE;
+        userDoc.credits.totalSpent = (userDoc.credits.totalSpent || 0) + CREDITS_PAR_ANALYSE;
+        await userDoc.save();
+        console.log(`💳 [QUOTA] 4 crédits débités — 1ère analyse — solde: ${userDoc.credits.balance}`);
+      } else {
+        // 2ème analyse et + → abonnement requis
         return NextResponse.json({
           success: false,
           limitReached: true,
-          message: "Vous avez utilisé votre analyse gratuite. Passez à Solo pour continuer.",
+          message: "Passez à l'abonnement Solo pour continuer à analyser.",
         }, { status: 402 });
       }
-      // 1ère analyse — incrémenter le compteur permanent
-      await userDoc.constructor.findByIdAndUpdate(userDoc._id, {
-        $inc: { "credits.freeProductAnalyses": 1 },
-      });
     } else if (usedToday < ANALYSES_GRATUITES_PAR_JOUR) {
+      // Premium : analyses incluses dans l'abonnement
       userDoc.dailyUsage.productAnalysis = (userDoc.dailyUsage.productAnalysis || 0) + 1;
       await userDoc.save();
     } else {
+      // Premium : quota journalier dépassé → débiter crédits
       const balance = userDoc.credits?.balance ?? 0;
       if (balance < CREDITS_PAR_ANALYSE) {
         return NextResponse.json({ success: false, insufficientCredits: true, balance, required: CREDITS_PAR_ANALYSE }, { status: 402 });

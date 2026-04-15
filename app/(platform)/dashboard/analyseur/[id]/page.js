@@ -129,7 +129,8 @@ export default function AnalyseurResultPage() {
   const [showAnglerModal, setShowAnglerModal] = useState(false);
   const [selectedTitre, setSelectedTitre] = useState(null);
 
-  const [isPremiumReal, setIsPremiumReal] = useState(isPremium);
+  // Tous les résultats sont complets — plus de floutage
+  const [isPremiumReal, setIsPremiumReal] = useState(true);
 
   useEffect(() => {
     if (!id) return;
@@ -138,8 +139,6 @@ export default function AnalyseurResultPage() {
       .then(d => {
         if (d.success) {
           setData(d.data);
-          // isPremium depuis le serveur = source de vérité (évite le ?premium=true hardcodé)
-          if (typeof d.isPremium === "boolean") setIsPremiumReal(d.isPremium);
           mutate("/api/credits/balance");
         }
       })
