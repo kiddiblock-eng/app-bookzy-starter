@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import Transaction from "@/models/Transaction";
@@ -14,15 +14,14 @@ const PACK_LABELS = {
 };
 
 const PACK_CREDITS = {
-  solo_monthly:        60,
-  solo_quarterly:      180,
-  createur_monthly:    330,
-  createur_quarterly:  990,
-  agence_monthly:      700,
-  agence_quarterly:    2100,
+  solo_monthly:       100,
+  solo_quarterly:     300,
+  createur_monthly:   400,
+  createur_quarterly: 1200,
+  agence_monthly:     900,
+  agence_quarterly:   2700,
 };
 
-// Parser recharge dynamique : "recharge_30_solo" → 30 crédits
 function parseRechargeCredits(packId) {
   const match = packId?.match(/^recharge_(\d+)_(free|solo|createur|agence)$/);
   if (!match) return null;
@@ -47,14 +46,8 @@ function getPackCredits(packId) {
 export async function GET(req) {
   try {
     await dbConnect();
-
     const user = await verifyAuth(req);
-    if (!user) {
-      return NextResponse.json(
-        { success: false, message: "Non authentifié" },
-        { status: 401 }
-      );
-    }
+    if (!user) return NextResponse.json({ success: false, message: "Non authentifié" }, { status: 401 });
 
     const { searchParams } = new URL(req.url);
     const page  = Math.max(1, parseInt(searchParams.get("page")  || "1"));
@@ -62,20 +55,10 @@ export async function GET(req) {
     const skip  = (page - 1) * limit;
 
     const [transactions, total] = await Promise.all([
-      Transaction.find({
-        userId:  user.id,
-        purpose: "credit_pack",
-      })
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .select("packId amount currency status completedAt createdAt")
-        .lean(),
-
-      Transaction.countDocuments({
-        userId:  user.id,
-        purpose: "credit_pack",
-      }),
+      Transaction.find({ userId: user.id, purpose: "credit_pack" })
+        .sort({ createdAt: -1 }).skip(skip).limit(limit)
+        .select("packId amount currency status completedAt createdAt").lean(),
+      Transaction.countDocuments({ userId: user.id, purpose: "credit_pack" }),
     ]);
 
     const formatted = transactions.map(tx => ({
@@ -94,21 +77,12 @@ export async function GET(req) {
       success: true,
       data: {
         transactions: formatted,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit),
-          hasMore: skip + transactions.length < total,
-        },
+        pagination: { page, limit, total, totalPages: Math.ceil(total / limit), hasMore: skip + transactions.length < total },
       },
     });
 
   } catch (error) {
     console.error("❌ [Credits History] Erreur:", error.message);
-    return NextResponse.json(
-      { success: false, message: "Erreur serveur" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, message: error.message || "Erreur serveur" }, { status: 500 });
   }
 }

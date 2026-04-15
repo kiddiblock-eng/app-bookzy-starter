@@ -4,7 +4,6 @@
 import { useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Hero from "@/app/(marketing)/components/Hero";
-import Exemplesection from "@/app/(marketing)/components/Exemplesection";
 import HowitWork from "@/app/(marketing)/components/HowitWork";
 import Pricing from "@/app/(marketing)/components/Pricing";
 import PourquoiBookzy from "@/app/(marketing)/components/PourquoiBookzy";
@@ -45,7 +44,7 @@ export default function HomePage() {
 
       <HowitWork />
       <TemplatesSection />
-     <Exemplesection />
+     
       <PourquoiBookzy />
       <Testimonials />
       <Pricing />

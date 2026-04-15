@@ -22,7 +22,6 @@ function useActiveUserPing() {
 function useCurrentUser() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     let intervalId = null;
     const fetchData = async () => {
@@ -34,10 +33,7 @@ function useCurrentUser() {
             if (!prevUser || prevUser.emailVerified !== data.emailVerified) return data;
             return prevUser;
           });
-          if (data.emailVerified && intervalId) {
-            clearInterval(intervalId);
-            intervalId = null;
-          }
+          if (data.emailVerified && intervalId) { clearInterval(intervalId); intervalId = null; }
         }
       } catch (err) {
         console.error("Erreur fetch user:", err);
@@ -49,7 +45,6 @@ function useCurrentUser() {
     intervalId = setInterval(fetchData, 30_000);
     return () => { if (intervalId) clearInterval(intervalId); };
   }, []);
-
   return { user, loading };
 }
 
@@ -61,16 +56,13 @@ export default function DashboardLayout({ children }) {
   useActiveUserPing();
   const { user, loading } = useCurrentUser();
 
-  const sidebarWidth = collapsed ? "lg:ml-[64px]" : "lg:ml-[256px]";
-  const headerLeft   = collapsed ? "lg:left-[64px]" : "lg:left-[256px]";
+  const sidebarWidth = collapsed ? "lg:ml-[60px]" : "lg:ml-[220px]";
+  const headerLeft = collapsed ? "lg:left-[60px]" : "lg:left-[220px]";
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex w-full overflow-x-hidden">
-
-      {/* SPLASH SCREEN V1.1 */}
       {!loading && user && <V11SplashScreen user={user} />}
 
-      {/* SIDEBAR */}
       <DashboardSidebar
         open={open}
         setOpen={setOpen}
@@ -78,22 +70,17 @@ export default function DashboardLayout({ children }) {
         setCollapsed={setCollapsed}
       />
 
-      {/* CONTENU */}
-      <div className={`flex-1 flex flex-col ${sidebarWidth} relative max-w-full transition-all duration-300`}>
-
-        {/* HEADER */}
-        <div className={`fixed top-0 left-0 ${headerLeft} right-0 z-30 bg-white/80 dark:bg-neutral-950/80 border-b border-neutral-200 dark:border-neutral-800 backdrop-blur-xl shadow-sm transition-all duration-300`}
+      <div className={`flex-1 flex flex-col ${sidebarWidth} relative max-w-full transition-all duration-200`}>
+        <div className={`fixed top-0 left-0 ${headerLeft} right-0 z-30 bg-white/80 dark:bg-neutral-950/80 border-b border-neutral-200 dark:border-neutral-800 backdrop-blur-xl shadow-sm transition-all duration-200`}
           style={{ height: "56px" }}>
           <DashboardHeader onMenuClick={() => setOpen(true)} />
         </div>
 
-        {/* BANNER */}
         <div className="pt-[56px] lg:ml-0">
           {!loading && user && <WhatsNewBanner user={user} />}
           {!loading && user && <EmailVerificationBanner user={user} />}
         </div>
 
-        {/* MAIN */}
         <main className="bg-neutral-50 dark:bg-neutral-950 min-h-screen overflow-x-hidden">
           <div className="p-4 md:p-6 lg:p-8 w-full max-w-full">
             {children}
@@ -101,7 +88,6 @@ export default function DashboardLayout({ children }) {
         </main>
       </div>
 
-      {/* SUPPORT FLOTTANT */}
       <FloatingSupport open={chatOpen} setOpen={setChatOpen} />
     </div>
   );
@@ -114,16 +100,12 @@ function FloatingSupport({ open, setOpen }) {
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
 
-  // ✅ Cache le bouton quand on scrolle vers le bas, réaffiche quand on remonte
   useEffect(() => {
-    if (open) return; // Si le chat est ouvert, toujours visible
+    if (open) return;
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-        setVisible(false); // Scroll vers le bas → cacher
-      } else {
-        setVisible(true);  // Scroll vers le haut → afficher
-      }
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) setVisible(false);
+      else setVisible(true);
       lastScrollY.current = currentScrollY;
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -153,13 +135,10 @@ function FloatingSupport({ open, setOpen }) {
 
   return (
     <>
-      {/* Bouton flottant — caché au scroll bas, visible au scroll haut */}
-      <button
-        onClick={() => setOpen(!open)}
+      <button onClick={() => setOpen(!open)}
         className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${
           open ? "bg-slate-700 text-white" : "bg-slate-900 hover:bg-slate-800 text-white"
-        } ${visible || open ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16 pointer-events-none"}`}
-      >
+        } ${visible || open ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16 pointer-events-none"}`}>
         {open ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
       </button>
 
@@ -199,14 +178,10 @@ function FloatingSupport({ open, setOpen }) {
           </div>
           <div className="p-3 bg-white border-t border-slate-100 flex-shrink-0">
             <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
+              <input type="text" value={input} onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
                 placeholder="Écris ton message..."
-                className="flex-1 px-3 py-2.5 bg-slate-100 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
-              />
+                className="flex-1 px-3 py-2.5 bg-slate-100 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-900" />
               <button onClick={sendMessage} disabled={loading || !input.trim()}
                 className="w-10 h-10 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-200 text-white rounded-xl flex items-center justify-center transition-all">
                 <Send className="w-4 h-4" />

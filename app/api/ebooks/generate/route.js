@@ -85,7 +85,7 @@ async function generatePhase1(projetId, userId, providedOutline) {
 
     console.log(`✅ [PHASE 1] Projet chargé: ${projet.titre}`);
 
-    const { titre, description, tone, audience, pages, chapters, template } = projet;
+    const { titre, description, tone, audience, pages, chapters, template, youbookContext, langue = 'français' } = projet;
     
     projet.status = "processing";
     projet.progress = 10;
@@ -100,7 +100,13 @@ async function generatePhase1(projetId, userId, providedOutline) {
     console.log(`📊 [PHASE 1] Config: ${totalChapters} chapitres, ${wordsPerChapter} mots/chapitre, Template: ${template}`);
 
     let summaryText = "";
-    if (providedOutline && Array.isArray(providedOutline) && providedOutline.length > 0) {
+
+    // ✅ Réutiliser le summary exact de l'aperçu si disponible en DB
+    const projetForSummary = await Projet.findById(projetId);
+    if (projetForSummary?.summary && projetForSummary.summary.length > 10) {
+      console.log("✅ [PHASE 1] Réutilisation summary de l'aperçu");
+      summaryText = projetForSummary.summary;
+    } else if (providedOutline && Array.isArray(providedOutline) && providedOutline.length > 0) {
         console.log("✅ [PHASE 1] Utilisation outline fourni");
         const cleanChapters = providedOutline.filter(line => 
           !line.toLowerCase().includes("introduction") && 
@@ -111,7 +117,7 @@ async function generatePhase1(projetId, userId, providedOutline) {
         ).join("\n");
     } else {
         console.log("🤖 [PHASE 1] Génération outline par IA");
-        const summaryPrompt = getSummaryPrompt({ title: titre, totalChapters: chapters, description });
+        const summaryPrompt = getSummaryPrompt({ title: titre, totalChapters: chapters, description, langue });
         summaryText = await getAIWithRetry("ebook", `${EBOOK_SYSTEM_PROMPT}\n\n${summaryPrompt}`, 2000);
     }
     
@@ -122,11 +128,29 @@ async function generatePhase1(projetId, userId, providedOutline) {
 
     console.log("🤖 [PHASE 1] Génération introduction");
     const introWords = Math.floor(totalWordsTarget * 0.10);
-    const introText = await getAIWithRetry(
-      "ebook", 
-      `${EBOOK_SYSTEM_PROMPT}\n\n${getIntroPrompt({ title: titre, description, tone, audience })}\n\nFais environ ${introWords} mots.`, 
-      2000
-    );
+    const youbookExtra = youbookContext ? `
+CONTEXTE VIDÉO YOUTUBE (utilise ces informations pour enrichir le contenu) :
+- Accroche : ${youbookContext.hook || ""}
+- Problème résolu : ${youbookContext.probleme || ""}
+- Transformation promise : ${youbookContext.transformation || ""}
+- Points clés : ${(youbookContext.key_insights || []).join(", ")}
+- Citation forte : "${youbookContext.verbatim || ""}"
+Intègre naturellement ces éléments dans le contenu pour rester fidèle à la vidéo originale.
+` : "";
+
+    // ✅ Réutiliser l'intro de l'aperçu si elle existe déjà
+    const projetForIntro = await Projet.findById(projetId);
+    let introText;
+    if (projetForIntro?.introduction && projetForIntro.introduction.length > 50) {
+      console.log("✅ [PHASE 1] Réutilisation intro de l'aperçu");
+      introText = projetForIntro.introduction;
+    } else {
+      introText = await getAIWithRetry(
+        "ebook",
+        `${EBOOK_SYSTEM_PROMPT}\n\n${getIntroPrompt({ title: titre, description, tone, audience, langue })}\n\nFais environ ${introWords} mots.${youbookExtra}`,
+        2000
+      );
+    }
     
     projet.introduction = cleanMarkdown(introText);
     projet.progress = 30;
@@ -171,7 +195,21 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     const description = projet.description;
     const template = projet.template || "modern";
     const audience = projet.audience || "grand public francophone";  
-    const tone = projet.tone || "professionnel et motivant";          // ✅ AJOUTE
+    const tone = projet.tone || "professionnel et motivant";
+    const youbookContext = projet.youbookContext || null;
+    const langue = projet.langue || 'français';
+
+    // Contexte Youbook à injecter dans tous les prompts
+    const youbookExtra = youbookContext ? `
+
+IMPORTANT — CET EBOOK EST BASÉ SUR UNE VIDÉO YOUTUBE. Reste fidèle à son contenu :
+- Accroche de la vidéo : ${youbookContext.hook || ""}
+- Problème traité : ${youbookContext.probleme || ""}
+- Transformation promise : ${youbookContext.transformation || ""}
+- Points clés : ${(youbookContext.key_insights || []).join(", ")}
+- Citation forte à réutiliser : "${youbookContext.verbatim || ""}"
+Intègre naturellement ces éléments dans le contenu pour rester fidèle à la vidéo originale.
+` : "";
 
     let authorName = "Auteur";
     try {
@@ -221,6 +259,9 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
             let chapterText = "";
             let retryCount = 0;
             const MAX_CHAPTER_RETRIES = 3;
+
+            // ✅ Réutiliser le début du chapitre 1 depuis l'aperçu
+            const ch1PreviewText = chapterNumber === 1 ? projet.ch1Preview : null;
             
             while (retryCount < MAX_CHAPTER_RETRIES) {
               try {
@@ -233,8 +274,9 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
                     description, 
                     summary: summaryText, 
                     totalChapters, 
-                    wordsTarget: wordsPerChapter 
-                  })}\n\n${FORMAT_INSTRUCTIONS}`, 
+                    wordsTarget: wordsPerChapter,
+                    langue 
+                  })}${ch1PreviewText ? `\n\nIMPORTANT: Ce chapitre doit commencer EXACTEMENT par ce texte déjà écrit:\n${ch1PreviewText}\n\nContinue naturellement à partir de là sans répéter l'introduction.` : ""}\n\n${FORMAT_INSTRUCTIONS}${youbookExtra}`, 
                   dynamicMaxTokens
                 );
                 
@@ -284,7 +326,7 @@ async function generatePhase2(projetId, userId, summaryText, wordsPerChapter, to
     try {
       conclusionText = await getAIWithRetry(
         "ebook", 
-        `${EBOOK_SYSTEM_PROMPT}\n\n${getConclusionPrompt({ title: titre, description, summary: summaryText })}`, 
+        `${EBOOK_SYSTEM_PROMPT}\n\n${getConclusionPrompt({ title: titre, description, summary: summaryText, langue })}${youbookExtra}`, 
         1500
       );
       console.log("✅ [PHASE 2] Conclusion terminée");
@@ -435,7 +477,7 @@ const chaptersStruct = chaptersArray.map((c, i) => {
       conclusion: cleanMarkdown(conclusionText),
       chaptersData: chaptersStruct,
       coverImage: null 
-    }, template);
+    }, template, langue);
 
     console.log(`🌐 [PHASE 2] HTML généré (${Math.round(html.length / 1024)}KB) - Template: ${template}`);
 
@@ -701,7 +743,7 @@ export async function POST(req) {
   try {
     await dbConnect();
     const body = await req.json();
-    let { projetId, transactionId, outline, force } = body;
+    let { projetId, transactionId, outline, force, youbookContext } = body;
     let userId = getUserIdFromCookie(req);
     
     if (!userId && transactionId) {
@@ -784,8 +826,8 @@ export async function POST(req) {
         console.log(`🔥 [FORCE] Régénération forcée du projet ${projetId}`);
       }
 
-      // ✅ Débiter les crédits si projet DRAFT et pas encore payé (protection double débit via isPaid)
-      if (projet.status === "DRAFT" && !projet.isPaid) {
+      // ✅ Débiter les crédits si projet DRAFT ou PREVIEW_READY et pas encore payé
+      if ((projet.status === "DRAFT" || projet.status === "PREVIEW_READY") && !projet.isPaid) {
         const { user: userWithCredits, error: creditError } = await checkCredits(req, "ebook");
         if (creditError) return creditError;
         await userWithCredits.spendCredits("ebook");
@@ -793,6 +835,18 @@ export async function POST(req) {
         await projet.save();
         userId = userWithCredits._id;
         console.log(`💳 [Generate] 20 crédits déduits (DRAFT→processing) — solde: ${userWithCredits.credits.balance}`);
+
+        // ✅ Annuler les EmailJobs de relance en attente pour ce projet
+        try {
+          const EmailJob = (await import("@/models/EmailJob")).default;
+          await EmailJob.updateMany(
+            { "payload.projetId": projet._id.toString(), type: "ebook_relance", status: "pending" },
+            { $set: { status: "cancelled" } }
+          );
+          console.log(`📧 [Generate] EmailJobs relance annulés pour projet ${projet._id}`);
+        } catch(e) {
+          console.warn("⚠️ [Generate] Erreur annulation EmailJobs:", e.message);
+        }
       } else {
         userId = projet.userId?._id || projet.userId;
       }
@@ -835,7 +889,7 @@ export async function POST(req) {
         }
       }
 
-      let { titre, description, tone, audience, pages, chapters, template: bodyTemplate, outline: bodyOutline } = body;
+      let { titre, description, tone, audience, pages, chapters, template: bodyTemplate, outline: bodyOutline, langue: bodyLangue } = body;
       let templateFinal; 
       let outlineFinal = bodyOutline;
 
@@ -867,7 +921,7 @@ export async function POST(req) {
         console.log("🎨 [POST] Template FINAL (du body, pas de transaction):", templateFinal);
       }
 
-      const validTemplates = ["modern", "luxe", "educatif", "energie", "minimal", "creative"];
+      const validTemplates = ["modern", "luxe", "educatif", "energie", "minimal", "creative", "tech", "nature", "fashion", "corporate", "retro", "futuriste", "afrique", "sport", "wellness", "business"];
       const validatedTemplate = validTemplates.includes(templateFinal) ? templateFinal : "modern";
       
       console.log("✅ [POST] Template validé pour création:", validatedTemplate);
@@ -882,9 +936,11 @@ export async function POST(req) {
         pages: pages || 20,
         chapters: chapters || 5,
         template: validatedTemplate,
+        langue: bodyLangue || 'français',
         isPaid: true,
         status: "processing",
-        progress: 5
+        progress: 5,
+        youbookContext: youbookContext || null,
       });
       
       projetId = projet._id.toString();

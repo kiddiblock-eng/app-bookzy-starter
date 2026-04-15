@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
-import { Loader2, ArrowLeft, Check, HelpCircle, Zap } from "lucide-react";
+import { Loader2, ArrowLeft, Check, HelpCircle } from "lucide-react";
 
 const fetcher = (url) => fetch(url, { credentials: "include" }).then((r) => r.json());
 
@@ -17,8 +17,8 @@ const PLANS = [
     packIds: { monthly: "solo_monthly", quarterly: "solo_quarterly" },
     name: "Pass Solo",
     description: "Pour démarrer",
-    price: 5100,
-    credits: 60,
+    price: 7500,
+    credits: 100,
     badge: null,
     color: "#0f172a",
     colorLight: "#f8fafc",
@@ -31,8 +31,8 @@ const PLANS = [
     packIds: { monthly: "createur_monthly", quarterly: "createur_quarterly" },
     name: "Pack Créateur",
     description: "Le plus populaire",
-    price: 19125,
-    credits: 330,
+    price: 22000,
+    credits: 400,
     badge: "Recommandé",
     color: "#2563eb",
     colorLight: "#eff6ff",
@@ -45,8 +45,8 @@ const PLANS = [
     packIds: { monthly: "agence_monthly", quarterly: "agence_quarterly" },
     name: "Pack Agence",
     description: "Pour les équipes",
-    price: 31500,
-    credits: 700,
+    price: 45000,
+    credits: 900,
     badge: null,
     color: "#065f46",
     colorLight: "#f0fdf4",
@@ -56,93 +56,54 @@ const PLANS = [
   },
 ];
 
-const FEATURES = [
-  {
-    label: "Générer des ebooks complet avec l'IA",
-    solo: true, createur: true, agence: true,
-  },
-  {
-    label: "Transformer des brouillons Word en ebook designé",
-    solo: true, createur: true, agence: true,
-  },
-  {
-    label: "Publier votre boutique Smart Shop en ligne",
-    solo: true, createur: true, agence: true,
-  },
-  {
-    label: "Transformer des vidéos YouTube en ebooks complets",
-    sub: "Extrait le contenu clé avant de générer",
-    solo: true, createur: true, agence: true,
-  },
-  {
-    label: "Trouver des niches rentables",
-    sub: "Idées de sujets qui vendent",
-    solo: true, createur: true, agence: true,
-  },
-  {
-    label: "Analyser des niches en profondeur",
-    sub: "Données de marché, concurrence, potentiel",
-    solo: true, createur: true, agence: true,
-  },
-  {
-    label: "Tendances ebooks en temps réel",
-    sub: "Les sujets qui buzzent en ce moment",
-    solo: true, createur: true, agence: true,
-  },
-  {
-    label: "Boutique en ligne pour vendre ses ebooks",
-    sub: "Smart Shop personnalisable et prêt à vendre",
-    solo: "Créer + Publier", createur: "Créer + Publier", agence: "Multi boutiques",
-  },
-  {
-    label: "Kit marketing automatique",
-    sub: "Posts, scripts, visuels inclus à chaque ebook",
-    solo: "Complet", createur: "Complet", agence: "Total",
-  },
-  {
-    label: "Support",
-    solo: "Email", createur: "Email", agence: "WhatsApp prioritaire",
-  },
+const RECHARGES = [
+  { credits: 30,  price: 4500  },
+  { credits: 60,  price: 9000  },
+  { credits: 100, price: 15000 },
+  { credits: 200, price: 30000 },
 ];
 
-// ─── TOOLTIP ──────────────────────────────────────────────────────────────────
+const FEATURES = [
+  { label: "Générez des ebooks pro en 1 minute", sub: "L'IA écrit, structure et met en page pour vous", solo: true, createur: true, agence: true },
+  { label: "Transformez votre Word en PDF vendable", sub: "Importez votre brouillon, ressortez un ebook designé", solo: true, createur: true, agence: true },
+  { label: "Transformez une vidéo YouTube en ebook", sub: "Le contenu est extrait et restructuré automatiquement", solo: true, createur: true, agence: true },
+  { label: "Écrivez des romans avec l'IA", sub: "Fiction, développement personnel, guides pratiques", solo: true, createur: true, agence: true },
+  { label: "Trouvez des niches qui vendent sur facebook", sub: "Idées validées par les données du marché", solo: true, createur: true, agence: true },
+  { label: "Suivez les tendances en temps réel (facebook , google)", sub: "Sachez ce qui se vend avant tout le monde", solo: true, createur: true, agence: true },
+  { label: "Validez votre idée avant de créer votre ebook", sub: "Score de rentabilité, concurrence, potentiel revenus , annonceurs facebook , tendances google", solo: true, createur: true, agence: true },
+  { label: "Transformez une vidéo YouTube en ebook", sub: "Le contenu est extrait et restructuré automatiquement", solo: true, createur: true, agence: true },
+  { label: "Rechargez quand vous voulez", sub: "Ajoutez exactement le montant dont vous avez besoin", solo: true, createur: true, agence: true },
+  { label: "Kit marketing prêt à publier", sub: "Posts réseaux sociaux, scripts vidéo et visuels inclus", solo: "Complet", createur: "Complet", agence: "Total" },
+  { label: "Support", solo: "Email", createur: "Email prioritaire", agence: "WhatsApp dédié" },
+];
+
 function CreditTooltip({ plan }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
-
   useEffect(() => {
     const h = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
     document.addEventListener("mousedown", h);
     return () => document.removeEventListener("mousedown", h);
   }, []);
-
   const q = plan.quotas;
   const items = [
-    { label: "Générer un ebook",   cost: "20 cr." },
-    { label: "Brouillon Word en Ebook pro", cost: "10 cr." },
-    { label: "Smart Shop",         cost: "5 cr."  },
-    { label: "Niche Hunter",       cost: `${q.nicheHunter} gratuits/j puis 1 cr.` },
-    { label: "Youbook",            cost: `${q.youtubeAnalysis} gratuits/j puis 2 cr.` },
-    { label: "Analyse niche",      cost: `${q.nicheAnalysis} gratuits/j puis 1 cr.` },
+    { label: "Générer un ebook",              cost: "20 cr." },
+    { label: "Ebook Designer (Word)",         cost: "10 cr." },
+    { label: "Youbook",                       cost: `${q.youtubeAnalysis} gratuits/j puis 2 cr.` },
+    { label: "Romans IA",                     cost: "À partir de 20 cr." },
+    { label: "Niche Hunter",                  cost: `${q.nicheHunter} gratuits/j puis 1 cr.` },
+    { label: "Radar Cash",                    cost: "Illimité" },
+    { label: "Validateur d'idée",             cost: `${q.nicheAnalysis} gratuits/j puis 1 cr.` },
   ];
-
   return (
     <span ref={ref} style={{ position: "relative", display: "inline-flex", alignItems: "center", marginLeft: 4 }}>
-      <button
-        onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
-        style={{ background: "none", border: "none", cursor: "pointer", padding: 0, lineHeight: 0, display: "flex" }}
-      >
-        <HelpCircle size={13} color={plan.color} opacity={0.6} />
+      <button onClick={(e) => { e.stopPropagation(); setOpen(!open); }} style={{ background: plan.colorLight, border: `1px solid ${plan.colorBorder || plan.color + "40"}`, borderRadius: 6, cursor: "pointer", padding: "2px 7px", lineHeight: 0, display: "flex", alignItems: "center", gap: 4 }}>
+        <HelpCircle size={12} color={plan.color} />
+        <span style={{ fontSize: 10, fontWeight: 700, color: plan.color }}>Détail d'utilisation</span>
       </button>
       {open && (
-        <div style={{
-          position: "absolute", bottom: "calc(100% + 10px)", left: "50%", transform: "translateX(-50%)",
-          background: "#0f172a", borderRadius: 12, padding: "14px 16px", zIndex: 100,
-          boxShadow: "0 12px 40px rgba(0,0,0,0.22)", width: 230, pointerEvents: "none",
-        }}>
-          <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 10px" }}>
-            Coût par action
-          </p>
+        <div style={{ position: "absolute", bottom: "calc(100% + 10px)", left: "50%", transform: "translateX(-50%)", background: "#0f172a", borderRadius: 12, padding: "14px 16px", zIndex: 100, boxShadow: "0 12px 40px rgba(0,0,0,0.22)", width: 240, pointerEvents: "none" }}>
+          <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 10px" }}>Coût par action</p>
           {items.map((item, i) => (
             <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8, marginBottom: i < items.length - 1 ? 7 : 0 }}>
               <span style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", flexShrink: 0 }}>{item.label}</span>
@@ -156,7 +117,6 @@ function CreditTooltip({ plan }) {
   );
 }
 
-// ─── PLAN CARD ────────────────────────────────────────────────────────────────
 function PlanCard({ plan, billing, loading, currentPlan, onBuy }) {
   const isQ = billing === "quarterly";
   const packId = plan.packIds[billing];
@@ -168,134 +128,57 @@ function PlanCard({ plan, billing, loading, currentPlan, onBuy }) {
   const isReco = !!plan.badge;
 
   return (
-    <div style={{
-      position: "relative",
-      flex: "1 1 280px",
-      minWidth: 240,
-      border: `${isReco ? 2 : 1.5}px solid ${isReco ? plan.color : "#e2e8f0"}`,
-      borderRadius: 16,
-      background: "#fff",
-      padding: "24px 20px 20px",
-      display: "flex",
-      flexDirection: "column",
-      boxShadow: isReco ? `0 6px 30px ${plan.color}22` : "0 1px 6px rgba(0,0,0,0.05)",
-    }}>
-
-      {/* Badge */}
+    <div style={{ position: "relative", flex: "1 1 280px", minWidth: 240, border: `${isReco ? 2 : 1.5}px solid ${isReco ? plan.color : "#e2e8f0"}`, borderRadius: 16, background: "#fff", padding: "24px 20px 20px", display: "flex", flexDirection: "column", boxShadow: isReco ? `0 6px 30px ${plan.color}22` : "0 1px 6px rgba(0,0,0,0.05)" }}>
       {isReco && (
-        <div style={{
-          position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)",
-          background: plan.color, color: "#fff",
-          fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase",
-          padding: "4px 14px", borderRadius: 999, whiteSpace: "nowrap",
-        }}>
+        <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: plan.color, color: "#fff", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", padding: "4px 14px", borderRadius: 999, whiteSpace: "nowrap" }}>
           {plan.badge}
         </div>
       )}
-
-      {/* Nom + description */}
-      <p style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 2px" }}>
-        {plan.name}
-      </p>
-      <p style={{ fontSize: 12, color: "#cbd5e1", margin: "0 0 18px" }}>{plan.description}</p>
-
-      {/* Prix */}
-      {isQ && (
-        <p style={{ fontSize: 11, color: "#cbd5e1", textDecoration: "line-through", margin: "0 0 1px" }}>
-          {fmt(plan.price * 3)} FCFA
-        </p>
-      )}
-      <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 2 }}>
-        <span style={{ fontSize: "2rem", fontWeight: 800, color: plan.color, letterSpacing: "-0.03em", lineHeight: 1 }}>
-          {fmt(priceDisplay)}
-        </span>
-        <span style={{ fontSize: 12, color: "#94a3b8" }}>FCFA{isQ ? "/trim." : "/mois"}</span>
+      <div style={{ marginBottom: 16 }}>
+        <p style={{ fontSize: 12, fontWeight: 700, color: plan.colorText, margin: "0 0 2px", textTransform: "uppercase", letterSpacing: "0.06em" }}>{plan.name}</p>
+        <p style={{ fontSize: 13, color: "#94a3b8", margin: 0 }}>{plan.description}</p>
       </div>
-
-      {/* Crédits + tooltip */}
-      <div style={{ display: "flex", alignItems: "center", marginBottom: 20 }}>
-        <span style={{ fontSize: 12, fontWeight: 600, color: "#475569", marginLeft: 4 }}>
-          {fmt(creditsDisplay)} crédits{isQ ? " / 3 mois" : " / mois"}
-        </span>
-        
+      <div style={{ marginBottom: 6 }}>
+        <span style={{ fontSize: "1.9rem", fontWeight: 900, color: "#0f172a", letterSpacing: "-0.03em" }}>{fmt(priceDisplay)}</span>
+        <span style={{ fontSize: 13, color: "#94a3b8", marginLeft: 4 }}>FCFA/{isQ ? "trim." : "mois"}</span>
       </div>
-
-      {/* Séparateur */}
-      <div style={{ height: 1, background: "#f1f5f9", margin: "0 0 12px" }} />
-
-      {/* Features */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 20 }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: plan.color }}>{creditsDisplay} crédits</span>
+        <CreditTooltip plan={plan} />
+        <span style={{ fontSize: 12, color: "#94a3b8" }}>· {Math.round(priceDisplay / creditsDisplay)} FCFA/cr</span>
+      </div>
+      <div style={{ flex: 1, marginBottom: 20 }}>
         {FEATURES.map((f, i) => {
           const val = f[plan.id];
           if (!val) return null;
           return (
-            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-              <div style={{
-                width: 17, height: 17, borderRadius: "50%", flexShrink: 0, marginTop: 1,
-                background: val === true ? plan.color : plan.colorLight,
-                border: val === true ? "none" : `1.5px solid ${plan.colorBorder}`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
-                <Check size={9} color={val === true ? "#fff" : plan.color} strokeWidth={3} />
+            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 10 }}>
+              <div style={{ width: 16, height: 16, borderRadius: "50%", background: `${plan.color}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                <Check size={9} color={plan.color} strokeWidth={3} />
               </div>
-              <div style={{ lineHeight: 1.3 }}>
-                <div style={{ display: "flex", alignItems: "baseline", flexWrap: "wrap", gap: 3 }}>
-                  <span style={{ fontSize: 12, color: "#374151" }}>{f.label}</span>
-                  {val !== true && (
-                    <span style={{ fontSize: 11, fontWeight: 700, color: plan.color }}>· {val}</span>
-                  )}
-                </div>
-                {f.sub && (
-                  <p style={{ fontSize: 11, color: "#94a3b8", margin: "2px 0 0", lineHeight: 1.4 }}>{f.sub}</p>
-                )}
+              <div>
+                <span style={{ fontSize: 12, color: "#374151", fontWeight: val === true ? 400 : 600 }}>
+                  {val === true ? f.label : <>{f.label}<br/><span style={{fontWeight:700,color:"inherit"}}>{val}</span></>}
+                </span>
+                {f.sub && val === true && <p style={{ fontSize: 11, color: "#94a3b8", margin: "1px 0 0" }}>{f.sub}</p>}
               </div>
             </div>
           );
         })}
       </div>
-
-      {/* Coût des actions */}
-      <div style={{ background: "#f8fafc", borderRadius: 10, padding: "10px 12px", marginBottom: 14, marginTop: 16 }}>
-        <p style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>
-          Coût par action
-        </p>
-        {[
-          { label: "Générer un ebook",   cost: "20 cr." },
-          { label: "Brouillon Word en Ebook Pro", cost: "10 cr." },
-          { label: "Smart Shop",         cost: "5 cr."  },
-          { label: "Niche Hunter",       cost: `${plan.quotas.nicheHunter} gratuits/j puis 1 cr.` },
-          { label: "Youbook",            cost: `${plan.quotas.youtubeAnalysis} gratuits/j puis 2 cr.` },
-          { label: "Analyse niche",      cost: `${plan.quotas.nicheAnalysis} gratuits/j puis 1 cr.` },
-        ].map((item, i) => (
-          <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8, marginBottom: i < 5 ? 5 : 0 }}>
-            <span style={{ fontSize: 11, color: "#64748b" }}>{item.label}</span>
-            <span style={{ fontSize: 11, fontWeight: 700, color: plan.color }}>{item.cost}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Bouton */}
-      <button
-        onClick={() => !isCurrentPlan && !isDisabled && onBuy(packId)}
-        disabled={isDisabled || isCurrentPlan}
-        style={{
-          width: "100%", padding: "12px 0", borderRadius: 10,
-          fontSize: 13, fontWeight: 700, cursor: isCurrentPlan || isDisabled ? "default" : "pointer",
-          border: isReco ? "none" : `1.5px solid ${plan.colorBorder}`,
-          opacity: isDisabled && !isCurrentPlan ? 0.4 : 1,
-          background: isCurrentPlan ? "#f1f5f9" : isReco ? plan.color : "#fff",
-          color: isCurrentPlan ? "#94a3b8" : isReco ? "#fff" : plan.color,
-          display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-          transition: "opacity .15s",
-        }}
-      >
-        {isLoadingThis ? <Loader2 size={14} className="animate-spin" /> : isCurrentPlan ? "Plan actuel" : "Choisir ce plan"}
-      </button>
+      {isCurrentPlan ? (
+        <div style={{ width: "100%", padding: "11px 0", borderRadius: 10, background: `${plan.color}12`, border: `1.5px solid ${plan.color}40`, fontSize: 13, fontWeight: 700, color: plan.color, textAlign: "center" }}>
+          Plan actuel ✓
+        </div>
+      ) : (
+        <button onClick={() => onBuy(packId)} disabled={isDisabled} style={{ width: "100%", padding: "12px 0", borderRadius: 10, background: isReco ? plan.color : "#0f172a", color: "#fff", fontSize: 13, fontWeight: 700, border: "none", cursor: isDisabled ? "default" : "pointer", opacity: isDisabled && !isLoadingThis ? 0.5 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+          {isLoadingThis ? "Redirection..." : "Choisir ce plan"}
+        </button>
+      )}
     </div>
   );
 }
 
-// ─── PAGE ─────────────────────────────────────────────────────────────────────
 export default function TarifsPage() {
   const router = useRouter();
   const [billing, setBilling] = useState("monthly");
@@ -305,6 +188,7 @@ export default function TarifsPage() {
   const { data: balanceData } = useSWR("/api/credits/balance", fetcher, { revalidateOnFocus: false });
   const balance = balanceData?.credits?.balance ?? null;
   const currentPlan = balanceData?.plan ?? null;
+  const isFree = !currentPlan || currentPlan === "free";
 
   const handleBuy = async (packId) => {
     setLoading(packId);
@@ -331,24 +215,18 @@ export default function TarifsPage() {
       {/* NAV */}
       <div style={{ position: "sticky", top: 0, zIndex: 30, background: "#fff", borderBottom: "1px solid #e2e8f0" }}>
         <div style={{ maxWidth: 1020, margin: "0 auto", padding: "0 20px", height: 52, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <button
-            onClick={() => router.push("/dashboard/credits")}
-            style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#64748b", background: "none", border: "none", cursor: "pointer" }}
-          >
+          <button onClick={() => router.push("/dashboard/credits")} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#64748b", background: "none", border: "none", cursor: "pointer" }}>
             <ArrowLeft size={15} /> Retour
           </button>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             {balance !== null && (
-              <span style={{ fontSize: 12, color: "#94a3b8" }}>
-                Solde : <strong style={{ color: "#1e293b" }}>{balance} cr.</strong>
-              </span>
+              <span style={{ fontSize: 12, color: "#94a3b8" }}>Solde : <strong style={{ color: "#1e293b" }}>{balance} cr.</strong></span>
             )}
-            <button
-              onClick={() => router.push("/dashboard/credits/recharge")}
-              style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 14px", borderRadius: 8, border: "none", fontSize: 12, fontWeight: 700, cursor: "pointer", background: "#2563eb", color: "#fff" }}
-            >
-            Recharge personnalisée
-            </button>
+            {!isFree && (
+              <button onClick={() => router.push("/dashboard/credits/recharge")} style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 14px", borderRadius: 8, border: "none", fontSize: 12, fontWeight: 700, cursor: "pointer", background: "#2563eb", color: "#fff" }}>
+                Recharger
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -367,134 +245,81 @@ export default function TarifsPage() {
           </p>
         </div>
 
-        {/* Toggle */}
+        {/* Toggle mensuel / trimestriel */}
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 32 }}>
           <div style={{ display: "inline-flex", background: "#f1f5f9", borderRadius: 999, padding: 4, gap: 2 }}>
-            {[
-              { id: "monthly",   label: "Mensuel" },
-              { id: "quarterly", label: "Trimestriel", badge: "−15%" },
-            ].map((opt) => {
+            {[{ id: "monthly", label: "Mensuel" }, { id: "quarterly", label: "Trimestriel", badge: "−15%" }].map((opt) => {
               const active = billing === opt.id;
               return (
-                <button
-                  key={opt.id}
-                  onClick={() => setBilling(opt.id)}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 5,
-                    padding: "8px 20px", borderRadius: 999, border: "none",
-                    fontSize: 13, fontWeight: 600, cursor: "pointer",
-                    background: active ? "#fff" : "transparent",
-                    color: active ? "#0f172a" : "#64748b",
-                    boxShadow: active ? "0 1px 4px rgba(0,0,0,.08)" : "none",
-                    transition: "all .15s",
-                  }}
-                >
+                <button key={opt.id} onClick={() => setBilling(opt.id)} style={{ display: "flex", alignItems: "center", gap: 5, padding: "8px 20px", borderRadius: 999, border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", background: active ? "#fff" : "transparent", color: active ? "#0f172a" : "#64748b", boxShadow: active ? "0 1px 4px rgba(0,0,0,.08)" : "none", transition: "all .15s" }}>
                   {opt.label}
-                  {opt.badge && (
-                    <span style={{ background: "#10b981", color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 999 }}>
-                      {opt.badge}
-                    </span>
-                  )}
+                  {opt.badge && <span style={{ background: "#10b981", color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 999 }}>{opt.badge}</span>}
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* Erreur */}
         {error && (
           <div style={{ maxWidth: 420, margin: "0 auto 24px", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 12, padding: "12px 16px", fontSize: 13, color: "#b91c1c", textAlign: "center" }}>
             {error}
           </div>
         )}
 
-        {/* ─── RECHARGE RAPIDE ─────────────────────────────────────────────── */}
-        <div style={{ marginBottom: 48 }}>
-          <div style={{ textAlign: "center", marginBottom: 20 }}>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 999, padding: "5px 14px", fontSize: 12, fontWeight: 700, color: "#0f172a" }}>
-               Recharge rapide sans abonnement
-            </span>
-            <p style={{ fontSize: 13, color: "#64748b", marginTop: 8 }}>Paye quand tu veux. Pas d'engagement. Crédits valables à vie.</p>
+        {/* Recharges fixes — free uniquement / abonnés → page recharge */}
+        {!isFree ? (
+          <div style={{ textAlign: "center", marginBottom: 28 }}>
+            <p style={{ fontSize: 14, color: "#64748b", marginBottom: 12 }}>Vous avez un abonnement actif — rechargez à <strong style={{ color: "#2563eb" }}>100 FCFA/crédit</strong></p>
+            <button onClick={() => router.push("/dashboard/credits/recharge")} style={{ padding: "12px 28px", background: "#2563eb", color: "#fff", fontWeight: 700, fontSize: 14, border: "none", borderRadius: 12, cursor: "pointer" }}>
+              Recharger mes crédits
+            </button>
           </div>
-          {(() => {
-            const isPaid = currentPlan && currentPlan !== "free";
-            const pricePerCredit = isPaid ? 100 : 150;
-            const planSuffix = isPaid ? currentPlan : "free";
-            const recharges = [
-              { credits: 10, badge: null },
-              { credits: 30, badge: "Populaire" },
-              { credits: 60, badge: null },
-              { credits: 100, badge: null },
-            ];
-            return (
-              <div>
-                {!isPaid && (
-                  <p style={{ textAlign: "center", fontSize: 12, color: "#475569", marginBottom: 12, fontWeight: 600 }}>
-                    💡 Abonne-toi pour plus d'avantages — crédits moins chers, quotas journaliers et plus
-                  </p>
-                )}
-                <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-                  {recharges.map((r) => (
-                    <button
-                      key={r.credits}
-                      onClick={() => handleBuy(`recharge_${r.credits}_${planSuffix}`)}
-                      disabled={!!loading}
-                      style={{
-                        position: "relative",
-                        flex: "1 1 160px", maxWidth: 200,
-                        background: "#fff",
-                        border: r.badge ? "2px solid #0f172a" : "1.5px solid #e2e8f0",
-                        borderRadius: 14, padding: "16px 14px",
-                        cursor: loading ? "default" : "pointer",
-                        textAlign: "center",
-                        opacity: loading && loading !== `recharge_${r.credits}_${planSuffix}` ? 0.5 : 1,
-                        boxShadow: r.badge ? "0 4px 20px rgba(0,0,0,0.10)" : "0 1px 4px rgba(0,0,0,0.05)",
-                        transition: "all .15s",
-                      }}
-                    >
-                      {r.badge && (
-                        <span style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)", background: "#0f172a", color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 10px", borderRadius: 999, whiteSpace: "nowrap" }}>
-                          {r.badge}
-                        </span>
-                      )}
-                      <p style={{ fontSize: 15, fontWeight: 800, color: "#0f172a", margin: "0 0 10px" }}>{r.credits} crédits</p>
-                      <p style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", margin: 0 }}>{fmt(r.credits * pricePerCredit)} FCFA</p>
-                      {loading === `recharge_${r.credits}_${planSuffix}` && <Loader2 size={14} className="animate-spin" style={{ margin: "6px auto 0" }} />}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            );
-          })()}
+        ) : (
+          <>
+            <div style={{ textAlign: "center", marginBottom: 28 }}>
+              <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                Recharge rapide sans abonnement
+              </span>
+             
+            </div>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center", marginBottom: 16 }}>
+              {RECHARGES.map((r) => {
+                const packId = `recharge_${r.credits}_free`;
+                return (
+                  <button key={r.credits} onClick={() => handleBuy(packId)} disabled={!!loading} style={{ position: "relative", flex: "1 1 160px", maxWidth: 200, background: "#fff", border: "1.5px solid #e2e8f0", borderRadius: 14, padding: "16px 14px", cursor: loading ? "default" : "pointer", textAlign: "center", opacity: loading && loading !== packId ? 0.5 : 1, boxShadow: "0 1px 4px rgba(0,0,0,0.05)", transition: "all .15s" }}>
+                    <p style={{ fontSize: 15, fontWeight: 800, color: "#0f172a", margin: "0 0 6px" }}>{r.credits} crédits</p>
+                    <p style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", margin: 0 }}>{fmt(r.price)} FCFA</p>
+                    {loading === packId && <Loader2 size={14} style={{ margin: "6px auto 0", animation: "spin 1s linear infinite" }} />}
+                  </button>
+                );
+              })}
+            </div>
+            <p style={{ textAlign: "center", fontSize: 12, color: "#94a3b8", marginBottom: 8 }}>
+              💡 Abonne-toi pour économiser 33% et avoir accès à toutes les fonctionnalités de bookzy, y compris les outils de validation d'idée, de recherche de niche et d'analyse de marché.
+            </p>
+          </>
+        )}
+
+        {/* Ou économisez avec un abonnement */}
+        <div style={{ textAlign: "center", marginBottom: 24, marginTop: 40 }}>
+          <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>Ou économisez avec un abonnement</span>
         </div>
 
-        {/* ─── OU ABONNEMENT ───────────────────────────────────────────────── */}
-        <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-            — Ou économise avec un abonnement —
-          </span>
-        </div>
-
-        {/* Cards */}
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "stretch" }}>
+{/* Plans */}
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "stretch", marginBottom: 48 }}>
           {PLANS.map((plan) => (
-            <PlanCard
-              key={plan.id}
-              plan={plan}
-              billing={billing}
-              loading={loading}
-              currentPlan={currentPlan}
-              onBuy={handleBuy}
-            />
+            <PlanCard key={plan.id} plan={plan} billing={billing} loading={loading} currentPlan={currentPlan} onBuy={handleBuy} />
           ))}
         </div>
 
-        {/* Footer note */}
+
+
         <p style={{ fontSize: 11, color: "#cbd5e1", textAlign: "center", marginTop: 28 }}>
           Paiement sécurisé · 13 pays · Aucun prélèvement automatique
         </p>
 
       </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }

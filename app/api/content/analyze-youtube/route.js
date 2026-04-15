@@ -17,7 +17,6 @@ function extractVideoId(url) {
   return null;
 }
 
-// ─── RETRY HELPER ─────────────────────────────────────────────────────────────
 async function getAITextWithRetry(model, prompt, maxTokens, maxRetries = 3) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
@@ -88,7 +87,19 @@ export async function POST(req) {
 
     console.log(`📡 [YOUBOOK] Analyse pour videoId: ${videoId}`);
 
-    // ✅ NOUVEAU URL RapidAPI
+    // ── Infos chaîne via YouTube oEmbed (gratuit, sans clé) ──────────────────
+    let channelInfo = { name: "", thumbnail: "" };
+    try {
+      const oembedRes = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
+      if (oembedRes.ok) {
+        const oembedData = await oembedRes.json();
+        channelInfo.name = oembedData.author_name || "";
+        channelInfo.thumbnail = oembedData.thumbnail_url || "";
+      }
+    } catch (e) {
+      console.warn("⚠️ [YOUBOOK] oEmbed échoué:", e.message);
+    }
+
     const response = await fetch(`https://youtube-transcripts.p.rapidapi.com/youtube/transcript?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D${videoId}&videoId=${videoId}&chunkSize=500&text=false&lang=fr`, {
       method: 'GET',
       headers: {
@@ -176,7 +187,6 @@ RÉPONDS UNIQUEMENT AU FORMAT JSON PUR (sans markdown, sans backticks) :
   "tone": "..."
 }`;
 
-    // ✅ Appel IA avec retry
     const aiResponse = await getAITextWithRetry("ebook", prompt, 600, 3);
 
     if (!aiResponse) {
@@ -204,6 +214,35 @@ RÉPONDS UNIQUEMENT AU FORMAT JSON PUR (sans markdown, sans backticks) :
 
     console.log("✅ Analyse réussie!");
 
+    // ── EMAILS DE RELANCE YOUBOOK (3 emails sur 3 jours) ─────────────────────
+    try {
+      const EmailJob = (await import("@/models/EmailJob")).default;
+      const now = Date.now();
+      const DELAYS = [
+        24 * 60 * 60 * 1000,       // J+1
+        48 * 60 * 60 * 1000,       // J+2
+        72 * 60 * 60 * 1000,       // J+3
+      ];
+      await Promise.all(DELAYS.map((delay, i) =>
+        EmailJob.create({
+          userId:    userDoc._id,
+          email:     userDoc.email,
+          firstName: userDoc.firstName || userDoc.name?.split(" ")[0] || "",
+          type:      "youbook_relance",
+          payload: {
+            titre:       analysis.titre,
+            description: analysis.description,
+            sommaire:    analysis.sommaire || [],
+            emailIndex:  i + 1,   // 1, 2, 3
+          },
+          sendAt: new Date(now + delay),
+        })
+      ));
+      console.log(`📧 [YOUBOOK] 3 emails de relance programmés pour ${userDoc.email}`);
+    } catch (e) {
+      console.warn("⚠️ [YOUBOOK] Erreur création EmailJob:", e.message);
+    }
+
     const limit = DAILY_LIMITS[userDoc.plan]?.youtubeAnalysis;
     const remainingQuota = limit === Infinity ? Infinity : Math.max(0, (limit || 0) - (userDoc.dailyUsage?.youtubeAnalysis || 0));
 
@@ -220,7 +259,9 @@ RÉPONDS UNIQUEMENT AU FORMAT JSON PUR (sans markdown, sans backticks) :
         key_insights: analysis.key_insights || [],
         verbatim: analysis.verbatim || "",
         pages_estimees: analysis.pages_estimees || 25,
-        tone: analysis.tone
+        tone: analysis.tone,
+        channelName: channelInfo.name,
+        channelThumbnail: channelInfo.thumbnail,
       },
       usedQuota,
       remainingQuota,

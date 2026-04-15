@@ -172,7 +172,7 @@ export async function POST(req) {
       usedQuota = true;
     } else {
       const balance = userDoc.credits?.balance ?? 0;
-      if (balance < 1) {
+      if (balance < 2) {
         return NextResponse.json({
           success: false,
           quotaExceeded: true,
@@ -182,8 +182,8 @@ export async function POST(req) {
           message: "Quota journalier épuisé et crédits insuffisants.",
         }, { status: 402 });
       }
-      userDoc.credits.balance -= 1;
-      userDoc.credits.totalSpent = (userDoc.credits.totalSpent || 0) + 1;
+      userDoc.credits.balance -= 2;
+      userDoc.credits.totalSpent = (userDoc.credits.totalSpent || 0) + 2;
       await userDoc.save();
     }
 

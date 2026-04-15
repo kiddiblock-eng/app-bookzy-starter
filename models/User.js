@@ -51,30 +51,33 @@ const userSchema = new mongoose.Schema(
 
     // FAVORIS TENDANCES
     favorites: { type: [String], default: [] },
-    unlockedTrendsAt: { type: Date, default: null },
+    unlockedTrendsAt:    { type: Date, default: null },
     unlockedTrendsCount: { type: Number, default: 0 },
 
     // ─── SYSTÈME DE CRÉDITS ──────────────────────────────────────────────────
     credits: {
-      balance: { type: Number, default: 4, min: 0 }, // 4 crédits offerts à l'inscription
-      totalPurchased: { type: Number, default: 0 },  // Total acheté à vie
-      totalSpent:     { type: Number, default: 0 },  // Total dépensé à vie
+      balance:        { type: Number, default: 4, min: 0 },
+      totalPurchased: { type: Number, default: 0 },
+      totalSpent:     { type: Number, default: 0 },
+     freeProductAnalyses:  { type: Number, default: 0 }, // ← ajouter
+
     },
 
-    // Plan actuel (détermine les limites journalières)
+    // Plan actuel
     plan: {
       type: String,
       enum: ["free", "solo", "createur", "agence"],
       default: "free"
     },
+    planExpiresAt: { type: Date, default: null },
 
-    // Limites journalières (reset chaque jour à minuit)
+    // Limites journalières
     dailyUsage: {
-      date: { type: String, default: "" }, // "2026-03-09" — sert à détecter le reset
-
-      youtubeAnalysis: { type: Number, default: 0 }, // Analyse vidéo YouTube
-      nicheHunter:     { type: Number, default: 0 }, // Recherches Niche Hunter
-      nicheAnalysis:   { type: Number, default: 0 }, // Analyses de niche
+      date:            { type: String, default: "" },
+      youtubeAnalysis: { type: Number, default: 0 },
+      nicheHunter:     { type: Number, default: 0 },
+      nicheAnalysis:   { type: Number, default: 0 },
+      productAnalysis: { type: Number, default: 0 }, // ← Analyseur de produit
     },
     // ─────────────────────────────────────────────────────────────────────────
 
@@ -82,16 +85,17 @@ const userSchema = new mongoose.Schema(
     affiliateCode: { type: String, unique: true, sparse: true, trim: true },
     referredBy:    { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     wallet: {
-      balance:      { type: Number, default: 0, min: 0 },
-      totalEarned:  { type: Number, default: 0 }
+      balance:     { type: Number, default: 0, min: 0 },
+      totalEarned: { type: Number, default: 0 }
     },
+
     // ─── AMÉLIORATION IA ─────────────────────────────────────────────────────
-aiUsage: {
-  usedToday:     { type: Number, default: 0 },
-  dailyLimit:    { type: Number, default: 3 },
-  lastResetDate: { type: Date, default: null },
-},
-// ─────────────────────────────────────────────────────────────────────────
+    aiUsage: {
+      usedToday:     { type: Number, default: 0 },
+      dailyLimit:    { type: Number, default: 3 },
+      lastResetDate: { type: Date, default: null },
+    },
+    // ─────────────────────────────────────────────────────────────────────────
 
     // NOTIFICATIONS
     whatsNewSeenAt: { type: Date, default: null },
@@ -104,79 +108,72 @@ aiUsage: {
       twoFASecret:   { type: String, default: "" },
       twoFAVerified: { type: Boolean, default: false }
     },
-
-    
   },
   { timestamps: true }
 );
 
 // ─── LIMITES JOURNALIÈRES PAR PLAN ──────────────────────────────────────────
 export const DAILY_LIMITS = {
-  free:     { youtubeAnalysis: 0,  nicheHunter: 0,  nicheAnalysis: 0  },
-  solo:     { youtubeAnalysis: 2,  nicheHunter: 3,  nicheAnalysis: 3  },
-  createur: { youtubeAnalysis: 8,  nicheHunter: 8,  nicheAnalysis: 8  },
-  agence:   { youtubeAnalysis: 15, nicheHunter: 20, nicheAnalysis: 20 },
+  free:     { youtubeAnalysis: 0,  nicheHunter: 0,  nicheAnalysis: 0,  productAnalysis: 0  },
+  solo:     { youtubeAnalysis: 2,  nicheHunter: 3,  nicheAnalysis: 3,  productAnalysis: 3  },
+  createur: { youtubeAnalysis: 8,  nicheHunter: 8,  nicheAnalysis: 8,  productAnalysis: 8  },
+  agence:   { youtubeAnalysis: 15, nicheHunter: 20, nicheAnalysis: 20, productAnalysis: 20 },
 };
 
 // ─── COÛT DES ACTIONS EN CRÉDITS ────────────────────────────────────────────
 export const CREDIT_COSTS = {
-  ebook:      20, // Générer un ebook complet
-  mise_en_page: 10, // Designer brouillon Word en ebook designé
-  smart_shop:  5,  // Publier boutique Smart Shop
+  ebook:        20,
+  mise_en_page: 10,
+  smart_shop:    5,
 };
 
 // ─── CRÉDITS OFFERTS PAR PACK ────────────────────────────────────────────────
 export const PACK_CREDITS = {
-  solo_monthly:       60,
-  solo_quarterly:     180,
-  createur_monthly:   330,
-  createur_quarterly: 990,
-  agence_monthly:     700,
-  agence_quarterly:   2100,
+  solo_monthly:       100,
+  solo_quarterly:     300,
+  createur_monthly:   400,
+  createur_quarterly: 1200,
+  agence_monthly:     900,
+  agence_quarterly:   2700,
 };
 
 // ─── MÉTHODES D'INSTANCE ─────────────────────────────────────────────────────
 
-// Vérifie si l'utilisateur a assez de crédits
 userSchema.methods.hasCredits = function (action) {
   const cost = CREDIT_COSTS[action];
   if (!cost) return false;
   return this.credits.balance >= cost;
 };
 
-// Déduit les crédits pour une action
 userSchema.methods.spendCredits = async function (action) {
   const cost = CREDIT_COSTS[action];
   if (!cost) throw new Error(`Action inconnue: ${action}`);
   if (this.credits.balance < cost) throw new Error(`Crédits insuffisants (${this.credits.balance}/${cost})`);
-
-  this.credits.balance  -= cost;
+  this.credits.balance   -= cost;
   this.credits.totalSpent += cost;
   await this.save();
   return this.credits.balance;
 };
 
-// Ajoute des crédits (après paiement)
 userSchema.methods.addCredits = async function (amount, newPlan = null) {
-  this.credits.balance       += amount;
+  this.credits.balance        += amount;
   this.credits.totalPurchased += amount;
   if (newPlan) this.plan = newPlan;
   await this.save();
   return this.credits.balance;
 };
 
-// Vérifie et reset la limite journalière si nouveau jour
 userSchema.methods.checkDailyReset = function () {
-  const today = new Date().toISOString().split("T")[0]; // "2026-03-09"
+  const today = new Date().toISOString().split("T")[0];
   if (this.dailyUsage.date !== today) {
     this.dailyUsage.date            = today;
     this.dailyUsage.youtubeAnalysis = 0;
     this.dailyUsage.nicheHunter     = 0;
     this.dailyUsage.nicheAnalysis   = 0;
+    this.dailyUsage.productAnalysis = 0;
   }
 };
 
-// Vérifie si l'utilisateur peut faire une action journalière
 userSchema.methods.canDoDaily = function (action) {
   this.checkDailyReset();
   const limit = DAILY_LIMITS[this.plan]?.[action];
@@ -184,7 +181,6 @@ userSchema.methods.canDoDaily = function (action) {
   return (this.dailyUsage[action] || 0) < limit;
 };
 
-// Incrémente le compteur journalier
 userSchema.methods.incrementDaily = async function (action) {
   this.checkDailyReset();
   this.dailyUsage[action] = (this.dailyUsage[action] || 0) + 1;

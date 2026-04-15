@@ -1,172 +1,47 @@
 "use client";
 
-import { useState } from "react";
-import useSWR from "swr";
-import { 
-  Users, Download, Search, Mail, Phone, 
-  MessageCircle, Loader2, ChevronDown
-} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ExternalLink, ArrowLeft } from "lucide-react";
 
-const fetcher = (url) => fetch(url, { credentials: "include" }).then(r => r.ok ? r.json() : null);
-
-export default function LeadsPage() {
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("");
-  const [updating, setUpdating] = useState(null);
-
-  const { data, isLoading, mutate } = useSWR("/api/smart-shop/leads", fetcher);
-  const leads = data?.leads || [];
-
-  // Filtre local
-  const filtered = leads.filter(lead => {
-    if (filter && lead.status !== filter) return false;
-    if (search) {
-      const s = search.toLowerCase();
-      return lead.contact.toLowerCase().includes(s) || lead.productTitle?.toLowerCase().includes(s);
-    }
-    return true;
-  });
-
-  const updateStatus = async (id, status) => {
-    setUpdating(id);
-    mutate({ ...data, leads: leads.map(l => l._id === id ? { ...l, status } : l) }, false);
-    await fetch(`/api/smart-shop/leads/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status })
-    });
-    setUpdating(null);
-  };
-
-  const exportCSV = () => {
-    const rows = [["Contact", "Produit", "Statut", "Date"]];
-    filtered.forEach(l => rows.push([l.contact, l.productTitle, l.status, new Date(l.createdAt).toLocaleDateString("fr-FR")]));
-    const csv = rows.map(r => r.map(c => `"${c}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "leads.csv";
-    link.click();
-  };
-
-  if (isLoading) {
-    return <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-gray-400" /></div>;
-  }
+export default function SmartShopMigrationPage() {
+  const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-xl font-bold text-gray-900">Leads</h1>
-          {leads.length > 0 && (
-            <button onClick={exportCSV} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 bg-white rounded-lg border border-gray-200 hover:bg-gray-50">
-              <Download className="w-4 h-4" /> Exporter en CSV
-            </button>
-          )}
+    <div style={{ minHeight: "100vh", background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
+      <div style={{ background: "white", borderRadius: "20px", border: "1px solid #e2e8f0", padding: "48px 40px", maxWidth: "480px", width: "100%", textAlign: "center" }}>
+
+        {/* Logo Bookzy */}
+        <div style={{ width: "52px", height: "52px", background: "#0f172a", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-4 gap-3 mb-6">
-          <div className="bg-white p-4 rounded-xl border border-gray-200 text-center">
-            <p className="text-2xl font-bold text-gray-900">{leads.length}</p>
-            <p className="text-xs text-gray-500">Total</p>
-          </div>
-          <div className="bg-white p-4 rounded-xl border border-gray-200 text-center">
-            <p className="text-2xl font-bold text-blue-600">{leads.filter(l => l.status === "new").length}</p>
-            <p className="text-xs text-gray-500">Nouveaux</p>
-          </div>
-          <div className="bg-white p-4 rounded-xl border border-gray-200 text-center">
-            <p className="text-2xl font-bold text-yellow-600">{leads.filter(l => l.status === "contacted").length}</p>
-            <p className="text-xs text-gray-500">Contactés</p>
-          </div>
-          <div className="bg-white p-4 rounded-xl border border-gray-200 text-center">
-            <p className="text-2xl font-bold text-green-600">{leads.filter(l => l.status === "converted").length}</p>
-            <p className="text-xs text-gray-500">Convertis</p>
-          </div>
-        </div>
+        <h1 style={{ fontSize: "22px", fontWeight: "900", color: "#0f172a", margin: "0 0 12px", lineHeight: "1.3" }}>
+          Smart Shop a migré vers Taliopay
+        </h1>
 
-        {/* Filtres */}
-        <div className="flex gap-2 mb-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Rechercher..."
-              className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-gray-400 bg-white"
-            />
-          </div>
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none"
-          >
-            <option value="">Tous</option>
-            <option value="new">Nouveau</option>
-            <option value="contacted">Contacté</option>
-            <option value="converted">Converti</option>
-            <option value="lost">Perdu</option>
-          </select>
-        </div>
+        <p style={{ fontSize: "14px", color: "#64748b", margin: "0 0 32px", lineHeight: "1.7" }}>
+          Nous avons conclu une collaboration officielle avec Taliopay pour t'offrir une meilleure expérience de vente. Boutique en ligne, encaissement Mobile Money, livraison automatique, tout est inclus.
+        </p>
 
-        {/* Liste */}
-        <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
-          {filtered.length === 0 ? (
-            <div className="py-12 text-center">
-              <Users className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-              <p className="text-gray-500">Aucun lead</p>
-            </div>
-          ) : (
-            filtered.map(lead => (
-              <div key={lead._id} className="p-4 flex items-center gap-4">
-                
-                {/* Contact */}
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 truncate">{lead.contact}</p>
-                  <p className="text-sm text-gray-500 truncate">{lead.productTitle}</p>
-                </div>
+        <a
+          href="https://taliopay.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%", padding: "14px", background: "#6366f1", color: "white", borderRadius: "12px", fontSize: "14px", fontWeight: "700", textDecoration: "none", marginBottom: "12px" }}>
+          Créer ma boutique sur Taliopay
+          <ExternalLink size={14} />
+        </a>
 
-                {/* Statut */}
-                <select
-                  value={lead.status}
-                  onChange={(e) => updateStatus(lead._id, e.target.value)}
-                  disabled={updating === lead._id}
-                  className={`text-xs font-medium px-2 py-1 rounded border cursor-pointer ${
-                    lead.status === "new" ? "bg-blue-50 text-blue-600 border-blue-200" :
-                    lead.status === "contacted" ? "bg-yellow-50 text-yellow-600 border-yellow-200" :
-                    lead.status === "converted" ? "bg-green-50 text-green-600 border-green-200" :
-                    "bg-gray-50 text-gray-500 border-gray-200"
-                  }`}
-                >
-                  <option value="new">Nouveau</option>
-                  <option value="contacted">Contacté</option>
-                  <option value="converted">Converti</option>
-                  <option value="lost">Perdu</option>
-                </select>
+        <button
+          onClick={() => router.push("/dashboard")}
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%", padding: "12px", background: "transparent", color: "#64748b", borderRadius: "12px", fontSize: "13px", fontWeight: "600", border: "1px solid #e2e8f0", cursor: "pointer" }}>
+          <ArrowLeft size={13} />
+          Retour au tableau de bord
+        </button>
 
-                {/* Date */}
-                <span className="text-xs text-gray-400 hidden sm:block w-20 text-right">
-                  {new Date(lead.createdAt).toLocaleDateString("fr-FR")}
-                </span>
-
-                {/* Action */}
-                <a
-                  href={lead.contactType === "email" ? `mailto:${lead.contact}` : `https://wa.me/${lead.contact.replace(/\D/g, '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                    lead.contactType === "email" ? "bg-gray-100 text-gray-600" : "bg-green-100 text-green-600"
-                  }`}
-                >
-                  {lead.contactType === "email" ? <Mail className="w-4 h-4" /> : <MessageCircle className="w-4 h-4" />}
-                </a>
-              </div>
-            ))
-          )}
-        </div>
       </div>
     </div>
   );

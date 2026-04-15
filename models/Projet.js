@@ -14,6 +14,7 @@ const ProjetSchema = new mongoose.Schema(
     audience: { type: String },
     template: { type: String, default: "modern" },
     country: { type: String },
+    langue: { type: String, default: "français" },
 
     // ————————————————————————
     // 🟦 ÉTAT DE LA GÉNÉRATION
@@ -32,41 +33,51 @@ const ProjetSchema = new mongoose.Schema(
       default: "DRAFT",
     },
 
-    // Progression affichée à l'utilisateur
     progress: { type: Number, default: 0 },
-    
-    // Message d'erreur si statut ERROR
     errorMessage: { type: String },
-    
-    // ✅ NOUVEAU : Compteur de tentatives de relance
     retryCount: { type: Number, default: 0 },
 
     // ————————————————————————
-    // 🟩 CONTENU TEXTE (4 étapes IA)
+    // 🟩 CONTENU TEXTE
     // ————————————————————————
     summary: { type: String },
     introduction: { type: String },
+    ch1Preview: { type: String },
     chaptersText: { type: String },
     conclusion: { type: String },
-// ————————————————————————
-// ✨ BOOKZY EXPRESS (Mise en page uniquement)
-// ————————————————————————
-expressMode: { type: Boolean, default: false },
-expressChapters: [{
-  number: { type: Number },
-  title: { type: String },
-  content: { type: String }
-}],
-// ✅ AJOUTE ICI ⬇️
-aiImprovementsUsed: { type: Number, default: 0 },
-aiIncluded: { type: Number, default: 5 },
-aiExtraCost: { type: Number, default: 0 },
+
+    // ————————————————————————
+    // ✨ BOOKZY EXPRESS
+    // ————————————————————————
+    expressMode: { type: Boolean, default: false },
+    expressChapters: [{
+      number: { type: Number },
+      title: { type: String },
+      content: { type: String }
+    }],
+    aiImprovementsUsed: { type: Number, default: 0 },
+    aiIncluded: { type: Number, default: 5 },
+    aiExtraCost: { type: Number, default: 0 },
+
+    // ————————————————————————
+    // 🎬 YOUBOOK CONTEXT
+    // Données extraites de la vidéo YouTube pour enrichir la génération
+    // ————————————————————————
+    youbookContext: {
+      hook:           { type: String },
+      probleme:       { type: String },
+      transformation: { type: String },
+      key_insights:   [{ type: String }],
+      verbatim:       { type: String },
+    },
+
     // ————————————————————————
     // 🟨 ASSETS GÉNÉRÉS
     // ————————————————————————
     pdfUrl: { type: String },
-    docxUrl: { type: String }, 
+    docxUrl: { type: String },
     previewPdfUrl: { type: String },
+    previewImages: [{ type: String }],
     coverUrl: { type: String },
 
     adsImages: [{ type: String }],

@@ -72,6 +72,28 @@ export async function POST(req) {
       documentAnalysis.tocQuality = { score: 0, status: "absent", reliable: false };
     }
 
+    // ✅ PHASE 2.5 : EXTRAIRE INTRO depuis le HTML brut AVANT le cleanup
+    let rawIntro = "";
+    let rawConclusion = "";
+    const introRegexRaw = /^(introduction|avant-propos|préface)$/i;
+    const conclusionRegexRaw = /^(conclusion|épilogue|mot de fin)$/i;
+    const rawH1s = [...html.matchAll(/<h1[^>]*>(.*?)<\/h1>/gi)];
+    for (let ri = 0; ri < rawH1s.length; ri++) {
+      const title = cleanText(rawH1s[ri][0]);
+      if (introRegexRaw.test(title.trim())) {
+        const idx = html.indexOf(rawH1s[ri][0]);
+        const nextH1 = rawH1s[ri + 1];
+        const end = nextH1 ? html.indexOf(nextH1[0]) : html.length;
+        rawIntro = cleanHTMLToHTML(html.substring(idx + rawH1s[ri][0].length, end));
+        console.log(`  ✅ [RAW] Introduction extraite (${rawIntro.length} chars)`);
+      }
+      if (conclusionRegexRaw.test(title.trim())) {
+        const idx = html.indexOf(rawH1s[ri][0]);
+        rawConclusion = cleanHTMLToHTML(html.substring(idx + rawH1s[ri][0].length, html.length));
+        console.log(`  ✅ [RAW] Conclusion extraite (${rawConclusion.length} chars)`);
+      }
+    }
+
     // ✅ PHASE 3 : NETTOYAGE INTELLIGENT
     let cleanedHTML = intelligentCleanup(html, documentAnalysis);
 
@@ -96,10 +118,23 @@ export async function POST(req) {
     });
     console.log("🎯 ═══════════════════════════════════════════════════════");
 
+    const stripHTML = (html) => html
+      .replace(/<\/p>/gi, "\n\n")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+
     return NextResponse.json({
       success: true,
       titre,
       chapters,
+      introduction: stripHTML(rawIntro || extractByHeadingAdvanced._intro || ""),
+      conclusion: stripHTML(rawConclusion || extractByHeadingAdvanced._conclusion || ""),
       stats: {
         totalChapters: chapters.length,
         totalCharacters: chapters.reduce((sum, ch) => sum + ch.content.length, 0),
@@ -481,8 +516,21 @@ function extractTitleIntelligently(html, analysis) {
   let titre = "";
   let candidates = [];
 
+  // ✅ Vérifier si le premier <strong> apparaît AVANT le premier <h1>
+  const firstStrongMatch = html.match(/<strong[^>]*>(.*?)<\/strong>/i);
+  const firstH1Match = html.match(/<h1[^>]*>(.*?)<\/h1>/i);
+  const firstStrongIdx = firstStrongMatch ? html.indexOf(firstStrongMatch[0]) : Infinity;
+  const firstH1Idx = firstH1Match ? html.indexOf(firstH1Match[0]) : Infinity;
+
+  if (firstStrongMatch && firstStrongIdx < firstH1Idx) {
+    const candidate = cleanText(firstStrongMatch[0]);
+    if (candidate.length >= 10 && candidate.length <= 150 &&
+        !/^(AU PROGRAMME|SOMMAIRE|Introduction|Chapitre|TABLE)/i.test(candidate)) {
+      candidates.push({ text: candidate, score: 110, source: "strong_before_h1" });
+    }
+  }
+
   if (analysis.hasH1) {
-    // ✅ FIX : Chercher le premier H1 qui n'est ni méta ni générique
     const metaTitleRegex = /^(table des mati[eè]res|sommaire|index|plan|introduction|conclusion|bibliographie|annexe|remerciements|d[eé]dicace|préface|avant-propos)$/i;
     const chapterPrefixRegex = /^(chapitre|chapter|module|partie|section)\s*\d+$/i;
     const allH1Matches = [...html.matchAll(/<h1[^>]*>(.*?)<\/h1>/gi)];
@@ -496,7 +544,7 @@ function extractTitleIntelligently(html, analysis) {
         !chapterPrefixRegex.test(candidate.trim())
       ) {
         candidates.push({ text: candidate, score: 100, source: "h1" });
-        break; // On prend le premier H1 valide
+        break;
       }
     }
   }
@@ -653,9 +701,10 @@ function extractByHeadingAdvanced(html, analysis) {
   const chapters = [];
 
   const metaChapters = /^(table des mati[eè]res|sommaire|index|plan|introduction|conclusion|bibliographie|annexe|remerciements|d[eé]dicace|préface|avant-propos)$/i;
+  const introRegex = /^(introduction|avant-propos|préface)$/i;
+  const conclusionRegex = /^(conclusion|épilogue|mot de fin)$/i;
   const chapterPrefix = /^(chapitre|chapter|module|partie|section)\s*\d+$/i;
 
-  // ✅ Choisir H1 ou H2 selon la stratégie détectée
   const useH1 = analysis.bestMethod === "h1" || 
                 analysis.structureType === "h1_over_generic_h2" || 
                 analysis.structureType === "h1_only";
@@ -666,7 +715,6 @@ function extractByHeadingAdvanced(html, analysis) {
   let headingMatches, tag;
 
   if (useH1) {
-    // Sauter le 1er H1 = titre global du document
     headingMatches = h1Matches.slice(1);
     tag = "h1";
     console.log(`🔍 [Heading-Advanced] Stratégie H1 (${headingMatches.length} candidats après skip titre)`);
@@ -676,19 +724,61 @@ function extractByHeadingAdvanced(html, analysis) {
     console.log(`🔍 [Heading-Advanced] Stratégie ${tag.toUpperCase()} (${headingMatches.length} balises)`);
   }
 
-  const validHeadings = headingMatches.filter(h => {
+  const allHeadings = headingMatches;
+  const validHeadings = [];
+  let introContent = "";
+  let conclusionContent = "";
+  
+  for (let hi = 0; hi < allHeadings.length; hi++) {
+    const h = allHeadings[hi];
     const title = cleanText(h);
+    console.log(`  [${hi}] Heading: "${title}" | introTest: ${introRegex.test(title.trim())}`);
+    if (introRegex.test(title.trim())) {
+      const idx = html.indexOf(h);
+      const nextH = allHeadings[hi + 1];
+      const end = nextH ? html.indexOf(nextH) : html.length;
+      introContent = cleanHTMLToHTML(html.substring(idx + h.length, end));
+      console.log(`  ✅ Introduction extraite (${introContent.length} chars)`);
+      continue;
+    }
+    if (conclusionRegex.test(title.trim())) {
+      const idx = html.indexOf(h);
+      conclusionContent = cleanHTMLToHTML(html.substring(idx + h.length, html.length));
+      console.log(`  ✅ Conclusion extraite (${conclusionContent.length} chars)`);
+      continue;
+    }
     if (metaChapters.test(title.trim())) {
       console.log(`  ⏭️ Ignoré (méta): "${title}"`);
-      return false;
+      continue;
     }
-    // En mode H1, exclure aussi les génériques ("Chapitre 1", "Module 2")
     if (useH1 && chapterPrefix.test(title.trim())) {
       console.log(`  ⏭️ Ignoré (générique): "${title}"`);
-      return false;
+      continue;
     }
-    return true;
-  });
+    validHeadings.push(h);
+  }
+
+  // Chercher intro/conclusion aussi dans h2
+  const allH2 = html.match(/<h2[^>]*>.*?<\/h2>/gi) || [];
+  for (const h of allH2) {
+    const title = cleanText(h);
+    if (introRegex.test(title.trim()) && !introContent) {
+      const idx = html.indexOf(h);
+      const nextH = allH2[allH2.indexOf(h) + 1] || allHeadings[0];
+      const end = nextH ? html.indexOf(nextH) : html.length;
+      introContent = cleanHTMLToHTML(html.substring(idx + h.length, end));
+      console.log(`  ✅ Introduction extraite (h2) (${introContent.length} chars)`);
+    }
+    if (conclusionRegex.test(title.trim()) && !conclusionContent) {
+      const idx = html.indexOf(h);
+      conclusionContent = cleanHTMLToHTML(html.substring(idx + h.length, html.length));
+      console.log(`  ✅ Conclusion extraite (h2) (${conclusionContent.length} chars)`);
+    }
+  }
+
+  // Stocker intro/conclusion pour les récupérer après
+  extractByHeadingAdvanced._intro = introContent;
+  extractByHeadingAdvanced._conclusion = conclusionContent;
 
   console.log(`🔍 [Heading-Advanced] ${validHeadings.length} chapitres valides`);
 

@@ -27,7 +27,7 @@ const TESTIMONIALS = [
   { name: "Yann Dubois", role: "Formateur", location: "Douala, CM", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/ef7c836ef8bee61bfcb4d5ff4bde5702.jpg", quote: "Le Niche Hunter m'a trouvé une idée de niche que je n'aurais jamais cherchée. 15 ventes dès le premier jour.", result: "15 ventes le jour 1" },
   { name: "Clara Martin", role: "Coach Business", location: "Paris, FR", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/7fef677cbafd1e0f1f474ad0fa14a341.jpg", quote: "L'ebook de 80 pages est pertinent et bien structuré. Le kit marketing m'a fait économiser des heures.", result: "3 ebooks créés en 1 jour" },
   { name: "Kofi Mensah", role: "Digital Marketer", location: "Accra, GH", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/bc04d7c785a05a60584b5edc85860f47.jpg", quote: "En 60 secondes j'avais un ebook complet avec cover. J'ai partagé le lien sur mon Instagram et les DMs ont explosé.", result: "200+ DMs en 24h" },
-  { name: "Fatou Diallo", role: "Entrepreneuse", location: "Bamako, ML", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/IMG_4306.jpg", quote: "La boutique Smart Shop est incroyable. J'ai créé ma page en 10 minutes et partagé le lien sur WhatsApp.", result: "5 ventes le 1er jour" },
+  { name: "Fatou Diallo", role: "Entrepreneuse", location: "Bamako, ML", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/IMG_4306.jpg", quote: "J'ai mis en page mon Word en 20 secondes. Le PDF est sorti professionnel, j'ai vendu le soir même sur WhatsApp.", result: "5 ventes le 1er jour" },
 ];
 const DOUBLED = [...TESTIMONIALS, ...TESTIMONIALS];
 
@@ -154,7 +154,7 @@ function DashboardPreview() {
         </div>
         <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-transparent to-transparent z-10 pointer-events-none" />
-          <img src="/dashbordpc.png" alt="Ebook Designer Dashboard" className="w-full h-auto object-cover object-top" />
+          <img src="/ebookdesigneres.png" alt="Ebook Designer Dashboard" className="w-full h-auto object-cover object-top" />
           <div className="absolute bottom-6 left-6 z-20 flex flex-wrap gap-3">
             <div className="px-4 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20">
               <span className="text-white text-xs font-bold">✓ Éditeur riche TipTap</span>
@@ -693,9 +693,9 @@ function Tarification() {
               <div className="space-y-3">
                 {[
                   { plan: "Sans abonnement", price: "1 500 FCFA", note: "150 FCFA/crédit", color: "text-red-500", bg: "bg-red-50", border: "border-red-100" },
-                  { plan: "Pass Solo", price: "850 FCFA", note: "85 FCFA/crédit", color: "text-slate-600", bg: "bg-slate-50", border: "border-slate-200" },
-                  { plan: "Pack Créateur", price: "580 FCFA", note: "58 FCFA/crédit", color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100", badge: "Populaire" },
-                  { plan: "Pack Agence", price: "450 FCFA", note: "45 FCFA/crédit", color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100" },
+                  { plan: "Pass Solo", price: "1 000 FCFA", note: "100 FCFA/crédit", color: "text-slate-600", bg: "bg-slate-50", border: "border-slate-200" },
+                  { plan: "Pack Créateur", price: "1 000 FCFA", note: "100 FCFA/crédit", color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100", badge: "Populaire" },
+                  { plan: "Pack Agence", price: "1 000 FCFA", note: "100 FCFA/crédit", color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100" },
                 ].map((row, i) => (
                   <div key={i} className={`flex items-center justify-between p-3 rounded-xl border ${row.bg} ${row.border}`}>
                     <div>
@@ -711,8 +711,8 @@ function Tarification() {
             <div className="bg-blue-50 rounded-2xl border border-blue-100 p-5">
               <p className="text-xs font-black uppercase tracking-widest text-blue-400 mb-2">En Pack Créateur</p>
               <p className="text-slate-700 text-sm leading-relaxed">
-                Avec 330 crédits/mois vous faites <strong className="text-slate-900">33 mises en page</strong> dans le mois. 
-                À 580 FCFA pièce, vous payez l'équivalent d'un Canva Pro, mais avec des PDFs qui se vendent vraiment.
+                Avec 400 crédits/mois vous faites <strong className="text-slate-900">40 mises en page</strong> dans le mois. 
+                À 1 000 FCFA pièce, vous payez l'équivalent d'un Canva Pro, mais avec des PDFs qui se vendent vraiment.
               </p>
             </div>
             <Link href="/dashboard/credits" className="flex items-center justify-center gap-2 py-3 rounded-xl border border-[#C8BFB0] bg-white text-slate-600 text-sm font-bold hover:border-slate-400 transition-colors">
@@ -796,7 +796,7 @@ function CTAFinal() {
           Votre Word devient<br /><span className="text-blue-500">un ebook pro en 20s.</span>
         </h2>
         <p className="text-slate-500 text-lg mb-3 max-w-md mx-auto">Aperçu gratuit. 10 crédits si vous validez. Aucun risque.</p>
-        <p className="text-slate-400 text-xs mb-10 uppercase tracking-widest font-bold">10 crédits en Pack Créateur · 1 500 FCFA par ebook en pack Free</p>
+        <p className="text-slate-400 text-xs mb-10 uppercase tracking-widest font-bold">10 crédits · 1 000 FCFA/cr en abonnement · 1 500 FCFA/cr sans abonnement</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link href="/auth/register" className="group inline-flex items-center gap-3 px-10 py-5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl transition-all text-sm uppercase tracking-widest shadow-xl">
             Créer mon ebook maintenant

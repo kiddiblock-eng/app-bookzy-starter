@@ -42,14 +42,12 @@ function FeatureCard({ change, index }) {
       <div className="w-full md:w-1/2 flex-shrink-0">
         <div className={`${change.bg} rounded-2xl overflow-hidden aspect-[4/3] shadow-lg`}>
           {change.image ? (
-            <div className="w-full h-full p-4">
-              <div className="relative w-full h-full rounded-xl overflow-hidden shadow-xl border border-white/30">
-                <img
-                  src={change.image}
-                  alt={change.title}
-                  className="w-full h-full object-cover object-top"
-                />
-              </div>
+            <div className="relative w-full h-full flex items-center justify-center">
+              <img
+                src={change.image}
+                alt={change.title}
+                className="w-full h-full object-contain"
+              />
             </div>
           ) : (
             <SVGPlaceholder bg="" />
@@ -124,7 +122,7 @@ export default function VersionDetail({ version }) {
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
-<div className="absolute bottom-8 left-6 right-6 z-10">
+        <div className="absolute bottom-8 left-6 right-6 z-10">
           <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-2">{version.date}</p>
           <h1 className="font-black leading-none mb-3">
             <span className="text-white text-4xl md:text-6xl lg:text-7xl tracking-tight">V{version.version} </span>

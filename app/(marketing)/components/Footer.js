@@ -20,9 +20,9 @@ export default function Footer() {
   const pathname = usePathname();
 
   const EXCLUDE_PATHS = [
-    "/niche-hunter", "/tendances", "/youbook", "/blog", "/legal",
+    "/niche-hunter", "/radar-cash", "/youbook", "/blog", "/legal",
     "/auth", "/dashboard", "/affiliation", "/suggestions",
-    "/changelog", "/express", "/smart-shop", "/exemples-ebooks",
+    "/changelog", "/express", "/smart-shop", "/exemples-ebooks","/validateur", "/resultats-idee", "/historique-analyses", "/tendances"
   ];
   if (EXCLUDE_PATHS.some(path => pathname.startsWith(path))) return null;
 
@@ -90,10 +90,7 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/smart-shop" className="text-white/40 hover:text-white transition-colors flex items-center gap-2 font-medium">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60 flex-shrink-0" />
-                    Smart Shop
-                  </Link>
+                  
                 </li>
                 <li className="pt-1">
                   <Link href="/affiliation" className="text-white/40 hover:text-white transition-colors flex items-center gap-2 font-medium">
@@ -116,9 +113,9 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/tendances" className="text-white/40 hover:text-white transition-colors flex items-center gap-2 font-medium">
+                  <Link href="/radar-cash" className="text-white/40 hover:text-white transition-colors flex items-center gap-2 font-medium">
                     <span className="w-1.5 h-1.5 rounded-full bg-orange-400/60 flex-shrink-0" />
-                    Tendances
+                    Radar Cash
                   </Link>
                 </li>
                 <li>
@@ -128,6 +125,12 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
+                  <li>
+                  <Link href="/validateur" className="text-white/40 hover:text-white transition-colors flex items-center gap-2 font-medium">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-400/60 flex-shrink-0" />
+                    Validateur d'idées
+                  </Link>
+                </li>
                   <button onClick={() => scrollToSection("faq")} className="text-white/40 hover:text-white transition-colors font-medium">FAQ</button>
                 </li>
               </ul>

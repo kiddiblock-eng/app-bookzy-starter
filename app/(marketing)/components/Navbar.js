@@ -53,7 +53,7 @@ export default function Navbar() {
     }
   };
 
-  const EXCLUDE_PATHS = ['/tendances', '/blog', '/niche-hunter', '/youbook', '/legal', '/auth', '/dashboard', '/affiliation', '/changelog', '/suggestions','/express', '/smart-shop', '/exemples-ebooks'];
+  const EXCLUDE_PATHS = ['/radar-cash', '/blog', '/niche-hunter', '/youbook', '/legal', '/auth', '/dashboard', '/affiliation', '/changelog', '/suggestions','/express', '/smart-shop', '/exemples-ebooks', '/validateur', ];
   if (EXCLUDE_PATHS.some(path => pathname.startsWith(path))) return null;
 
   return (
@@ -159,12 +159,12 @@ export default function Navbar() {
                   </Link>
                   
                   <Link 
-                    href="/tendances" 
+                    href="/validateur" 
                     onClick={() => setShowTools(false)}
                     className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
                   >
                     <TrendingUp size={16} className="text-orange-500" />
-                    <span className="text-[13px] font-medium text-slate-700">Tendances</span>
+                    <span className="text-[13px] font-medium text-slate-700">Validateur</span>
                   </Link>
                 </div>
               </div>
@@ -289,12 +289,12 @@ export default function Navbar() {
                 </Link>
                 
                 <Link 
-                  href="/tendances" 
+                  href="/validateur" 
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 active:bg-slate-100"
                 >
                   <TrendingUp size={18} className="text-orange-500" />
-                  <span className="text-[14px] font-medium text-slate-700">Tendances</span>
+                  <span className="text-[14px] font-medium text-slate-700">Validateur</span>
                 </Link>
               </div>
             </div>

@@ -89,14 +89,14 @@ export async function POST(req) {
       usedQuota = true;
     } else {
       const balance = userDoc.credits?.balance ?? 0;
-      if (balance < 1) {
+      if (balance < 2) {
         return NextResponse.json({
           success: false, quotaExceeded: true, insufficientCredits: true,
           plan: userDoc.plan, balance, message: "Quota journalier épuisé et crédits insuffisants."
         }, { status: 402 });
       }
-      userDoc.credits.balance -= 1;
-      userDoc.credits.totalSpent = (userDoc.credits.totalSpent || 0) + 1;
+      userDoc.credits.balance -= 2;
+      userDoc.credits.totalSpent = (userDoc.credits.totalSpent || 0) + 2;
       await userDoc.save();
     }
 
@@ -135,7 +135,9 @@ JSON STRICT :
     // ── APPEL 2 : Plan 100 ventes + tactiques + message accroche
     const prompt2 = `${base}
 
-Plan concret 100 ventes ce mois. Boutique : Taliopay (taliopay.com) — Mobile Money integre.
+Plan concret pour vendre ce mois. Boutique : Taliopay (taliopay.com) — Mobile Money integre.
+Calcule un prix ideal REALISTE pour ce sujet specifique (entre 1500 et 15000 FCFA selon la valeur percue).
+Calcule les revenus DYNAMIQUEMENT selon ce prix : revenus = nb ventes x prixIdeal.
 
 JSON STRICT :
 {
@@ -155,6 +157,10 @@ JSON STRICT :
     const prompt3 = `${base}
 
 Positionnement pour dominer la niche et projections revenus. Recommande Taliopay pour vendre.
+IMPORTANT : Les revenus doivent etre calcules dynamiquement selon le sujet "${niche.title}".
+- Estime un prix ideal entre 1500 et 15000 FCFA selon la valeur percue du sujet
+- Calcule revenus = nb ventes x ce prix (pas des chiffres fixes)
+- Ex: si prix = 5000 FCFA : 50 ventes = 250 000, 100 ventes = 500 000, 200 ventes = 1 000 000
 
 JSON STRICT :
 {
@@ -164,9 +170,9 @@ JSON STRICT :
   "titreOptimise": "Titre vendeur max 60 caracteres",
   "publicCible": "A qui vendre exactement 2 phrases",
   "projections": [
-    { "scenario": "50 ventes", "revenus": 175000, "label": "Objectif minimal" },
-    { "scenario": "100 ventes", "revenus": 350000, "label": "Objectif du mois" },
-    { "scenario": "200 ventes", "revenus": 700000, "label": "Objectif ambitieux" }
+    { "scenario": "50 ventes", "revenus": 0, "label": "Objectif minimal" },
+    { "scenario": "100 ventes", "revenus": 0, "label": "Objectif du mois" },
+    { "scenario": "200 ventes", "revenus": 0, "label": "Objectif ambitieux" }
   ],
   "conseilsTaliopay": "Pourquoi Taliopay est ideal pour vendre cet ebook 1 phrase"
 }`;

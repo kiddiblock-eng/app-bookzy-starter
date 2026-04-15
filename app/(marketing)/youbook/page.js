@@ -679,45 +679,45 @@ function Pricing() {
         { label: "Analyse niche", val: "3 gratuits/j puis 1 cr." },
         { label: "Générer un ebook", val: "20 cr." },
         { label: "Mise en page", val: "10 cr." },
-        { label: "Smart Shop", val: "5 cr." },
+        { label: "Validateur d'idée", val: "4 cr." },
       ],
       cta: "Commencer gratuitement", dark: false, badge: null, id: null,
     },
     {
-      name: "Pass Solo", desc: "Pour démarrer", price: 5100, credits: 60,
+      name: "Pass Solo", desc: "Pour démarrer", price: 7500, credits: 100,
       features: [
         { label: "Youbook", val: "2 gratuits/j puis 2 cr." },
         { label: "Niche Hunter", val: "3 gratuits/j puis 1 cr." },
         { label: "Analyse niche", val: "3 gratuits/j puis 1 cr." },
         { label: "Générer un ebook", val: "20 cr." },
         { label: "Mise en page", val: "10 cr." },
-        { label: "Smart Shop", val: "5 cr." },
+        { label: "Validateur d'idée", val: "4 cr." },
         { label: "Support", val: "Email" },
       ],
       cta: "Choisir ce plan", dark: false, badge: null,
     },
     {
-      name: "Pack Créateur", desc: "Le plus populaire", price: 19125, credits: 330,
+      name: "Pack Créateur", desc: "Le plus populaire", price: 22000, credits: 400,
       features: [
         { label: "Youbook", val: "8 gratuits/j puis 2 cr." },
         { label: "Niche Hunter", val: "8 gratuits/j puis 1 cr." },
         { label: "Analyse niche", val: "8 gratuits/j puis 1 cr." },
         { label: "Générer un ebook", val: "20 cr." },
         { label: "Mise en page", val: "10 cr." },
-        { label: "Smart Shop", val: "5 cr." },
+        { label: "Validateur d'idée", val: "4 cr." },
         { label: "Support", val: "Email" },
       ],
       cta: "Choisir ce plan", dark: true, badge: "Recommandé",
     },
     {
-      name: "Pack Agence", desc: "Pour les équipes", price: 31500, credits: 700,
+      name: "Pack Agence", desc: "Pour les équipes", price: 45000, credits: 900,
       features: [
         { label: "Youbook", val: "15 gratuits/j puis 2 cr." },
         { label: "Niche Hunter", val: "20 gratuits/j puis 1 cr." },
         { label: "Analyse niche", val: "20 gratuits/j puis 1 cr." },
         { label: "Générer un ebook", val: "20 cr." },
         { label: "Mise en page", val: "10 cr." },
-        { label: "Smart Shop", val: "5 cr. · Multi boutiques" },
+        { label: "Validateur d'idée", val: "4 cr." },
         { label: "Support", val: "WhatsApp prioritaire" },
       ],
       cta: "Choisir ce plan", dark: false, badge: null,
@@ -818,7 +818,7 @@ function FAQ() {
     { q: "Quelles vidéos peuvent être converties ?", a: "Toute vidéo YouTube avec sous-titres ou transcription automatique : tutoriels, formations, podcasts, interviews, conférences, talks TEDx. Fonctionne en français, anglais, arabe et autres langues. La vidéo doit avoir au minimum 1-2 minutes de contenu parlé." },
     { q: "Puis-je modifier le titre et le sommaire avant de générer ?", a: "Absolument. Après l'analyse, Youbook pré-remplit le formulaire avec le titre, la description et le sommaire recommandé. Vous pouvez tout modifier, choisir le nombre de chapitres (3 à 10), sélectionner votre template, puis lancer la génération." },
     { q: "Quelle différence entre Youbook et Bookzy standard ?", a: "Bookzy standard : vous rédigez vous-même le contenu dans l'éditeur ou importez un Word. Youbook : vous collez un lien YouTube et l'IA extrait le contenu, génère le plan et rédige l'ebook entier. Youbook est fait pour monétiser du contenu vidéo existant. Les deux utilisent les mêmes 30 templates et le même moteur PDF." },
-    { q: "Combien de crédits pour générer l'ebook après l'analyse ?", a: "L'analyse Youbook coûte 2 cr. après quota. La génération de l'ebook complet coûte 20 cr. supplémentaires. Soit 22 cr. au total si vous n'avez plus de quota. Avec le Pack Créateur (330 cr./mois) : vous pouvez faire jusqu'à 15 ebooks complets via Youbook par mois." },
+    { q: "Combien de crédits pour générer l'ebook après l'analyse ?", a: "L'analyse Youbook coûte 2 cr. après quota. La génération de l'ebook complet coûte 20 cr. supplémentaires. Soit 22 cr. au total si vous n'avez plus de quota. Avec le Pack Créateur (400 cr./mois) : vous pouvez faire jusqu'à 15 ebooks complets via Youbook par mois." },
     { q: "Les crédits expirent-ils ?", a: "Non. Les crédits s'accumulent et n'expirent jamais. Si vous avez 60 crédits ce mois et n'en utilisez que 30, les 30 restants s'ajoutent aux crédits du mois suivant." },
   ];
 
@@ -871,7 +871,7 @@ function CTAFinal() {
           <ArrowRight className="w-5 h-5" />
         </Link>
         <p className="mt-5 text-sm text-white/20 uppercase tracking-widest font-bold">
-          Youbook · Niche Hunter · Tendances · Smart Shop — tout dans Bookzy
+          Youbook · Niche Hunter · Radar Cash · Validateur d'idée — tout dans Bookzy
         </p>
       </div>
     </section>
@@ -898,9 +898,9 @@ function Footer() {
             <ul className="space-y-3 text-sm text-slate-500">
               <li><Link href="/youbook" className="hover:text-slate-900 transition-colors">Youbook</Link></li>
               <li><Link href="/ebook-designer" className="hover:text-slate-900 transition-colors">Ebook Designer</Link></li>
-              <li><Link href="/smart-shop" className="hover:text-slate-900 transition-colors">Smart Shop</Link></li>
+              
               <li><Link href="/niche-hunter" className="hover:text-slate-900 transition-colors">Niche Hunter</Link></li>
-              <li><Link href="/tendances" className="hover:text-slate-900 transition-colors">Tendances</Link></li>
+              <li><Link href="/radar-cash" className="hover:text-slate-900 transition-colors">Radar Cash</Link></li>
             </ul>
           </div>
           <div>

@@ -7,11 +7,10 @@ import Projet from "@/models/Projet";
 import User from "@/models/User";
 import { Resend } from "resend";
 import { paymentSuccessTemplate } from "@/lib/emailTemplates/paymentSuccessTemplate";
+import { creditSuccessTemplate } from "@/lib/emailTemplates/creditSuccessTemplate";
 import MonerooProvider from "@/lib/payment/providers/MonerooProvider";
 import { processCommission } from "@/utils/affiliation";
 import crypto from "crypto";
-
-// ─── PACKS FIXES ─────────────────────────────────────────────────────────────
 
 const PACK_PLAN = {
   solo_monthly:       "solo",
@@ -23,16 +22,13 @@ const PACK_PLAN = {
 };
 
 const PACK_CREDITS = {
-  solo_monthly:       60,
-  solo_quarterly:     180,
-  createur_monthly:   330,
-  createur_quarterly: 990,
-  agence_monthly:     700,
-  agence_quarterly:   2100,
+  solo_monthly:       100,
+  solo_quarterly:     300,
+  createur_monthly:   400,
+  createur_quarterly: 1200,
+  agence_monthly:     900,
+  agence_quarterly:   2700,
 };
-
-// ─── PARSER RECHARGE DYNAMIQUE ───────────────────────────────────────────────
-// packId format : "recharge_{credits}_{plan}"  ex: "recharge_50_solo"
 
 const RECHARGE_PRICE_PER_CREDIT = {
   free: 150, solo: 100, createur: 100, agence: 100,
@@ -42,7 +38,7 @@ function parseRechargePackId(packId) {
   const match = packId?.match(/^recharge_(\d+)_(free|solo|createur|agence)$/);
   if (!match) return null;
   const credits = parseInt(match[1]);
-  if (credits < 10 || credits > 3000) return null;
+  if (credits < 30 || credits > 3000) return null;
   return { credits, plan: null, isRecharge: true };
 }
 
@@ -73,7 +69,6 @@ export async function POST(req) {
     const isPaid = verifiedData.status === "completed";
     const metadata = verifiedData.metadata || {};
 
-    // ─── CHERCHER OU CRÉER LA TRANSACTION ────────────────────────────────────
     let tx = await Transaction.findOne({ providerTransactionId: monerooTransactionId });
 
     if (!tx) {
@@ -117,7 +112,6 @@ export async function POST(req) {
       return NextResponse.json({ success: true });
     }
 
-    // ─── METTRE À JOUR LE STATUT ─────────────────────────────────────────────
     if (tx.status !== "completed") {
       tx.status = verifiedData.status;
       tx.providerTransactionId = verifiedData.transactionId;
@@ -155,12 +149,10 @@ export async function POST(req) {
 
       const recharge = parseRechargePackId(tx.packId);
       if (recharge) {
-        // Recharge dynamique — crédits sans changement de plan
         credits    = recharge.credits;
         plan       = null;
         isRecharge = true;
       } else {
-        // Pack fixe abonnement
         credits = PACK_CREDITS[tx.packId];
         plan    = PACK_PLAN[tx.packId];
       }
@@ -177,34 +169,36 @@ export async function POST(req) {
       }
 
       if (isRecharge) {
-        // Recharge : addCredits sans plan → ne change pas le plan actuel
         await user.addCredits(credits);
         console.log(`✅ [Recharge] +${credits} crédits (plan inchangé) — User: ${tx.userId}`);
       } else {
-        // Abonnement : crédits + mise à jour du plan
         await user.addCredits(credits, plan);
-        console.log(`✅ [Credits] +${credits} crédits — Plan: ${plan} — User: ${tx.userId}`);
+        // Calculer la date d'expiration selon le type d'abonnement
+        const isQuarterly = tx.packId.includes("quarterly");
+        const daysToAdd = isQuarterly ? 90 : 30;
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + daysToAdd);
+        user.planExpiresAt = expiresAt;
+        await user.save();
+        console.log(`✅ [Credits] +${credits} crédits — Plan: ${plan} — Expire: ${expiresAt.toISOString().split("T")[0]} — User: ${tx.userId}`);
       }
 
-      // ✅ Marquer les crédits comme ajoutés — évite le double crédit si webhook rejoué
       tx.creditsAdded = true;
       await tx.save();
 
-      // Email confirmation
+      // Email confirmation crédits
       try {
-        const label = isRecharge
-          ? `Recharge ${credits} crédits`
-          : `Pack ${tx.packId.replace(/_/g, " ")} — ${credits} crédits`;
-
         await resend.emails.send({
-          from:    "Bookzy <no-reply@bookzy.io>",
+          from:    "Bookzy <noreply@bookzy.io>",
           to:      user.email,
           subject: `✅ ${credits} crédits ajoutés à votre compte Bookzy`,
-          html: paymentSuccessTemplate({
+          html: creditSuccessTemplate({
             firstName:     user.firstName || "cher utilisateur",
             amount:        tx.amount,
             transactionId: tx.internalId || tx._id.toString(),
-            ebookTitle:    label,
+            credits,
+            plan,
+            isRecharge,
           }),
         });
         console.log(`📧 [Credits] Email envoyé à ${user.email}`);
@@ -275,7 +269,7 @@ export async function POST(req) {
       if (user) {
         try {
           await resend.emails.send({
-            from:    "Bookzy <no-reply@bookzy.io>",
+            from:    "Bookzy <noreply@bookzy.io>",
             to:      user.email,
             subject: "🎉 Paiement confirmé - Bookzy",
             html: paymentSuccessTemplate({

@@ -79,7 +79,6 @@ export default function ChangelogList() {
 
                   {/* Contenu */}
                   <div className="p-6 md:p-8">
-
                     <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-6 italic">{version.tagline}</p>
 
                     {/* Liste fonctionnalités */}
@@ -137,7 +136,7 @@ export default function ChangelogList() {
               </div>
               <div className="p-6">
                 <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-300 mb-2">Prochainement</p>
-                <h3 className="text-2xl font-black text-slate-300 tracking-tight mb-1">V1.2 <span className="text-slate-200">???</span></h3>
+                <h3 className="text-2xl font-black text-slate-300 tracking-tight mb-1">V1.3 <span className="text-slate-200">???</span></h3>
                 <p className="text-slate-400 text-sm">La prochaine mise à jour est en cours de développement.</p>
               </div>
             </div>

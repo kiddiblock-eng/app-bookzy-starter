@@ -12,7 +12,7 @@ export default function YoubookPage() {
   const [url, setUrl] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState("");
-  const [errorType, setErrorType] = useState(""); // "credits" | "quota" | "general"
+  const [errorType, setErrorType] = useState("");
   const [progress, setProgress] = useState(0);
 
   const { balance, showModal, setShowModal, modalAction, mutateBalance } = useCredits();
@@ -50,7 +50,7 @@ export default function YoubookPage() {
       setProgress(100);
 
       if (data.success) {
-        mutateBalance(); // ✅ rafraîchir le solde
+        mutateBalance();
         sessionStorage.setItem("youbookResult", JSON.stringify(data.analysis));
         setTimeout(() => router.push("/dashboard/youbook/result"), 500);
       } else {
@@ -75,8 +75,6 @@ export default function YoubookPage() {
       setProgress(0);
     }
   };
-
-  const suggestions = ["Formation", "Interview", "Podcast", "Conférence", "Tutoriel"];
 
   return (
     <div className="min-h-screen bg-white">
@@ -128,7 +126,7 @@ export default function YoubookPage() {
               <div className="h-full bg-slate-900 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
             </div>
             <p className="text-xs text-slate-500 text-center">
-              Conversion en cours... {Math.round(progress)}%
+              Analyse en cours... {Math.round(progress)}%
             </p>
           </div>
         )}
@@ -141,18 +139,11 @@ export default function YoubookPage() {
           className="w-full py-4 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-xl font-medium transition-all flex items-center justify-center gap-2"
         >
           {isAnalyzing ? (
-            <><Loader2 className="w-5 h-5 animate-spin" />Conversion en cours...</>
+            <><Loader2 className="w-5 h-5 animate-spin" />Analyse en cours...</>
           ) : (
-            <>Convertir en ebook<ArrowRight className="w-5 h-5" /></>
+            <>Transformer en ebook<ArrowRight className="w-5 h-5" /></>
           )}
         </button>
-
-        {/* Suggestions */}
-        <div className="flex flex-wrap justify-center gap-2 mt-6">
-          {suggestions.map((tag) => (
-            <span key={tag} className="px-3 py-1.5 text-sm bg-slate-100 text-slate-600 rounded-lg">{tag}</span>
-          ))}
-        </div>
 
         {/* Error */}
         {error && (
@@ -173,28 +164,7 @@ export default function YoubookPage() {
           </div>
         )}
 
-        {/* Comment ça marche */}
-        <div className="mt-12 pt-8 border-t border-slate-100">
-          <h2 className="text-sm font-semibold text-slate-900 mb-4 text-center">Comment ça marche</h2>
-          <div className="grid grid-cols-3 gap-4">
-            <Step number="1" text="Colle le lien YouTube" />
-            <Step number="2" text="L'IA analyse le contenu" />
-            <Step number="3" text="Obtiens ton ebook" />
-          </div>
-        </div>
-
       </div>
-    </div>
-  );
-}
-
-function Step({ number, text }) {
-  return (
-    <div className="text-center">
-      <div className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
-        <span className="text-sm font-bold text-slate-600">{number}</span>
-      </div>
-      <p className="text-xs text-slate-600">{text}</p>
     </div>
   );
 }

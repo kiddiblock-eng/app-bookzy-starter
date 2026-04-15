@@ -9,8 +9,8 @@ export default function ChangelogHero() {
       {/* IMAGE DESKTOP */}
       <div className="hidden md:block absolute inset-0">
         <Image
-          src="/Venuspc.png"
-          alt="Bookzy V1.1 VENUS"
+          src="/Marsp.png"
+          alt="Bookzy V1.2 MARS"
           fill
           priority
           className="object-cover object-center"
@@ -21,8 +21,8 @@ export default function ChangelogHero() {
       {/* IMAGE MOBILE */}
       <div className="block md:hidden absolute inset-0">
         <Image
-          src="/Venusmo.png"
-          alt="Bookzy V1.1 VENUS"
+          src="/Marsm.png"
+          alt="Bookzy V1.2 MARS"
           fill
           priority
           className="object-cover object-center"
@@ -43,20 +43,20 @@ export default function ChangelogHero() {
 
         {/* Version + Nom */}
         <h1 className="font-black leading-none tracking-tight mb-4 md:mb-6">
-          <span className="text-white text-6xl md:text-8xl lg:text-9xl">V1.1 </span>
-          <span className="text-blue-400 text-6xl md:text-8xl lg:text-9xl">VENUS</span>
+          <span className="text-white text-6xl md:text-8xl lg:text-9xl">V1.2 </span>
+          <span className="text-blue-400 text-6xl md:text-8xl lg:text-9xl">MARS</span>
         </h1>
 
         {/* Tagline */}
         <p className="text-white/90 text-sm md:text-lg font-semibold max-w-md md:max-w-xl leading-relaxed">
-          Nouveau Mondes. Nouvelles Fonctionnalités. Nouvelles Histoires.
+          Espionnez. Créez. Publiez. Le tout en quelques minutes.
         </p>
 
         {/* Badge date */}
         <div className="mt-8 md:mt-10 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm">
           <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
           <span className="text-white/80 text-xs font-semibold uppercase tracking-widest">
-            Mars 2026 — Version actuelle
+            Avril 2026 — Version actuelle
           </span>
         </div>
 

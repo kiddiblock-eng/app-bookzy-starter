@@ -4,35 +4,73 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Library,
-  Plus,
-  LogOut,
-  TrendingUp,
-  Target,
-  Youtube,
-  LayoutDashboard,
-  Banknote,
-  FileText,
-  Store,
-  ChevronDown,
-  Palette,
-  Package,
-  Receipt,
-  CreditCard,
-  BookOpen,
-  ChevronLeft,
-  ChevronRight,
+  LayoutDashboard, Youtube, FileText, Target, TrendingUp,
+  Library, Banknote, Store, CreditCard, LogOut, Plus,
+  ChevronDown, BookOpen, Radio, ChevronLeft, ChevronRight,
+  Palette, Package, Receipt, Search, History, Settings, Trophy, Scroll, BarChart2,
+  SearchCheck, ExternalLink,
 } from "lucide-react";
 import useSWR from "swr";
 
 const fetcher = (url) => fetch(url, { credentials: "include" }).then((r) => r.json());
 
-export default function DashboardSidebar({ open, setOpen, collapsed = false, setCollapsed }) {
+const NICHE_ITEMS = [
+  { label: "Trouver une niche", href: "/dashboard/niche-hunter", exact: true, icon: SearchCheck, color: "#10b981" },
+  { label: "Mes résultats", href: "/dashboard/niche-hunter/resultats", icon: History },
+];
+
+const ANALYSEUR_ITEMS = [
+  { label: "Valider une idée", href: "/dashboard/analyseur", exact: true, icon: BarChart2, color: "#10b981" },
+  { label: "Mes validations", href: "/dashboard/analyseur/historique", icon: History },
+];
+
+const NAV_SECTIONS = [
+  {
+    label: "PILOTAGE",
+    items: [
+      { label: "Tableau de bord", href: "/dashboard", icon: LayoutDashboard, exact: true, color: "#6366f1" },
+    ],
+  },
+  {
+    label: "STUDIO DE CRÉATION",
+    items: [
+      { label: "Youbook", href: "/dashboard/youbook", icon: Youtube, color: "#ef4444" },
+      { label: "Ebook Designer", href: "/dashboard/express", icon: FileText, color: "#8b5cf6" },
+      { label: "Romans IA", href: "/dashboard/romans", icon: BookOpen, color: "#ec4899" },
+    ],
+  },
+  {
+    label: "OUTILS DE RECHERCHE",
+    items: [
+      { label: "Niche Hunter", href: "/dashboard/niche-hunter", icon: Target, color: "#10b981", accordion: "niche" },
+      { label: "Radar Cash", href: "/dashboard/radar-cash", icon: Radio, color: "#06b6d4" },
+      { label: "Validateur d'idée", href: "/dashboard/analyseur", icon: BarChart2, color: "#10b981", accordion: "analyseur" },
+    ],
+  },
+  {
+    label: "BIBLIOTHÈQUE",
+    items: [
+      { label: "Mes Ebooks", href: "/dashboard/fichiers", icon: Library, color: "#6366f1" },
+      { label: "Mes Romans", href: "/dashboard/mes-romans", icon: Scroll, color: "#ec4899" },
+    ],
+  },
+  {
+    label: "BUSINESS",
+    items: [
+      { label: "Affiliation", href: "/dashboard/affiliation", icon: Banknote, color: "#10b981" },
+      { label: "Taliopay", href: "https://taliopay.com", icon: Store, color: "#4f46e5", external: true },
+    ],
+  },
+];
+
+export default function DashboardSidebar({ open, setOpen, collapsed, setCollapsed }) {
   const pathname = usePathname();
-  const [smartShopOpen, setSmartShopOpen] = useState(false);
+  const [nicheOpen, setNicheOpen] = useState(false);
+  const [analyseurOpen, setAnalyseurOpen] = useState(false);
   const [_collapsed, _setCollapsed] = useState(false);
+
   const isCollapsed = setCollapsed ? collapsed : _collapsed;
-  const toggleCollapse = setCollapsed ? () => setCollapsed(!collapsed) : () => _setCollapsed(!_collapsed);
+  const toggleCollapsed = () => setCollapsed ? setCollapsed(!collapsed) : _setCollapsed(!_collapsed);
 
   const { data: balanceData } = useSWR("/api/credits/balance", fetcher, {
     revalidateOnFocus: false,
@@ -41,440 +79,251 @@ export default function DashboardSidebar({ open, setOpen, collapsed = false, set
   const balance = balanceData?.credits?.balance ?? null;
 
   useEffect(() => {
-    if (pathname.startsWith("/dashboard/smart-shop")) {
-      setSmartShopOpen(true);
-    }
+    if (pathname.startsWith("/dashboard/niche-hunter")) setNicheOpen(true);
+    if (pathname.startsWith("/dashboard/analyseur")) setAnalyseurOpen(true);
   }, [pathname]);
 
   useEffect(() => {
     if (open) {
-      const scrollY = window.scrollY;
+      const y = window.scrollY;
       document.body.style.overflow = "hidden";
       document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
+      document.body.style.top = `-${y}px`;
       document.body.style.width = "100%";
     } else {
-      const scrollY = parseInt(document.body.style.top || "0") * -1;
+      const y = parseInt(document.body.style.top || "0") * -1;
       document.body.style.overflow = "";
       document.body.style.position = "";
       document.body.style.top = "";
       document.body.style.width = "";
-      window.scrollTo(0, scrollY);
+      window.scrollTo(0, y);
     }
     return () => {
-      const scrollY = parseInt(document.body.style.top || "0") * -1;
+      const y = parseInt(document.body.style.top || "0") * -1;
       document.body.style.overflow = "";
       document.body.style.position = "";
       document.body.style.top = "";
       document.body.style.width = "";
-      window.scrollTo(0, scrollY);
+      window.scrollTo(0, y);
     };
   }, [open]);
 
-  const smartShopItems = [
-    { label: "Boutique", href: "/dashboard/smart-shop/boutique", icon: Palette },
-    { label: "Produits", href: "/dashboard/smart-shop/produits", icon: Package },
-    { label: "Leads",    href: "/dashboard/smart-shop/leads",    icon: Receipt },
-  ];
-
-  const sidebarConfig = [
-    {
-      title: "Général",
-      items: [
-        { label: "Tableau de bord", href: "/dashboard", icon: LayoutDashboard, exact: true },
-      ],
-    },
-    {
-      title: "Création",
-      items: [
-        { label: "Youbook",            href: "/dashboard/youbook",       icon: Youtube,   isSpecial: true },
-        { label: "Ebook Designer",   href: "/dashboard/express",       icon: FileText },
-        { label: "Analyseur de Niche", href: "/dashboard/niche-hunter",  icon: Target },
-        { label: "Mes tendances",      href: "/dashboard/trends",        icon: TrendingUp },
-      ],
-    },
-    {
-      title: "Bibliothèque",
-      items: [
-        { label: "Mes Ebooks", href: "/dashboard/fichiers", icon: Library },
-      ],
-    },
-    {
-      title: "Business",
-      items: [
-        { label: "Affiliation", href: "/dashboard/affiliation", icon: Banknote },
-        { label: "Smart Shop",  href: "#",                      icon: Store, isAccordion: true },
-      ],
-    },
-  ];
-
-  const isLinkActive = (href, exact = false) => {
+  const isActive = (href, exact = false) => {
     if (exact) return pathname === href;
     return pathname === href || pathname.startsWith(href + "/");
   };
 
-  const isSmartShopActive = pathname.startsWith("/dashboard/smart-shop");
-
   const handleLogout = async () => {
-    try {
-      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
-    } catch (error) {
-      console.error("Erreur déconnexion", error);
-    } finally {
-      window.location.href = "/auth/login";
-    }
+    try { await fetch("/api/auth/logout", { method: "POST", credentials: "include" }); } catch {}
+    window.location.href = "/auth/login";
   };
 
-  const CreditsBlock = ({ mobile = false }) => {
-    const isActive = pathname.startsWith("/dashboard/credits") || pathname.startsWith("/dashboard/tarifs");
-    return (
-      <Link
-        href="/dashboard/credits"
-        onClick={() => mobile && setOpen(false)}
-        className={`flex items-center justify-between w-full px-4 py-2.5 rounded-xl transition-all duration-200 ${
-          isActive
-            ? "bg-blue-50 border border-blue-100 text-blue-700"
-            : "bg-slate-50 border border-slate-100 hover:bg-blue-50 hover:border-blue-100 text-slate-700 hover:text-blue-700"
-        }`}
-      >
-        <div className="flex items-center gap-2.5">
-          <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${isActive ? "bg-blue-600" : "bg-slate-200"}`}>
-            <CreditCard size={13} className={isActive ? "text-white" : "text-slate-500"} />
+  const CollapsedSidebar = () => (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", background: "white", alignItems: "center" }}>
+      <div style={{ padding: "16px 0 12px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", borderBottom: "1px solid #f1f5f9", width: "100%" }}>
+        <Link href="/" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "#0f172a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <BookIcon style={{ width: "14px", height: "14px", color: "white" }} />
           </div>
-          {!isCollapsed && <span className="text-sm font-semibold">Mes crédits</span>}
+        </Link>
+        <button onClick={toggleCollapsed} style={{ padding: "4px", color: "#94a3b8", cursor: "pointer", border: "none", background: "none", borderRadius: "6px" }}>
+          <ChevronRight size={14} />
+        </button>
+      </div>
+      <div style={{ padding: "10px 0 8px", width: "100%", display: "flex", justifyContent: "center" }}>
+        <Link href="/dashboard/projets/nouveau"
+          style={{ width: "36px", height: "36px", background: "#6366f1", color: "white", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
+          <Plus size={16} strokeWidth={3} />
+        </Link>
+      </div>
+      <nav style={{ flex: 1, overflowY: "auto", padding: "4px 0", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+        {NAV_SECTIONS.flatMap(s => s.items).map(({ href, icon: Icon, exact, color, accordion, external }) => {
+          const realHref = accordion === "niche" ? "/dashboard/niche-hunter" : accordion === "analyseur" ? "/dashboard/analyseur" : href;
+          const on = !external && isActive(realHref, exact);
+          if (external) {
+            return (
+              <a key={href} href={href} target="_blank" rel="noopener noreferrer"
+                style={{ width: "36px", height: "36px", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", textDecoration: "none" }}>
+                <Icon size={16} style={{ color: "#94a3b8" }} />
+              </a>
+            );
+          }
+          return (
+            <Link key={realHref + (accordion || "")} href={realHref}
+              style={{ width: "36px", height: "36px", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", background: on ? "#f0f9ff" : "transparent", textDecoration: "none" }}>
+              <Icon size={16} style={{ color: on ? color : "#94a3b8" }} />
+            </Link>
+          );
+        })}
+      </nav>
+      <div style={{ padding: "8px 0", borderTop: "1px solid #f1f5f9", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+        <Link href="/dashboard/credits" style={{ width: "36px", height: "36px", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", textDecoration: "none" }}>
+          <CreditCard size={16} style={{ color: "#94a3b8" }} />
+        </Link>
+        <button onClick={handleLogout} style={{ width: "36px", height: "36px", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: "none", cursor: "pointer" }}>
+          <LogOut size={16} style={{ color: "#94a3b8" }} />
+        </button>
+      </div>
+    </div>
+  );
+
+  const ExpandedSidebar = ({ mobile = false }) => {
+    const close = mobile ? () => setOpen(false) : undefined;
+    return (
+      <div style={{ display: "flex", flexDirection: "column", height: "100%", background: "white" }}>
+        <div style={{ padding: "16px 16px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9" }}>
+          <Link href="/" onClick={close} style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
+            <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "#0f172a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <BookIcon style={{ width: "14px", height: "14px", color: "white" }} />
+            </div>
+            <span style={{ fontSize: "16px", fontWeight: "800", color: "#0f172a", letterSpacing: "-0.3px" }}>Bookzy</span>
+          </Link>
+          {!mobile ? (
+            <button onClick={toggleCollapsed} style={{ padding: "4px 6px", color: "#94a3b8", cursor: "pointer", border: "none", background: "none", borderRadius: "6px" }}>
+              <ChevronLeft size={14} />
+            </button>
+          ) : (
+            <button onClick={() => setOpen(false)} style={{ padding: "6px", color: "#94a3b8", cursor: "pointer", border: "none", background: "none", borderRadius: "6px" }}>
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
         </div>
-        {balance !== null && !isCollapsed && (
-          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isActive ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-600"}`}>
-            {balance}
-          </span>
-        )}
-      </Link>
+
+        <div style={{ padding: "10px 12px 8px" }}>
+          <Link href="/dashboard/projets/nouveau" onClick={close}
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", width: "100%", padding: "9px 0", background: "#6366f1", color: "white", borderRadius: "10px", fontSize: "13px", fontWeight: "700", textDecoration: "none" }}>
+            <Plus size={14} strokeWidth={3} />
+            Générer un ebook
+          </Link>
+        </div>
+
+        <nav style={{ flex: 1, overflowY: "auto", padding: "4px 8px", display: "flex", flexDirection: "column", gap: "16px" }}>
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.label}>
+              <p style={{ fontSize: "10px", fontWeight: "700", color: "#94a3b8", letterSpacing: "0.08em", padding: "0 8px", marginBottom: "4px" }}>{section.label}</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+                {section.items.map(({ label, href, icon: Icon, exact, color, badge, accordion, external }) => {
+
+                  // Lien externe (Taliopay)
+                  if (external) {
+                    return (
+                      <a key={href} href={href} target="_blank" rel="noopener noreferrer"
+                        style={{ display: "flex", alignItems: "center", gap: "9px", padding: "7px 8px", borderRadius: "8px", color: "#475569", fontSize: "13px", fontWeight: "400", textDecoration: "none" }}>
+                        <Icon size={15} style={{ color: "#94a3b8", flexShrink: 0 }} />
+                        <span style={{ flex: 1 }}>{label}</span>
+                        <ExternalLink size={11} style={{ color: "#cbd5e1", flexShrink: 0 }} />
+                      </a>
+                    );
+                  }
+
+                  if (accordion === "niche") {
+                    const on = isActive("/dashboard/niche-hunter");
+                    return (
+                      <div key={label}>
+                        <button onClick={() => setNicheOpen(!nicheOpen)}
+                          style={{ width: "100%", display: "flex", alignItems: "center", gap: "9px", padding: "7px 8px", borderRadius: "8px", border: "none", cursor: "pointer", background: on ? "#f0f9ff" : "transparent", color: on ? "#0369a1" : "#475569", fontSize: "13px", fontWeight: on ? "600" : "400" }}>
+                          <Icon size={15} style={{ color: on ? color : "#94a3b8", flexShrink: 0 }} />
+                          <span style={{ flex: 1, textAlign: "left" }}>{label}</span>
+                          <ChevronDown size={13} style={{ color: "#94a3b8", transform: nicheOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
+                        </button>
+                        {nicheOpen && (
+                          <div style={{ paddingLeft: "24px", marginTop: "1px", display: "flex", flexDirection: "column", gap: "1px" }}>
+                            {NICHE_ITEMS.map(({ label: sl, href: sh, exact: se, icon: SI, color: sc }) => {
+                              const sa = se ? pathname === sh : pathname.startsWith(sh);
+                              return (
+                                <Link key={sh} href={sh} onClick={close}
+                                  style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 8px", borderRadius: "7px", fontSize: "12px", fontWeight: sa ? "600" : "400", color: sa ? "#0369a1" : "#64748b", background: sa ? "#f0f9ff" : "transparent", textDecoration: "none" }}>
+                                  <SI size={13} style={{ color: sa ? "#0369a1" : (sc || "#94a3b8"), flexShrink: 0 }} />
+                                  {sl}
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  if (accordion === "analyseur") {
+                    const on = isActive("/dashboard/analyseur");
+                    return (
+                      <div key={label}>
+                        <button onClick={() => setAnalyseurOpen(!analyseurOpen)}
+                          style={{ width: "100%", display: "flex", alignItems: "center", gap: "9px", padding: "7px 8px", borderRadius: "8px", border: "none", cursor: "pointer", background: on ? "#f0f9ff" : "transparent", color: on ? "#0369a1" : "#475569", fontSize: "13px", fontWeight: on ? "600" : "400" }}>
+                          <Icon size={15} style={{ color: on ? color : "#94a3b8", flexShrink: 0 }} />
+                          <span style={{ flex: 1, textAlign: "left" }}>{label}</span>
+                          <ChevronDown size={13} style={{ color: "#94a3b8", transform: analyseurOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
+                        </button>
+                        {analyseurOpen && (
+                          <div style={{ paddingLeft: "24px", marginTop: "1px", display: "flex", flexDirection: "column", gap: "1px" }}>
+                            {ANALYSEUR_ITEMS.map(({ label: sl, href: sh, exact: se, icon: SI, color: sc }) => {
+                              const sa = se ? pathname === sh : pathname.startsWith(sh);
+                              return (
+                                <Link key={sh} href={sh} onClick={close}
+                                  style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 8px", borderRadius: "7px", fontSize: "12px", fontWeight: sa ? "600" : "400", color: sa ? "#0369a1" : "#64748b", background: sa ? "#f0f9ff" : "transparent", textDecoration: "none" }}>
+                                  <SI size={13} style={{ color: sa ? "#0369a1" : (sc || "#94a3b8"), flexShrink: 0 }} />
+                                  {sl}
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  const on = isActive(href, exact);
+                  return (
+                    <Link key={href} href={href} onClick={close}
+                      style={{ display: "flex", alignItems: "center", gap: "9px", padding: "7px 8px", borderRadius: "8px", background: on ? "#f0f9ff" : "transparent", color: on ? "#0369a1" : "#475569", fontSize: "13px", fontWeight: on ? "600" : "400", textDecoration: "none" }}>
+                      <Icon size={15} style={{ color: on ? color : "#94a3b8", flexShrink: 0 }} />
+                      <span style={{ flex: 1 }}>{label}</span>
+                      {badge && (
+                        <span style={{ fontSize: "9px", fontWeight: "700", padding: "2px 5px", borderRadius: "4px", background: "#f1f5f9", color: "#94a3b8", letterSpacing: "0.04em" }}>{badge}</span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        <div style={{ padding: "8px", borderTop: "1px solid #f1f5f9" }}>
+          <Link href="/dashboard/credits" onClick={close}
+            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 8px", borderRadius: "8px", background: isActive("/dashboard/credits") ? "#f0f9ff" : "transparent", color: isActive("/dashboard/credits") ? "#0369a1" : "#475569", fontSize: "13px", fontWeight: isActive("/dashboard/credits") ? "600" : "400", textDecoration: "none", marginBottom: "1px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "9px" }}>
+              <CreditCard size={15} style={{ color: "#94a3b8" }} />
+              <span>Mes crédits</span>
+            </div>
+            {balance !== null && (
+              <span style={{ fontSize: "11px", fontWeight: "700", background: "#f1f5f9", color: "#64748b", padding: "2px 7px", borderRadius: "20px" }}>{balance} cr.</span>
+            )}
+          </Link>
+          <button onClick={handleLogout}
+            style={{ width: "100%", display: "flex", alignItems: "center", gap: "9px", padding: "7px 8px", borderRadius: "8px", border: "none", cursor: "pointer", background: "transparent", color: "#475569", fontSize: "13px", fontWeight: "400" }}
+            onMouseEnter={e => { e.currentTarget.style.background = "#fef2f2"; e.currentTarget.style.color = "#dc2626"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#475569"; }}>
+            <LogOut size={15} style={{ color: "#94a3b8" }} />
+            Se déconnecter
+          </button>
+        </div>
+      </div>
     );
   };
 
-  // ══ SIDEBAR DESKTOP ══
   return (
     <>
-      <aside className={`hidden lg:flex flex-col fixed left-0 top-0 z-40 h-screen bg-white border-r border-slate-100 shadow-[2px_0_20px_rgba(0,0,0,0.02)] transition-all duration-300 ${isCollapsed ? "w-[64px]" : "w-[256px]"}`}>
-
-        {/* HEADER */}
-        <div className="h-20 flex items-center justify-between px-4 flex-shrink-0">
-          {!isCollapsed && (
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center shadow-md">
-                <BookOpenIcon className="w-4 h-4 text-white" />
-              </div>
-              <span className="text-xl font-extrabold text-slate-900 tracking-tight">Bookzy</span>
-            </Link>
-          )}
-          {isCollapsed && (
-            <div className="flex flex-col items-center gap-2 w-full">
-              <Link href="/">
-                <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center shadow-md">
-                  <BookOpenIcon className="w-4 h-4 text-white" />
-                </div>
-              </Link>
-              <button
-                onClick={() => toggleCollapse()}
-                className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-all"
-                title="Agrandir"
-              >
-                <ChevronRight size={16} />
-              </button>
-            </div>
-          )}
-          {!isCollapsed && (
-            <button
-              onClick={() => toggleCollapse()}
-              className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-all"
-              title="Réduire"
-            >
-              <ChevronLeft size={16} />
-            </button>
-          )}
-        </div>
-
-        {/* CTA */}
-        <div className="px-3 pb-4 flex-shrink-0">
-          {isCollapsed ? (
-            <Link
-              href="/dashboard/projets/nouveau"
-              className="w-full flex items-center justify-center py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-all"
-              title="Générer un ebook"
-            >
-              <Plus size={18} strokeWidth={3} />
-            </Link>
-          ) : (
-            <Link
-              href="/dashboard/projets/nouveau"
-              className="group w-full flex items-center justify-center gap-2 py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold shadow-lg transition-all active:scale-[0.98]"
-            >
-              <Plus size={16} strokeWidth={3} />
-              <span className="tracking-wide text-sm">Générer un ebook</span>
-            </Link>
-          )}
-        </div>
-
-        {/* NAV */}
-        <nav className="flex-1 px-3 py-2 flex flex-col gap-3 overflow-y-auto overflow-x-hidden">
-          {sidebarConfig.map((section) => (
-            <div key={section.title}>
-              {!isCollapsed && (
-                <p className="px-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                  {section.title}
-                </p>
-              )}
-              {isCollapsed && <div className="h-px bg-slate-100 mb-1.5 mx-1" />}
-              <ul className="space-y-0">
-                {section.items.map(({ label, href, icon: Icon, badge, exact, isSpecial, disabled, isAccordion }) => {
-
-                  if (isAccordion && label === "Smart Shop") {
-                    if (collapsed) {
-                      return (
-                        <li key={label}>
-                          <Link href="/dashboard/smart-shop/boutique"
-                            className={`flex items-center justify-center py-2 rounded-xl transition-all ${isSmartShopActive ? "bg-slate-50 text-indigo-600" : "text-slate-400 hover:bg-slate-50 hover:text-slate-600"}`}
-                            title="Smart Shop">
-                            <Store size={18} />
-                          </Link>
-                        </li>
-                      );
-                    }
-                    return (
-                      <li key={label}>
-                        <button
-                          onClick={() => setSmartShopOpen(!smartShopOpen)}
-                          className={`group flex items-center justify-between w-full px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                            isSmartShopActive || smartShopOpen
-                              ? "bg-slate-50 text-slate-900 shadow-sm border border-slate-100"
-                              : "text-slate-700 hover:text-slate-900 hover:bg-slate-50/50"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <Store size={18} className={isSmartShopActive ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-600"} />
-                            <span>Smart Shop</span>
-                          </div>
-                          <ChevronDown size={16} className={`transition-transform duration-200 ${smartShopOpen ? "rotate-180" : ""} ${isSmartShopActive ? "text-indigo-600" : "text-slate-400"}`} />
-                        </button>
-                        <div className={`overflow-hidden transition-all duration-200 ${smartShopOpen ? "max-h-48 opacity-100" : "max-h-0 opacity-0"}`}>
-                          <ul className="mt-1 space-y-0.5">
-                            {smartShopItems.map(({ label: subLabel, href: subHref, icon: SubIcon }) => {
-                              const isActive = isLinkActive(subHref);
-                              return (
-                                <li key={subHref}>
-                                  <Link href={subHref} prefetch={true}
-                                    className={`group flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ml-4 ${
-                                      isActive ? "bg-indigo-50 text-indigo-700 shadow-sm" : "text-slate-700 hover:text-slate-900 hover:bg-slate-50/50"
-                                    }`}
-                                  >
-                                    <SubIcon size={16} className={isActive ? "text-indigo-600" : "text-slate-400"} />
-                                    <span>{subLabel}</span>
-                                    {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-600" />}
-                                  </Link>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </div>
-                      </li>
-                    );
-                  }
-
-                  const isActive = isLinkActive(href, exact);
-
-                  if (collapsed) {
-                    return (
-                      <li key={href || label}>
-                        <Link href={href}
-                          className={`flex items-center justify-center py-2 rounded-xl transition-all ${isActive ? "bg-slate-50 text-indigo-600" : "text-slate-400 hover:bg-slate-50 hover:text-slate-600"}`}
-                          title={label}>
-                          <Icon size={18} className={isSpecial ? "text-red-500" : ""} />
-                        </Link>
-                      </li>
-                    );
-                  }
-
-                  if (disabled) {
-                    return (
-                      <li key={label}>
-                        <div className="flex items-center justify-between px-4 py-2 rounded-xl text-sm font-medium text-slate-300 cursor-not-allowed">
-                          <div className="flex items-center gap-3">
-                            <Icon size={18} className="text-slate-300" />
-                            <span>{label}</span>
-                          </div>
-                        </div>
-                      </li>
-                    );
-                  }
-
-                  return (
-                    <li key={href}>
-                      <Link href={href} prefetch={true}
-                        className={`group flex items-center justify-between px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                          isActive ? "bg-slate-50 text-slate-900 shadow-sm border border-slate-100" : "text-slate-700 hover:text-slate-900 hover:bg-slate-50/50"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <Icon size={18} className={isActive ? "text-indigo-600" : isSpecial ? "text-red-500" : "text-slate-400 group-hover:text-slate-600"} />
-                          <span className={isSpecial && !isActive ? "text-slate-700 font-bold" : ""}>{label}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {badge === "NEW"  && <span className="text-[8px] font-black bg-gradient-to-r from-purple-600 to-pink-600 text-white px-1.5 py-0.5 rounded-md animate-pulse">NEW</span>}
-                          {badge === "HOT"  && <span className="text-[8px] font-black bg-orange-500 text-white px-1.5 py-0.5 rounded-md">HOT</span>}
-                          {isActive && <div className="w-1.5 h-1.5 rounded-full bg-indigo-600" />}
-                        </div>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
-          <div className="h-2" />
-        </nav>
-
-        {/* FOOTER */}
-        <div className="px-3 pb-2 flex-shrink-0">
-          {isCollapsed ? (
-            <Link href="/dashboard/credits"
-              className="flex items-center justify-center py-2.5 rounded-xl bg-slate-50 border border-slate-100 hover:bg-blue-50 transition-all"
-              title={`Crédits${balance !== null ? ` : ${balance}` : ""}`}>
-              <CreditCard size={16} className="text-slate-500" />
-            </Link>
-          ) : (
-            <CreditsBlock />
-          )}
-        </div>
-        <div className={`p-3 pt-2 border-t border-slate-50 flex-shrink-0 ${isCollapsed ? "flex justify-center" : ""}`}>
-          {isCollapsed ? (
-            <button onClick={handleLogout}
-              className="p-2 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 transition-all w-full flex justify-center"
-              title="Déconnexion">
-              <LogOut size={16} />
-            </button>
-          ) : (
-            <button onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all">
-              <LogOut size={16} />
-              Se déconnecter
-            </button>
-          )}
-        </div>
+      <aside style={{ position: "fixed", left: 0, top: 0, zIndex: 40, height: "100vh", width: isCollapsed ? "60px" : "220px", borderRight: "1px solid #f1f5f9", transition: "width 0.2s" }} className="hidden lg:block">
+        {isCollapsed ? <CollapsedSidebar /> : <ExpandedSidebar />}
       </aside>
-
-      {/* ══ SIDEBAR MOBILE ══ */}
       {open && (
         <>
-          <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 lg:hidden" onClick={() => setOpen(false)} />
-          <div className={`fixed lg:hidden top-0 left-0 z-50 w-[280px] h-full bg-white shadow-2xl flex flex-col transform transition-transform duration-300 ${open ? "translate-x-0" : "-translate-x-full"}`}>
-
-            {/* HEADER MOBILE */}
-            <div className="h-16 flex items-center justify-between px-4 border-b border-slate-100 flex-shrink-0">
-              <Link href="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
-                <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center">
-                  <BookOpenIcon className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-lg font-black text-slate-900">Bookzy</span>
-              </Link>
-              <button onClick={() => setOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-lg">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {/* CTA MOBILE */}
-            <div className="px-3 py-3 border-b border-slate-100 flex-shrink-0">
-              <Link href="/dashboard/projets/nouveau" onClick={() => setOpen(false)} prefetch={true}
-                className="w-full flex items-center justify-center gap-2 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-sm shadow-lg transition-all active:scale-[0.98]">
-                <Plus size={16} strokeWidth={3} />
-                <span>Générer un ebook</span>
-              </Link>
-            </div>
-
-            {/* NAV MOBILE */}
-            <nav className="py-1 flex flex-col flex-1">
-              {sidebarConfig.map((section) => (
-                <div key={section.title} className="px-2">
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 pt-1.5 pb-0.5">{section.title}</p>
-                  <ul className="space-y-0">
-                    {section.items.map(({ label, href, icon: Icon, isSpecial, disabled, isAccordion }) => {
-
-                      if (isAccordion && label === "Smart Shop") {
-                        return (
-                          <li key={label}>
-                            <button
-                              onClick={() => setSmartShopOpen(!smartShopOpen)}
-                              className={`flex items-center justify-between w-full px-3 py-2 text-sm font-medium rounded-xl transition-colors ${
-                                isSmartShopActive || smartShopOpen ? "bg-slate-50 text-slate-900" : "text-slate-700 hover:bg-slate-50"
-                              }`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <Store size={17} className={isSmartShopActive ? "text-indigo-600" : "text-slate-400"} />
-                                <span>Smart Shop</span>
-                              </div>
-                              <ChevronDown size={14} className={`transition-transform duration-200 ${smartShopOpen ? "rotate-180" : ""}`} />
-                            </button>
-                            {smartShopOpen && (
-                              <ul className="space-y-0 mt-0.5">
-                                {smartShopItems.map(({ label: subLabel, href: subHref, icon: SubIcon }) => {
-                                  const isActive = isLinkActive(subHref);
-                                  return (
-                                    <li key={subHref}>
-                                      <Link href={subHref} onClick={() => setOpen(false)} prefetch={true}
-                                        className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-xl transition-colors ml-5 ${
-                                          isActive ? "bg-indigo-50 text-indigo-700" : "text-slate-600 hover:bg-slate-50"
-                                        }`}>
-                                        <SubIcon size={15} className={isActive ? "text-indigo-600" : "text-slate-400"} />
-                                        <span>{subLabel}</span>
-                                      </Link>
-                                    </li>
-                                  );
-                                })}
-                              </ul>
-                            )}
-                          </li>
-                        );
-                      }
-
-                      if (disabled) return null;
-
-                      const isActive = isLinkActive(href);
-                      return (
-                        <li key={href}>
-                          <Link href={href} onClick={() => setOpen(false)} prefetch={true}
-                            className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-xl transition-colors ${
-                              isActive ? "bg-slate-50 text-indigo-700" : "text-slate-700 hover:bg-slate-50"
-                            }`}>
-                            <Icon size={17} className={isActive ? "text-indigo-600" : isSpecial ? "text-red-500" : "text-slate-400"} />
-                            <span>{label}</span>
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              ))}
-            </nav>
-
-            {/* FOOTER MOBILE */}
-            <div className="px-3 pb-4 pt-2 flex-shrink-0 border-t border-slate-100">
-              <Link href="/dashboard/credits" onClick={() => setOpen(false)}
-                className="flex items-center justify-between w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 hover:bg-blue-50 transition-all mb-2">
-                <div className="flex items-center gap-2.5">
-                  <CreditCard size={16} className="text-slate-500" />
-                  <span className="text-sm font-semibold text-slate-700">Mes crédits</span>
-                </div>
-                {balance !== null && (
-                  <span className="text-sm font-bold bg-slate-200 text-slate-600 px-2.5 py-0.5 rounded-full">{balance}</span>
-                )}
-              </Link>
-              <button onClick={handleLogout}
-                className="w-full py-2.5 flex items-center justify-center gap-2 text-sm text-red-600 font-bold bg-white border border-slate-200 rounded-xl hover:bg-red-50 transition-all">
-                <LogOut size={15} />
-                <span>Déconnexion</span>
-              </button>
-            </div>
+          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.2)", zIndex: 40, backdropFilter: "blur(2px)" }} className="lg:hidden" onClick={() => setOpen(false)} />
+          <div style={{ position: "fixed", top: 0, left: 0, zIndex: 50, width: "280px", height: "100%", boxShadow: "0 25px 50px rgba(0,0,0,0.15)" }} className="lg:hidden">
+            <ExpandedSidebar mobile />
           </div>
         </>
       )}
@@ -482,7 +331,7 @@ export default function DashboardSidebar({ open, setOpen, collapsed = false, set
   );
 }
 
-function BookOpenIcon(props) {
+function BookIcon(props) {
   return (
     <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
