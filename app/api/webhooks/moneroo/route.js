@@ -7,7 +7,7 @@ import Projet from "@/models/Projet";
 import User from "@/models/User";
 import { Resend } from "resend";
 import { paymentSuccessTemplate } from "@/lib/emailTemplates/paymentSuccessTemplate";
-import { creditSuccessTemplate } from "@/lib/emailTemplates/creditSuccessTemplate";
+import { creditSuccessTemplate } from "@/lib/creditSuccessTemplate";
 import MonerooProvider from "@/lib/payment/providers/MonerooProvider";
 import { processCommission } from "@/utils/affiliation";
 import crypto from "crypto";
