@@ -684,7 +684,8 @@ executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
             html: ebookReadyTemplate({ 
               firstName: user.firstName || "cher utilisateur", 
               ebookTitle: titre, 
-              projectId: projetId.toString() 
+              projectId: projetId.toString(),
+              pdfUrl: projet.pdfUrl || null,
             }),
           });
           console.log("✅ [PHASE 2] Email envoyé");

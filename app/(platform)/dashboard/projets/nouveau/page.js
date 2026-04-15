@@ -330,6 +330,18 @@ function DownloadKitModal({ kit, router }) {
           <BookOpen className="w-4 h-4" />
           Voir ma bibliothèque
         </button>
+
+        {/* CTA Taliopay */}
+        <div className="mt-4 p-4 rounded-2xl" style={{background:"linear-gradient(135deg,#0f172a,#1e293b)"}}>
+          <div className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">💰 Monétise ton ebook</div>
+          <p className="text-sm text-white font-medium mb-3">Vends cet ebook et encaisse par Mobile Money</p>
+          <a href="https://taliopay.com" target="_blank" rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold transition-all"
+            style={{background:"linear-gradient(135deg,#6366f1,#8b5cf6)",color:"white"}}>
+            Vendre sur Taliopay
+            <ArrowRight className="w-4 h-4" />
+          </a>
+        </div>
       </div>
     </div>
   );
