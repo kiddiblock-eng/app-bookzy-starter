@@ -308,8 +308,11 @@ export default function AnalyseurPage() {
 
       <div style={{ width: "100%", maxWidth: "900px", marginTop: "48px" }}>
         <p style={{ fontSize: "11px", fontWeight: "700", color: "#cbd5e1", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: "16px", textAlign: "center" }}>Votre rapport contiendra</p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px" }}>
-          <style>{`@media(max-width:600px){.promises-grid{grid-template-columns:1fr 1fr!important;}}`}</style>
+        <style>{`
+          .promises-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+          @media(max-width: 600px) { .promises-grid { grid-template-columns: 1fr 1fr !important; } }
+        `}</style>
+        <div className="promises-grid">
           {[
             { Icon: TrendingUp, color: "#16a34a", titre: "Score de marché", desc: "Un verdict clair sur 100 pour savoir si tu dois foncer" },
             { Icon: Users, color: "#1877f2", titre: "Annonceurs Facebook actifs", desc: "Qui investit déjà sur ce sujet avec leurs photos de profil" },

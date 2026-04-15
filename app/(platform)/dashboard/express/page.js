@@ -20,7 +20,7 @@ const DetailsModal = ({ isOpen, onClose, type }) => {
   };
   const data = content[type];
   return (
-    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",zIndex:50,display:"flex",alignItems:"center",justifyContent:"center",padding:"16px"}}>
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:50,display:"flex",alignItems:"center",justifyContent:"center",padding:"16px"}}>
       <div style={{background:"white",borderRadius:"16px",width:"100%",maxWidth:"400px",overflow:"hidden",boxShadow:"0 24px 48px rgba(0,0,0,0.15)"}}>
         <div style={{padding:"28px 28px 0"}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"24px"}}>
@@ -56,7 +56,7 @@ export default function ExpressHome() {
     <>
       <DetailsModal isOpen={showModal} onClose={() => setShowModal(false)} type={modalType} />
 
-      <div style={{minHeight:"100vh",background:"white"}}>
+      <div style={{minHeight:"100vh",background:"white",transform:"translateZ(0)"}}>
         <div style={{maxWidth:"780px",margin:"0 auto",padding:"64px 24px"}}>
 
           {/* Header */}
@@ -72,7 +72,7 @@ export default function ExpressHome() {
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:"16px",marginBottom:"48px"}}>
 
             {/* Écrire */}
-            <div style={{background:"white",borderRadius:"14px",border:"1px solid #e2e8f0",overflow:"hidden",transition:"box-shadow 0.15s"}}>
+            <div style={{background:"white",borderRadius:"14px",border:"1px solid #e2e8f0",overflow:"hidden"}}>
               <div style={{padding:"28px"}}>
                 <div style={{width:"40px",height:"40px",borderRadius:"10px",background:"#f1f5f9",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:"20px"}}>
                   <Pencil size={18} color="#0f172a" strokeWidth={1.5} />

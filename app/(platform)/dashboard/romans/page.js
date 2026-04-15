@@ -194,7 +194,17 @@ export default function RomansPage() {
           <h2 style={{ fontSize: "16px", fontWeight: "700", color: "#0f172a", marginBottom: "16px" }}>Genre & Format</h2>
 
           <p style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", letterSpacing: "0.08em", marginBottom: "8px" }}>GENRE</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "8px", marginBottom: "20px" }}>
+          <style>{`
+            .romans-genres-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 20px; }
+            .romans-longueur-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+            .romans-template-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
+            @media(max-width: 600px) {
+              .romans-genres-grid { grid-template-columns: repeat(3, 1fr) !important; }
+              .romans-longueur-grid { grid-template-columns: 1fr !important; }
+              .romans-template-grid { grid-template-columns: 1fr 1fr !important; }
+            }
+          `}</style>
+          <div className="romans-genres-grid">
             {GENRES.map(g => (
               <button key={g.id} onClick={() => setGenre(g.id)}
                 style={{ padding: "12px 8px", border: `2px solid ${genre === g.id ? g.color : "#e2e8f0"}`, borderRadius: "10px", background: genre === g.id ? g.color : "white", cursor: "pointer", textAlign: "center", transition: "all 0.15s" }}>
@@ -208,7 +218,7 @@ export default function RomansPage() {
           </div>
 
           <p style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", letterSpacing: "0.08em", marginBottom: "8px" }}>LONGUEUR</p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px", marginBottom: "20px" }}>
+          <div className="romans-longueur-grid">
             {LONGUEURS.map(l => (
               <button key={l.id} onClick={() => setLongueur(l.id)}
                 style={{ display: "flex", alignItems: "center", gap: "14px", padding: "14px 16px", border: `2px solid ${longueur === l.id ? "#0f172a" : "#e2e8f0"}`, borderRadius: "10px", background: longueur === l.id ? "#f8fafc" : "white", cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}>
@@ -227,7 +237,7 @@ export default function RomansPage() {
           </div>
 
           <p style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", letterSpacing: "0.08em", marginBottom: "8px" }}>TEMPLATE</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px", marginBottom: "24px" }}>
+          <div className="romans-template-grid">
             {TEMPLATES.map(t => (
               <button key={t.id} onClick={() => setTemplate(t.id)}
                 style={{ padding: "0", border: `2px solid ${template === t.id ? t.color : "#e2e8f0"}`, borderRadius: "12px", background: "white", cursor: "pointer", overflow: "hidden", textAlign: "left", transition: "all 0.15s" }}>
