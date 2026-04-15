@@ -5,7 +5,7 @@ import { Resend } from "resend";
 import { youbookRelanceTemplate } from "@/lib/emailTemplates/youbookRelanceTemplate";
 import { ebookRelanceTemplate } from "@/lib/emailTemplates/ebookRelanceTemplate";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// ✅ CRON_SECRET au niveau module c'est ok (pas d'instanciation)
 const CRON_SECRET = process.env.CRON_SECRET;
 
 function analyseurEmailTemplate({ firstName, sujet }) {
@@ -31,6 +31,9 @@ export async function GET(req) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // ✅ Instanciation DANS la fonction — pas au niveau module
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
   try {
     await dbConnect();
 
@@ -50,7 +53,6 @@ export async function GET(req) {
         expiredCount++;
         console.log(`⏰ [CRON] Plan ${u.plan} expiré → free — ${u.email}`);
 
-        // Email notification
         try {
           await resend.emails.send({
             from: "Bookzy <noreply@bookzy.io>",
