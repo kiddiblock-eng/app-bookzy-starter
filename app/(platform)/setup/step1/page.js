@@ -64,7 +64,7 @@ export default function Step1() {
             Quel est votre domaine ?
           </h1>
           <p className="text-slate-500 text-base">
-            Cela permet à l'IA de vous suggérer des sujets pertinents.
+            Cela permet à Bookzy de vous suggérer des produits digitaux qui cartonnent dans votre domaine.
           </p>
         </div>
 

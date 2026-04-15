@@ -19,15 +19,17 @@ export default function DashboardHome() {
   const { data: ebooksData, isLoading: ebooksLoading } = useSWR("/api/ebooks/user",            fetcher, { revalidateOnFocus: true });
   const { data: creditsData                          } = useSWR("/api/credits/balance",         fetcher, { revalidateOnFocus: true });
   const { data: historyData                          } = useSWR("/api/credits/history?limit=3", fetcher, { revalidateOnFocus: true });
+  const { data: analyseurData                        } = useSWR("/api/analyseur/count",         fetcher, { revalidateOnFocus: true });
 
   const user    = userData?.user || userData;
   const ebooks  = ebooksData?.ebooks || [];
   const balance = creditsData?.credits?.balance ?? creditsData?.balance ?? null;
   const plan    = creditsData?.plan || user?.plan || "free";
   const history = historyData?.transactions || [];
-  const total   = ebooks.length;
-  const kits    = ebooks.filter(e => e.fileUrl).length;
-  const enCours = total - kits;
+  const total       = ebooks.length;
+  const kits        = ebooks.filter(e => e.fileUrl).length;
+  const enCours     = total - kits;
+  const analysesCount = analyseurData?.count ?? 0;
 
   useEffect(() => {
     const h = new Date().getHours();
@@ -164,7 +166,7 @@ export default function DashboardHome() {
             <div className="bg-white border border-slate-200 rounded-2xl p-5">
               <h3 className="text-sm font-bold text-slate-900 mb-4">Ton parcours</h3>
               <div className="space-y-3 mb-4">
-                <ProgressRow label="Idées analysées" value={2} max={10} color="#0891b2" />
+                <ProgressRow label="Idées analysées" value={analysesCount} max={Math.max(analysesCount, 10)} color="#0891b2" />
                 <ProgressRow label="Produits créés" value={kits} max={Math.max(kits, 10)} color="#7c3aed" />
                 <ProgressRow label="En cours" value={enCours} max={Math.max(enCours, 5)} color="#4f46e5" />
               </div>
