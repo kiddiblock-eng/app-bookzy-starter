@@ -276,9 +276,14 @@ Intègre naturellement ces éléments dans le contenu pour rester fidèle à la 
                     totalChapters, 
                     wordsTarget: wordsPerChapter,
                     langue 
-                  })}${ch1PreviewText ? `\n\nIMPORTANT: Ce chapitre doit commencer EXACTEMENT par ce texte déjà écrit:\n${ch1PreviewText}\n\nContinue naturellement à partir de là sans répéter l'introduction.` : ""}\n\n${FORMAT_INSTRUCTIONS}${youbookExtra}`, 
+                  })}${ch1PreviewText ? `\n\nIMPORTANT: Ne génère PAS le début de ce chapitre, commence directement à la suite de ce texte déjà écrit (continue à partir du milieu de la phrase) :\n"...${ch1PreviewText.slice(-300)}"\nContinue naturellement sans répéter ni reformuler ce qui précède.` : ""}\n\nINTERDIT: Ne commence PAS ce chapitre par une phrase du type "Vouloir changer", "Le désir de changement", "Vous avez probablement déjà" ou toute autre intro générique similaire aux autres chapitres. Ce chapitre doit avoir une accroche UNIQUE et différente des autres.\n\n${FORMAT_INSTRUCTIONS}${youbookExtra}`, 
                   dynamicMaxTokens
                 );
+                
+                // ✅ Concaténer manuellement le ch1Preview avec la suite générée
+                if (ch1PreviewText) {
+                  chapterText = ch1PreviewText + "\n" + cleanMarkdown(chapterText);
+                }
                 
                 console.log(`✅ [PHASE 2] Chapitre ${chapterNumber} terminé`);
                 break;
