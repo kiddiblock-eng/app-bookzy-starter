@@ -260,11 +260,18 @@ Intègre naturellement ces éléments dans le contenu pour rester fidèle à la 
             let retryCount = 0;
             const MAX_CHAPTER_RETRIES = 3;
 
-            // ✅ Réutiliser le début du chapitre 1 depuis l'aperçu
-            const ch1PreviewText = chapterNumber === 1 ? projet.ch1Preview : null;
-            
+            // ✅ Utiliser le chapitre 1 complet généré lors de l'aperçu si disponible
+            const ch1FullFromPreview = chapterNumber === 1 ? projet.ch1Full : null;
+
             while (retryCount < MAX_CHAPTER_RETRIES) {
               try {
+                // Si ch1Full existe déjà (généré proprement lors du preview), on le réutilise
+                if (ch1FullFromPreview) {
+                  chapterText = ch1FullFromPreview;
+                  console.log(`✅ [PHASE 2] Chapitre 1 réutilisé depuis l'aperçu`);
+                  break;
+                }
+
                 chapterText = await getAIWithRetry(
                   "ebook", 
                   `${EBOOK_SYSTEM_PROMPT}\n\n${getChapterPrompt({ 
@@ -276,14 +283,9 @@ Intègre naturellement ces éléments dans le contenu pour rester fidèle à la 
                     totalChapters, 
                     wordsTarget: wordsPerChapter,
                     langue 
-                  })}${ch1PreviewText ? `\n\nIMPORTANT: Ne génère PAS le début de ce chapitre, commence directement à la suite de ce texte déjà écrit (continue à partir du milieu de la phrase) :\n"...${ch1PreviewText.slice(-300)}"\nContinue naturellement sans répéter ni reformuler ce qui précède.` : ""}\n\nINTERDIT: Ne commence PAS ce chapitre par une phrase du type "Vouloir changer", "Le désir de changement", "Vous avez probablement déjà" ou toute autre intro générique similaire aux autres chapitres. Ce chapitre doit avoir une accroche UNIQUE et différente des autres.\n\n${FORMAT_INSTRUCTIONS}${youbookExtra}`, 
+                  })}\n\nINTERDIT: Ne commence PAS ce chapitre par une phrase du type "Vouloir changer", "Le désir de changement", "Vous avez probablement déjà" ou toute autre intro générique similaire aux autres chapitres. Ce chapitre doit avoir une accroche UNIQUE et différente des autres.\n\n${FORMAT_INSTRUCTIONS}${youbookExtra}`, 
                   dynamicMaxTokens
                 );
-                
-                // ✅ Concaténer manuellement le ch1Preview avec la suite générée
-                if (ch1PreviewText) {
-                  chapterText = ch1PreviewText + "\n" + cleanMarkdown(chapterText);
-                }
                 
                 console.log(`✅ [PHASE 2] Chapitre ${chapterNumber} terminé`);
                 break;

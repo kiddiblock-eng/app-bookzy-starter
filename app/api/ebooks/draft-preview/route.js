@@ -136,27 +136,32 @@ export async function POST(req) {
     );
     const cleanIntro = cleanMarkdown(introText);
 
-    // 3. DÉBUT CHAPITRE 1
+    // 3. CHAPITRE 1 COMPLET (sauvegardé en DB, utilisé dans le PDF final)
     const chapterPattern = isEn
       ? /Chapter 1\s*[:：]\s*(.+?)(?=\n|$)/i
       : /Chapitre 1\s*[:：]\s*(.+?)(?=\n|$)/i;
     const ch1TitleMatch = summaryText.match(chapterPattern);
     const ch1Title = ch1TitleMatch ? ch1TitleMatch[1].trim() : (isEn ? "Chapter 1" : "Chapitre 1");
 
-    const ch1Preview = await getAIWithRetry(
+    // Générer le chapitre 1 COMPLET — sera réutilisé dans le PDF final
+    const ch1Full = await getAIWithRetry(
       "ebook",
       `${EBOOK_SYSTEM_PROMPT}\n\n${getChapterPrompt({
         chapterNumber: 1, chapterTitle: ch1Title, title: titre,
-        description, summary: summaryText, totalChapters, wordsTarget: 250,
+        description, summary: summaryText, totalChapters, wordsTarget: 600,
         langue: langueFinale,
-      })}\n\n${isEn ? "Generate ONLY the first 250 words. Cut mid-sentence — this is a preview." : "Génère UNIQUEMENT les 250 premiers mots. Coupe au milieu d'une phrase — c'est un aperçu."}`,
-      800
+      })}\n\n${isEn ? "Write a complete chapter of approximately 600 words." : "Rédige un chapitre complet d'environ 600 mots."}`,
+      2000
     );
-    const cleanCh1 = cleanMarkdown(ch1Preview);
+    const cleanCh1Full = cleanMarkdown(ch1Full);
+
+    // Pour l'aperçu visuel : on coupe à 250 mots avec dégradé (design aperçu gratuit)
+    const cleanCh1Preview = cleanCh1Full.split(" ").slice(0, 250).join(" ") + "...";
 
     projet.summary = cleanSummary;
     projet.introduction = cleanIntro;
-    projet.ch1Preview = cleanCh1;
+    projet.ch1Preview = cleanCh1Preview;  // aperçu coupé pour l'affichage
+    projet.ch1Full = cleanCh1Full;        // chapitre complet pour le PDF final
     projet.status = "PREVIEW_READY";
     projet.progress = 30;
     await projet.save();
@@ -212,7 +217,7 @@ export async function POST(req) {
       const chaptersData = sommaireLines.map((title, idx) => ({
         title: title.replace(/^(Chapitre|Chapter) \d+\s*[:：]\s*/i, "").trim() || `${isEn ? "Chapter" : "Chapitre"} ${idx + 1}`,
         content: idx === 0
-          ? cleanCh1
+          ? cleanCh1Preview
           : `<p style="color:#94a3b8;">${isEn ? "Content locked." : "Contenu verrouillé."}</p>`,
       }));
 
@@ -288,7 +293,7 @@ export async function POST(req) {
       preview: {
         sommaire: sommaireLines,
         introduction: cleanIntro,
-        chapitre1Preview: cleanCh1,
+        chapitre1Preview: cleanCh1Preview,
         ch1Title,
         previewImages,
         previewHTML,

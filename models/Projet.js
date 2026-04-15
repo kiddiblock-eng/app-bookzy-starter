@@ -43,6 +43,7 @@ const ProjetSchema = new mongoose.Schema(
     summary: { type: String },
     introduction: { type: String },
     ch1Preview: { type: String },
+    ch1Full: { type: String },
     chaptersText: { type: String },
     conclusion: { type: String },
 
