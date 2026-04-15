@@ -80,11 +80,15 @@ export async function POST(req) {
       { expiresIn: "7d" }
     );
 
+    const isProd = process.env.NODE_ENV === "production";
+    const cookieDomain = isProd ? ".bookzy.io" : undefined;
+
     cookies().set("bookzy_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProd,
       sameSite: "lax",
       path: "/",
+      domain: cookieDomain,
       maxAge: 7 * 24 * 60 * 60,
     });
 
