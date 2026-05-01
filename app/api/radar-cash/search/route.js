@@ -172,7 +172,7 @@ async function fetchFbAds(query, country, mediaType, cursor = null) {
     `https://facebook-ads-library-scraper-api.p.rapidapi.com/search/ads?${params}`,
     {
       headers: {
-        "x-rapidapi-key": process.env.RAPIDAPI_KEY,
+        "x-rapidapi-key": process.env.RAPIDAPI_KEY_FBADS || process.env.RAPIDAPI_KEY,
         "x-rapidapi-host": "facebook-ads-library-scraper-api.p.rapidapi.com",
       },
     }
