@@ -34,7 +34,7 @@ async function fetchFacebookAdsData(theme) {
       {
         method: "GET",
         headers: {
-          "x-rapidapi-key": process.env.RAPIDAPI_KEY,
+          "x-rapidapi-key": process.env.RAPIDAPI_KEY_FBADS || process.env.RAPIDAPI_KEY,
           "x-rapidapi-host": "facebook-ads-library-scraper-api.p.rapidapi.com",
           "Content-Type": "application/json",
         },
