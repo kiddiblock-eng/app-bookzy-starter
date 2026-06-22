@@ -142,13 +142,15 @@ export async function POST(req) {
     // Free : vérifier le quota AVANT les appels API
     if (!isPremium) {
       const existingCount = await (await import("@/models/ProductAnalysis")).default.countDocuments({ userId: user.id });
-      if (existingCount >= 1) {
-        // 2ème analyse+ → abonnement requis
-        return NextResponse.json({ success: false, limitReached: true }, { status: 402 });
-      }
-      // 1ère analyse → vérifier si 4 crédits disponibles
       const balance = userDoc?.credits?.balance ?? 0;
-      if (balance < 4) {
+
+      if (existingCount === 0) {
+        // 1ère analyse → vérifier 4 crédits
+        if (balance < 4) {
+          return NextResponse.json({ success: false, limitReached: true }, { status: 402 });
+        }
+      } else {
+        // 2ème analyse+ → abonnement requis
         return NextResponse.json({ success: false, limitReached: true }, { status: 402 });
       }
     }

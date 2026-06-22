@@ -366,13 +366,16 @@ export async function POST(req) {
 
     if (!isPremium) {
       if (existingCount === 0) {
-        // 1ère analyse → débiter 4 crédits (offerts à l'inscription)
+        // 1ère analyse → débiter 4 crédits
         const balance = userDoc.credits?.balance ?? 0;
         if (balance < CREDITS_PAR_ANALYSE) {
           return NextResponse.json({
             success: false,
             limitReached: true,
-            message: "Crédits insuffisants. Passez à Solo pour continuer.",
+            insufficientCredits: true,
+            balance,
+            required: CREDITS_PAR_ANALYSE,
+            message: "Crédits insuffisants pour votre première analyse.",
           }, { status: 402 });
         }
         userDoc.credits.balance -= CREDITS_PAR_ANALYSE;
@@ -380,12 +383,23 @@ export async function POST(req) {
         await userDoc.save();
         console.log(`💳 [QUOTA] 4 crédits débités — 1ère analyse — solde: ${userDoc.credits.balance}`);
       } else {
-        // 2ème analyse et + → abonnement requis
-        return NextResponse.json({
-          success: false,
-          limitReached: true,
-          message: "Passez à l'abonnement Solo pour continuer à analyser.",
-        }, { status: 402 });
+        // 2ème analyse+ sans abonnement → débiter 8 crédits
+        const CREDITS_SANS_ABONNEMENT = 8;
+        const balance = userDoc.credits?.balance ?? 0;
+        if (balance < CREDITS_SANS_ABONNEMENT) {
+          return NextResponse.json({
+            success: false,
+            limitReached: true,
+            insufficientCredits: true,
+            balance,
+            required: CREDITS_SANS_ABONNEMENT,
+            message: `Il vous faut ${CREDITS_SANS_ABONNEMENT} crédits pour analyser sans abonnement. Rechargez ou passez à Solo.`,
+          }, { status: 402 });
+        }
+        userDoc.credits.balance -= CREDITS_SANS_ABONNEMENT;
+        userDoc.credits.totalSpent = (userDoc.credits.totalSpent || 0) + CREDITS_SANS_ABONNEMENT;
+        await userDoc.save();
+        console.log(`💳 [QUOTA] 8 crédits débités — analyse sans abonnement — solde: ${userDoc.credits.balance}`);
       }
     } else if (usedToday < ANALYSES_GRATUITES_PAR_JOUR) {
       // Premium : analyses incluses dans l'abonnement

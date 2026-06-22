@@ -53,15 +53,16 @@ const THEMES = {
 };
 
 export async function GET(req) {
-  // ✅ Instancié dans la fonction — pas au niveau module
+  const secret = req.headers.get("x-cron-secret")
+    || new URL(req.url).searchParams.get("secret");
+
+  if (secret !== process.env.CRON_SECRET) {
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  }
+
   const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
-    const secret = req.headers.get("x-cron-secret");
-    if (secret !== process.env.CRON_SECRET) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-
     await dbConnect();
 
     const now = new Date();
@@ -108,9 +109,9 @@ Réponds en JSON STRICT :
       users = [{ name: "Roddy", firstName: "Roddy", email: testEmail, plan: "agence", ebooksCreated: 10, credits: { balance: 60 } }];
       console.log(`🧪 [DAILY EMAIL TEST] Envoi uniquement à ${testEmail}`);
     } else {
+      // ✅ Suppression du filtre emailVerified — tous les users actifs reçoivent l'email
       users = await User.find({
         isActive: true,
-        emailVerified: true,
         email: { $exists: true, $ne: "" },
       }).select("name firstName email plan ebooksCreated credits").lean();
     }
