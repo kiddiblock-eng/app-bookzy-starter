@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
+import { getCookieDomain } from "@/lib/cookies";
 
 export async function POST(req) {
   try {
     const isProd = process.env.NODE_ENV === "production";
-    const cookieDomain = isProd ? ".bookzy.io" : undefined;
+    const cookieDomain = getCookieDomain(req);
 
     const response = NextResponse.json({ 
       success: true, 

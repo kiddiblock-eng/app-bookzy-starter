@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
+import { getCookieDomain } from "@/lib/cookies";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
 import speakeasy from "speakeasy";
@@ -111,7 +112,7 @@ export async function POST(req) {
 
     // 🚩 CONFIGURATION DES COOKIES (Alignée pour la production)
     const isProd = process.env.NODE_ENV === "production";
-    const cookieDomain = isProd ? ".bookzy.io" : undefined;
+    const cookieDomain = getCookieDomain(req);
 
     const cookieOptions = {
       httpOnly: true,

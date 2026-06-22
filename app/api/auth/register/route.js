@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { dbConnect } from "@/lib/db";
+import { getCookieDomain } from "@/lib/cookies";
 import User from "@/models/User";
 import { Resend } from "resend";
 import { welcomeEmailTemplate } from "@/lib/emailTemplates/welcomeEmailTemplate";
@@ -81,7 +82,7 @@ export async function POST(req) {
     );
 
     const isProd = process.env.NODE_ENV === "production";
-    const cookieDomain = isProd ? ".bookzy.io" : undefined;
+    const cookieDomain = getCookieDomain(req);
 
     cookies().set("bookzy_token", token, {
       httpOnly: true,

@@ -4,6 +4,7 @@ import { dbConnect } from '@/lib/db';
 import User from '@/models/User';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import { getCookieDomain } from '@/lib/cookies';
 import { cookies } from 'next/headers'; // ✅ NOUVEAU
 import { createAffiliateCode } from '@/utils/affiliation'; // ✅ NOUVEAU
 
@@ -160,7 +161,7 @@ export async function GET(request) {
 
     // Configuration cookie
     const isProd = process.env.NODE_ENV === 'production';
-    const cookieDomain = isProd ? '.bookzy.io' : undefined;
+    const cookieDomain = getCookieDomain(request);
 
     response.cookies.set('bookzy_token', token, {
       httpOnly: true,
