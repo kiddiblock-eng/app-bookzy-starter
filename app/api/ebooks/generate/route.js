@@ -19,7 +19,7 @@ import {
   EBOOK_SYSTEM_PROMPT
 } from "../../../../lib/prompts/ebookPrompts";
 import jwt from "jsonwebtoken";
-import puppeteer from "puppeteer";
+import { getBrowser } from "@/lib/puppeteer";
 
 // ✅ AJOUT : Import middleware crédits
 import { checkCredits } from "../../../../middleware/checkCredits";
@@ -499,13 +499,7 @@ const chaptersStruct = chaptersArray.map((c, i) => {
         
         // ✅ OPTIONS CHROMIUM ULTRA-OPTIMISÉES
         const launchOptions = {
-          headless: 'new',
           args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-gpu',
-            '--no-zygote',
             '--disable-software-rasterizer',
             '--disable-extensions',
             '--disable-background-networking',
@@ -523,14 +517,13 @@ const chaptersStruct = chaptersArray.map((c, i) => {
             '--disable-web-security',
             '--font-render-hinting=none',
           ],
-executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
           timeout: 180000,
           protocolTimeout: 180000,
           dumpio: false,
         };
-        
+
         console.log(`🚀 [PHASE 2] Lancement Chromium...`);
-        browser = await puppeteer.launch(launchOptions);
+        browser = await getBrowser(launchOptions);
         console.log("✅ [PHASE 2] Browser lancé");
 
         const page = await browser.newPage();

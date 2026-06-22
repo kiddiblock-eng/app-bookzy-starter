@@ -13,7 +13,7 @@ import {
 import { generateStyledHTML } from "@/lib/pdf/htmlGenerator";
 import { uploadBufferToCloudinary } from "@/lib/cloudinary";
 import jwt from "jsonwebtoken";
-import puppeteer from "puppeteer";
+import { getBrowser } from "@/lib/puppeteer";
 
 const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
@@ -231,12 +231,7 @@ export async function POST(req) {
         chaptersData,
       }, template || "modern", langueFinale);
 
-      const browser = await puppeteer.launch({
-        headless: "new",
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium",
-        args: ["--no-sandbox","--disable-setuid-sandbox","--disable-dev-shm-usage","--disable-gpu","--no-zygote"],
-        timeout: 60000,
-      });
+      const browser = await getBrowser({ timeout: 60000 });
 
       const page = await browser.newPage();
       await page.setRequestInterception(true);

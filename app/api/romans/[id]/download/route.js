@@ -6,7 +6,7 @@ import User from "@/models/User";
 import { verifyAuth } from "@/lib/auth";
 import { getAIText } from "@/lib/ai";
 import { generateRomanHTML } from "@/lib/romanTemplates";
-import puppeteer from "puppeteer";
+import { getBrowser } from "@/lib/puppeteer";
 import { v2 as cloudinary } from "cloudinary";
 
 cloudinary.config({
@@ -52,7 +52,7 @@ export async function POST(req, { params }) {
       }
       // Pas d'URL → regénérer et uploader
       const html = generateRomanHTML(roman.toObject());
-      const browser = await puppeteer.launch({ headless: "new", args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"] });
+      const browser = await getBrowser();
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: "networkidle0" });
       const pdfBuffer = await page.pdf({ format: "A5", printBackground: true, margin: { top: "0mm", right: "0mm", bottom: "0mm", left: "0mm" } });
@@ -148,10 +148,7 @@ RÈGLES ABSOLUES :
 
     const html = generateRomanHTML(romanData);
 
-    const browser = await puppeteer.launch({
-      headless: "new",
-      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
-    });
+    const browser = await getBrowser();
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });

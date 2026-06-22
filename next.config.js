@@ -1,9 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // ✅ INDISPENSABLE pour Docker & Railway
-  // Cela crée un dossier léger avec seulement le nécessaire pour la production
-  output: 'standalone', 
-
+  // Mode classique (next build + next start) sur Render — pas de 'standalone' :
+  // le tracing standalone peut omettre des deps runtime nécessaires à Puppeteer.
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'sucesspro.io' },

@@ -9,7 +9,7 @@ import { Resend } from "resend";
 import { ebookReadyTemplate } from "@/lib/emailTemplates/ebookReadyTemplate";
 import { generateExpressHTML } from "@/lib/pdf/expressHtmlGenerator";
 import { uploadBufferToCloudinary } from "@/lib/cloudinary";
-import puppeteer from "puppeteer";
+import { getBrowser } from "@/lib/puppeteer";
 import { PDFDocument } from "pdf-lib";
 
 // ✅ AJOUT : Import middleware crédits
@@ -141,24 +141,10 @@ export async function POST(req) {
     
     console.log(`🖨️ [Express Generate] Génération PDF...`);
     
-    const launchOptions = {
-      headless: 'new',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--no-zygote',
-        '--single-process',
-      ],
+    browser = await getBrowser({
+      args: ['--single-process'],
       timeout: 180000,
-    };
-
-    if (process.env.NODE_ENV === 'production') {
-      launchOptions.executablePath = '/usr/bin/chromium';
-    }
-    
-    browser = await puppeteer.launch(launchOptions);
+    });
     const page = await browser.newPage();
     
     await page.setRequestInterception(true);

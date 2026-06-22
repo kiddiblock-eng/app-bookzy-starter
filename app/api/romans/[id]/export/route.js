@@ -4,7 +4,7 @@ import { dbConnect } from "@/lib/db";
 import Roman from "@/models/Roman";
 import { verifyAuth } from "@/lib/auth";
 import { generateRomanHTML } from "@/lib/romanTemplates";
-import puppeteer from "puppeteer";
+import { getBrowser } from "@/lib/puppeteer";
 
 export async function GET(req, { params }) {
   try {
@@ -23,10 +23,7 @@ export async function GET(req, { params }) {
       // ── Générer le PDF avec Puppeteer ─────────────────────────────────────
       const html = generateRomanHTML(roman.toObject());
 
-      const browser = await puppeteer.launch({
-        headless: "new",
-        args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
-      });
+      const browser = await getBrowser();
 
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: "networkidle0" });

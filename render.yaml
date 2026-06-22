@@ -1,0 +1,109 @@
+# ──────────────────────────────────────────────────────────────────────────
+# Render Blueprint — Bookzy (migration depuis Railway)
+#
+# - 1 web service Docker long-running (pas de timeout serverless), Puppeteer OK
+# - 2 cron jobs natifs Render qui appellent les endpoints avec CRON_SECRET
+#
+# IMPORTANT : le nom du web service est "app-bookzy-starter" pour que
+# middleware.js continue de traiter l'URL technique .onrender.com comme le
+# sous-domaine "app" (condition hostname.startsWith("app-bookzy-starter")).
+#
+# Toutes les valeurs sensibles sont en `sync: false` → à renseigner dans le
+# dashboard Render (jamais commitées). Les NEXT_PUBLIC_* sont aussi passées
+# au build (Render les expose comme build args, captés en ARG dans le Dockerfile).
+# ──────────────────────────────────────────────────────────────────────────
+
+services:
+  # ── WEB (Next.js) ────────────────────────────────────────────────────────
+  - type: web
+    name: app-bookzy-starter
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: standard            # Puppeteer + Chromium : éviter un plan trop petit
+    region: frankfurt
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      # Serveur — secrets (à renseigner dans le dashboard)
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        sync: false
+      - key: ADMIN_SECRET
+        sync: false
+      - key: CRON_SECRET
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: RAPIDAPI_KEY
+        sync: false
+      - key: RAPIDAPI_KEY_FBADS
+        sync: false
+      - key: FACEBOOK_ACCESS_TOKEN
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      # Publiques (NEXT_PUBLIC_*) — inlinées au build ET dispo au runtime
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+      - key: NEXT_PUBLIC_URL
+        sync: false
+      - key: NEXT_PUBLIC_ADMIN_SECRET
+        sync: false
+      - key: NEXT_PUBLIC_KKIAPAY_PUBLIC_KEY
+        sync: false
+
+  # ── CRON : leçon quotidienne — 1×/jour à 08:00 UTC ───────────────────────
+  - type: cron
+    name: bookzy-cron-daily-email
+    runtime: image
+    image:
+      url: docker.io/curlimages/curl:latest
+    region: frankfurt
+    schedule: "0 8 * * *"
+    dockerCommand: >-
+      curl -fsS --max-time 600
+      -H "x-cron-secret: $CRON_SECRET"
+      "https://$APP_HOST/api/cron/daily-email"
+    envVars:
+      - key: CRON_SECRET
+        sync: false
+      - key: APP_HOST
+        fromService:
+          type: web
+          name: app-bookzy-starter
+          property: host
+
+  # ── CRON : jobs email / relances / expiration — toutes les 15 min ────────
+  - type: cron
+    name: bookzy-cron-emails
+    runtime: image
+    image:
+      url: docker.io/curlimages/curl:latest
+    region: frankfurt
+    schedule: "*/15 * * * *"
+    dockerCommand: >-
+      curl -fsS --max-time 600
+      -H "x-cron-secret: $CRON_SECRET"
+      "https://$APP_HOST/api/cron/emails"
+    envVars:
+      - key: CRON_SECRET
+        sync: false
+      - key: APP_HOST
+        fromService:
+          type: web
+          name: app-bookzy-starter
+          property: host
