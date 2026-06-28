@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import DashboardSidebar from "@/app/(platform)/components/DashboardSidebar";
 import DashboardHeader from "@/app/(platform)/components/DashboardHeader";
-import EmailVerificationBanner from "@/app/(platform)/components/EmailVerificationBanner";
 import WhatsNewBanner from "@/app/(platform)/components/WhatsNewBanner";
 import V11SplashScreen from "@/app/(platform)/components/V11SplashScreen";
 import { MessageCircle, X, Send } from "lucide-react";
@@ -78,7 +77,6 @@ export default function DashboardLayout({ children }) {
 
         <div className="pt-[56px] lg:ml-0">
           {!loading && user && <WhatsNewBanner user={user} />}
-          {!loading && user && <EmailVerificationBanner user={user} />}
         </div>
 
         <main className="bg-neutral-50 dark:bg-neutral-950 min-h-screen overflow-x-hidden">
