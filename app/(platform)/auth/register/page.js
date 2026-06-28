@@ -123,10 +123,7 @@ function RegisterForm() {
           
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2 mb-6 group">
-              <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center shadow-lg shadow-slate-900/20 transition-transform group-hover:scale-105">
-                <BookOpenSVG className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-2xl font-extrabold text-slate-900 tracking-tight">Bookzy</span>
+              <img src="/logonew.webp" alt="Bookzy" className="h-9 w-auto object-contain" />
             </Link>
             <h1 className="text-2xl font-bold text-slate-900 mb-2">
               Créer un compte

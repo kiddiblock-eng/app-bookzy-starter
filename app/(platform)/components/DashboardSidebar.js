@@ -122,8 +122,8 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
   // ── SIDEBAR REPLIÉE ──────────────────────────────────────────────────────
   const CollapsedSidebar = () => (
     <div className="flex flex-col h-full bg-white items-center py-3">
-      <Link href="/" className="mb-1 h-9 flex items-center justify-center">
-        <img src="/logonew.webp" alt="Bookzy" className="h-7 w-auto object-contain" />
+      <Link href="/" className="mb-1 w-9 h-9 flex items-center justify-center">
+        <img src="/sign.png" alt="Bookzy" className="w-9 h-9 rounded-lg object-contain" />
       </Link>
       <button onClick={toggleCollapsed} className="mb-2 w-9 h-9 rounded-lg flex items-center justify-center text-neutral-500 hover:bg-neutral-100">
         <ChevronRight className="w-4 h-4" />
@@ -158,7 +158,7 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
         {/* Top */}
         <div className="flex items-center justify-between px-3 h-14 shrink-0">
           <Link href="/" onClick={close} className="flex items-center">
-            <img src="/logonew.webp" alt="Bookzy" className="h-9 w-auto object-contain" />
+            <img src="/sign.png" alt="Bookzy" className="w-9 h-9 rounded-lg object-contain" />
           </Link>
           <button
             onClick={() => (mobile ? setOpen(false) : toggleCollapsed())}

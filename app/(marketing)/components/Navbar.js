@@ -76,13 +76,8 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-16 lg:h-20">
             
             {/* ─── LOGO ─── */}
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-lg bg-slate-900 flex items-center justify-center">
-                <BookOpenSVG className="w-4 h-4 lg:w-[18px] lg:h-[18px] text-white" />
-              </div>
-              <span className="text-[15px] lg:text-[17px] font-bold text-slate-900">
-                Bookzy
-              </span>
+            <Link href="/" className="flex items-center">
+              <img src="/logonew.webp" alt="Bookzy" className="h-7 lg:h-8 w-auto object-contain" />
             </Link>
 
             {/* ─── NAVIGATION DESKTOP ─── */}

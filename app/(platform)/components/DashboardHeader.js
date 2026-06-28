@@ -151,10 +151,7 @@ function PlanSwitcher({ plan }) {
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1.5 pl-1.5 pr-2 py-1.5 rounded-lg hover:bg-neutral-100 transition-colors"
       >
-        <span className="w-6 h-6 rounded-md bg-neutral-900 flex items-center justify-center">
-          <BookOpen className="w-3.5 h-3.5 text-white" />
-        </span>
-        <span className="font-bold text-neutral-900 text-[15px]">Bookzy</span>
+        <img src="/logonew.webp" alt="Bookzy" className="h-6 w-auto object-contain" />
         <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
