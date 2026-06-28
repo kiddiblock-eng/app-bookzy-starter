@@ -130,12 +130,6 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
           <ChevronRight size={14} />
         </button>
       </div>
-      <div style={{ padding: "10px 0 8px", width: "100%", display: "flex", justifyContent: "center" }}>
-        <Link href="/dashboard/projets/nouveau"
-          style={{ width: "36px", height: "36px", background: "#6366f1", color: "white", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
-          <Plus size={16} strokeWidth={3} />
-        </Link>
-      </div>
       <nav style={{ flex: 1, overflowY: "auto", padding: "4px 0", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
         {NAV_SECTIONS.flatMap(s => s.items).map(({ href, icon: Icon, exact, color, accordion, external }) => {
           const realHref = accordion === "niche" ? "/dashboard/niche-hunter" : accordion === "analyseur" ? "/dashboard/analyseur" : href;
@@ -189,14 +183,6 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
               </svg>
             </button>
           )}
-        </div>
-
-        <div style={{ padding: "10px 12px 8px" }}>
-          <Link href="/dashboard/projets/nouveau" onClick={close}
-            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", width: "100%", padding: "9px 0", background: "#6366f1", color: "white", borderRadius: "10px", fontSize: "13px", fontWeight: "700", textDecoration: "none" }}>
-            <Plus size={14} strokeWidth={3} />
-            Générer un ebook
-          </Link>
         </div>
 
         <nav style={{ flex: 1, overflowY: "auto", padding: "4px 8px", display: "flex", flexDirection: "column", gap: "16px" }}>
