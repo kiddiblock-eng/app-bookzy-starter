@@ -151,13 +151,7 @@ export default function SuggestionsNav() {
 
           {/* Logo → bookzy.io */}
           <Link href="https://bookzy.io" className="snav-logo">
-            <div className="snav-logo-mark">
-              <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-              </svg>
-            </div>
-            <span className="snav-logo-name">Bookzy</span>
+            <img src="/logonew.webp" alt="Bookzy" className="h-7 w-auto object-contain" />
           </Link>
 
           {/* Centre — badge roadmap */}
