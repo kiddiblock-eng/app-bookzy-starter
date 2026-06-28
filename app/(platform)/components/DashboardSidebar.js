@@ -128,20 +128,20 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
         <PanelLeft className="absolute w-5 h-5 text-neutral-600 opacity-0 group-hover:opacity-100 transition-opacity" />
       </button>
       <nav className="flex-1 overflow-y-auto w-full flex flex-col items-center gap-1">
-        {[PRIMARY, ...NAV_SECTIONS.flatMap((s) => s.items)].map(({ href, icon: Icon, exact, external }) => {
+        {[PRIMARY, ...NAV_SECTIONS.flatMap((s) => s.items)].map(({ label, href, icon: Icon, exact, external }) => {
           const on = !external && isActive(href, exact);
           const cls = `w-9 h-9 rounded-lg flex items-center justify-center ${on ? "bg-neutral-100" : "hover:bg-neutral-100"}`;
           if (external) {
-            return <a key={href} href={href} target="_blank" rel="noopener noreferrer" className={cls}><Icon className={iconCls(false)} /></a>;
+            return <a key={href} href={href} title={label} target="_blank" rel="noopener noreferrer" className={cls}><Icon className={iconCls(false)} /></a>;
           }
-          return <Link key={href} href={href} className={cls}><Icon className={iconCls(on)} /></Link>;
+          return <Link key={href} href={href} title={label} className={cls}><Icon className={iconCls(on)} /></Link>;
         })}
       </nav>
       <div className="w-full flex flex-col items-center gap-1 pt-2 border-t border-neutral-100">
-        <Link href="/dashboard/credits" className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-100">
+        <Link href="/dashboard/credits" title="Mes crédits" className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-100">
           <CreditCard className="w-[18px] h-[18px] text-neutral-500" />
         </Link>
-        <button onClick={handleLogout} className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-100">
+        <button onClick={handleLogout} title="Se déconnecter" className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-100">
           <LogOut className="w-[18px] h-[18px] text-neutral-500" />
         </button>
       </div>
