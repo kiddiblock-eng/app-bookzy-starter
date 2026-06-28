@@ -55,11 +55,10 @@ export default function Footer() {
 
             {/* Logo + mission */}
             <div className="lg:col-span-2">
-              <Link href="/" className="inline-flex items-center gap-2.5 mb-6 group">
-                <div className="w-9 h-9 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center group-hover:bg-white/15 transition-all">
-                  <BookOpenSVG className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-lg font-black text-white tracking-tight">Bookzy</span>
+              <Link href="/" className="inline-flex items-center mb-6">
+                <span className="inline-flex items-center px-3 py-2 rounded-xl bg-white">
+                  <img src="/logonew.webp" alt="Bookzy" className="h-6 w-auto object-contain" />
+                </span>
               </Link>
 
               <p className="text-white/40 text-sm leading-relaxed mb-6 max-w-xs">
