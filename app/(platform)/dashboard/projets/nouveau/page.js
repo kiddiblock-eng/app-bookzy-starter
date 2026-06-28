@@ -859,10 +859,10 @@ function NouveauProjetPageContent() {
                 {improvingTitle ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowUpRightFromCircleIcon className="w-3.5 h-3.5" />}
                 {improvingTitle ? "..." : "Améliorer"}
               </button>
-              {[{ value: "français", flag: "🇫🇷", label: "Français" }, { value: "anglais", flag: "🇬🇧", label: "English" }].map(opt => (
+              {[{ value: "français", label: "Français" }, { value: "anglais", label: "English" }].map(opt => (
                 <button key={opt.value} type="button" onClick={() => setLangue(opt.value)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${langue === opt.value ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"}`}>
-                  <span>{opt.flag}</span> {opt.label}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${langue === opt.value ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"}`}>
+                  {opt.label}
                 </button>
               ))}
             </div>
