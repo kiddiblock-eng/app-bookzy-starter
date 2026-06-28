@@ -236,7 +236,7 @@ export default function ParametresPage() {
     } catch (e) { alert("Erreur réseau"); } finally { setLoadingSave(false); }
   }
 
-  const displayPhoto = photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName || "User")}&background=0f172a&color=fff&size=256`;
+  const displayPhoto = photo || `https://api.dicebear.com/9.x/adventurer/svg?seed=${encodeURIComponent(user?.email || userName || "bookzy")}`;
 
   const tabs = [
     { id: "profil", label: "Général & Profil", icon: User },

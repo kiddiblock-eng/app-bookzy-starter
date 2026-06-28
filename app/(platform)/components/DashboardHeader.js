@@ -8,6 +8,14 @@ import Link from "next/link";
 
 const fetcher = (url) => fetch(url, { credentials: "include" }).then((r) => r.json());
 
+// Avatar cartoon (DiceBear) déterministe par compte (seed = email). Photo prioritaire.
+const AVATAR_STYLE = "adventurer";
+function avatarUrl(user) {
+  if (user?.photo) return user.photo;
+  const seed = user?.email || user?.displayName || `${user?.firstName || ""}${user?.lastName || ""}`.trim() || "bookzy";
+  return `https://api.dicebear.com/9.x/${AVATAR_STYLE}/svg?seed=${encodeURIComponent(seed)}`;
+}
+
 export default function DashboardHeader({ onMenuClick }) {
   const router = useRouter();
   const { mutate } = useSWRConfig();
@@ -74,12 +82,8 @@ export default function DashboardHeader({ onMenuClick }) {
           >
             {!user ? (
               <div className="w-8 h-8 rounded-full bg-neutral-200 animate-pulse" />
-            ) : user.photo ? (
-              <img src={user.photo} alt={displayName} className="w-8 h-8 rounded-full object-cover" />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-neutral-900 flex items-center justify-center text-white font-semibold text-sm">
-                {displayName?.charAt(0)?.toUpperCase()}
-              </div>
+              <img src={avatarUrl(user)} alt={displayName} className="w-8 h-8 rounded-full object-cover bg-neutral-100" />
             )}
             <ChevronDown className={`hidden sm:block w-4 h-4 text-neutral-400 transition-transform ${showMenu ? "rotate-180" : ""}`} />
           </button>
@@ -90,13 +94,7 @@ export default function DashboardHeader({ onMenuClick }) {
               <div className="absolute right-0 mt-2 w-64 bg-white border border-neutral-200 rounded-2xl shadow-xl overflow-hidden z-50">
                 <div className="p-4 border-b border-neutral-100">
                   <div className="flex items-center gap-3">
-                    {user?.photo ? (
-                      <img src={user.photo} alt={displayName} className="w-11 h-11 rounded-full object-cover" />
-                    ) : (
-                      <div className="w-11 h-11 rounded-full bg-neutral-900 flex items-center justify-center text-white font-bold text-lg">
-                        {displayName?.charAt(0)?.toUpperCase() || "?"}
-                      </div>
-                    )}
+                    <img src={avatarUrl(user)} alt={displayName} className="w-11 h-11 rounded-full object-cover bg-neutral-100" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-neutral-900 truncate">{displayName}</p>
                       <p className="text-xs text-neutral-500 truncate">{user?.email || ""}</p>
