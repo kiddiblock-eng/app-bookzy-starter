@@ -2,7 +2,6 @@
 import { Suspense } from "react";
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { toPng } from "html-to-image";
 import {
   CheckCircle2, Loader2, FileText, MessageCircle, PenTool,
   Download, Smartphone, ArrowRight, ArrowLeft, Check, BookOpen,
@@ -641,7 +640,6 @@ function NouveauProjetPageContent() {
   const params = useSearchParams();
   const { balance } = useCredits();
   const bookRef = useRef(null);
-  const bookRefMobile = useRef(null);
 
   const [titre, setTitre] = useState("");
   const [description, setDescription] = useState("");
@@ -657,8 +655,8 @@ function NouveauProjetPageContent() {
   const [kitData, setKitData] = useState(null);
   const [improvingTitle, setImprovingTitle] = useState(false);
   const [improvingDescription, setImprovingDescription] = useState(false);
-  const [isDownloadingCover, setIsDownloadingCover] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [step, setStep] = useState(0);
 
   // URL params + resume depuis sessionStorage
   useEffect(() => {
@@ -731,31 +729,20 @@ function NouveauProjetPageContent() {
     } catch (e) { console.error(e); } finally { setImprovingDescription(false); }
   };
 
-  const handleDownloadCover = async () => {
-    const targetRef = window.innerWidth >= 1024 ? bookRef.current : bookRefMobile.current;
-    if (!targetRef) return;
-    setIsDownloadingCover(true);
-    try {
-      const dataUrl = await toPng(targetRef, { cacheBust: true, pixelRatio: 8 });
-      const link = document.createElement("a");
-      link.download = `bookzy-cover-${Date.now()}.png`;
-      link.href = dataUrl;
-      link.click();
-    } catch { alert("Erreur capture"); } finally { setIsDownloadingCover(false); }
-  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e?.preventDefault) e.preventDefault();
     if (!isFormValid) return;
+    const finalDescription = description.trim() || `Un guide pratique et complet sur : ${titre}.`;
     setIsLoading(true);
     try {
       const res = await fetch("/api/ebooks/draft-preview", {
         method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
-        body: JSON.stringify({ titre, description, tone, audience, pages: parseInt(pages), chapters: parseInt(chapters), template, langue }),
+        body: JSON.stringify({ titre, description: finalDescription, tone, audience, pages: parseInt(pages), chapters: parseInt(chapters), template, langue }),
       });
       const data = await res.json();
       if (data.success) {
-        setKitData({ projetId: data.projetId, titre, description, tone, audience, pages, chapters, template, langue });
+        setKitData({ projetId: data.projetId, titre, description: finalDescription, tone, audience, pages, chapters, template, langue });
         setPreviewData(data.preview);
       } else if (data.limitReached) {
         setIsLoading(false);
@@ -770,7 +757,7 @@ function NouveauProjetPageContent() {
     }
   };
 
-  const isFormValid = titre.length > 3 && description.length > 10;
+  const isFormValid = titre.trim().length > 3;
 
   // Afficher le Canva loading pendant l'appel
   if (isLoading && !previewData) return <CanvaLoading titre={titre} template={template} langue={langue} />;
@@ -806,155 +793,137 @@ function NouveauProjetPageContent() {
           </div>
         </div>
       )}
-      <div className="max-w-6xl mx-auto px-5 py-8 lg:py-12">
+      <div className="max-w-2xl mx-auto px-5 py-8 lg:py-14">
 
-        <div className="mb-10">
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Ton prochain ebook en 60 secondes</h1>
-          <p className="text-slate-500 text-sm">Donne-nous le sujet. On s'occupe du reste : rédaction, design, PDF prêt à vendre.</p>
+        {/* Progression */}
+        <div className="flex items-center gap-2 mb-10">
+          {["Sujet", "Détails", "Style", "Design"].map((label, i) => (
+            <div key={i} className="flex-1">
+              <div className={`h-1.5 rounded-full transition-all duration-500 ${i <= step ? "bg-indigo-600" : "bg-slate-200"}`} />
+              <p className={`text-[10px] mt-1.5 font-semibold uppercase tracking-wider transition-colors ${i <= step ? "text-slate-900" : "text-slate-300"}`}>{label}</p>
+            </div>
+          ))}
         </div>
 
-        <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
+        <div key={step} className="bz-step">
 
-          {/* FORMULAIRE */}
-          <div className="lg:col-span-3">
-            <form onSubmit={handleSubmit} className="space-y-6">
+          {/* ── ÉTAPE 0 — TITRE ── */}
+          {step === 0 && (
+            <div className="text-center">
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Quel ebook veux-tu créer ?</h1>
+              <p className="text-slate-500 text-sm mb-8">Donne juste le sujet ou le titre. On s'occupe du reste.</p>
+              <div className="relative">
+                <input type="text" value={titre} onChange={e => setTitre(e.target.value)} autoFocus
+                  onKeyDown={e => { if (e.key === "Enter" && titre.trim().length > 3) setStep(1); }}
+                  placeholder="Ex: Vendre sur WhatsApp en Afrique"
+                  className="w-full px-5 py-4 pr-28 bg-white border border-slate-200 rounded-2xl text-slate-900 text-base sm:text-lg font-medium placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm transition-all" />
+                <button type="button" onClick={handleImproveTitle} disabled={!titre || improvingTitle}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 px-3 py-2 text-xs font-semibold text-indigo-600 hover:bg-indigo-50 disabled:opacity-30 rounded-lg flex items-center gap-1.5 transition-all">
+                  {improvingTitle ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowUpRightFromCircleIcon className="w-3.5 h-3.5" />}
+                  {improvingTitle ? "..." : "Améliorer"}
+                </button>
+              </div>
+              <div className="flex items-center justify-center gap-2 mt-4">
+                {[{ value: "français", flag: "🇫🇷", label: "Français" }, { value: "anglais", flag: "🇬🇧", label: "English" }].map(opt => (
+                  <button key={opt.value} type="button" onClick={() => setLangue(opt.value)}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${langue === opt.value ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"}`}>
+                    <span>{opt.flag}</span> {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
-              {/* CONTENU */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-5">Contenu</h2>
-                <div className="mb-5">
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Titre</label>
-                  <div className="relative">
-                    <input type="text" value={titre} onChange={e => setTitre(e.target.value)}
-                      placeholder="Ex: Guide complet du marketing digital"
-                      className="w-full px-4 py-3 pr-24 bg-slate-50 border-0 rounded-xl text-slate-900 font-medium placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 transition-all" />
-                    <button type="button" onClick={handleImproveTitle} disabled={!titre || improvingTitle}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1.5 text-xs text-indigo-600 hover:bg-indigo-50 disabled:opacity-30 rounded-lg flex items-center gap-1.5 transition-all">
-                      {improvingTitle ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowUpRightFromCircleIcon className="w-3.5 h-3.5" />}
-                      {improvingTitle ? "..." : "Améliorer"}
-                    </button>
-                  </div>
-                </div>
+          {/* ── ÉTAPE 1 — DÉTAILS (optionnel) ── */}
+          {step === 1 && (
+            <div className="text-center">
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Veux-tu préciser un peu ?</h1>
+              <p className="text-slate-500 text-sm mb-8">Optionnel — quelques mots sur ce que le lecteur va apprendre. Tu peux passer.</p>
+              <div className="relative">
+                <textarea rows={4} value={description} onChange={e => setDescription(e.target.value)} autoFocus
+                  placeholder="Ex: les techniques concrètes pour trouver des clients et vendre sur WhatsApp..."
+                  className="w-full px-5 py-4 pr-28 bg-white border border-slate-200 rounded-2xl text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none shadow-sm transition-all" />
+                <button type="button" onClick={handleImproveDescription} disabled={!description || improvingDescription}
+                  className="absolute right-2.5 top-3 px-3 py-2 text-xs font-semibold text-indigo-600 hover:bg-indigo-50 disabled:opacity-30 rounded-lg flex items-center gap-1.5 transition-all">
+                  {improvingDescription ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowUpRightFromCircleIcon className="w-3.5 h-3.5" />}
+                  {improvingDescription ? "..." : "Améliorer"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ── ÉTAPE 2 — TON + PUBLIC ── */}
+          {step === 2 && (
+            <div>
+              <div className="text-center mb-8">
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Le ton et le public</h1>
+                <p className="text-slate-500 text-sm">Pour adapter l'écriture à tes lecteurs.</p>
+              </div>
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Description</label>
-                  <div className="relative">
-                    <textarea rows={3} value={description} onChange={e => setDescription(e.target.value)}
-                      placeholder="Décrivez ce que les lecteurs vont apprendre..."
-                      className="w-full px-4 py-3 pr-24 bg-slate-50 border-0 rounded-xl text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 resize-none transition-all" />
-                    <button type="button" onClick={handleImproveDescription} disabled={!description || improvingDescription}
-                      className="absolute right-2 top-2 px-2.5 py-1.5 text-xs text-indigo-600 hover:bg-indigo-50 disabled:opacity-30 rounded-lg flex items-center gap-1.5 transition-all">
-                      {improvingDescription ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowUpRightFromCircleIcon className="w-3.5 h-3.5" />}
-                      {improvingDescription ? "..." : "Améliorer"}
-                    </button>
-                  </div>
-                </div>
-
-                {/* LANGUE DE L'EBOOK */}
-                <div className="mt-5">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Langue de l'ebook</label>
-                  <p className="text-xs text-slate-400 mb-2">Dans quelle langue votre ebook sera rédigé</p>
-                  <div className="flex gap-2">
-                    {[{ value: "français", flag: "🇫🇷", label: "Français" }, { value: "anglais", flag: "🇬🇧", label: "English" }].map(opt => (
-                      <button key={opt.value} type="button" onClick={() => setLangue(opt.value)}
-                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all ${langue === opt.value ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 text-slate-600 border-slate-200 hover:border-slate-300"}`}>
-                        <span>{opt.flag}</span> {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-              </div>
-
-              {/* STRUCTURE */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-5">Structure</h2>
-                <div className="grid sm:grid-cols-2 gap-6">
-                  <NumberPicker label="Pages" value={pages} options={PAGES_OPTIONS} onChange={setPages} />
-                  <NumberPicker label="Chapitres" value={chapters} options={CHAPTERS_OPTIONS} onChange={setChapters} />
-                </div>
-              </div>
-
-              {/* STYLE */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-5">Style</h2>
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-slate-700 mb-3">Template</label>
-                  <TemplatePicker value={template} onChange={setTemplate} />
-                </div>
-                <div className="mb-6">
                   <label className="block text-sm font-medium text-slate-700 mb-3">Ton</label>
                   <PillSelector options={TONES} value={tone} onChange={setTone} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-3">Audience</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-3">Public</label>
                   <PillSelector options={AUDIENCES} value={audience} onChange={setAudience} />
                 </div>
-
-              </div>
-
-              <button type="submit" disabled={!isFormValid}
-                className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
-                Générer mon aperçu gratuit
-                <ArrowRight className="w-4 h-4" />
-              </button>
-              <p className="text-xs text-slate-400 text-center -mt-2">Aperçu 100% gratuit · Aucun crédit requis</p>
-
-            </form>
-
-            {/* PREVIEW MOBILE */}
-            <div className="mt-8 lg:hidden">
-              <div className="bg-slate-900 rounded-2xl p-6">
-                <div ref={bookRefMobile} className="mb-6"><Book3D title={titre} template={template} /></div>
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="bg-white/5 rounded-xl p-3 text-center">
-                    <div className="text-xl font-bold text-white">{pages}</div>
-                    <div className="text-[10px] text-slate-400 uppercase">Pages</div>
-                  </div>
-                  <div className="bg-white/5 rounded-xl p-3 text-center">
-                    <div className="text-xl font-bold text-white">{chapters}</div>
-                    <div className="text-[10px] text-slate-400 uppercase">Chapitres</div>
-                  </div>
-                </div>
-                <button type="button" onClick={handleDownloadCover} disabled={isDownloadingCover || !titre}
-                  className="w-full py-2.5 border border-white/20 text-white/60 hover:text-white hover:bg-white/5 disabled:opacity-30 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2">
-                  {isDownloadingCover ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                  Télécharger la cover
-                </button>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* PREVIEW DESKTOP */}
-          <div className="lg:col-span-2 hidden lg:block">
-            <div className="lg:sticky lg:top-8">
-              <div className="bg-slate-900 rounded-2xl p-8">
-                <div ref={bookRef} className="mb-6"><Book3D title={titre} template={template} size="lg" /></div>
-                <div className="grid grid-cols-2 gap-3 mb-5">
-                  <div className="bg-white/5 rounded-xl p-3 text-center">
-                    <div className="text-2xl font-bold text-white">{pages}</div>
-                    <div className="text-[10px] text-slate-400 uppercase">Pages</div>
+          {/* ── ÉTAPE 3 — DESIGN + GÉNÉRATION ── */}
+          {step === 3 && (
+            <div>
+              <div className="text-center mb-8">
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Choisis ton design</h1>
+                <p className="text-slate-500 text-sm">Aperçu de ta couverture en direct.</p>
+              </div>
+              <div className="bg-slate-900 rounded-2xl p-6 mb-6">
+                <div ref={bookRef}><Book3D title={titre} template={template} /></div>
+              </div>
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                <TemplatePicker value={template} onChange={setTemplate} />
+                <details className="mt-6">
+                  <summary className="text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer">Options avancées</summary>
+                  <div className="grid sm:grid-cols-2 gap-6 mt-4">
+                    <NumberPicker label="Pages" value={pages} options={PAGES_OPTIONS} onChange={setPages} />
+                    <NumberPicker label="Chapitres" value={chapters} options={CHAPTERS_OPTIONS} onChange={setChapters} />
                   </div>
-                  <div className="bg-white/5 rounded-xl p-3 text-center">
-                    <div className="text-2xl font-bold text-white">{chapters}</div>
-                    <div className="text-[10px] text-slate-400 uppercase">Chapitres</div>
-                  </div>
-                </div>
-                <div className="space-y-2.5 mb-5">
-                  {["PDF professionnel", "Cover 3D incluse", "Kit marketing"].map((item, i) => (
-                    <div key={i} className="flex items-center gap-2.5 text-sm text-white/70">
-                      <Check className="w-4 h-4 text-green-400" /><span>{item}</span>
-                    </div>
-                  ))}
-                </div>
-                <button type="button" onClick={handleDownloadCover} disabled={isDownloadingCover || !titre}
-                  className="w-full py-2.5 border border-white/20 text-white/60 hover:text-white hover:bg-white/5 disabled:opacity-30 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2">
-                  {isDownloadingCover ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                  Télécharger la cover
-                </button>
+                </details>
               </div>
             </div>
-          </div>
+          )}
+
         </div>
+
+        {/* Navigation */}
+        <div className="flex gap-3 mt-8">
+          {step > 0 && (
+            <button type="button" onClick={() => setStep(s => s - 1)}
+              className="px-5 py-4 bg-white border border-slate-200 text-slate-500 rounded-xl font-medium hover:border-slate-300 transition-all flex items-center gap-2">
+              <ArrowLeft className="w-4 h-4" /> Retour
+            </button>
+          )}
+          {step < 3 && (
+            <button type="button" disabled={step === 0 && titre.trim().length <= 3} onClick={() => setStep(s => s + 1)}
+              className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
+              {step === 1 && description.trim().length === 0 ? "Passer" : "Continuer"} <ArrowRight className="w-4 h-4" />
+            </button>
+          )}
+          {step === 3 && (
+            <button type="button" onClick={handleSubmit}
+              className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
+              Voir mon aperçu gratuit <ArrowRight className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+        {step === 3 && <p className="text-xs text-slate-400 text-center mt-3">Aperçu 100% gratuit · Aucun crédit requis</p>}
+
+        <style>{`
+          .bz-step { animation: bzfade .28s ease; min-height: 320px; }
+          @keyframes bzfade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        `}</style>
       </div>
     </div>
   );
