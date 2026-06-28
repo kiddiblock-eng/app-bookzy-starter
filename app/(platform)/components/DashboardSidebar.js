@@ -61,6 +61,7 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
   const pathname = usePathname();
   const [nicheOpen, setNicheOpen] = useState(false);
   const [analyseurOpen, setAnalyseurOpen] = useState(false);
+  const [tip, setTip] = useState(null);
   const [_collapsed, _setCollapsed] = useState(false);
 
   const isCollapsed = setCollapsed ? collapsed : _collapsed;
@@ -102,6 +103,13 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
     };
   }, [open]);
 
+  // Infobulle instantanée (fixed → échappe au scroll de la barre repliée)
+  const showTip = (e, text) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    setTip({ text, top: r.top + r.height / 2, left: r.right + 10 });
+  };
+  const hideTip = () => setTip(null);
+
   const isActive = (href, exact = false) => {
     if (exact) return pathname === href;
     return pathname === href || pathname.startsWith(href + "/");
@@ -132,19 +140,28 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
           const on = !external && isActive(href, exact);
           const cls = `w-9 h-9 rounded-lg flex items-center justify-center ${on ? "bg-neutral-100" : "hover:bg-neutral-100"}`;
           if (external) {
-            return <a key={href} href={href} title={label} target="_blank" rel="noopener noreferrer" className={cls}><Icon className={iconCls(false)} /></a>;
+            return <a key={href} href={href} onMouseEnter={(e) => showTip(e, label)} onMouseLeave={hideTip} target="_blank" rel="noopener noreferrer" className={cls}><Icon className={iconCls(false)} /></a>;
           }
-          return <Link key={href} href={href} title={label} className={cls}><Icon className={iconCls(on)} /></Link>;
+          return <Link key={href} href={href} onMouseEnter={(e) => showTip(e, label)} onMouseLeave={hideTip} className={cls}><Icon className={iconCls(on)} /></Link>;
         })}
       </nav>
       <div className="w-full flex flex-col items-center gap-1 pt-2 border-t border-neutral-100">
-        <Link href="/dashboard/credits" title="Mes crédits" className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-100">
+        <Link href="/dashboard/credits" onMouseEnter={(e) => showTip(e, "Mes crédits")} onMouseLeave={hideTip} className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-100">
           <CreditCard className="w-[18px] h-[18px] text-neutral-500" />
         </Link>
-        <button onClick={handleLogout} title="Se déconnecter" className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-100">
+        <button onClick={handleLogout} onMouseEnter={(e) => showTip(e, "Se déconnecter")} onMouseLeave={hideTip} className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-100">
           <LogOut className="w-[18px] h-[18px] text-neutral-500" />
         </button>
       </div>
+
+      {tip && (
+        <div
+          style={{ position: "fixed", top: tip.top, left: tip.left, transform: "translateY(-50%)" }}
+          className="z-[100] px-2 py-1 rounded-md bg-neutral-900 text-white text-xs font-medium whitespace-nowrap shadow-lg pointer-events-none"
+        >
+          {tip.text}
+        </div>
+      )}
     </div>
   );
 
