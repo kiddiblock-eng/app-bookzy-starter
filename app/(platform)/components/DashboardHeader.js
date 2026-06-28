@@ -11,7 +11,7 @@ const fetcher = (url) => fetch(url, { credentials: "include" }).then((r) => r.js
 // Avatar cartoon (DiceBear) déterministe par compte (seed = email). Photo prioritaire.
 const AVATAR_STYLE = "adventurer";
 function avatarUrl(user) {
-  if (user?.photo) return user.photo;
+  if (user?.photo && !user.photo.includes("ui-avatars.com")) return user.photo;
   const seed = user?.email || user?.displayName || `${user?.firstName || ""}${user?.lastName || ""}`.trim() || "bookzy";
   return `https://api.dicebear.com/9.x/${AVATAR_STYLE}/svg?seed=${encodeURIComponent(seed)}`;
 }

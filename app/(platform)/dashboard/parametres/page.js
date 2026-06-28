@@ -103,7 +103,7 @@ export default function ParametresPage() {
   useEffect(() => {
     if (user) {
         setUserName(user.displayName || `${user.firstName || ""} ${user.lastName || ""}`.trim() || "");
-        setPhoto(user.photo || "");
+        setPhoto(user.photo && !user.photo.includes("ui-avatars.com") ? user.photo : "");
         setLangue(user.lang || "fr");
         setPays(user.country || "");
     }

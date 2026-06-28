@@ -50,9 +50,7 @@ export async function POST(req) {
     }
 
     // 3. CRÉATION
-    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      `${cleanFirstName} ${cleanLastName}`
-    )}&background=random&color=fff&bold=true&size=256`;
+    const avatarUrl = `https://api.dicebear.com/9.x/adventurer/svg?seed=${encodeURIComponent(cleanEmail)}`;
 
     const user = await User.create({
       firstName: cleanFirstName,
