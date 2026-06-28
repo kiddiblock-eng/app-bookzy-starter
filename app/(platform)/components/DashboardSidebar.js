@@ -5,8 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Youtube, FileText, Target, Radio, BarChart2, Library, Scroll,
-  Banknote, Store, CreditCard, LogOut, ChevronDown, ChevronLeft,
-  ChevronRight, BookOpen, SearchCheck, History, ExternalLink, PenLine,
+  Banknote, Store, CreditCard, LogOut, ChevronDown, PanelLeft,
+  BookOpen, SearchCheck, History, ExternalLink, PenLine,
 } from "lucide-react";
 import useSWR from "swr";
 
@@ -122,11 +122,10 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
   // ── SIDEBAR REPLIÉE ──────────────────────────────────────────────────────
   const CollapsedSidebar = () => (
     <div className="flex flex-col h-full bg-white items-center py-3">
-      <Link href="/" className="mb-1 w-9 h-9 flex items-center justify-center">
-        <img src="/sign.png" alt="Bookzy" className="w-9 h-9 rounded-lg object-contain" />
-      </Link>
-      <button onClick={toggleCollapsed} className="mb-2 w-9 h-9 rounded-lg flex items-center justify-center text-neutral-500 hover:bg-neutral-100">
-        <ChevronRight className="w-4 h-4" />
+      <button onClick={toggleCollapsed} title="Ouvrir la barre latérale" aria-label="Ouvrir la barre latérale"
+        className="group relative mb-2 w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-100 transition-colors">
+        <img src="/sign.png" alt="Bookzy" className="w-9 h-9 rounded-lg object-contain transition-opacity group-hover:opacity-0" />
+        <PanelLeft className="absolute w-5 h-5 text-neutral-600 opacity-0 group-hover:opacity-100 transition-opacity" />
       </button>
       <nav className="flex-1 overflow-y-auto w-full flex flex-col items-center gap-1">
         {[PRIMARY, ...NAV_SECTIONS.flatMap((s) => s.items)].map(({ href, icon: Icon, exact, external }) => {
@@ -164,8 +163,9 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
             onClick={() => (mobile ? setOpen(false) : toggleCollapsed())}
             className="w-9 h-9 rounded-lg flex items-center justify-center text-neutral-500 hover:bg-neutral-100"
             aria-label="Fermer la barre latérale"
+            title="Fermer la barre latérale"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <PanelLeft className="w-5 h-5" />
           </button>
         </div>
 
