@@ -775,15 +775,14 @@ function NouveauProjetPageContent() {
   if (previewData && kitData) return <PreviewPage kit={kitData} previewData={previewData} onEdit={() => { setPreviewData(null); setKitData(null); setIsLoading(false); }} />;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
 
-      {/* Top bar */}
-      <div className="sticky top-0 z-30 flex items-center justify-between px-4 h-14 bg-slate-50/90 backdrop-blur border-b border-slate-100">
-        <button type="button" onClick={() => setMenuOpen(true)} className="w-9 h-9 -ml-1.5 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-all">
-          <Menu className="w-5 h-5 text-slate-700" />
+      {/* Top minimal — façon Claude (hamburger = accès aux autres outils) */}
+      <div className="flex items-center justify-between px-2 h-14 shrink-0">
+        <button type="button" onClick={() => setMenuOpen(true)} className="w-10 h-10 flex items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 transition-all">
+          <Menu className="w-5 h-5" />
         </button>
-        <span className="font-extrabold text-slate-900 tracking-tight">Bookzy</span>
-        <a href="/dashboard/tarifs" className="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full">{balance ?? 0} cr.</a>
+        <a href="/dashboard/tarifs" className="mr-1 text-xs font-semibold text-slate-400 hover:text-slate-700 px-2 py-1.5 transition-colors">{balance ?? 0} cr.</a>
       </div>
 
       {/* Drawer menu */}
@@ -846,9 +845,41 @@ function NouveauProjetPageContent() {
           </div>
         </div>
       )}
-      <div className="max-w-2xl mx-auto px-5 py-8 lg:py-14">
+      {step === 0 ? (
+        /* ── FOCUS (accueil Claude) — centré verticalement, rien d'autre ── */
+        <div className="flex-1 flex flex-col items-center justify-center px-5 pb-32">
+          <div className="w-full max-w-xl text-center">
+            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">{userName ? `Bonjour ${userName}` : "Bonjour"}</h1>
+            <p className="text-slate-400 text-base mb-8">Quel ebook veux-tu créer aujourd'hui ?</p>
+            <div className="relative">
+              <input type="text" value={titre} onChange={e => setTitre(e.target.value)} autoFocus
+                onKeyDown={e => { if (e.key === "Enter" && titre.trim().length > 3) setStep(1); }}
+                placeholder="Décris ton sujet…"
+                className="w-full pl-5 pr-14 py-4 bg-white border border-slate-200 rounded-2xl text-slate-900 text-base sm:text-lg placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm transition-all" />
+              <button type="button" disabled={titre.trim().length <= 3} onClick={() => setStep(1)}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-xl bg-slate-900 text-white disabled:bg-slate-200 disabled:text-slate-400 transition-all">
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex items-center justify-center gap-2 mt-4">
+              <button type="button" onClick={handleImproveTitle} disabled={!titre || improvingTitle}
+                className="flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-50 disabled:opacity-30 px-3 py-1.5 rounded-full transition-all">
+                {improvingTitle ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowUpRightFromCircleIcon className="w-3.5 h-3.5" />}
+                {improvingTitle ? "..." : "Améliorer"}
+              </button>
+              {[{ value: "français", flag: "🇫🇷", label: "Français" }, { value: "anglais", flag: "🇬🇧", label: "English" }].map(opt => (
+                <button key={opt.value} type="button" onClick={() => setLangue(opt.value)}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${langue === opt.value ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"}`}>
+                  <span>{opt.flag}</span> {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+      <div className="max-w-2xl mx-auto w-full px-5 py-6">
 
-        {/* Progression */}
+        {/* Progression (uniquement une fois la création lancée) */}
         <div className="flex items-center gap-2 mb-10">
           {["Sujet", "Détails", "Style", "Design"].map((label, i) => (
             <div key={i} className="flex-1">
@@ -859,34 +890,6 @@ function NouveauProjetPageContent() {
         </div>
 
         <div key={step} className="bz-step">
-
-          {/* ── ÉTAPE 0 — TITRE ── */}
-          {step === 0 && (
-            <div className="text-center">
-              {userName && <p className="text-indigo-600 font-bold text-sm mb-2">Bonjour {userName} 👋</p>}
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Quel ebook veux-tu créer ?</h1>
-              <p className="text-slate-500 text-sm mb-8">Donne juste le sujet ou le titre. On s'occupe du reste.</p>
-              <div className="relative">
-                <input type="text" value={titre} onChange={e => setTitre(e.target.value)} autoFocus
-                  onKeyDown={e => { if (e.key === "Enter" && titre.trim().length > 3) setStep(1); }}
-                  placeholder="Ex: Vendre sur WhatsApp en Afrique"
-                  className="w-full px-5 py-4 pr-28 bg-white border border-slate-200 rounded-2xl text-slate-900 text-base sm:text-lg font-medium placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm transition-all" />
-                <button type="button" onClick={handleImproveTitle} disabled={!titre || improvingTitle}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 px-3 py-2 text-xs font-semibold text-indigo-600 hover:bg-indigo-50 disabled:opacity-30 rounded-lg flex items-center gap-1.5 transition-all">
-                  {improvingTitle ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowUpRightFromCircleIcon className="w-3.5 h-3.5" />}
-                  {improvingTitle ? "..." : "Améliorer"}
-                </button>
-              </div>
-              <div className="flex items-center justify-center gap-2 mt-4">
-                {[{ value: "français", flag: "🇫🇷", label: "Français" }, { value: "anglais", flag: "🇬🇧", label: "English" }].map(opt => (
-                  <button key={opt.value} type="button" onClick={() => setLangue(opt.value)}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${langue === opt.value ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"}`}>
-                    <span>{opt.flag}</span> {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* ── ÉTAPE 1 — DÉTAILS (optionnel) ── */}
           {step === 1 && (
@@ -953,19 +956,16 @@ function NouveauProjetPageContent() {
 
         {/* Navigation */}
         <div className="flex gap-3 mt-8">
-          {step > 0 && (
-            <button type="button" onClick={() => setStep(s => s - 1)}
-              className="px-5 py-4 bg-white border border-slate-200 text-slate-500 rounded-xl font-medium hover:border-slate-300 transition-all flex items-center gap-2">
-              <ArrowLeft className="w-4 h-4" /> Retour
-            </button>
-          )}
-          {step < 3 && (
-            <button type="button" disabled={step === 0 && titre.trim().length <= 3} onClick={() => setStep(s => s + 1)}
-              className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
+          <button type="button" onClick={() => setStep(s => s - 1)}
+            className="px-5 py-4 bg-white border border-slate-200 text-slate-500 rounded-xl font-medium hover:border-slate-300 transition-all flex items-center gap-2">
+            <ArrowLeft className="w-4 h-4" /> Retour
+          </button>
+          {step < 3 ? (
+            <button type="button" onClick={() => setStep(s => s + 1)}
+              className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
               {step === 1 && description.trim().length === 0 ? "Passer" : "Continuer"} <ArrowRight className="w-4 h-4" />
             </button>
-          )}
-          {step === 3 && (
+          ) : (
             <button type="button" onClick={handleSubmit}
               className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
               Voir mon aperçu gratuit <ArrowRight className="w-4 h-4" />
@@ -974,11 +974,13 @@ function NouveauProjetPageContent() {
         </div>
         {step === 3 && <p className="text-xs text-slate-400 text-center mt-3">Aperçu 100% gratuit · Aucun crédit requis</p>}
 
-        <style>{`
-          .bz-step { animation: bzfade .28s ease; min-height: 320px; }
-          @keyframes bzfade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-        `}</style>
       </div>
+      )}
+
+      <style>{`
+        .bz-step { animation: bzfade .28s ease; min-height: 320px; }
+        @keyframes bzfade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+      `}</style>
     </div>
   );
 }
