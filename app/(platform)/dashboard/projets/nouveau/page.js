@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import {
   CheckCircle2, Loader2, FileText, MessageCircle, PenTool,
   Download, Smartphone, ArrowRight, ArrowLeft, Check, BookOpen,
-  X, Lock, FileCheck2, ArrowUpRightFromCircleIcon, CreditCard
+  X, Lock, FileCheck2, ArrowUpRightFromCircleIcon, CreditCard, Menu
 } from "lucide-react";
 import { useCredits } from "@/hooks/useCredits";
 
@@ -657,6 +657,8 @@ function NouveauProjetPageContent() {
   const [improvingDescription, setImprovingDescription] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [step, setStep] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [userName, setUserName] = useState("");
 
   // URL params + resume depuis sessionStorage
   useEffect(() => {
@@ -708,6 +710,13 @@ function NouveauProjetPageContent() {
         .catch(() => setIsLoading(false));
     }
   }, [params]);
+
+  useEffect(() => {
+    fetch("/api/profile/get", { credentials: "include" })
+      .then(r => r.json())
+      .then(d => { const u = d?.user || d; setUserName(u?.firstName || u?.displayName || (u?.name ? u.name.split(" ")[0] : "") || ""); })
+      .catch(() => {});
+  }, []);
 
   const handleImproveTitle = async () => {
     if (!titre || improvingTitle) return;
@@ -768,6 +777,50 @@ function NouveauProjetPageContent() {
   return (
     <div className="min-h-screen bg-slate-50">
 
+      {/* Top bar */}
+      <div className="sticky top-0 z-30 flex items-center justify-between px-4 h-14 bg-slate-50/90 backdrop-blur border-b border-slate-100">
+        <button type="button" onClick={() => setMenuOpen(true)} className="w-9 h-9 -ml-1.5 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-all">
+          <Menu className="w-5 h-5 text-slate-700" />
+        </button>
+        <span className="font-extrabold text-slate-900 tracking-tight">Bookzy</span>
+        <a href="/dashboard/tarifs" className="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full">{balance ?? 0} cr.</a>
+      </div>
+
+      {/* Drawer menu */}
+      {menuOpen && (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setMenuOpen(false)} />
+          <nav className="absolute left-0 top-0 bottom-0 w-72 max-w-[80vw] bg-white shadow-2xl flex flex-col" style={{ animation: "bzslide .2s ease" }}>
+            <div className="flex items-center justify-between px-5 h-14 border-b border-slate-100">
+              <span className="font-extrabold text-slate-900">Bookzy</span>
+              <button type="button" onClick={() => setMenuOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100">
+                <X className="w-4 h-4 text-slate-500" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-3">
+              {[
+                { label: "Créer un ebook", href: "/dashboard" },
+                { label: "Mes livres", href: "/dashboard/fichiers" },
+                { label: "Validateur d'idée", href: "/dashboard/analyseur" },
+                { label: "Niche Hunter", href: "/dashboard/niche-hunter" },
+                { label: "Radar Cash", href: "/dashboard/radar-cash" },
+                { label: "Youbook", href: "/dashboard/youbook" },
+                { label: "Ebook Designer", href: "/dashboard/express" },
+                { label: "Romans IA", href: "/dashboard/romans" },
+                { label: "Tarifs & abonnement", href: "/dashboard/tarifs" },
+                { label: "Paramètres", href: "/dashboard/parametres" },
+              ].map(item => (
+                <a key={item.href} href={item.href}
+                  className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all">
+                  {item.label} <ArrowRight className="w-4 h-4 text-slate-300" />
+                </a>
+              ))}
+            </div>
+          </nav>
+          <style>{`@keyframes bzslide { from { transform: translateX(-100%); } to { transform: none; } }`}</style>
+        </div>
+      )}
+
       {/* Modal limite aperçus */}
       {showLimitModal && (
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:9999,padding:"16px"}}>
@@ -810,6 +863,7 @@ function NouveauProjetPageContent() {
           {/* ── ÉTAPE 0 — TITRE ── */}
           {step === 0 && (
             <div className="text-center">
+              {userName && <p className="text-indigo-600 font-bold text-sm mb-2">Bonjour {userName} 👋</p>}
               <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Quel ebook veux-tu créer ?</h1>
               <p className="text-slate-500 text-sm mb-8">Donne juste le sujet ou le titre. On s'occupe du reste.</p>
               <div className="relative">
