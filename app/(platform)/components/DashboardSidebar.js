@@ -122,8 +122,8 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
   // ── SIDEBAR REPLIÉE ──────────────────────────────────────────────────────
   const CollapsedSidebar = () => (
     <div className="flex flex-col h-full bg-white items-center py-3">
-      <Link href="/" className="mb-1 w-9 h-9 rounded-lg bg-neutral-900 flex items-center justify-center">
-        <BookIcon className="w-4 h-4 text-white" />
+      <Link href="/" className="mb-1 w-9 h-9 flex items-center justify-center">
+        <img src="/sign.png" alt="Bookzy" className="w-9 h-9 rounded-lg object-contain" />
       </Link>
       <button onClick={toggleCollapsed} className="mb-2 w-9 h-9 rounded-lg flex items-center justify-center text-neutral-500 hover:bg-neutral-100">
         <ChevronRight className="w-4 h-4" />
@@ -158,9 +158,7 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
         {/* Top */}
         <div className="flex items-center justify-between px-3 h-14 shrink-0">
           <Link href="/" onClick={close} className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-neutral-900 flex items-center justify-center">
-              <BookIcon className="w-4 h-4 text-white" />
-            </div>
+            <img src="/sign.png" alt="Bookzy" className="w-8 h-8 rounded-lg object-contain" />
             <span className="text-[15px] font-bold text-neutral-900">Bookzy</span>
           </Link>
           <button
@@ -275,14 +273,5 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
         </>
       )}
     </>
-  );
-}
-
-function BookIcon(props) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-    </svg>
   );
 }
