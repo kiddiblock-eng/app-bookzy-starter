@@ -28,7 +28,7 @@ const NAV_SECTIONS = [
   {
     label: "PILOTAGE",
     items: [
-      { label: "Tableau de bord", href: "/dashboard", icon: LayoutDashboard, exact: true, color: "#6366f1" },
+      { label: "Générer un ebook", href: "/dashboard", icon: BookOpen, exact: true, color: "#6366f1" },
     ],
   },
   {
