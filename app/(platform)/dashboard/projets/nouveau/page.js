@@ -844,13 +844,13 @@ function NouveauProjetPageContent() {
             <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">{userName ? `Bonjour ${userName}` : "Bonjour"}</h1>
             <p className="text-slate-400 text-base mb-8">Quel ebook veux-tu créer aujourd'hui ?</p>
             <div className="relative">
-              <textarea value={titre} onChange={e => setTitre(e.target.value)} autoFocus rows={3}
-                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey && titre.trim().length > 3) { e.preventDefault(); setStep(1); } }}
-                placeholder="Décris le sujet de ton ebook…"
-                className="w-full px-6 pt-5 pb-16 bg-white border border-slate-200 rounded-3xl text-slate-900 text-lg sm:text-xl placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-lg resize-none transition-all" />
+              <input type="text" value={titre} onChange={e => setTitre(e.target.value)} autoFocus
+                onKeyDown={e => { if (e.key === "Enter" && titre.trim().length > 3) setStep(1); }}
+                placeholder="Tapez votre sujet"
+                className="w-full pl-5 pr-14 py-4 bg-white border border-slate-200 rounded-2xl text-slate-900 text-base sm:text-lg placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm transition-all" />
               <button type="button" disabled={titre.trim().length <= 3} onClick={() => setStep(1)}
-                className="absolute right-3.5 bottom-3.5 w-11 h-11 flex items-center justify-center rounded-2xl bg-slate-900 text-white disabled:bg-slate-200 disabled:text-slate-400 hover:bg-slate-800 transition-all">
-                <ArrowRight className="w-5 h-5" />
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900 text-white disabled:bg-slate-200 disabled:text-slate-400 hover:bg-slate-800 transition-all">
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
             <div className="flex items-center justify-center gap-2 mt-4">
