@@ -55,8 +55,8 @@ export default function DashboardLayout({ children }) {
   useActiveUserPing();
   const { user, loading } = useCurrentUser();
 
-  const sidebarWidth = collapsed ? "lg:ml-[60px]" : "lg:ml-[220px]";
-  const headerLeft = collapsed ? "lg:left-[60px]" : "lg:left-[220px]";
+  const sidebarWidth = collapsed ? "lg:ml-[60px]" : "lg:ml-[260px]";
+  const headerLeft = collapsed ? "lg:left-[60px]" : "lg:left-[260px]";
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex w-full overflow-x-hidden">

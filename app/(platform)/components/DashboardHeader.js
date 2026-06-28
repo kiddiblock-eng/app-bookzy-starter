@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import useSWR, { useSWRConfig } from "swr";
-import { ChevronDown, LogOut, UserCircle2, Settings, Menu, Lightbulb, Users, CreditCard } from "lucide-react";
+import { ChevronDown, LogOut, UserCircle2, Settings, Menu, Lightbulb, Users, CreditCard, Sparkles, BookOpen } from "lucide-react";
 import Link from "next/link";
 
 const fetcher = (url) => fetch(url, { credentials: "include" }).then((r) => r.json());
@@ -44,15 +44,17 @@ export default function DashboardHeader({ onMenuClick }) {
   return (
     <header className="h-full w-full px-3 md:px-4 flex items-center justify-between">
 
-      {/* Left — burger (mobile uniquement) */}
-      <button
-        onClick={onMenuClick}
-        className="lg:hidden w-10 h-10 -ml-1 rounded-lg flex items-center justify-center text-neutral-700 hover:bg-neutral-100 transition-colors"
-        aria-label="Menu"
-      >
-        <Menu className="w-5 h-5" />
-      </button>
-      <div className="hidden lg:block" />
+      {/* Left — burger (mobile) + sélecteur de plan / abonnement */}
+      <div className="flex items-center gap-1">
+        <button
+          onClick={onMenuClick}
+          className="lg:hidden w-10 h-10 -ml-1 rounded-lg flex items-center justify-center text-neutral-700 hover:bg-neutral-100 transition-colors"
+          aria-label="Menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <PlanSwitcher plan={user?.plan} />
+      </div>
 
       {/* Right — crédits + profil */}
       <div className="flex items-center gap-2">
@@ -134,5 +136,58 @@ function MenuItem({ onClick, icon: Icon, label }) {
     >
       <Icon className="w-4 h-4 text-neutral-500" /> {label}
     </button>
+  );
+}
+
+const PLAN_LABELS = { free: "Free", unit: "À l'unité", createur: "Créateur", pro: "Pro" };
+
+function PlanSwitcher({ plan }) {
+  const [open, setOpen] = useState(false);
+  const current = PLAN_LABELS[plan] || "Free";
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1.5 pl-1.5 pr-2 py-1.5 rounded-lg hover:bg-neutral-100 transition-colors"
+      >
+        <span className="w-6 h-6 rounded-md bg-neutral-900 flex items-center justify-center">
+          <BookOpen className="w-3.5 h-3.5 text-white" />
+        </span>
+        <span className="font-bold text-neutral-900 text-[15px]">Bookzy</span>
+        <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute left-0 mt-2 w-72 bg-white border border-neutral-200 rounded-2xl shadow-xl p-2 z-50">
+            <div className="flex items-start gap-3 p-2">
+              <Sparkles className="w-5 h-5 text-neutral-700 mt-0.5 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-neutral-900">Passe à l'abonnement</p>
+                <p className="text-xs text-neutral-500">Crée plus d'ebooks et débloque tous les outils</p>
+              </div>
+              <Link
+                href="/dashboard/tarifs"
+                onClick={() => setOpen(false)}
+                className="shrink-0 px-3 py-1.5 rounded-full bg-neutral-900 text-white text-xs font-semibold hover:bg-neutral-800 transition-colors"
+              >
+                Mettre à niveau
+              </Link>
+            </div>
+            <div className="flex items-start gap-3 p-2 rounded-xl bg-neutral-50 mt-1">
+              <BookOpen className="w-5 h-5 text-neutral-700 mt-0.5 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-neutral-900">
+                  Plan {current} <span className="text-xs font-normal text-neutral-400">· actuel</span>
+                </p>
+                <p className="text-xs text-neutral-500">Ton offre en cours</p>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
   );
 }

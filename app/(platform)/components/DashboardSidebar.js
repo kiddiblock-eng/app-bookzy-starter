@@ -260,7 +260,7 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
   return (
     <>
       <aside
-        style={{ width: isCollapsed ? "60px" : "220px" }}
+        style={{ width: isCollapsed ? "60px" : "260px" }}
         className="hidden lg:block fixed left-0 top-0 z-40 h-screen border-r border-neutral-200 transition-[width] duration-200"
       >
         {isCollapsed ? <CollapsedSidebar /> : <ExpandedSidebar />}
