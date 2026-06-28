@@ -844,13 +844,13 @@ function NouveauProjetPageContent() {
             <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">{userName ? `Bonjour ${userName}` : "Bonjour"}</h1>
             <p className="text-slate-400 text-base mb-8">Quel ebook veux-tu créer aujourd'hui ?</p>
             <div className="relative">
-              <input type="text" value={titre} onChange={e => setTitre(e.target.value)} autoFocus
-                onKeyDown={e => { if (e.key === "Enter" && titre.trim().length > 3) setStep(1); }}
-                placeholder="Décris ton sujet…"
-                className="w-full pl-5 pr-14 py-4 bg-white border border-slate-200 rounded-2xl text-slate-900 text-base sm:text-lg placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm transition-all" />
+              <textarea value={titre} onChange={e => setTitre(e.target.value)} autoFocus rows={3}
+                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey && titre.trim().length > 3) { e.preventDefault(); setStep(1); } }}
+                placeholder="Décris le sujet de ton ebook…"
+                className="w-full px-6 pt-5 pb-16 bg-white border border-slate-200 rounded-3xl text-slate-900 text-lg sm:text-xl placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-lg resize-none transition-all" />
               <button type="button" disabled={titre.trim().length <= 3} onClick={() => setStep(1)}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-xl bg-slate-900 text-white disabled:bg-slate-200 disabled:text-slate-400 transition-all">
-                <ArrowRight className="w-4 h-4" />
+                className="absolute right-3.5 bottom-3.5 w-11 h-11 flex items-center justify-center rounded-2xl bg-slate-900 text-white disabled:bg-slate-200 disabled:text-slate-400 hover:bg-slate-800 transition-all">
+                <ArrowRight className="w-5 h-5" />
               </button>
             </div>
             <div className="flex items-center justify-center gap-2 mt-4">
@@ -869,17 +869,7 @@ function NouveauProjetPageContent() {
           </div>
         </div>
       ) : (
-      <div className="max-w-2xl mx-auto w-full px-5 py-6">
-
-        {/* Progression (uniquement une fois la création lancée) */}
-        <div className="flex items-center gap-2 mb-10">
-          {["Sujet", "Détails", "Style", "Design"].map((label, i) => (
-            <div key={i} className="flex-1">
-              <div className={`h-1.5 rounded-full transition-all duration-500 ${i <= step ? "bg-indigo-600" : "bg-slate-200"}`} />
-              <p className={`text-[10px] mt-1.5 font-semibold uppercase tracking-wider transition-colors ${i <= step ? "text-slate-900" : "text-slate-300"}`}>{label}</p>
-            </div>
-          ))}
-        </div>
+      <div className="max-w-2xl mx-auto w-full px-5 py-8">
 
         <div key={step} className="bz-step">
 
