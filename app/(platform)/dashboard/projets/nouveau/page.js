@@ -777,14 +777,6 @@ function NouveauProjetPageContent() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
 
-      {/* Top minimal — façon Claude (hamburger = accès aux autres outils) */}
-      <div className="flex items-center justify-between px-2 h-14 shrink-0">
-        <button type="button" onClick={() => setMenuOpen(true)} className="w-10 h-10 flex items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 transition-all">
-          <Menu className="w-5 h-5" />
-        </button>
-        <a href="/dashboard/tarifs" className="mr-1 text-xs font-semibold text-slate-400 hover:text-slate-700 px-2 py-1.5 transition-colors">{balance ?? 0} cr.</a>
-      </div>
-
       {/* Drawer menu */}
       {menuOpen && (
         <div className="fixed inset-0 z-50">
