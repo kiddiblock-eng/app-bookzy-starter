@@ -157,9 +157,8 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
       <div className="flex flex-col h-full bg-white">
         {/* Top */}
         <div className="flex items-center justify-between px-3 h-14 shrink-0">
-          <Link href="/" onClick={close} className="flex items-center gap-2">
-            <img src="/sign.png" alt="Bookzy" className="w-8 h-8 rounded-lg object-contain" />
-            <span className="text-[15px] font-bold text-neutral-900">Bookzy</span>
+          <Link href="/" onClick={close} className="flex items-center">
+            <img src="/sign.png" alt="Bookzy" className="w-9 h-9 rounded-lg object-contain" />
           </Link>
           <button
             onClick={() => (mobile ? setOpen(false) : toggleCollapsed())}
