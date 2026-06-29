@@ -2,10 +2,12 @@
 import { Suspense } from "react";
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   CheckCircle2, Loader2, FileText, MessageCircle, PenTool,
   Download, Smartphone, ArrowRight, ArrowLeft, Check, BookOpen,
-  X, Lock, FileCheck2, ArrowUpRightFromCircleIcon, CreditCard, Menu
+  X, Lock, FileCheck2, ArrowUpRightFromCircleIcon, CreditCard, Menu,
+  Plus, Target, Radio, Youtube, BarChart2
 } from "lucide-react";
 import { useCredits } from "@/hooks/useCredits";
 
@@ -33,6 +35,16 @@ const TONES = ["Professionnel", "Simple", "Expert", "Inspirant"];
 const AUDIENCES = ["Débutants", "Étudiants", "Freelances", "Entrepreneurs", "Grand Public"];
 const PAGES_OPTIONS = [20, 30, 40, 50, 60, 70, 80];
 const CHAPTERS_OPTIONS = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+// Lanceur d'outils (menu "+") — chaque entrée ouvre la page de l'outil
+const TOOLS = [
+  { label: "Valider une idée", desc: "Score de rentabilité", href: "/dashboard/analyseur", icon: BarChart2 },
+  { label: "Niche Hunter", desc: "Trouver une niche", href: "/dashboard/niche-hunter", icon: Target },
+  { label: "Radar Cash", desc: "Espionner les pubs qui cartonnent", href: "/dashboard/radar-cash", icon: Radio },
+  { label: "Youbook", desc: "Vidéo YouTube en ebook", href: "/dashboard/youbook", icon: Youtube },
+  { label: "Ebook Designer", desc: "Word en PDF pro", href: "/dashboard/express", icon: FileText },
+  { label: "Romans IA", desc: "Écrire un roman", href: "/dashboard/romans", icon: BookOpen },
+];
 
 // ── BOOK 3D ────────────────────────────────────────────────────────────────────
 const Book3D = ({ title, template, size = "md" }) => {
@@ -659,6 +671,7 @@ function NouveauProjetPageContent() {
   const [step, setStep] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userName, setUserName] = useState("");
+  const [toolsOpen, setToolsOpen] = useState(false);
 
   // URL params + resume depuis sessionStorage
   useEffect(() => {
@@ -844,14 +857,37 @@ function NouveauProjetPageContent() {
             <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">{userName ? `Bonjour ${userName}` : "Bonjour"}</h1>
             <p className="text-slate-400 text-base mb-8">Quel ebook veux-tu créer aujourd'hui ?</p>
             <div className="relative">
+              {/* Lanceur d'outils */}
+              <button type="button" onClick={() => setToolsOpen((v) => !v)} aria-label="Autres outils"
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 transition-all">
+                <Plus className="w-5 h-5" />
+              </button>
               <input type="text" value={titre} onChange={e => setTitre(e.target.value)} autoFocus
                 onKeyDown={e => { if (e.key === "Enter" && titre.trim().length > 3) setStep(1); }}
                 placeholder="Tapez votre sujet"
-                className="w-full pl-5 pr-14 py-4 bg-white border border-slate-200 rounded-2xl text-slate-900 text-base sm:text-lg placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm transition-all" />
+                className="w-full pl-14 pr-14 py-4 bg-white border border-slate-200 rounded-2xl text-slate-900 text-base sm:text-lg placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm transition-all" />
               <button type="button" disabled={titre.trim().length <= 3} onClick={() => setStep(1)}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900 text-white disabled:bg-slate-200 disabled:text-slate-400 hover:bg-slate-800 transition-all">
                 <ArrowRight className="w-4 h-4" />
               </button>
+
+              {toolsOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setToolsOpen(false)} />
+                  <div className="absolute left-0 top-full mt-2 w-80 max-w-[calc(100vw-40px)] bg-white border border-slate-200 rounded-2xl shadow-xl p-2 z-20 text-left">
+                    {TOOLS.map((t) => (
+                      <Link key={t.href} href={t.href} onClick={() => setToolsOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 transition-colors">
+                        <t.icon className="w-5 h-5 text-slate-600 shrink-0" />
+                        <span className="min-w-0">
+                          <span className="block text-sm font-medium text-slate-900">{t.label}</span>
+                          <span className="block text-xs text-slate-500 truncate">{t.desc}</span>
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
             <div className="flex items-center justify-center gap-2 mt-4">
               <button type="button" onClick={handleImproveTitle} disabled={!titre || improvingTitle}
