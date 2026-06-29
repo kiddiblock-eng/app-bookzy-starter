@@ -50,7 +50,7 @@ export default function Hero() {
         {/* Sous-titre concret */}
         <motion.p variants={fadeUp} custom={2} initial="hidden" animate="show"
           className="mt-6 text-base sm:text-lg text-neutral-600 leading-relaxed">
-          L'IA écrit et designe ton ebook. Vends-le, fais-en une <strong className="font-semibold text-neutral-900">formation</strong>, ou partage-le avec ta <strong className="font-semibold text-neutral-900">communauté</strong> — et encaisse par <strong className="font-semibold text-neutral-900">Wave</strong>, <strong className="font-semibold text-neutral-900">Orange Money</strong> ou <strong className="font-semibold text-neutral-900">MTN MoMo</strong>.
+          L'IA écrit et designe ton ebook : vends-le, fais-en une formation, ou partage-le avec ta communauté. Un résultat plus pro que 99 % du marché, sans passer des heures à rédiger ou à mettre en page.
         </motion.p>
 
         {/* Champ "essaie tout de suite" */}
