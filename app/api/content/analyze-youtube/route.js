@@ -52,28 +52,10 @@ export async function POST(req) {
     if (!userDoc) return NextResponse.json({ success: false, message: "Utilisateur introuvable." }, { status: 404 });
     if (!toolsUnlocked(userDoc)) return toolsLockedResponse();
 
-    const canUseQuota = userDoc.canDoDaily("youtubeAnalysis");
-    let usedQuota = false;
-
-    if (canUseQuota) {
-      await userDoc.incrementDaily("youtubeAnalysis");
-      usedQuota = true;
-    } else {
-      const balance = userDoc.credits?.balance ?? 0;
-      if (balance < 2) {
-        return NextResponse.json({
-          success: false,
-          quotaExceeded: true,
-          insufficientCredits: true,
-          plan: userDoc.plan,
-          balance,
-          message: "Quota journalier épuisé et crédits insuffisants (2 crédits requis)."
-        }, { status: 402 });
-      }
-      userDoc.credits.balance -= 2;
-      userDoc.credits.totalSpent = (userDoc.credits.totalSpent || 0) + 2;
-      await userDoc.save();
-    }
+    // Youbook est réservé Créateur/Pro (gaté ci-dessus) → l'analyse est GRATUITE.
+    // (la création de l'ebook coûtera 1 ebook via le flux normal de génération)
+    const usedQuota = true; // jamais facturé → les remboursements `if (!usedQuota)` ne s'appliquent pas
+    try { await userDoc.incrementDaily("youtubeAnalysis"); } catch {}
 
     const { url } = await req.json();
     if (!url) return NextResponse.json({ success: false, message: "URL manquante" }, { status: 400 });
