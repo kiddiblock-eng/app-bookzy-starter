@@ -370,7 +370,7 @@ function OffersModal({ onClose, projetId }) {
       if (projetId) sessionStorage.setItem("bookzy_resume_projetId", projetId);
       const res = await fetch("/api/credits/purchase", {
         method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
-        body: JSON.stringify({ packId: offerId, returnUrl: `${window.location.origin}/dashboard/projets/nouveau` }),
+        body: JSON.stringify({ packId: offerId, returnUrl: `${window.location.origin}/dashboard/projets/nouveau?resume=true` }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Erreur paiement");
@@ -444,17 +444,36 @@ function PreviewPage({ kit, previewData, onEdit }) {
   const [genProgress, setGenProgress] = useState(5);
   const [downloadKit, setDownloadKit] = useState(null);
   const [showCreditsModal, setShowCreditsModal] = useState(false);
+  const [resuming, setResuming] = useState(false);
 
   const tmpl = TEMPLATES.find(t => t.id === kit.template) || TEMPLATES[0];
 
-  // Au retour après paiement → relancer automatiquement
+  // Au retour de paiement (?resume=true) : on rafraîchit le solde en boucle
+  // jusqu'à ce que le webhook ait crédité les ebooks.
   useEffect(() => {
-    const resume = params.get("resume");
-    if (resume === "true" && balance !== null && balance >= 20) {
+    if (params.get("resume") !== "true") return;
+    setResuming(true);
+    let cancelled = false, tries = 0;
+    const tick = async () => {
+      if (cancelled) return;
+      await mutateBalance?.();
+      if (tries++ < 10) setTimeout(tick, 1500);
+      else if (!cancelled) setResuming(false);
+    };
+    tick();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Dès que le solde est suffisant pendant une reprise → relancer la génération
+  useEffect(() => {
+    if (resuming && balance !== null && balance >= 20 && !isGenerating) {
+      setResuming(false);
       sessionStorage.removeItem("bookzy_pending_generate");
       handleGenerate();
     }
-  }, [balance]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [balance, resuming, isGenerating]);
 
   const handleBuyPlan = (packId) => {
     sessionStorage.setItem("bookzy_resume_projetId", kit.projetId);
@@ -527,6 +546,13 @@ function PreviewPage({ kit, previewData, onEdit }) {
   return (
     <div style={{minHeight:"100vh",background:"#f1f5f9",paddingBottom:"120px"}}>
       {isGenerating && <GeneratingOverlay progress={genProgress} />}
+      {resuming && (
+        <div className="fixed inset-0 bg-white flex flex-col items-center justify-center z-[200] p-6">
+          <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mb-4" />
+          <p className="text-slate-900 font-semibold">Vérification du paiement…</p>
+          <p className="text-slate-400 text-sm mt-1">On débloque ton ebook, un instant.</p>
+        </div>
+      )}
       {downloadKit && <DownloadKitModal kit={downloadKit} router={router} />}
 
       {/* Paywall offres */}
