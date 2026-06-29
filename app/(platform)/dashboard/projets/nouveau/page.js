@@ -388,7 +388,7 @@ function OffersModal({ onClose, projetId }) {
           </div>
           <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
             <span className="text-base leading-none">💡</span>
-            <p className="text-[13px] text-amber-900 leading-snug">Générer utilise <strong>1 ebook</strong>. Les ebooks en plus restent pour tes prochaines créations — <strong>ils n'expirent jamais</strong>.</p>
+            <p className="text-[13px] text-amber-900 leading-snug">Génère ton ebook maintenant. Les ebooks en plus restent pour tes prochaines créations — <strong>ils n'expirent jamais</strong>.</p>
           </div>
         </div>
         <div className="p-3 space-y-2.5">
