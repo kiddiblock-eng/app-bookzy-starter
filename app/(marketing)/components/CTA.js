@@ -2,68 +2,31 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-
-const GRAIN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`;
+import { Reveal } from "./Reveal";
 
 export default function CTA() {
   return (
-    <section className="relative min-h-[85vh] flex flex-col items-center justify-center overflow-hidden px-5 py-24"
-      style={{ background: "#F5F2ED" }}>
-
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0"
-        style={{ backgroundImage: GRAIN, backgroundRepeat: "repeat", backgroundSize: "128px" }} />
-
-      <div className="absolute top-[-60px] right-[-80px] w-[420px] h-[420px] rounded-full border border-[#C8BFB0] opacity-50 pointer-events-none z-0" />
-      <div className="absolute bottom-[-80px] left-[-100px] w-[350px] h-[350px] rounded-full bg-blue-50 opacity-40 pointer-events-none z-0" />
-      <div className="absolute top-1/2 left-[-200px] w-[300px] h-[300px] rounded-full border border-[#C8BFB0] opacity-20 pointer-events-none z-0" />
-
-      <div className="relative z-10 text-center max-w-3xl mx-auto w-full">
-
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#C8BFB0] bg-white mb-8">
-          <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
-          <span className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">Propulsé par l'IA</span>
-        </div>
-
-        <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-400 mb-4">Rejoignez la communauté</p>
-
-        <h2 className="font-black text-slate-900 tracking-tight leading-[0.92] mb-6"
-          style={{ fontSize: "clamp(3rem, 9vw, 6rem)" }}>
-          Espionnez. Validez.<br />
-          <span className="text-blue-500">Créez en 60 secondes.</span>
-        </h2>
-
-        <p className="text-slate-500 text-base sm:text-lg mb-10 max-w-md mx-auto leading-relaxed">
-          Rejoignez des milliers de créateurs africains qui trouvent, créent et vendent leurs ebooks avec Bookzy.
-        </p>
-
-        <div className="w-24 h-px bg-[#E8E8E8] mx-auto mb-10" />
-
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link href="/auth/register"
-            className="group inline-flex items-center gap-3 px-8 py-4 bg-slate-900 hover:bg-slate-800 text-white font-black rounded-xl transition-all text-xs uppercase tracking-widest shadow-lg">
-            Commencer gratuitement
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-          </Link>
-          <div className="inline-flex items-center gap-2 px-5 py-4 border border-[#C8BFB0] rounded-xl bg-white">
-            <span className="text-xs font-black text-slate-900 uppercase tracking-widest">4 crédits offerts</span>
-            <span className="text-xs text-slate-400">sans carte bancaire</span>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap justify-center gap-8 mt-16">
-          {[
-            { value: "7 300+", label: "Créateurs actifs" },
-            { value: "60s",    label: "Par ebook généré" },
-            { value: "25 pays", label: "Pour encaisser" },
-            { value: "100%",   label: "Propriété à vous" },
-          ].map(s => (
-            <div key={s.label} className="text-center">
-              <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{s.value}</div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-1">{s.label}</div>
+    <section className="bg-white py-20 sm:py-28">
+      <div className="max-w-4xl mx-auto px-5 sm:px-6">
+        <Reveal>
+          <div className="relative overflow-hidden rounded-3xl bg-neutral-900 px-6 py-16 sm:py-20 text-center">
+            {/* halo accent */}
+            <div className="pointer-events-none absolute inset-0"
+              style={{ background: "radial-gradient(ellipse 60% 70% at 50% 0%, rgba(95,122,166,0.45), transparent 70%)" }} />
+            <div className="relative">
+              <h2 className="text-white text-3xl sm:text-5xl font-bold tracking-tight">Ton premier ebook t'attend.</h2>
+              <p className="text-neutral-400 mt-4 max-w-lg mx-auto leading-relaxed">
+                Rejoins 25 000+ créateurs. Trouve un sujet, génère ton ebook, vends-le. Gratuit pour commencer.
+              </p>
+              <Link href="/auth/register"
+                className="group mt-8 inline-flex items-center gap-2 px-7 py-3.5 bg-white text-neutral-900 rounded-full text-sm font-semibold hover:bg-neutral-100 transition-colors">
+                Commencer gratuitement
+                <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+              <p className="text-xs text-neutral-500 mt-4">Sans carte bancaire · Premier ebook en 1 minute</p>
             </div>
-          ))}
-        </div>
-
+          </div>
+        </Reveal>
       </div>
     </section>
   );

@@ -5,6 +5,7 @@ import { useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Hero from "@/app/(marketing)/components/Hero";
 import HowitWork from "@/app/(marketing)/components/HowitWork";
+import Outils from "@/app/(marketing)/components/Outils";
 import Pricing from "@/app/(marketing)/components/Pricing";
 import PourquoiBookzy from "@/app/(marketing)/components/PourquoiBookzy";
 import FAQ from "@/app/(marketing)/components/FAQ";
@@ -41,10 +42,9 @@ export default function HomePage() {
       </Suspense>
 
       <Hero />
-
       <HowitWork />
+      <Outils />
       <TemplatesSection />
-     
       <PourquoiBookzy />
       <Testimonials />
       <Pricing />
