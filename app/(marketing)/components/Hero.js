@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Star, Check } from "lucide-react";
 
 const EASE = [0.22, 1, 0.36, 1];
-const ACCENT = "#5f7aa6";
+const ACCENT = "#059669";
 const fadeUp = {
   hidden: { opacity: 0, y: 22 },
   show: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.6, delay: i * 0.08, ease: EASE } }),

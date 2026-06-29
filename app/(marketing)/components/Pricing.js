@@ -5,7 +5,7 @@ import { Check, ArrowRight } from "lucide-react";
 import { OFFERS, OFFER_ORDER, discountPercent } from "@/lib/plans";
 import { Reveal } from "./Reveal";
 
-const ACCENT = "#5f7aa6";
+const ACCENT = "#059669";
 const fmt = (n) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
 const PERKS = {
@@ -31,7 +31,7 @@ export default function Pricing() {
             const disc = discountPercent(id);
             return (
               <Reveal key={id} delay={idx * 0.08}
-                className={`relative rounded-2xl bg-white p-6 flex flex-col ${reco ? "border-2 border-[#5f7aa6] shadow-xl" : "border border-neutral-200"}`}>
+                className={`relative rounded-2xl bg-white p-6 flex flex-col ${reco ? "border-2 border-[#059669] shadow-xl" : "border border-neutral-200"}`}>
                 {reco && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full" style={{ background: ACCENT }}>
                     Le plus populaire
@@ -53,7 +53,7 @@ export default function Pricing() {
                 <ul className="space-y-2.5 flex-1 mb-6">
                   {PERKS[id].map((perk, i) => (
                     <li key={i} className="flex items-start gap-2.5">
-                      <span className="mt-0.5 w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(95,122,166,0.14)" }}>
+                      <span className="mt-0.5 w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(5,150,105,0.14)" }}>
                         <Check size={10} style={{ color: ACCENT }} strokeWidth={3} />
                       </span>
                       <span className="text-xs text-neutral-600 leading-snug">{perk}</span>

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus } from "lucide-react";
 import { Reveal } from "./Reveal";
 
-const ACCENT = "#5f7aa6";
+const ACCENT = "#059669";
 
 const QA = [
   { q: "C'est gratuit pour commencer ?", a: "Oui. Tu peux explorer Bookzy et tester Niche Hunter et le Validateur gratuitement chaque semaine. Tu ne paies que pour générer tes ebooks." },

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { MessageSquareText, PenLine, Download } from "lucide-react";
 import { Reveal, Stagger, staggerItem } from "./Reveal";
 
-const ACCENT = "#5f7aa6";
+const ACCENT = "#059669";
 
 const STEPS = [
   { n: "01", Icon: MessageSquareText, title: "Décris ton idée", desc: "En une phrase, dis à l'IA le sujet de ton ebook. Pas besoin d'écrire quoi que ce soit — juste l'idée." },
@@ -27,7 +27,7 @@ export default function HowitWork() {
             <motion.div key={s.n} variants={staggerItem}
               className="relative rounded-2xl border border-neutral-200 bg-white p-7 hover:shadow-lg hover:-translate-y-1 transition-all">
               <span className="absolute top-5 right-6 text-5xl font-bold text-neutral-100 select-none">{s.n}</span>
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(95,122,166,0.1)" }}>
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(5,150,105,0.1)" }}>
                 <s.Icon size={20} style={{ color: ACCENT }} />
               </div>
               <h3 className="text-lg font-semibold text-neutral-900 mb-2">{s.title}</h3>

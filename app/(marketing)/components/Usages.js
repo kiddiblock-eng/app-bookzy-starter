@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 import { FileText, Target, BarChart3 } from "lucide-react";
 import { Reveal, Stagger, staggerItem } from "./Reveal";
 
-const ACCENT = "#5f7aa6";
-const TINT = "rgba(95,122,166,0.10)";
+const ACCENT = "#059669";
+const TINT = "rgba(5,150,105,0.10)";
 
 const USAGES = [
   { Icon: FileText, tag: "Création", title: "Crée ton ebook", desc: "À partir d'un simple titre, l'IA rédige et designe un ebook complet, prêt à l'emploi." },
