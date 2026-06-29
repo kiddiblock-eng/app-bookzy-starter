@@ -171,11 +171,11 @@ export default function RadarCashPage() {
   };
 
   const FilterPanel = ({ mobile = false }) => (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+    <div className="flex flex-col gap-4">
       <div>
-        <p style={{ fontSize: "10px", fontWeight: "700", color: "#94a3b8", letterSpacing: "0.08em", marginBottom: "6px" }}>PAYS</p>
+        <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wide mb-1.5">Pays</p>
         <select value={country} onChange={e => setCountry(e.target.value)} size={8}
-          style={{ width: "100%", height: "180px", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "12px", color: "#0f172a", background: "white", cursor: "pointer", outline: "none", overflowY: "auto" }}>
+          className="w-full h-44 border border-neutral-200 rounded-lg text-xs text-neutral-900 bg-white cursor-pointer outline-none focus:ring-2 focus:ring-neutral-900">
           {COUNTRY_GROUPS.map(group => (
             <optgroup key={group.label} label={group.label}>
               {group.items.map(c => (
@@ -187,94 +187,101 @@ export default function RadarCashPage() {
       </div>
 
       <div>
-        <p style={{ fontSize: "10px", fontWeight: "700", color: "#94a3b8", letterSpacing: "0.08em", marginBottom: "6px" }}>TYPE DE CRÉATIF</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
-          {MEDIA_TYPES.map(m => (
-            <button key={m.code} onClick={() => setMediaType(m.code)}
-              style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 8px", borderRadius: "7px", border: "none", cursor: "pointer", background: mediaType === m.code ? "#eff6ff" : "transparent", color: mediaType === m.code ? "#1d4ed8" : "#475569", fontSize: "12px", fontWeight: mediaType === m.code ? "600" : "400", textAlign: "left", width: "100%" }}>
-              <m.icon size={12} /><span>{m.label}</span>
-            </button>
-          ))}
+        <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wide mb-1.5">Type de créatif</p>
+        <div className="flex flex-col gap-0.5">
+          {MEDIA_TYPES.map(m => {
+            const on = mediaType === m.code;
+            return (
+              <button key={m.code} onClick={() => setMediaType(m.code)}
+                className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-left w-full transition-colors ${on ? "bg-neutral-900 text-white font-semibold" : "text-neutral-600 hover:bg-neutral-100"}`}>
+                <m.icon size={12} /><span>{m.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
       <div>
-        <p style={{ fontSize: "10px", fontWeight: "700", color: "#94a3b8", letterSpacing: "0.08em", marginBottom: "6px" }}>DURÉE ACTIVE</p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
-          {DURATIONS.map(d => (
-            <button key={d.code} onClick={() => setMinDays(d.code)}
-              style={{ padding: "4px 10px", borderRadius: "6px", border: "1px solid", cursor: "pointer", fontSize: "12px", fontWeight: "500", background: minDays === d.code ? "#0f172a" : "white", color: minDays === d.code ? "white" : "#475569", borderColor: minDays === d.code ? "#0f172a" : "#e2e8f0" }}>
-              {d.label}
-            </button>
-          ))}
+        <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wide mb-1.5">Durée active</p>
+        <div className="flex flex-wrap gap-1">
+          {DURATIONS.map(d => {
+            const on = minDays === d.code;
+            return (
+              <button key={d.code} onClick={() => setMinDays(d.code)}
+                className={`px-2.5 py-1 rounded-md text-xs font-medium border transition-colors ${on ? "bg-neutral-900 text-white border-neutral-900" : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300"}`}>
+                {d.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       <button onClick={() => { if (!isPremium) { router.push("/dashboard/tarifs"); return; } fetchAds(); if (mobile) setShowFilters(false); }}
-        style={{ width: "100%", padding: "9px", background: "#0f172a", color: "white", border: "none", borderRadius: "8px", fontSize: "12px", fontWeight: "700", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
-        <Search size={13} />{isPremium ? "Lancer l'analyse" : "🔒 Solo requis"}
+        className="w-full py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors">
+        {isPremium ? <><Search size={13} />Lancer l'analyse</> : <><Lock size={13} />Débloquer</>}
       </button>
     </div>
   );
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 56px)", overflow: "hidden", background: "#f1f5f9" }}>
+    <div className="flex flex-col h-[calc(100vh-56px)] overflow-hidden bg-neutral-50">
 
       {/* HEADER */}
-      <div style={{ background: "white", borderBottom: "1px solid #e2e8f0", padding: "14px 20px 0", flexShrink: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <Radio size={18} color="#6366f1" />
+      <div className="bg-white border-b border-neutral-200 px-5 pt-3.5 shrink-0">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-neutral-900 flex items-center justify-center shrink-0">
+              <Radio size={17} className="text-white" />
+            </div>
             <div>
-              <h1 style={{ fontSize: "16px", fontWeight: "800", color: "#0f172a", margin: 0 }}>Radar Cash</h1>
-              <p style={{ fontSize: "11px", color: "#94a3b8", margin: 0 }}>Repérez ce qui marche et transformez-le en ebook qui se vend.</p>
+              <h1 className="text-base font-bold text-neutral-900 leading-tight">Radar Cash</h1>
+              <p className="text-[11px] text-neutral-400 leading-tight">Repère ce qui marche et transforme-le en ebook qui se vend.</p>
             </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <div className="flex items-center gap-2">
             {totalCount > 0 && (
-              <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "20px", padding: "3px 10px", display: "flex", alignItems: "center", gap: "5px" }}>
-                <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#22c55e" }} />
-                <span style={{ fontSize: "11px", fontWeight: "600", color: "#16a34a" }}>+50 000 opportunités</span>
+              <div className="hidden sm:flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 rounded-full px-2.5 py-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[11px] font-semibold text-emerald-600">+50 000 opportunités</span>
               </div>
             )}
             <button onClick={() => setShowFilters(!showFilters)}
-              className="lg:hidden"
-              style={{ padding: "6px 10px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "12px", fontWeight: "600", color: "#475569", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}>
+              className="lg:hidden flex items-center gap-1 px-2.5 py-1.5 bg-neutral-100 hover:bg-neutral-200 rounded-lg text-xs font-semibold text-neutral-600 transition-colors">
               <Filter size={13} />Filtres
             </button>
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: "8px", marginBottom: "0" }}>
-          <div style={{ flex: 1, position: "relative" }}>
-            <Search size={15} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+        <div className="flex gap-2">
+          <div className="flex-1 relative">
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
             <input type="text" value={query} onChange={e => setQuery(e.target.value)}
               onKeyDown={e => e.key === "Enter" && fetchAds()}
-              placeholder="Ex: formation, visa, coaching, agriculture..."
-              style={{ width: "100%", paddingLeft: "38px", paddingRight: "12px", height: "40px", border: "1.5px solid #e2e8f0", borderRadius: "9px", fontSize: "13px", color: "#0f172a", outline: "none", boxSizing: "border-box", background: "#f8fafc" }} />
+              placeholder="Ex : formation, visa, coaching, agriculture…"
+              className="w-full pl-10 pr-3 h-10 border border-neutral-200 rounded-xl text-[13px] text-neutral-900 placeholder:text-neutral-400 bg-neutral-50 outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all" />
           </div>
           <button onClick={() => { if (!isPremium) { router.push("/dashboard/tarifs"); return; } fetchAds(); }} disabled={loading}
-            style={{ height: "40px", padding: "0 16px", background: "#0f172a", color: "white", border: "none", borderRadius: "9px", fontSize: "13px", fontWeight: "700", cursor: "pointer", display: "flex", alignItems: "center", gap: "5px", opacity: loading ? 0.7 : 1, whiteSpace: "nowrap" }}>
-            {loading ? <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> : <Search size={13} />}
-            {isPremium ? "Analyser" : "🔒 Analyser"}
+            className="h-10 px-4 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-[13px] font-bold flex items-center gap-1.5 whitespace-nowrap disabled:opacity-70 transition-colors">
+            {loading ? <Loader2 size={13} className="animate-spin" /> : isPremium ? <Search size={13} /> : <Lock size={13} />}
+            Analyser
           </button>
         </div>
 
-        <div style={{ padding: "8px 0", display: "flex", alignItems: "center", gap: "8px" }}>
-          <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#22c55e", flexShrink: 0 }} />
-          <span style={{ fontSize: "10px", fontWeight: "700", color: "#94a3b8", letterSpacing: "0.08em", flexShrink: 0 }}>LIVE</span>
-          <p style={{ fontSize: "11px", color: "#64748b", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{TICKER[tickerIdx]}</p>
+        <div className="py-2 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wide shrink-0">Live</span>
+          <p className="text-[11px] text-neutral-500 truncate">{TICKER[tickerIdx]}</p>
         </div>
       </div>
 
       {/* FILTRES MOBILE */}
       {showFilters && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex" }} className="lg:hidden">
-          <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.3)" }} onClick={() => setShowFilters(false)} />
-          <div style={{ position: "relative", width: "280px", height: "100%", background: "white", padding: "20px 16px", overflowY: "auto", zIndex: 1 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-              <p style={{ fontSize: "14px", fontWeight: "700", color: "#0f172a", margin: 0 }}>Filtres</p>
-              <button onClick={() => setShowFilters(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8" }}><X size={18} /></button>
+        <div className="fixed inset-0 z-50 flex lg:hidden">
+          <div className="absolute inset-0 bg-black/30" onClick={() => setShowFilters(false)} />
+          <div className="relative w-72 h-full bg-white p-5 overflow-y-auto z-10">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-bold text-neutral-900">Filtres</p>
+              <button onClick={() => setShowFilters(false)} className="text-neutral-400 hover:text-neutral-700"><X size={18} /></button>
             </div>
             <FilterPanel mobile />
           </div>
@@ -282,113 +289,108 @@ export default function RadarCashPage() {
       )}
 
       {/* LAYOUT */}
-      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+      <div className="flex flex-1 overflow-hidden">
 
-        <aside style={{ width: "200px", flexShrink: 0, background: "white", borderRight: "1px solid #e2e8f0", padding: "16px 12px", overflowY: "auto" }} className="hidden lg:block">
+        <aside className="hidden lg:block w-52 shrink-0 bg-white border-r border-neutral-200 px-3 py-4 overflow-y-auto">
           <FilterPanel />
         </aside>
 
-        <div style={{ flex: 1, overflowY: "auto", padding: "14px", minWidth: 0 }}>
+        <div className="flex-1 overflow-y-auto p-3.5 min-w-0">
 
           {/* BANDEAU PAYWALL */}
           {!isPremium && !loading && ads.length > 0 && (
-            <div style={{ background: "#0f172a", borderRadius: "10px", padding: "12px 16px", marginBottom: "14px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: 0 }}>
-                <Lock size={14} color="#6366f1" style={{ flexShrink: 0 }} />
-                <p style={{ fontSize: "13px", color: "white", margin: 0, lineHeight: "1.4" }}>
-                  Accédez aux idées qui génèrent de l'argent en ce moment sur les réseaux
-                </p>
+            <div className="bg-neutral-900 rounded-xl px-4 py-3 mb-3.5 flex items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2 min-w-0">
+                <Lock size={14} className="text-white shrink-0" />
+                <p className="text-[13px] text-white leading-snug">Accède aux idées qui génèrent de l'argent en ce moment sur les réseaux.</p>
               </div>
               <button onClick={() => router.push("/dashboard/tarifs")}
-                style={{ padding: "7px 14px", background: "#6366f1", color: "white", border: "none", borderRadius: "8px", fontSize: "12px", fontWeight: "700", cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}>
+                className="px-3.5 py-1.5 bg-white text-neutral-900 rounded-lg text-xs font-bold shrink-0 whitespace-nowrap hover:bg-neutral-100 transition-colors">
                 Débloquer
               </button>
             </div>
           )}
 
-          {error && <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: "8px", padding: "10px 14px", marginBottom: "12px", color: "#dc2626", fontSize: "12px" }}>{error}</div>}
+          {error && <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2.5 mb-3 text-xs text-red-700">{error}</div>}
 
           {loading && (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "60px 0", gap: "12px" }}>
-              <Loader2 size={28} color="#6366f1" style={{ animation: "spin 1s linear infinite" }} />
-              <p style={{ fontSize: "13px", color: "#64748b", margin: 0 }}>Scan des pubs Facebook...</p>
+            <div className="flex flex-col items-center py-16 gap-3">
+              <Loader2 size={28} className="text-neutral-400 animate-spin" />
+              <p className="text-[13px] text-neutral-500">Scan des pubs Facebook…</p>
             </div>
           )}
 
           {!loading && ads.length > 0 && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "10px" }}>
+            <div className="grid gap-2.5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
               {ads.map((ad, idx) => {
                 const isBlurred = !isPremium && idx >= 2;
                 const pot = potInfo(ad.potential);
                 return (
-                  <div key={ad.id || idx}
-                    style={{ background: "white", borderRadius: "10px", border: "1px solid #e8edf2", overflow: "hidden", transition: "box-shadow 0.15s" }}
-                    onMouseEnter={e => e.currentTarget.style.boxShadow = "0 2px 12px rgba(0,0,0,0.07)"}
-                    onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
+                  <div key={ad.id || idx} className="bg-white rounded-xl border border-neutral-200 overflow-hidden hover:shadow-md transition-shadow">
 
-                    <div style={{ position: "relative", height: "130px", background: "#f1f5f9", overflow: "hidden" }}>
+                    <div className="relative h-[130px] bg-neutral-100 overflow-hidden">
                       {ad.imageUrl ? (
-                        <img src={ad.imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", filter: isBlurred ? "blur(10px) brightness(0.6)" : "none", transform: isBlurred ? "scale(1.08)" : "scale(1)" }} />
+                        <img src={ad.imageUrl} alt="" className="w-full h-full object-cover" style={{ filter: isBlurred ? "blur(10px) brightness(0.6)" : "none", transform: isBlurred ? "scale(1.08)" : "scale(1)" }} />
                       ) : (
-                        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          <TrendingUp size={24} color="#cbd5e1" />
+                        <div className="w-full h-full flex items-center justify-center">
+                          <TrendingUp size={24} className="text-neutral-300" />
                         </div>
                       )}
                       {ad.daysRunning && (
-                        <span style={{ position: "absolute", top: "7px", left: "7px", background: "rgba(0,0,0,0.72)", borderRadius: "5px", padding: "2px 6px", fontSize: "10px", fontWeight: "600", color: "white", display: "flex", alignItems: "center", gap: "3px", filter: isBlurred ? "blur(4px)" : "none" }}>
-                          <Clock size={8} color="white" />{ad.daysRunning}j
+                        <span className="absolute top-1.5 left-1.5 bg-black/70 rounded px-1.5 py-0.5 text-[10px] font-semibold text-white flex items-center gap-1" style={{ filter: isBlurred ? "blur(4px)" : "none" }}>
+                          <Clock size={8} className="text-white" />{ad.daysRunning}j
                         </span>
                       )}
-                      <span style={{ position: "absolute", top: "7px", right: "7px", background: "rgba(0,0,0,0.72)", borderRadius: "5px", padding: "2px 6px", fontSize: "10px", filter: isBlurred ? "blur(4px)" : "none" }}>
+                      <span className="absolute top-1.5 right-1.5 bg-black/70 rounded px-1.5 py-0.5 text-[10px]" style={{ filter: isBlurred ? "blur(4px)" : "none" }}>
                         {pot.flame}
                       </span>
                       {isBlurred && (
-                        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <div className="absolute inset-0 flex items-center justify-center">
                           <button onClick={() => router.push("/dashboard/tarifs")}
-                            style={{ background: "#0f172a", color: "white", border: "none", borderRadius: "8px", padding: "7px 12px", fontSize: "11px", fontWeight: "700", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}>
+                            className="bg-neutral-900 text-white rounded-lg px-3 py-1.5 text-[11px] font-bold flex items-center gap-1">
                             <Lock size={11} />Débloquer
                           </button>
                         </div>
                       )}
                     </div>
 
-                    <div style={{ padding: "10px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px", filter: isBlurred ? "blur(5px)" : "none" }}>
+                    <div className="p-2.5">
+                      <div className="flex items-center gap-1.5 mb-1.5" style={{ filter: isBlurred ? "blur(5px)" : "none" }}>
                         {ad.pagePhoto
-                          ? <img src={ad.pagePhoto} alt="" style={{ width: "20px", height: "20px", borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
-                          : <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "#e2e8f0", flexShrink: 0 }} />}
-                        <span style={{ fontSize: "11px", fontWeight: "600", color: "#0f172a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+                          ? <img src={ad.pagePhoto} alt="" className="w-5 h-5 rounded-full object-cover shrink-0" />
+                          : <div className="w-5 h-5 rounded-full bg-neutral-200 shrink-0" />}
+                        <span className="text-[11px] font-semibold text-neutral-900 truncate flex-1">
                           {isBlurred ? "███████████" : ad.pageName}
                         </span>
                         {ad.id && !isBlurred && (
-                          <a href={`https://www.facebook.com/ads/library/?id=${ad.id}`} target="_blank" rel="noopener noreferrer" style={{ color: "#94a3b8", flexShrink: 0 }}>
+                          <a href={`https://www.facebook.com/ads/library/?id=${ad.id}`} target="_blank" rel="noopener noreferrer" className="text-neutral-400 shrink-0">
                             <ExternalLink size={11} />
                           </a>
                         )}
                       </div>
 
-                      <div style={{ filter: isBlurred ? "blur(5px)" : "none", marginBottom: "8px" }}>
-                        {ad.title && <p style={{ fontSize: "11px", fontWeight: "700", color: "#0f172a", margin: "0 0 3px", lineHeight: "1.4", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{isBlurred ? "████████████████" : ad.title}</p>}
-                        {ad.bodyText && <p style={{ fontSize: "11px", color: "#64748b", margin: 0, lineHeight: "1.4", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{isBlurred ? "████████ ████ ████████" : ad.bodyText}</p>}
+                      <div className="mb-2" style={{ filter: isBlurred ? "blur(5px)" : "none" }}>
+                        {ad.title && <p className="text-[11px] font-bold text-neutral-900 mb-0.5 leading-snug line-clamp-2">{isBlurred ? "████████████████" : ad.title}</p>}
+                        {ad.bodyText && <p className="text-[11px] text-neutral-500 leading-snug line-clamp-2">{isBlurred ? "████████ ████ ████████" : ad.bodyText}</p>}
                       </div>
 
-                      <div style={{ display: "flex", gap: "4px", marginBottom: "8px", filter: isBlurred ? "blur(4px)" : "none", flexWrap: "wrap" }}>
-                        <span style={{ fontSize: "10px", fontWeight: "600", color: pot.color, background: pot.color + "15", padding: "2px 6px", borderRadius: "5px" }}>
+                      <div className="flex gap-1 mb-2 flex-wrap" style={{ filter: isBlurred ? "blur(4px)" : "none" }}>
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ color: pot.color, background: pot.color + "15" }}>
                           {pot.label}
                         </span>
                         {ad.daysRunning >= 20 && (
-                          <span style={{ fontSize: "10px", fontWeight: "600", color: "#16a34a", background: "#f0fdf4", padding: "2px 6px", borderRadius: "5px" }}>✓ Rentable</span>
+                          <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">✓ Rentable</span>
                         )}
                       </div>
 
                       {!isBlurred ? (
                         <button onClick={() => openModal(ad)}
-                          style={{ width: "100%", padding: "8px", background: "#0f172a", color: "white", border: "none", borderRadius: "7px", fontSize: "11px", fontWeight: "700", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
+                          className="w-full py-2 bg-neutral-900 hover:bg-neutral-800 text-white rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 transition-colors">
                           <Search size={11} />Reproduire cette opportunité
                         </button>
                       ) : (
                         <button onClick={() => router.push("/dashboard/tarifs")}
-                          style={{ width: "100%", padding: "8px", background: "#f8fafc", color: "#94a3b8", border: "1px solid #e2e8f0", borderRadius: "7px", fontSize: "11px", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
+                          className="w-full py-2 bg-neutral-50 text-neutral-400 border border-neutral-200 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1">
                           <Lock size={11} />Voir l'opportunité
                         </button>
                       )}
@@ -400,11 +402,11 @@ export default function RadarCashPage() {
           )}
 
           {nextCursor && !loading && (
-            <div style={{ display: "flex", justifyContent: "center", marginTop: "16px", paddingBottom: "16px" }}>
+            <div className="flex justify-center mt-4 pb-4">
               <button onClick={() => isPremium ? fetchAds(true) : router.push("/dashboard/tarifs")} disabled={loadingMore}
-                style={{ padding: "10px 24px", background: "white", border: "1px solid #e2e8f0", borderRadius: "9px", fontSize: "13px", fontWeight: "600", color: "#475569", cursor: "pointer", display: "flex", alignItems: "center", gap: "7px", opacity: loadingMore ? 0.7 : 1 }}>
-                {loadingMore ? <Loader2 size={13} style={{ animation: "spin 1s linear infinite" }} /> : <RefreshCw size={13} />}
-                {loadingMore ? "Chargement..." : isPremium ? "Charger plus" : "🔒 Charger plus"}
+                className="px-6 py-2.5 bg-white border border-neutral-200 rounded-xl text-[13px] font-semibold text-neutral-600 flex items-center gap-2 hover:border-neutral-300 disabled:opacity-70 transition-colors">
+                {loadingMore ? <Loader2 size={13} className="animate-spin" /> : isPremium ? <RefreshCw size={13} /> : <Lock size={13} />}
+                {loadingMore ? "Chargement…" : "Charger plus"}
               </button>
             </div>
           )}
@@ -413,52 +415,52 @@ export default function RadarCashPage() {
 
       {/* MODAL */}
       {modalAd && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}
+        <div className="fixed inset-0 bg-black/45 z-[100] flex items-center justify-center p-4"
           onClick={e => e.target === e.currentTarget && setModalAd(null)}>
-          <div style={{ background: "white", borderRadius: "14px", width: "100%", maxWidth: "440px", overflow: "hidden", boxShadow: "0 20px 40px rgba(0,0,0,0.2)" }}>
+          <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-xl">
 
-            <div style={{ padding: "14px 18px", borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div className="px-5 py-3.5 border-b border-neutral-100 flex items-center justify-between">
               <div>
-                <p style={{ fontSize: "14px", fontWeight: "700", color: "#0f172a", margin: 0 }}>Reproduire cette opportunité</p>
-                <p style={{ fontSize: "11px", color: "#64748b", margin: 0 }}>L'IA génère une idée d'ebook sur ce sujet</p>
+                <p className="text-sm font-bold text-neutral-900">Reproduire cette opportunité</p>
+                <p className="text-[11px] text-neutral-500">L'IA génère une idée d'ebook sur ce sujet</p>
               </div>
-              <button onClick={() => setModalAd(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8" }}><X size={16} /></button>
+              <button onClick={() => setModalAd(null)} className="text-neutral-400 hover:text-neutral-700"><X size={16} /></button>
             </div>
 
-            <div style={{ padding: "10px 18px", background: "#f8fafc", borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "center", gap: "7px" }}>
-              {modalAd.pagePhoto && <img src={modalAd.pagePhoto} alt="" style={{ width: "20px", height: "20px", borderRadius: "50%", objectFit: "cover" }} />}
-              <p style={{ fontSize: "12px", fontWeight: "600", color: "#475569", margin: 0 }}>{modalAd.pageName}</p>
+            <div className="px-5 py-2.5 bg-neutral-50 border-b border-neutral-100 flex items-center gap-2">
+              {modalAd.pagePhoto && <img src={modalAd.pagePhoto} alt="" className="w-5 h-5 rounded-full object-cover" />}
+              <p className="text-xs font-semibold text-neutral-600">{modalAd.pageName}</p>
             </div>
 
-            <div style={{ padding: "18px" }}>
+            <div className="p-5">
               {modalLoading ? (
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "20px 0" }}>
-                  <Loader2 size={24} color="#6366f1" style={{ animation: "spin 1s linear infinite" }} />
-                  <p style={{ fontSize: "13px", color: "#64748b", margin: 0 }}>Génération en cours...</p>
+                <div className="flex flex-col items-center gap-2.5 py-5">
+                  <Loader2 size={24} className="text-neutral-400 animate-spin" />
+                  <p className="text-[13px] text-neutral-500">Génération en cours…</p>
                 </div>
               ) : modalResult ? (
                 <div>
-                  <p style={{ fontSize: "10px", fontWeight: "700", color: "#94a3b8", letterSpacing: "0.08em", marginBottom: "8px" }}>IDÉE D'EBOOK</p>
-                  <p style={{ fontSize: "15px", fontWeight: "700", color: "#0f172a", margin: "0 0 6px", lineHeight: "1.4" }}>{modalResult.titre}</p>
-                  <p style={{ fontSize: "13px", color: "#475569", margin: "0 0 14px", lineHeight: "1.5" }}>{modalResult.description}</p>
+                  <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wide mb-2">Idée d'ebook</p>
+                  <p className="text-[15px] font-bold text-neutral-900 mb-1.5 leading-snug">{modalResult.titre}</p>
+                  <p className="text-[13px] text-neutral-600 mb-3.5 leading-relaxed">{modalResult.description}</p>
 
                   {(modalResult.gainEstime || modalResult.ouVendre) && (
-                    <div style={{ background: "#f8fafc", borderRadius: "8px", padding: "12px", marginBottom: "14px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                    <div className="bg-neutral-50 rounded-xl p-3 mb-3.5 flex flex-col gap-2">
                       {modalResult.gainEstime && (
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                          <DollarSign size={14} color="#16a34a" style={{ flexShrink: 0 }} />
+                        <div className="flex items-center gap-2.5">
+                          <DollarSign size={14} className="text-emerald-600 shrink-0" />
                           <div>
-                            <p style={{ fontSize: "10px", fontWeight: "600", color: "#94a3b8", margin: 0 }}>GAIN ESTIMÉ</p>
-                            <p style={{ fontSize: "13px", fontWeight: "700", color: "#0f172a", margin: 0 }}>{modalResult.gainEstime}</p>
+                            <p className="text-[10px] font-semibold text-neutral-400">Gain estimé</p>
+                            <p className="text-[13px] font-bold text-neutral-900">{modalResult.gainEstime}</p>
                           </div>
                         </div>
                       )}
                       {modalResult.ouVendre && (
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                          <ShoppingBag size={14} color="#6366f1" style={{ flexShrink: 0 }} />
+                        <div className="flex items-center gap-2.5">
+                          <ShoppingBag size={14} className="text-neutral-700 shrink-0" />
                           <div>
-                            <p style={{ fontSize: "10px", fontWeight: "600", color: "#94a3b8", margin: 0 }}>OÙ VENDRE</p>
-                            <p style={{ fontSize: "13px", color: "#475569", margin: 0 }}>{modalResult.ouVendre}</p>
+                            <p className="text-[10px] font-semibold text-neutral-400">Où vendre</p>
+                            <p className="text-[13px] text-neutral-600">{modalResult.ouVendre}</p>
                           </div>
                         </div>
                       )}
@@ -466,19 +468,17 @@ export default function RadarCashPage() {
                   )}
 
                   <button onClick={handleContinue}
-                    style={{ width: "100%", padding: "11px", background: "#0f172a", color: "white", border: "none", borderRadius: "9px", fontSize: "14px", fontWeight: "700", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "7px" }}>
+                    className="w-full py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition-colors">
                     Créer cet ebook maintenant <ChevronRight size={15} />
                   </button>
                 </div>
               ) : (
-                <p style={{ textAlign: "center", fontSize: "13px", color: "#94a3b8", padding: "20px 0" }}>Une erreur est survenue.</p>
+                <p className="text-center text-[13px] text-neutral-400 py-5">Une erreur est survenue.</p>
               )}
             </div>
           </div>
         </div>
       )}
-
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
