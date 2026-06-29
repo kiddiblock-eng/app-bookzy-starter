@@ -77,7 +77,7 @@ export default function Navbar() {
             
             {/* ─── LOGO ─── */}
             <Link href="/" className="flex items-center">
-              <img src="/logonew.webp" alt="Bookzy" className="h-7 lg:h-8 w-auto object-contain" />
+              <img src="/logo12.webp" alt="Bookzy" className="h-7 lg:h-8 w-auto object-contain" />
             </Link>
 
             {/* ─── NAVIGATION DESKTOP ─── */}

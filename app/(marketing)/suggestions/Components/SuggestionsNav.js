@@ -151,7 +151,7 @@ export default function SuggestionsNav() {
 
           {/* Logo → bookzy.io */}
           <Link href="https://bookzy.io" className="snav-logo">
-            <img src="/logonew.webp" alt="Bookzy" className="h-7 w-auto object-contain" />
+            <img src="/logo12.webp" alt="Bookzy" className="h-7 w-auto object-contain" />
           </Link>
 
           {/* Centre — badge roadmap */}

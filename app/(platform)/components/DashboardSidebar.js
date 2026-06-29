@@ -132,7 +132,7 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
     <div className="flex flex-col h-full bg-white items-center py-3">
       <button onClick={toggleCollapsed} title="Ouvrir la barre latérale" aria-label="Ouvrir la barre latérale"
         className="group relative mb-2 w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-100 transition-colors">
-        <img src="/sign.png" alt="Bookzy" className="w-9 h-9 rounded-lg object-contain transition-opacity group-hover:opacity-0" />
+        <img src="/sign1.webp" alt="Bookzy" className="w-9 h-9 rounded-lg object-contain transition-opacity group-hover:opacity-0" />
         <PanelLeft className="absolute w-5 h-5 text-neutral-600 opacity-0 group-hover:opacity-100 transition-opacity" />
       </button>
       <nav className="flex-1 overflow-y-auto w-full flex flex-col items-center gap-1">
@@ -174,7 +174,7 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
         {/* Top */}
         <div className="flex items-center justify-between px-3 h-14 shrink-0">
           <Link href="/" onClick={close} className="flex items-center">
-            <img src="/sign.png" alt="Bookzy" className="w-9 h-9 rounded-lg object-contain" />
+            <img src="/sign1.webp" alt="Bookzy" className="w-9 h-9 rounded-lg object-contain" />
           </Link>
           <button
             onClick={() => (mobile ? setOpen(false) : toggleCollapsed())}

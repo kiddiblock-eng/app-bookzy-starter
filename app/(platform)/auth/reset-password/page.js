@@ -147,7 +147,7 @@ function ResetPasswordPageContent() {
           {/* Header */}
           <div className="text-center mb-8">
              <Link href="/" className="inline-flex items-center gap-2 mb-6 group">
-                <img src="/logonew.webp" alt="Bookzy" className="h-9 w-auto object-contain" />
+                <img src="/logo12.webp" alt="Bookzy" className="h-9 w-auto object-contain" />
              </Link>
 
             <div className="flex justify-center mb-4">
