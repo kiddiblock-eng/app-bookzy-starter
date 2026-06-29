@@ -127,7 +127,7 @@ export const DAILY_LIMITS = {
 // ─── COÛT DES ACTIONS EN CRÉDITS ────────────────────────────────────────────
 export const CREDIT_COSTS = {
   ebook:        20,
-  mise_en_page: 10,
+  mise_en_page: 20, // Ebook Designer = 1 ebook
   smart_shop:    5,
 };
 

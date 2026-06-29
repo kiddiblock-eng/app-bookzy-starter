@@ -9,8 +9,8 @@ import { getAIText } from "@/lib/ai";
 
 const LONGUEUR_CONFIG = {
   court:  { chapitres: 6,  motsParChapitre: 900,  creditsFull: 20 },
-  moyen:  { chapitres: 10, motsParChapitre: 1200, creditsFull: 35 },
-  long:   { chapitres: 15, motsParChapitre: 1500, creditsFull: 50 },
+  moyen:  { chapitres: 10, motsParChapitre: 1200, creditsFull: 20 },
+  long:   { chapitres: 15, motsParChapitre: 1500, creditsFull: 20 },
 };
 
 const GENRE_CONTEXT = {
