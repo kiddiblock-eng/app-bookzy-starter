@@ -1018,15 +1018,30 @@ function NouveauProjetPageContent() {
               <div className="flex justify-center mb-5">
                 <div ref={bookRef}><Book3D title={titre} template={template} /></div>
               </div>
-              <div className="bg-white rounded-2xl p-4 border border-slate-100">
-                <TemplatePicker value={template} onChange={setTemplate} />
-                <details className="mt-4">
-                  <summary className="text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer">Options avancées</summary>
-                  <div className="grid sm:grid-cols-2 gap-5 mt-4">
-                    <NumberPicker label="Pages" value={pages} options={PAGES_OPTIONS} onChange={setPages} />
-                    <NumberPicker label="Chapitres" value={chapters} options={CHAPTERS_OPTIONS} onChange={setChapters} />
+              <div className="bg-white rounded-2xl p-5 border border-slate-100 max-w-md mx-auto space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Template</label>
+                  <select value={template} onChange={(e) => setTemplate(e.target.value)}
+                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    {TEMPLATES.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Pages</label>
+                    <select value={pages} onChange={(e) => setPages(e.target.value)}
+                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                      {PAGES_OPTIONS.map((p) => <option key={p} value={p}>{p} pages</option>)}
+                    </select>
                   </div>
-                </details>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Chapitres</label>
+                    <select value={chapters} onChange={(e) => setChapters(e.target.value)}
+                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                      {CHAPTERS_OPTIONS.map((c) => <option key={c} value={c}>{c} chapitres</option>)}
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
           )}
