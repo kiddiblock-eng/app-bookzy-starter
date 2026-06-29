@@ -1012,18 +1012,17 @@ function NouveauProjetPageContent() {
           {/* ── ÉTAPE 3 — DESIGN + GÉNÉRATION ── */}
           {step === 3 && (
             <div>
-              <div className="text-center mb-8">
-                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Choisis ton design</h1>
-                <p className="text-slate-500 text-sm">Aperçu de ta couverture en direct.</p>
+              <div className="text-center mb-4">
+                <h1 className="text-xl sm:text-2xl font-semibold text-slate-900">Choisis ton design</h1>
               </div>
-              <div className="bg-slate-900 rounded-2xl p-6 mb-6">
+              <div className="flex justify-center mb-5">
                 <div ref={bookRef}><Book3D title={titre} template={template} /></div>
               </div>
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+              <div className="bg-white rounded-2xl p-4 border border-slate-100">
                 <TemplatePicker value={template} onChange={setTemplate} />
-                <details className="mt-6">
+                <details className="mt-4">
                   <summary className="text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer">Options avancées</summary>
-                  <div className="grid sm:grid-cols-2 gap-6 mt-4">
+                  <div className="grid sm:grid-cols-2 gap-5 mt-4">
                     <NumberPicker label="Pages" value={pages} options={PAGES_OPTIONS} onChange={setPages} />
                     <NumberPicker label="Chapitres" value={chapters} options={CHAPTERS_OPTIONS} onChange={setChapters} />
                   </div>
