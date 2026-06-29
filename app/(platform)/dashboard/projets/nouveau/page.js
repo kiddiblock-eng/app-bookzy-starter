@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { OFFERS, OFFER_ORDER } from "@/lib/plans";
 import {
   CheckCircle2, Loader2, FileText, MessageCircle, PenTool,
   Download, Smartphone, ArrowRight, ArrowLeft, Check, BookOpen,
@@ -243,7 +244,7 @@ function CanvaLoading({ titre, template, langue }) {
         ))}
       </div>
 
-      <p className="text-xs text-slate-400 text-center">{isEn ? "100% free preview · No credits required · No commitment" : "Aperçu 100% gratuit · Aucun crédit requis · Sans engagement"}</p>
+      <p className="text-xs text-slate-400 text-center">{isEn ? "100% free preview · No commitment" : "Aperçu 100% gratuit · Sans engagement"}</p>
 
       <style>{`
         @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
@@ -358,32 +359,60 @@ function DownloadKitModal({ kit, router }) {
   );
 }
 
-// ── CREDITS MODAL ─────────────────────────────────────────────────────────────
-function CreditsModal({ balance, onClose, onGoTarifs }) {
+// ── OFFERS MODAL (paywall à la génération) ──────────────────────────────────────
+function OffersModal({ onClose, projetId }) {
+  const [buying, setBuying] = useState(null);
+  const fmt = (n) => Number(n).toLocaleString("fr-FR");
+
+  const buy = async (offerId) => {
+    setBuying(offerId);
+    try {
+      if (projetId) sessionStorage.setItem("bookzy_resume_projetId", projetId);
+      const res = await fetch("/api/credits/purchase", {
+        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+        body: JSON.stringify({ packId: offerId, returnUrl: `${window.location.origin}/dashboard/projets/nouveau` }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || "Erreur paiement");
+      window.location.href = data.paymentUrl;
+    } catch (e) { alert(e.message); setBuying(null); }
+  };
+
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:9999,padding:"16px"}}>
-      <div style={{background:"white",borderRadius:"20px",width:"100%",maxWidth:"340px",overflow:"hidden"}}>
-        <div style={{padding:"24px"}}>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"16px"}}>
-            <h3 style={{fontSize:"16px",fontWeight:"800",color:"#0f172a",margin:0}}>Crédits insuffisants</h3>
-            <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:"#f1f5f9",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X size={13} /></button>
+      <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden">
+        <div className="p-5 border-b border-neutral-100 flex items-start justify-between">
+          <div>
+            <h3 className="text-base font-bold text-neutral-900">Débloque ton ebook</h3>
+            <p className="text-xs text-neutral-500 mt-0.5">Choisis ton offre — tes ebooks n'expirent jamais.</p>
           </div>
-          <div style={{textAlign:"center",padding:"8px 0 20px"}}>
-            <div style={{fontSize:"40px",marginBottom:"12px"}}>🔒</div>
-            <p style={{fontSize:"14px",color:"#374151",margin:"0 0 6px"}}>
-              Il te faut <strong>minimum 20 crédits</strong> pour débloquer ton ebook.
-            </p>
-            <p style={{fontSize:"13px",color:"#94a3b8",margin:0}}>
-              Tu as actuellement <strong style={{color:"#0f172a"}}>{balance ?? 0} crédit{(balance ?? 0) !== 1 ? "s" : ""}</strong>.
-            </p>
-          </div>
-          <button onClick={onGoTarifs}
-            style={{width:"100%",padding:"14px",background:"#0f172a",color:"white",fontSize:"14px",fontWeight:"700",border:"none",borderRadius:"12px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"8px"}}>
-            Voir les plans et recharger <ArrowRight size={15} />
-          </button>
-          <button onClick={onClose} style={{width:"100%",padding:"10px",color:"#94a3b8",fontSize:"12px",border:"none",background:"none",cursor:"pointer",marginTop:"6px"}}>
-            Annuler
-          </button>
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center shrink-0"><X size={14} /></button>
+        </div>
+        <div className="p-4 space-y-2.5">
+          {OFFER_ORDER.map((id) => {
+            const o = OFFERS[id];
+            const reco = o.recommended;
+            return (
+              <button key={id} onClick={() => buy(id)} disabled={!!buying}
+                className={`w-full flex items-center justify-between gap-3 p-3.5 rounded-xl border text-left transition-colors ${reco ? "border-neutral-900 bg-neutral-50" : "border-neutral-200 hover:border-neutral-300"} ${buying && buying !== id ? "opacity-50" : ""}`}>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-neutral-900">{o.label}</span>
+                    {reco && <span className="text-[9px] font-bold uppercase tracking-wider bg-neutral-900 text-white px-2 py-0.5 rounded-full">Reco</span>}
+                  </div>
+                  <p className="text-xs text-neutral-500 mt-0.5">
+                    {o.ebooks} ebook{o.ebooks > 1 ? "s" : ""}
+                    {id === "decouverte" && o.welcomePriceFcfa ? ` · 1er à ${fmt(o.welcomePriceFcfa)} F` : ""}
+                    {o.unlocksTools ? " · tous les outils" : ""}
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  {buying === id ? <Loader2 className="w-4 h-4 animate-spin ml-auto" /> : <span className="text-sm font-bold text-neutral-900">{fmt(o.priceFcfa)} F</span>}
+                </div>
+              </button>
+            );
+          })}
+          <a href="/dashboard/tarifs" className="block text-center text-xs text-neutral-400 hover:text-neutral-600 pt-1">Voir le détail des offres</a>
         </div>
       </div>
     </div>
@@ -469,10 +498,10 @@ function PreviewPage({ kit, previewData, onEdit }) {
     pages: isEn ? "pages" : "pages",
     pdfReady: isEn ? "PDF ready to sell" : "PDF prêt à vendre",
     kitIncluded: isEn ? "Marketing kit included" : "Kit marketing inclus",
-    genTime: isEn ? "Generation in ~1 minute · 20 credits" : "Génération en ~1 minute · 20 crédits",
+    genTime: isEn ? "Generation in ~1 minute · 1 ebook" : "Génération en ~1 minute · 1 ebook",
     unlockBtn: isEn ? "Get my complete ebook" : "Obtenir mon ebook complet",
     unlockSub: isEn ? "PDF + Marketing kit · Ready to sell in 60 seconds" : "PDF + Kit marketing · Prêt à vendre en 60 secondes",
-    ctaSub: isEn ? "Full PDF + Marketing kit · 20 credits" : "PDF complet + Kit marketing · 20 crédits",
+    ctaSub: isEn ? "Full PDF + Marketing kit · 1 ebook" : "PDF complet + Kit marketing · 1 ebook",
     toc: isEn ? "Table of Contents" : "Table des Matières",
     introduction: isEn ? "INTRODUCTION" : "INTRODUCTION",
     chapter1: isEn ? "CHAPTER 1" : "CHAPITRE 1",
@@ -484,17 +513,9 @@ function PreviewPage({ kit, previewData, onEdit }) {
       {isGenerating && <GeneratingOverlay progress={genProgress} />}
       {downloadKit && <DownloadKitModal kit={downloadKit} router={router} />}
 
-      {/* Modal crédits */}
+      {/* Paywall offres */}
       {showCreditsModal && (
-        <CreditsModal
-          balance={balance}
-          onClose={() => setShowCreditsModal(false)}
-          onGoTarifs={() => {
-            sessionStorage.setItem("bookzy_resume_projetId", kit.projetId);
-            setShowCreditsModal(false);
-            router.push("/dashboard/tarifs");
-          }}
-        />
+        <OffersModal onClose={() => setShowCreditsModal(false)} projetId={kit.projetId} />
       )}
 
       {/* Header */}
@@ -989,7 +1010,7 @@ function NouveauProjetPageContent() {
             </button>
           )}
         </div>
-        {step === 3 && <p className="text-xs text-slate-400 text-center mt-3">Aperçu 100% gratuit · Aucun crédit requis</p>}
+        {step === 3 && <p className="text-xs text-slate-400 text-center mt-3">Aperçu 100% gratuit · Sans engagement</p>}
 
       </div>
       )}
