@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
-import ScreenFrame from "./ScreenFrame";
 
 const EASE = [0.22, 1, 0.36, 1];
 const ACCENT = "#5f7aa6";
@@ -18,9 +17,11 @@ const AVATARS = [
   "https://sucesspro.io/wp-content/uploads/2025/10/ef7c836ef8bee61bfcb4d5ff4bde5702.jpg",
 ];
 
+const CHIPS = ["Génération IA", "Niche Hunter", "Radar Cash", "Ebook Designer", "Romans IA", "Youbook"];
+
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden bg-white pt-32 sm:pt-40 pb-20 sm:pb-28">
+    <section className="relative overflow-hidden bg-white pt-32 sm:pt-44 pb-24 sm:pb-32">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-0 -translate-x-1/2 w-[820px] h-[520px] max-w-full opacity-70"
           style={{ background: "radial-gradient(ellipse at center, rgba(95,122,166,0.14), rgba(95,122,166,0.04) 45%, transparent 72%)" }} />
@@ -57,11 +58,13 @@ export default function Hero() {
             <span className="text-xs text-neutral-500">Déjà adopté par <span className="font-semibold text-neutral-700">25 000+ créateurs</span></span>
           </div>
         </motion.div>
-      </div>
 
-      {/* Vrai aperçu produit */}
-      <ScreenFrame src="/screenshots/generation-ia.png" alt="Création d'un ebook avec Bookzy" aspect="16/10" float
-        className="max-w-4xl mx-auto px-5 mt-16 sm:mt-20" />
+        <motion.div variants={fadeUp} custom={4} initial="hidden" animate="show" className="mt-12 flex flex-wrap justify-center gap-2">
+          {CHIPS.map((c) => (
+            <span key={c} className="px-3.5 py-1.5 rounded-full border border-neutral-200 bg-white text-xs font-medium text-neutral-600">{c}</span>
+          ))}
+        </motion.div>
+      </div>
     </section>
   );
 }
