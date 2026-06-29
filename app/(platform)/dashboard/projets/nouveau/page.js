@@ -49,25 +49,39 @@ const TOOLS = [
 
 // ── BOOK 3D ────────────────────────────────────────────────────────────────────
 const Book3D = ({ title, template, size = "md" }) => {
-  const tmpl = TEMPLATES.find(t => t.id === template) || TEMPLATES[0];
+  const tmpl = TEMPLATES.find((t) => t.id === template) || TEMPLATES[0];
   const displayTitle = title || "Votre titre ici";
-  const dims = size === "lg"
-    ? "w-48 h-64 sm:w-56 sm:h-72"
-    : "w-36 h-48 sm:w-44 sm:h-56";
+  const lg = size === "lg";
+  const dims = lg ? "w-48 h-64 sm:w-56 sm:h-72" : "w-36 h-48 sm:w-44 sm:h-56";
 
   return (
-    <div className={`relative ${dims} mx-auto select-none`}>
-      <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-32 h-4 bg-black/20 blur-xl rounded-full" />
-      <div className="absolute inset-0 rounded-r-md rounded-l-[2px] shadow-2xl overflow-hidden"
-        style={{ background: `linear-gradient(135deg, ${tmpl.primaryColor}, ${tmpl.accentColor})` }}>
-        <div className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-r from-black/20 to-transparent" />
-        <div className="absolute inset-0 p-4 flex flex-col text-white">
-          <div className="text-[7px] uppercase tracking-[0.2em] opacity-60 mb-2">Guide</div>
-          <h3 className="text-sm font-bold leading-tight flex-1">{displayTitle}</h3>
+    <div className="select-none" style={{ perspective: "1100px" }}>
+      <div className={`relative ${dims} mx-auto`} style={{ transform: "rotateY(-16deg) rotateX(2deg)", transformStyle: "preserve-3d" }}>
+        {/* Tranche / pages (droite) */}
+        <div className="absolute top-1.5 -right-2 bottom-1.5 w-3 rounded-r-[2px]"
+          style={{ background: "repeating-linear-gradient(to right,#ffffff,#ffffff 1px,#dfe3ea 1px,#dfe3ea 3px)", boxShadow: "1px 0 2px rgba(0,0,0,.15)" }} />
+        {/* Couverture */}
+        <div className="absolute inset-0 overflow-hidden"
+          style={{ borderRadius: "3px 8px 8px 3px", background: `linear-gradient(135deg, ${tmpl.primaryColor}, ${tmpl.accentColor})`, boxShadow: "0 22px 45px -12px rgba(0,0,0,.5)" }}>
+          {/* Reliure (gauche) */}
+          <div className="absolute inset-y-0 left-0 w-3.5" style={{ background: "linear-gradient(to right, rgba(0,0,0,.32), rgba(0,0,0,.06) 65%, transparent)" }} />
+          <div className="absolute inset-y-0 left-3.5 w-px bg-white/15" />
+          {/* Brillance */}
+          <div className="absolute inset-0" style={{ background: "linear-gradient(118deg, rgba(255,255,255,.22) 0%, transparent 38%)" }} />
+          {/* Contenu */}
+          <div className="absolute inset-0 flex flex-col text-white" style={{ padding: lg ? "20px 18px 18px 24px" : "16px 14px 14px 20px" }}>
+            <span className="font-black uppercase tracking-[0.22em] opacity-70" style={{ fontSize: lg ? 8 : 7 }}>{tmpl.preview?.badge || "Ebook"}</span>
+            <div className="mt-2 rounded-full bg-white/55" style={{ width: lg ? 34 : 26, height: 2 }} />
+            <h3 className="mt-3 font-black leading-tight" style={{ fontSize: lg ? 17 : 13 }}>{displayTitle}</h3>
+            <div className="mt-auto">
+              <div className="w-full h-px bg-white/20 mb-1.5" />
+              <span className="font-bold uppercase tracking-widest opacity-65" style={{ fontSize: lg ? 7.5 : 6.5 }}>Édition Bookzy</span>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="absolute top-1 -right-1 bottom-1 w-2 bg-white rounded-r-sm -z-10" />
-      <div className="absolute top-2 -right-2 bottom-2 w-1 bg-slate-100 rounded-r-sm -z-20" />
+      {/* Ombre au sol */}
+      <div className="mx-auto mt-4" style={{ width: lg ? 150 : 110, height: 14, background: "rgba(0,0,0,.28)", filter: "blur(13px)", borderRadius: "50%" }} />
     </div>
   );
 };
@@ -1018,7 +1032,7 @@ function NouveauProjetPageContent() {
               </div>
               <div className="rounded-2xl px-6 py-8 mb-5 flex flex-col items-center"
                 style={{ background: `linear-gradient(135deg, ${selTmpl.primaryColor}1a, ${selTmpl.accentColor}33)` }}>
-                <div ref={bookRef} style={{ filter: "drop-shadow(0 18px 28px rgba(0,0,0,0.28))" }}>
+                <div ref={bookRef}>
                   <Book3D title={titre} template={template} />
                 </div>
                 <span className="mt-5 text-[11px] font-bold uppercase tracking-wider text-slate-700 bg-white/80 px-3 py-1 rounded-full">{selTmpl.label}</span>
