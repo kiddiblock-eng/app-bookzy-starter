@@ -96,8 +96,7 @@ function RegisterForm() {
       } else {
         setMessage("Compte créé avec succès !");
         setSuccess(true);
-        localStorage.setItem("onboardingStep", "1");
-        setTimeout(() => router.push("/setup/step1"), 1000);
+        setTimeout(() => router.push("/dashboard"), 1000);
       }
     } catch (err) {
       setMessage("Erreur de connexion au serveur.");
