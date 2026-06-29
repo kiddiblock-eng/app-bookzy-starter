@@ -26,31 +26,19 @@ const ANALYSEUR_ITEMS = [
 
 const NAV_SECTIONS = [
   {
-    label: "Studio de création",
     items: [
       { label: "Youbook", href: "/dashboard/youbook", icon: Youtube },
       { label: "Ebook Designer", href: "/dashboard/express", icon: FileText },
       { label: "Romans IA", href: "/dashboard/romans", icon: BookOpen },
-    ],
-  },
-  {
-    label: "Outils de recherche",
-    items: [
       { label: "Niche Hunter", href: "/dashboard/niche-hunter", icon: Target, accordion: "niche" },
       { label: "Radar Cash", href: "/dashboard/radar-cash", icon: Radio },
       { label: "Validateur d'idée", href: "/dashboard/analyseur", icon: BarChart2, accordion: "analyseur" },
     ],
   },
   {
-    label: "Bibliothèque",
     items: [
       { label: "Mes Ebooks", href: "/dashboard/fichiers", icon: Library },
       { label: "Mes Romans", href: "/dashboard/mes-romans", icon: Scroll },
-    ],
-  },
-  {
-    label: "Business",
-    items: [
       { label: "Affiliation", href: "/dashboard/affiliation", icon: Banknote },
       { label: "Taliopay", href: "https://taliopay.com", icon: Store, external: true },
     ],
@@ -194,9 +182,8 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
             <span className="flex-1">{PRIMARY.label}</span>
           </Link>
 
-          {NAV_SECTIONS.map((section) => (
-            <div key={section.label} className="mt-3">
-              <p className="px-3 pb-1 text-xs font-medium text-neutral-400">{section.label}</p>
+          {NAV_SECTIONS.map((section, si) => (
+            <div key={si} className={si === 0 ? "mt-2" : "mt-2 pt-2 border-t border-neutral-100"}>
               <div className="flex flex-col gap-0.5">
                 {section.items.map(({ label, href, icon: Icon, exact, accordion, external }) => {
                   if (external) {
