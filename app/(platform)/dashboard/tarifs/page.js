@@ -75,7 +75,7 @@ export default function TarifsPage() {
             return (
               <div
                 key={id}
-                className={`relative rounded-2xl bg-white p-6 flex flex-col border ${reco ? "border-neutral-900 shadow-lg" : "border-neutral-200"}`}
+                className={`relative rounded-2xl bg-white p-6 flex flex-col border ${reco ? "order-first sm:order-none border-neutral-900 shadow-lg" : "border-neutral-200"}`}
               >
                 {reco && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-neutral-900 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full">
