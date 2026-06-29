@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { OFFERS, OFFER_ORDER } from "@/lib/plans";
+import { OFFERS, OFFER_ORDER, pricePerEbook } from "@/lib/plans";
 import {
   CheckCircle2, Loader2, FileText, MessageCircle, PenTool,
   Download, Smartphone, ArrowRight, ArrowLeft, Check, BookOpen,
@@ -380,39 +380,52 @@ function OffersModal({ onClose, projetId }) {
 
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:9999,padding:"16px"}}>
-      <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden">
-        <div className="p-5 border-b border-neutral-100 flex items-start justify-between">
+      <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="p-5 border-b border-neutral-100 flex items-start justify-between sticky top-0 bg-white z-10">
           <div>
-            <h3 className="text-base font-bold text-neutral-900">Débloque ton ebook</h3>
-            <p className="text-xs text-neutral-500 mt-0.5">Choisis ton offre — tes ebooks n'expirent jamais.</p>
+            <h3 className="text-lg font-bold text-neutral-900">Débloque ton ebook</h3>
+            <p className="text-xs text-neutral-500 mt-0.5">PDF + kit marketing, prêt à vendre. Tes ebooks n'expirent jamais.</p>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center shrink-0"><X size={14} /></button>
         </div>
-        <div className="p-4 space-y-2.5">
+        <div className="p-3 space-y-2.5">
           {OFFER_ORDER.map((id) => {
             const o = OFFERS[id];
             const reco = o.recommended;
+            const ppe = pricePerEbook(id);
             return (
               <button key={id} onClick={() => buy(id)} disabled={!!buying}
-                className={`w-full flex items-center justify-between gap-3 p-3.5 rounded-xl border text-left transition-colors ${reco ? "border-neutral-900 bg-neutral-50" : "border-neutral-200 hover:border-neutral-300"} ${buying && buying !== id ? "opacity-50" : ""}`}>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
+                className={`w-full text-left p-4 rounded-2xl border transition-all ${reco ? "border-neutral-900 bg-neutral-50 ring-1 ring-neutral-900" : "border-neutral-200 hover:border-neutral-300"} ${buying && buying !== id ? "opacity-50" : ""}`}>
+                <span className="flex items-center justify-between gap-3 mb-1">
+                  <span className="flex items-center gap-2">
                     <span className="text-sm font-bold text-neutral-900">{o.label}</span>
-                    {reco && <span className="text-[9px] font-bold uppercase tracking-wider bg-neutral-900 text-white px-2 py-0.5 rounded-full">Reco</span>}
-                  </div>
-                  <p className="text-xs text-neutral-500 mt-0.5">
-                    {o.ebooks} ebook{o.ebooks > 1 ? "s" : ""}
-                    {id === "decouverte" && o.welcomePriceFcfa ? ` · 1er à ${fmt(o.welcomePriceFcfa)} F` : ""}
-                    {o.unlocksTools ? " · tous les outils" : ""}
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  {buying === id ? <Loader2 className="w-4 h-4 animate-spin ml-auto" /> : <span className="text-sm font-bold text-neutral-900">{fmt(o.priceFcfa)} F</span>}
-                </div>
+                    {reco && <span className="text-[9px] font-bold uppercase tracking-wider bg-neutral-900 text-white px-2 py-0.5 rounded-full">Le plus populaire</span>}
+                  </span>
+                  <span className="text-right shrink-0">
+                    {buying === id ? <Loader2 className="w-4 h-4 animate-spin ml-auto" /> : (
+                      <span className="block">
+                        <span className="block text-base font-bold text-neutral-900">{fmt(o.priceFcfa)} F</span>
+                        {ppe && <span className="block text-[10px] text-neutral-400">{fmt(ppe)} F / ebook</span>}
+                      </span>
+                    )}
+                  </span>
+                </span>
+                <span className="flex items-baseline gap-1.5">
+                  <span className="text-2xl font-extrabold text-neutral-900">{o.ebooks}</span>
+                  <span className="text-sm text-neutral-600">ebook{o.ebooks > 1 ? "s" : ""} à vie</span>
+                </span>
+                {o.unlocksTools ? (
+                  <span className="block mt-2">
+                    <span className="inline-block text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-lg px-2.5 py-1">🔓 Tous les outils débloqués</span>
+                    <span className="block text-[11px] text-neutral-400 mt-1">Niche Hunter · Radar Cash · Validateur · Youbook · Designer · Romans</span>
+                  </span>
+                ) : (
+                  <span className="block mt-2 text-[11px] text-neutral-400">Ebooks uniquement — outils non inclus</span>
+                )}
               </button>
             );
           })}
-          <a href="/dashboard/tarifs" className="block text-center text-xs text-neutral-400 hover:text-neutral-600 pt-1">Voir le détail des offres</a>
+          <a href="/dashboard/tarifs" className="block text-center text-xs text-neutral-400 hover:text-neutral-600 pt-1 pb-1">Voir le détail des offres</a>
         </div>
       </div>
     </div>
