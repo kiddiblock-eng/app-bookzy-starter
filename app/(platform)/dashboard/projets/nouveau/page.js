@@ -843,6 +843,7 @@ function NouveauProjetPageContent() {
   };
 
   const isFormValid = titre.trim().length > 3;
+  const selTmpl = TEMPLATES.find((t) => t.id === template) || TEMPLATES[0];
 
   // Afficher le Canva loading pendant l'appel
   if (isLoading && !previewData) return <CanvaLoading titre={titre} template={template} langue={langue} />;
@@ -1015,8 +1016,12 @@ function NouveauProjetPageContent() {
               <div className="text-center mb-4">
                 <h1 className="text-xl sm:text-2xl font-semibold text-slate-900">Choisis ton design</h1>
               </div>
-              <div className="flex justify-center mb-5">
-                <div ref={bookRef}><Book3D title={titre} template={template} /></div>
+              <div className="rounded-2xl px-6 py-8 mb-5 flex flex-col items-center"
+                style={{ background: `linear-gradient(135deg, ${selTmpl.primaryColor}1a, ${selTmpl.accentColor}33)` }}>
+                <div ref={bookRef} style={{ filter: "drop-shadow(0 18px 28px rgba(0,0,0,0.28))" }}>
+                  <Book3D title={titre} template={template} />
+                </div>
+                <span className="mt-5 text-[11px] font-bold uppercase tracking-wider text-slate-700 bg-white/80 px-3 py-1 rounded-full">{selTmpl.label}</span>
               </div>
               <div className="bg-white rounded-2xl p-5 border border-slate-100 max-w-md mx-auto space-y-4">
                 <div>
