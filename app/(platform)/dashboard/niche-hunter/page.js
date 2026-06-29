@@ -127,26 +127,26 @@ export default function NicheHunterPage() {
       {/* ÉTAPE 1 */}
       {step === 1 && (
         <div className="max-w-lg mx-auto px-4 py-16">
-          <div className="text-center mb-10">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-900 rounded-2xl mb-5">
-              <Trophy className="w-8 h-8 text-yellow-400" />
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-neutral-900 rounded-2xl mb-5">
+              <Trophy className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 mb-2">Niche Hunter</h1>
-            <p className="text-slate-500 text-sm">Trouvez des idées d'ebooks qui se vendent bien</p>
+            <h1 className="text-2xl sm:text-3xl font-semibold text-neutral-900 mb-2">Niche Hunter</h1>
+            <p className="text-neutral-500 text-sm">Trouve des idées d'ebooks qui se vendent.</p>
           </div>
 
           <div className="relative mb-4">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
             <input type="text" value={theme} onChange={e => setTheme(e.target.value)}
               onKeyDown={e => e.key === "Enter" && theme.trim() && setStep(2)}
-              placeholder="Ex: dropshipping, coaching, crypto..."
-              className="w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all" />
+              placeholder="Ex : dropshipping, coaching, crypto…"
+              className="w-full pl-12 pr-5 py-4 bg-white border border-neutral-200 rounded-[28px] text-[15px] text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all" />
           </div>
 
           <div className="flex flex-wrap gap-2 mb-6">
             {SUGGESTIONS.map(s => (
               <button key={s} onClick={() => setTheme(s)}
-                className={`px-3 py-2 text-sm rounded-lg transition-all border ${theme === s ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 text-slate-600 border-slate-200 hover:border-slate-300"}`}>
+                className={`px-3 py-2 text-sm rounded-lg transition-all border ${theme === s ? "bg-neutral-900 text-white border-neutral-900" : "bg-neutral-50 text-neutral-600 border-neutral-200 hover:border-neutral-300"}`}>
                 {s}
               </button>
             ))}
@@ -155,14 +155,14 @@ export default function NicheHunterPage() {
           <div className="flex gap-3 mb-6">
             {[["africa", "🌍", "Afrique"], ["international", "🌐", "International"]].map(([m, icon, label]) => (
               <button key={m} onClick={() => handleMarketChange(m)}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all border ${targetMarket === m ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 text-slate-600 border-slate-200 hover:border-slate-300"}`}>
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all border ${targetMarket === m ? "bg-neutral-900 text-white border-neutral-900" : "bg-neutral-50 text-neutral-600 border-neutral-200 hover:border-neutral-300"}`}>
                 {icon} {label}
               </button>
             ))}
           </div>
 
           <button onClick={() => theme.trim() && setStep(2)} disabled={!theme.trim()}
-            className="w-full py-4 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-xl font-medium transition-all flex items-center justify-center gap-2">
+            className="w-full py-4 bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-200 disabled:text-neutral-400 text-white rounded-xl font-medium transition-all flex items-center justify-center gap-2">
             Trouver les produits winners <ArrowRight className="w-5 h-5" />
           </button>
         </div>
@@ -173,30 +173,30 @@ export default function NicheHunterPage() {
         <div className="max-w-lg mx-auto px-4 py-16">
           <div className="flex items-center justify-center gap-2 mb-10">
             {[1, 2, 3].map(i => (
-              <div key={i} className={`h-1.5 rounded-full transition-all ${i <= 2 ? "w-10 bg-slate-900" : "w-6 bg-slate-200"}`} />
+              <div key={i} className={`h-1.5 rounded-full transition-all ${i <= 2 ? "w-10 bg-neutral-900" : "w-6 bg-neutral-200"}`} />
             ))}
           </div>
 
           <div className="text-center mb-8">
-            <h2 className="text-xl font-bold text-slate-900 mb-2">Dis-moi où tu vends</h2>
-            <p className="text-sm text-slate-500">Pour des produits winners adaptés à ton marché</p>
+            <h2 className="text-xl font-bold text-neutral-900 mb-2">Dis-moi où tu vends</h2>
+            <p className="text-sm text-neutral-500">Pour des produits winners adaptés à ton marché</p>
           </div>
 
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Tu vends où ?</p>
+          <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">Tu vends où ?</p>
           <div className="grid grid-cols-2 gap-2 mb-6">
             {PLATEFORME_OPTIONS.map(({ label, icon }) => (
               <button key={label} onClick={() => setPlateforme(plateforme === label ? "" : label)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all border ${plateforme === label ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-300"}`}>
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all border ${plateforme === label ? "bg-neutral-900 text-white border-neutral-900" : "bg-neutral-50 text-neutral-700 border-neutral-200 hover:border-neutral-300"}`}>
                 <span>{icon}</span> {label}
               </button>
             ))}
           </div>
 
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Ton pays ?</p>
+          <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">Ton pays ?</p>
           <div className="flex flex-wrap gap-2 mb-3">
             {paysOptions.map(p => (
               <button key={p} onClick={() => handlePaysClick(p)}
-                className={`px-3 py-2 text-sm rounded-lg transition-all border ${(p === "Autre pays" && showAutreInput) || pays === p ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 text-slate-600 border-slate-200 hover:border-slate-300"}`}>
+                className={`px-3 py-2 text-sm rounded-lg transition-all border ${(p === "Autre pays" && showAutreInput) || pays === p ? "bg-neutral-900 text-white border-neutral-900" : "bg-neutral-50 text-neutral-600 border-neutral-200 hover:border-neutral-300"}`}>
                 {p}
               </button>
             ))}
@@ -205,17 +205,17 @@ export default function NicheHunterPage() {
           {showAutreInput && (
             <input type="text" value={autrePaysInput} onChange={e => setAutrePaysInput(e.target.value)}
               placeholder="Ex: Guinée, Algérie, Congo..." autoFocus
-              className="w-full px-4 py-3 mb-2 bg-slate-50 border border-slate-900 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all" />
+              className="w-full px-4 py-3 mb-2 bg-neutral-50 border border-neutral-900 rounded-xl text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all" />
           )}
 
           <div className={showAutreInput ? "mt-4" : "mt-8"}>
             <div className="flex gap-3">
-              <button onClick={() => setStep(1)} className="flex-1 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-medium transition-all">
+              <button onClick={() => setStep(1)} className="flex-1 py-3.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-xl text-sm font-medium transition-all">
                 Retour
               </button>
               <button onClick={handleLaunch}
-                className="flex-1 py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2">
-                Lancer la recherche <Trophy className="w-4 h-4 text-yellow-400" />
+                className="flex-1 py-3.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2">
+                Lancer la recherche <Trophy className="w-4 h-4 text-white" />
               </button>
             </div>
           </div>
@@ -226,19 +226,19 @@ export default function NicheHunterPage() {
       {step === 3 && (
         <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
           <div className="relative w-20 h-20 mb-6">
-            <div className="absolute inset-0 rounded-full border-2 border-slate-100" />
-            <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-slate-900 animate-spin" />
-            <div className="absolute inset-3 bg-slate-900 rounded-full flex items-center justify-center">
-              <Trophy className="w-5 h-5 text-yellow-400" />
+            <div className="absolute inset-0 rounded-full border-2 border-neutral-100" />
+            <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-neutral-900 animate-spin" />
+            <div className="absolute inset-3 bg-neutral-900 rounded-full flex items-center justify-center">
+              <Trophy className="w-5 h-5 text-white" />
             </div>
           </div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2 text-center">{LOADING_MESSAGES[loadingMsg][0]}</h2>
-          <p className="text-sm text-slate-500 mb-8 text-center">{LOADING_MESSAGES[loadingMsg][1]}</p>
+          <h2 className="text-xl font-bold text-neutral-900 mb-2 text-center">{LOADING_MESSAGES[loadingMsg][0]}</h2>
+          <p className="text-sm text-neutral-500 mb-8 text-center">{LOADING_MESSAGES[loadingMsg][1]}</p>
           <div className="w-72 mb-8">
-            <div className="h-1 bg-slate-100 rounded-full overflow-hidden mb-2">
-              <div className="h-full bg-slate-900 rounded-full transition-all duration-500" style={{ width: `${loadingPct}%` }} />
+            <div className="h-1 bg-neutral-100 rounded-full overflow-hidden mb-2">
+              <div className="h-full bg-neutral-900 rounded-full transition-all duration-500" style={{ width: `${loadingPct}%` }} />
             </div>
-            <div className="flex justify-between text-xs text-slate-400">
+            <div className="flex justify-between text-xs text-neutral-400">
               <span>{LOADING_STEPS[loadingStep]?.label}</span>
               <span>{loadingPct}%</span>
             </div>
@@ -246,14 +246,14 @@ export default function NicheHunterPage() {
           <div className="w-full max-w-xs space-y-3">
             {LOADING_STEPS.map((s, i) => (
               <div key={i} className={`flex items-center gap-3 transition-opacity ${i <= loadingStep ? "opacity-100" : "opacity-30"}`}>
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${i < loadingStep ? "bg-emerald-100" : i === loadingStep ? "bg-slate-100" : "bg-slate-50"}`}>
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${i < loadingStep ? "bg-emerald-100" : i === loadingStep ? "bg-neutral-100" : "bg-neutral-50"}`}>
                   {i < loadingStep ? (
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3"><path d="M20 6L9 17l-5-5" /></svg>
                   ) : (
-                    <div className={`w-1.5 h-1.5 rounded-full ${i === loadingStep ? "bg-slate-900 animate-pulse" : "bg-slate-300"}`} />
+                    <div className={`w-1.5 h-1.5 rounded-full ${i === loadingStep ? "bg-neutral-900 animate-pulse" : "bg-neutral-300"}`} />
                   )}
                 </div>
-                <span className="text-xs text-slate-600">{s.label}</span>
+                <span className="text-xs text-neutral-600">{s.label}</span>
               </div>
             ))}
           </div>
@@ -263,16 +263,16 @@ export default function NicheHunterPage() {
       {/* ÉTAPE 4 : RÉSULTATS */}
       {step === 4 && (
         <div>
-          <div className="sticky top-0 z-20 bg-white border-b border-slate-200">
+          <div className="sticky top-0 z-20 bg-white border-b border-neutral-200">
             <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
                 <input type="text" value={theme} onChange={e => setTheme(e.target.value)}
                   placeholder="Nouvelle recherche..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all" />
+                  className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 transition-all" />
               </div>
               <button onClick={handleLaunch} disabled={!theme.trim()}
-                className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-200 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2">
+                className="px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-200 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2">
                 <Search className="w-4 h-4" /> Rechercher
               </button>
             </div>
@@ -285,28 +285,25 @@ export default function NicheHunterPage() {
 
             {quotaExceeded && (
               <div className="max-w-md mx-auto text-center py-16">
-                <div className="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <AlertCircle className="w-7 h-7 text-amber-600" />
+                <div className="w-14 h-14 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <AlertCircle className="w-7 h-7 text-neutral-700" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Limite journalière atteinte</h3>
-                <p className="text-sm text-slate-500 mb-6">
-                  {quotaPlan === "solo" ? "Vous avez utilisé vos 3 recherches du jour."
-                    : quotaPlan === "createur" ? "Vous avez utilisé vos 8 recherches du jour."
-                    : quotaPlan === "agence" ? "Vous avez utilisé vos 20 recherches du jour."
-                    : "Passez à un plan payant pour continuer."}
+                <h3 className="text-lg font-bold text-neutral-900 mb-2">Recherches gratuites épuisées</h3>
+                <p className="text-sm text-neutral-500 mb-6">
+                  Tu as utilisé tes recherches gratuites. Passe à une offre Créateur ou Pro pour chercher sans limite et débloquer tous les outils.
                 </p>
                 <button onClick={() => router.push("/dashboard/tarifs")}
-                  className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-xl text-sm">
-                  Voir les plans
+                  className="px-6 py-3 bg-neutral-900 hover:bg-neutral-800 text-white font-medium rounded-xl text-sm">
+                  Voir les offres
                 </button>
               </div>
             )}
 
             {fbStats && niches.length > 0 && (
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 mb-6">
+              <div className="bg-neutral-50 border border-neutral-200 rounded-2xl p-5 mb-6">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
                     Facebook Ads Library — Données en temps réel pour "{theme}"
                   </p>
                 </div>
@@ -317,33 +314,33 @@ export default function NicheHunterPage() {
                     [`${fbStats.activityRate}%`, "taux d'activité"],
                     [fbStats.avgDuration, "durée moyenne"],
                   ].map(([val, label]) => (
-                    <div key={label} className="bg-white border border-slate-200 rounded-xl p-3">
-                      <p className="text-lg font-bold text-slate-900">{val}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">{label}</p>
+                    <div key={label} className="bg-white border border-neutral-200 rounded-xl p-3">
+                      <p className="text-lg font-bold text-neutral-900">{val}</p>
+                      <p className="text-xs text-neutral-500 mt-0.5">{label}</p>
                     </div>
                   ))}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-white border border-slate-200 rounded-xl p-4">
-                    <p className="text-xs font-semibold text-slate-700 mb-3">Répartition plateformes</p>
+                  <div className="bg-white border border-neutral-200 rounded-xl p-4">
+                    <p className="text-xs font-semibold text-neutral-700 mb-3">Répartition plateformes</p>
                     {Object.entries(fbStats.platforms || {}).map(([name, pct]) => (
                       <div key={name} className="mb-2">
-                        <div className="flex justify-between text-xs text-slate-500 mb-1">
+                        <div className="flex justify-between text-xs text-neutral-500 mb-1">
                           <span className="capitalize">{name}</span><span>{Math.round(pct)}%</span>
                         </div>
-                        <div className="h-1 bg-slate-100 rounded-full overflow-hidden">
-                          <div className="h-full bg-slate-900 rounded-full" style={{ width: `${pct}%` }} />
+                        <div className="h-1 bg-neutral-100 rounded-full overflow-hidden">
+                          <div className="h-full bg-neutral-900 rounded-full" style={{ width: `${pct}%` }} />
                         </div>
                       </div>
                     ))}
                   </div>
-                  <div className="bg-white border border-slate-200 rounded-xl p-4">
-                    <p className="text-xs font-semibold text-slate-700 mb-3">Types de créatifs</p>
+                  <div className="bg-white border border-neutral-200 rounded-xl p-4">
+                    <p className="text-xs font-semibold text-neutral-700 mb-3">Types de créatifs</p>
                     {Object.entries(fbStats.creativeTypes || {}).map(([type, count]) => (
                       <div key={type} className="flex items-center gap-2 mb-2">
-                        <div className="w-2 h-2 rounded bg-slate-400 flex-shrink-0" />
-                        <span className="text-xs text-slate-500 flex-1 capitalize">{type}</span>
-                        <span className="text-xs font-medium text-slate-700">{count}</span>
+                        <div className="w-2 h-2 rounded bg-neutral-400 flex-shrink-0" />
+                        <span className="text-xs text-neutral-500 flex-1 capitalize">{type}</span>
+                        <span className="text-xs font-medium text-neutral-700">{count}</span>
                       </div>
                     ))}
                   </div>
@@ -354,9 +351,9 @@ export default function NicheHunterPage() {
             {niches.length > 0 && (
               <>
                 <div className="flex items-center justify-between mb-4">
-                  <p className="text-sm text-slate-500">
-                    <span className="font-semibold text-slate-900">{niches.length} produits winners</span> trouvés pour "{theme}"
-                    {fbStats && <span className="ml-2 text-xs text-slate-400">· {fbStats.totalAds?.toLocaleString()} pubs analysées</span>}
+                  <p className="text-sm text-neutral-500">
+                    <span className="font-semibold text-neutral-900">{niches.length} produits winners</span> trouvés pour "{theme}"
+                    {fbStats && <span className="ml-2 text-xs text-neutral-400">· {fbStats.totalAds?.toLocaleString()} pubs analysées</span>}
                   </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -391,16 +388,16 @@ function NicheCard({ niche, analysisId, router }) {
   const badge = getBadge(niche.badge);
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-6 hover:border-slate-300 hover:shadow-md transition-all flex flex-col">
+    <div className="bg-white border border-neutral-200 rounded-2xl p-6 hover:border-neutral-300 hover:shadow-md transition-all flex flex-col">
       <div className="flex items-center justify-between mb-3">
         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full border ${badge.style}`}>
           {badge.icon} {badge.label}
         </span>
-        <span className="text-xs text-slate-400">{niche.potential}/10</span>
+        <span className="text-xs text-neutral-400">{niche.potential}/10</span>
       </div>
 
-      <h3 className="font-semibold text-slate-900 mb-2 line-clamp-2 flex-none">{niche.title}</h3>
-      <p className="text-sm text-slate-500 line-clamp-2 mb-3 flex-none">{niche.description}</p>
+      <h3 className="font-semibold text-neutral-900 mb-2 line-clamp-2 flex-none">{niche.title}</h3>
+      <p className="text-sm text-neutral-500 line-clamp-2 mb-3 flex-none">{niche.description}</p>
 
       {niche.tendance2026 && (
         <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2 mb-3 flex-none">
@@ -411,16 +408,16 @@ function NicheCard({ niche, analysisId, router }) {
 
       <div className="space-y-2 mb-3 flex-none">
         {[
-          ["Potentiel", niche.potential, niche.potential >= 7 ? "bg-slate-900" : "bg-slate-400"],
+          ["Potentiel", niche.potential, niche.potential >= 7 ? "bg-neutral-900" : "bg-neutral-400"],
           ["Difficulté", niche.difficulty, niche.difficulty <= 3 ? "bg-emerald-500" : niche.difficulty <= 6 ? "bg-amber-500" : "bg-red-500"],
           ["Concurrence", niche.competition, niche.competition <= 3 ? "bg-emerald-500" : niche.competition <= 6 ? "bg-amber-500" : "bg-red-500"],
         ].map(([label, value, color]) => (
           <div key={label}>
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-slate-500">{label}</span>
-              <span className="text-slate-700 font-medium">{value}/10</span>
+              <span className="text-neutral-500">{label}</span>
+              <span className="text-neutral-700 font-medium">{value}/10</span>
             </div>
-            <div className="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+            <div className="h-1 w-full bg-neutral-100 rounded-full overflow-hidden">
               <div className={`h-full rounded-full ${color}`} style={{ width: `${value * 10}%` }} />
             </div>
           </div>
@@ -429,19 +426,19 @@ function NicheCard({ niche, analysisId, router }) {
 
       {(niche.prixMin || niche.prixMax) && (
         <div className="mb-3 flex-none">
-          <p className="text-xs text-slate-400 mb-0.5">Prix recommandé</p>
-          <p className="text-sm font-semibold text-slate-900">{niche.prixMin?.toLocaleString()} – {niche.prixMax?.toLocaleString()} FCFA</p>
+          <p className="text-xs text-neutral-400 mb-0.5">Prix recommandé</p>
+          <p className="text-sm font-semibold text-neutral-900">{niche.prixMin?.toLocaleString()} – {niche.prixMax?.toLocaleString()} FCFA</p>
         </div>
       )}
 
       {niche.adsContext?.length > 0 && (
         <div className="mb-3 flex-none">
-          <p className="text-xs text-slate-400 mb-2">Annonceurs actifs sur ce thème</p>
+          <p className="text-xs text-neutral-400 mb-2">Annonceurs actifs sur ce thème</p>
           <div className="flex items-center gap-1.5 flex-wrap">
             {niche.adsContext.slice(0, 4).map((ad, i) => (
-              <div key={i} className="flex items-center gap-1.5 bg-slate-50 border border-slate-100 rounded-full px-2 py-1">
-                {ad.photo ? <img src={ad.photo} alt={ad.name} className="w-4 h-4 rounded-full object-cover flex-shrink-0" /> : <div className="w-4 h-4 rounded-full bg-slate-200 flex-shrink-0" />}
-                <span className="text-xs text-slate-600 max-w-[80px] truncate">{ad.name}</span>
+              <div key={i} className="flex items-center gap-1.5 bg-neutral-50 border border-neutral-100 rounded-full px-2 py-1">
+                {ad.photo ? <img src={ad.photo} alt={ad.name} className="w-4 h-4 rounded-full object-cover flex-shrink-0" /> : <div className="w-4 h-4 rounded-full bg-neutral-200 flex-shrink-0" />}
+                <span className="text-xs text-neutral-600 max-w-[80px] truncate">{ad.name}</span>
               </div>
             ))}
           </div>
@@ -451,18 +448,18 @@ function NicheCard({ niche, analysisId, router }) {
       {niche.keywords?.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-4 flex-none">
           {niche.keywords.slice(0, 3).map((k, i) => (
-            <span key={i} className="text-xs px-2 py-1 bg-slate-50 text-slate-500 rounded border border-slate-100">{k}</span>
+            <span key={i} className="text-xs px-2 py-1 bg-neutral-50 text-neutral-500 rounded border border-neutral-100">{k}</span>
           ))}
         </div>
       )}
 
       <div className="flex flex-col gap-2 mt-auto">
         <button onClick={handleGenerate}
-          className="w-full py-3 text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-all flex items-center justify-center gap-1.5">
+          className="w-full py-3 text-sm font-medium text-white bg-neutral-900 hover:bg-neutral-800 rounded-lg transition-all flex items-center justify-center gap-1.5">
           Créer mon ebook sur ce produit <ChevronRight className="w-4 h-4" />
         </button>
         <button onClick={handleAnalyze}
-          className="w-full py-2.5 text-sm font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition-all">
+          className="w-full py-2.5 text-sm font-medium text-neutral-500 hover:text-neutral-700 hover:bg-neutral-50 rounded-lg transition-all">
           Analyser ce produit en profondeur
         </button>
       </div>

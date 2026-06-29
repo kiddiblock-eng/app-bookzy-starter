@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, BarChart2, TrendingUp, Globe, DollarSign, Users, Target, CheckCircle, Loader2, TrendingDown, Minus, Calendar, BookOpen } from "lucide-react";
+import { Search, BarChart2, TrendingUp, Globe, DollarSign, Users, Target, CheckCircle, Loader2, TrendingDown, Minus, Calendar, BookOpen, ArrowRight } from "lucide-react";
 
 export default function AnalyseurPage() {
   const router = useRouter();
@@ -67,7 +67,7 @@ export default function AnalyseurPage() {
       if (!scanData.success) {
         setPhase("idle");
         if (scanData.limitReached) setLimitReached(true);
-        else setError("Erreur lors du scan. Réessayez.");
+        else setError("Erreur lors du scan. Réessaie.");
         return;
       }
 
@@ -105,7 +105,7 @@ export default function AnalyseurPage() {
       if (!analyseData.success) {
         setPhase("idle");
         if (analyseData.limitReached) setLimitReached(true);
-        else if (analyseData.insufficientCredits) setLimitReached(true); // Pas assez de crédits → même UI abonnement
+        else if (analyseData.insufficientCredits) setLimitReached(true); // Pas assez de crédits → même UI offres
         else setError(analyseData.message || "Erreur.");
         return;
       }
@@ -123,76 +123,69 @@ export default function AnalyseurPage() {
 
     } catch {
       setPhase("idle");
-      setError("Erreur serveur. Réessayez.");
+      setError("Erreur serveur. Réessaie.");
     }
   };
 
   function TendanceLabel({ tendance }) {
-    if (tendance === "montante") return <span style={{ color: "#16a34a", fontSize: "11px", fontWeight: "700", display: "flex", alignItems: "center", gap: "3px" }}><TrendingUp size={11} /> Montante</span>;
-    if (tendance === "descendante") return <span style={{ color: "#dc2626", fontSize: "11px", fontWeight: "700", display: "flex", alignItems: "center", gap: "3px" }}><TrendingDown size={11} /> Descendante</span>;
-    return <span style={{ color: "#94a3b8", fontSize: "11px", fontWeight: "700", display: "flex", alignItems: "center", gap: "3px" }}><Minus size={11} /> Stable</span>;
+    if (tendance === "montante") return <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600"><TrendingUp size={11} /> Montante</span>;
+    if (tendance === "descendante") return <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-500"><TrendingDown size={11} /> Descendante</span>;
+    return <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-neutral-400"><Minus size={11} /> Stable</span>;
   }
 
   const STEP_CONFIG = [
-    { key: "fb",      Icon: Users,      color: "#1877f2", label: "Scan Facebook Ads" },
-    { key: "trends",  Icon: TrendingUp, color: "#16a34a", label: "Google Trends" },
-    { key: "marches", Icon: Globe,      color: "#0891b2", label: "Comparaison des marchés" },
-    { key: "ia",      Icon: BarChart2,  color: "#7c3aed", label: "Analyse IA" },
-    { key: "rapport", Icon: Target,     color: "#f59e0b", label: "Génération du rapport" },
+    { key: "fb",      Icon: Users,      label: "Scan Facebook Ads" },
+    { key: "trends",  Icon: TrendingUp, label: "Google Trends" },
+    { key: "marches", Icon: Globe,      label: "Comparaison des marchés" },
+    { key: "ia",      Icon: BarChart2,  label: "Analyse IA" },
+    { key: "rapport", Icon: Target,     label: "Génération du rapport" },
   ];
 
-  // Vue animation
-  if (phase !== "idle") return (
-    <div style={{ minHeight: "100vh", background: "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
-      <div style={{ width: "100%", maxWidth: "480px" }}>
+  const doneCount = Object.values(steps).filter(s => s.status === "done").length;
 
-        <div style={{ textAlign: "center", marginBottom: "28px" }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "6px 14px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "20px", marginBottom: "14px" }}>
-            <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#16a34a", animation: "pulse 1.5s ease-in-out infinite" }} />
-            <span style={{ fontSize: "11px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em" }}>Analyse en cours</span>
+  // ── Vue animation ──────────────────────────────────────────────────────────
+  if (phase !== "idle") return (
+    <div className="min-h-[calc(100dvh-56px)] bg-white flex flex-col items-center justify-center px-4 py-10">
+      <div className="w-full max-w-md">
+
+        <div className="text-center mb-7">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-neutral-50 border border-neutral-200 rounded-full mb-3.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wide">Analyse en cours</span>
           </div>
-          <h2 style={{ fontSize: "17px", fontWeight: "800", color: "#0f172a", margin: "0 0 4px", lineHeight: "1.3" }}>"{sujet}"</h2>
-          <p style={{ fontSize: "12px", color: "#94a3b8", margin: 0 }}>Analyse sur plusieurs sources de données réelles</p>
+          <h2 className="text-lg font-semibold text-neutral-900 mb-1">« {sujet} »</h2>
+          <p className="text-xs text-neutral-400">Analyse sur plusieurs sources de données réelles</p>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "24px" }}>
-          {STEP_CONFIG.map(({ key, Icon, color, label }) => {
+        <div className="flex flex-col gap-2 mb-6">
+          {STEP_CONFIG.map(({ key, Icon, label }) => {
             const step = steps[key];
             const done = step.status === "done";
             const loading = step.status === "loading";
             const waiting = step.status === "waiting";
 
             return (
-              <div key={key} style={{
-                padding: "14px 16px", borderRadius: "12px",
-                background: done ? "#f0fdf4" : loading ? "white" : "#f8fafc",
-                border: `1px solid ${done ? "#bbf7d0" : loading ? "#e2e8f0" : "#f1f5f9"}`,
-                boxShadow: loading ? "0 2px 12px rgba(0,0,0,0.06)" : "none",
-                opacity: waiting ? 0.4 : 1,
-                transition: "all 0.3s ease",
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <div style={{ width: "34px", height: "34px", borderRadius: "9px", flexShrink: 0, background: done ? "#dcfce7" : loading ? `${color}15` : "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {done ? <CheckCircle size={17} color="#16a34a" /> : <Icon size={17} color={loading ? color : "#cbd5e1"} />}
+              <div key={key} className={`px-4 py-3.5 rounded-xl border transition-all ${done ? "bg-emerald-50 border-emerald-100" : loading ? "bg-white border-neutral-200 shadow-sm" : "bg-neutral-50 border-neutral-100"} ${waiting ? "opacity-40" : "opacity-100"}`}>
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-lg shrink-0 flex items-center justify-center ${done ? "bg-emerald-100" : "bg-neutral-100"}`}>
+                    {done ? <CheckCircle size={16} className="text-emerald-600" /> : <Icon size={16} className={loading ? "text-neutral-700" : "text-neutral-300"} />}
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: "13px", fontWeight: "700", color: done ? "#15803d" : loading ? "#0f172a" : "#94a3b8", margin: 0 }}>{label}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-[13px] font-semibold ${done ? "text-emerald-700" : loading ? "text-neutral-900" : "text-neutral-400"}`}>{label}</p>
 
                     {/* Détails FB Ads */}
                     {key === "fb" && done && (
-                      <div style={{ marginTop: "8px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-                          <span style={{ fontSize: "12px", fontWeight: "700", color: "#1877f2" }}>{step.total} annonceurs actifs</span>
-                        </div>
+                      <div className="mt-2">
+                        <span className="text-xs font-semibold text-neutral-700">{step.total} annonceurs actifs</span>
                         {step.annonceurs.length > 0 && (
-                          <div style={{ display: "flex" }}>
+                          <div className="flex mt-1.5">
                             {step.annonceurs.slice(0, 4).map((a, i) => (
-                              <div key={i} style={{ width: "28px", height: "28px", borderRadius: "50%", overflow: "hidden", border: "2px solid white", marginLeft: i > 0 ? "-8px" : "0", background: "#e2e8f0", flexShrink: 0 }}>
-                                {a.photo && <img src={a.photo} alt={a.nom} style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
+                              <div key={i} className={`w-7 h-7 rounded-full overflow-hidden border-2 border-white bg-neutral-200 shrink-0 ${i > 0 ? "-ml-2" : ""}`}>
+                                {a.photo && <img src={a.photo} alt={a.nom} className="w-full h-full object-cover" />}
                               </div>
                             ))}
                             {step.total > 4 && (
-                              <div style={{ width: "28px", height: "28px", borderRadius: "50%", border: "2px solid white", marginLeft: "-8px", background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "9px", fontWeight: "700", color: "#64748b" }}>
+                              <div className="w-7 h-7 rounded-full border-2 border-white -ml-2 bg-neutral-100 flex items-center justify-center text-[9px] font-bold text-neutral-500">
                                 +{step.total - 4}
                               </div>
                             )}
@@ -203,20 +196,18 @@ export default function AnalyseurPage() {
 
                     {/* Tendance Google */}
                     {key === "trends" && done && step.tendance && (
-                      <div style={{ marginTop: "4px" }}>
-                        <TendanceLabel tendance={step.tendance} />
-                      </div>
+                      <div className="mt-1"><TendanceLabel tendance={step.tendance} /></div>
                     )}
 
                     {/* Pays */}
                     {key === "marches" && done && step.paysScores && (
-                      <div style={{ marginTop: "6px", display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                      <div className="mt-1.5 flex gap-1.5 flex-wrap">
                         {Object.entries(step.paysScores).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([code, score]) => {
                           const flags = { CI: "🇨🇮", SN: "🇸🇳", CM: "🇨🇲", ML: "🇲🇱", BJ: "🇧🇯", TG: "🇹🇬", FR: "🇫🇷" };
                           return (
-                            <div key={code} style={{ display: "flex", alignItems: "center", gap: "4px", padding: "2px 8px", background: "white", border: "1px solid #e2e8f0", borderRadius: "20px" }}>
-                              <span style={{ fontSize: "12px" }}>{flags[code]}</span>
-                              <span style={{ fontSize: "10px", fontWeight: "700", color: "#0f172a" }}>{score}/100</span>
+                            <div key={code} className="flex items-center gap-1 px-2 py-0.5 bg-white border border-neutral-200 rounded-full">
+                              <span className="text-xs">{flags[code]}</span>
+                              <span className="text-[10px] font-bold text-neutral-900">{score}/100</span>
                             </div>
                           );
                         })}
@@ -224,14 +215,10 @@ export default function AnalyseurPage() {
                     )}
 
                     {/* IA */}
-                    {key === "ia" && loading && (
-                      <p style={{ fontSize: "11px", color: "#94a3b8", margin: "3px 0 0" }}>Bookzy analyse vos données de marché...</p>
-                    )}
-                    {key === "rapport" && loading && (
-                      <p style={{ fontSize: "11px", color: "#94a3b8", margin: "3px 0 0" }}>Score, verdict, revenus, titres accrocheurs...</p>
-                    )}
+                    {key === "ia" && loading && <p className="text-[11px] text-neutral-400 mt-0.5">Bookzy analyse tes données de marché…</p>}
+                    {key === "rapport" && loading && <p className="text-[11px] text-neutral-400 mt-0.5">Score, verdict, revenus, titres accrocheurs…</p>}
                   </div>
-                  {loading && <Loader2 size={15} color={color} style={{ flexShrink: 0, animation: "spin 1s linear infinite" }} />}
+                  {loading && <Loader2 size={15} className="text-neutral-400 animate-spin shrink-0" />}
                 </div>
               </div>
             );
@@ -239,102 +226,89 @@ export default function AnalyseurPage() {
         </div>
 
         {/* Barre progression */}
-        <div style={{ background: "#f1f5f9", borderRadius: "4px", height: "4px", overflow: "hidden" }}>
-          <div style={{
-            height: "100%", borderRadius: "4px", background: "#0f172a",
-            width: `${Math.max(5, (Object.values(steps).filter(s => s.status === "done").length / STEP_CONFIG.length) * 100)}%`,
-            transition: "width 0.5s ease",
-          }} />
+        <div className="bg-neutral-100 rounded-full h-1 overflow-hidden">
+          <div className="h-full bg-neutral-900 rounded-full transition-all duration-500" style={{ width: `${Math.max(5, (doneCount / STEP_CONFIG.length) * 100)}%` }} />
         </div>
-        <p style={{ fontSize: "11px", color: "#94a3b8", textAlign: "center", marginTop: "8px" }}>
-          {Object.values(steps).filter(s => s.status === "done").length}/{STEP_CONFIG.length} étapes complétées
-        </p>
+        <p className="text-[11px] text-neutral-400 text-center mt-2">{doneCount}/{STEP_CONFIG.length} étapes complétées</p>
       </div>
-
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-      `}</style>
     </div>
   );
 
-  // Vue normale
+  // ── Vue focus ──────────────────────────────────────────────────────────────
   return (
-    <div style={{ minHeight: "100vh", background: "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
+    <div className="min-h-[calc(100dvh-56px)] bg-white flex flex-col items-center justify-center px-4 py-12">
+      <div className="w-full max-w-2xl">
 
-      <div style={{ textAlign: "center", marginBottom: "32px" }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-          <div style={{ width: "44px", height: "44px", background: "#0f172a", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <BarChart2 size={22} color="white" />
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-neutral-900 mb-5">
+            <BarChart2 size={22} className="text-white" />
           </div>
-          <h1 style={{ fontSize: "28px", fontWeight: "900", color: "#0f172a", margin: 0, letterSpacing: "-0.8px", lineHeight: "1.2" }}>
+          <h1 className="text-2xl sm:text-3xl font-semibold text-neutral-900 mb-2.5 tracking-tight">
             Ton produit digital va-t-il cartonner ?
           </h1>
+          <p className="text-sm text-neutral-500 max-w-lg mx-auto">
+            Découvre le potentiel de ton idée en quelques secondes — données réelles, rapport clair pour foncer ou pivoter.
+          </p>
         </div>
-        <p style={{ fontSize: "15px", color: "#94a3b8", margin: 0 }}>
-          Decouvre le potentiel de ton idée de produit digital en quelques secondes grâce à une analyse de données réelles et un rapport clair pour foncer ou pivoter.
-        </p>
-      </div>
 
-      <div style={{ width: "100%", maxWidth: "600px" }}>
-        <div style={{ position: "relative", boxShadow: "0 2px 20px rgba(0,0,0,0.08)", borderRadius: "16px" }}>
+        <div className="relative">
           <input type="text" value={sujet} onChange={e => setSujet(e.target.value)}
             onKeyDown={e => e.key === "Enter" && sujet.trim() && handleAnalyse()}
-            placeholder="Ton idée ici..."
-            style={{ width: "100%", padding: "22px 68px 22px 22px", fontSize: "16px", border: "2px solid #e2e8f0", borderRadius: "16px", outline: "none", color: "#0f172a", background: "white", boxSizing: "border-box", transition: "border 0.2s" }}
-            onFocus={e => e.target.style.borderColor = "#0f172a"}
-            onBlur={e => e.target.style.borderColor = "#e2e8f0"} />
+            placeholder="Ton idée ici…"
+            className="w-full pl-5 pr-16 py-4 text-[15px] border border-neutral-200 rounded-[28px] outline-none text-neutral-900 placeholder:text-neutral-400 focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all"
+          />
           <button onClick={handleAnalyse} disabled={!sujet.trim()}
-            style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", width: "44px", height: "44px", background: sujet.trim() ? "#0f172a" : "#e2e8f0", border: "none", borderRadius: "10px", cursor: sujet.trim() ? "pointer" : "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.2s" }}>
-            <Search size={17} color={sujet.trim() ? "white" : "#94a3b8"} />
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-200 flex items-center justify-center transition-colors">
+            <Search size={17} className={sujet.trim() ? "text-white" : "text-neutral-400"} />
           </button>
         </div>
 
         {error && (
-          <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: "8px", padding: "10px 16px", marginTop: "12px", color: "#dc2626", fontSize: "13px" }}>{error}</div>
+          <div className="mt-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">{error}</div>
         )}
 
         {limitReached && (
-          <div style={{ background: "#0f172a", borderRadius: "12px", padding: "20px", marginTop: "16px" }}>
-            <p style={{ fontSize: "14px", fontWeight: "800", color: "white", margin: "0 0 6px" }}>Passez à un abonnement pour analyser</p>
-            <p style={{ fontSize: "13px", color: "#94a3b8", margin: "0 0 16px", lineHeight: "1.6" }}>Analysez autant de sujets que vous voulez et accédez aux rapports complets.</p>
-            <div style={{ display: "flex", gap: "8px" }}>
-              <button onClick={() => router.push("/dashboard/tarifs")} style={{ flex: 1, padding: "11px", background: "#f59e0b", color: "#0f172a", border: "none", borderRadius: "9px", fontSize: "13px", fontWeight: "700", cursor: "pointer" }}>Voir les plans →</button>
-              <button onClick={() => router.push("/dashboard/analyseur/historique")} style={{ padding: "11px 16px", background: "transparent", color: "#64748b", border: "1px solid #1e293b", borderRadius: "9px", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>Mes analyses</button>
+          <div className="mt-4 bg-neutral-900 rounded-2xl p-5">
+            <p className="text-sm font-semibold text-white mb-1.5">Tu as utilisé tes analyses gratuites de la semaine</p>
+            <p className="text-[13px] text-neutral-400 mb-4 leading-relaxed">Passe à une offre Créateur ou Pro pour analyser sans limite et débloquer tous les outils.</p>
+            <div className="flex gap-2">
+              <button onClick={() => router.push("/dashboard/tarifs")} className="flex-1 py-2.5 bg-white text-neutral-900 rounded-xl text-[13px] font-semibold hover:bg-neutral-100 transition-colors flex items-center justify-center gap-1.5">
+                Voir les offres <ArrowRight size={14} />
+              </button>
+              <button onClick={() => router.push("/dashboard/analyseur/historique")} className="px-4 py-2.5 text-[13px] font-semibold text-neutral-300 border border-neutral-700 rounded-xl hover:bg-neutral-800 transition-colors">
+                Mes analyses
+              </button>
             </div>
           </div>
         )}
-      </div>
 
-      <div style={{ width: "100%", maxWidth: "900px", marginTop: "48px" }}>
-        <p style={{ fontSize: "11px", fontWeight: "700", color: "#cbd5e1", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: "16px", textAlign: "center" }}>Votre rapport contiendra</p>
-        <style>{`
-          .promises-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-          @media(max-width: 600px) { .promises-grid { grid-template-columns: 1fr 1fr !important; } }
-        `}</style>
-        <div className="promises-grid">
-          {[
-            { Icon: TrendingUp, color: "#16a34a", titre: "Score de marché", desc: "Un verdict clair sur 100 pour savoir si tu dois foncer" },
-            { Icon: Users, color: "#1877f2", titre: "Annonceurs Facebook actifs", desc: "Qui investit déjà sur ce sujet avec leurs photos de profil" },
-            { Icon: Globe, color: "#0891b2", titre: "Pays les plus rentables", desc: "Score par pays pour concentrer tes efforts de vente" },
-            { Icon: Target, color: "#7c3aed", titre: "Positionnement concurrents", desc: "Leur stratégie et comment te différencier" },
-            { Icon: DollarSign, color: "#f59e0b", titre: "Revenus estimés", desc: "Ce que ce produit peut te rapporter semaine / mois / an" },
-            { Icon: BarChart2, color: "#10b981", titre: "Plan de vente complet", desc: "Pratiques pour vendre rapidement via Taliopay" },
-            { Icon: TrendingUp, color: "#dc2626", titre: "Verdict honnête", desc: "Fonce / Attends / Évite — basé sur les vraies données" },
-            { Icon: Target, color: "#0f172a", titre: "Battre la concurrence", desc: "Ton angle gagnant pour dominer le marché" },
-            { Icon: Calendar, color: "#7c3aed", titre: "Plan de lancement", desc: "4 semaines d'actions concrètes" },
-            { Icon: BookOpen, color: "#0f172a", titre: "Titres accrocheurs", desc: "3 titres optimisés pour vendre immédiatement" },
-          ].map((p, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "12px", padding: "16px", background: "#f8fafc", borderRadius: "12px", border: "1px solid #f1f5f9" }}>
-              <div style={{ width: "34px", height: "34px", borderRadius: "9px", background: `${p.color}12`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <p.Icon size={16} color={p.color} />
+        {/* Promesses */}
+        <div className="mt-12">
+          <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider text-center mb-4">Ton rapport contiendra</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            {[
+              { Icon: TrendingUp, titre: "Score de marché", desc: "Un verdict clair sur 100 pour savoir si tu dois foncer" },
+              { Icon: Users, titre: "Annonceurs Facebook actifs", desc: "Qui investit déjà sur ce sujet, avec leurs profils" },
+              { Icon: Globe, titre: "Pays les plus rentables", desc: "Score par pays pour concentrer tes efforts de vente" },
+              { Icon: Target, titre: "Positionnement concurrents", desc: "Leur stratégie et comment te différencier" },
+              { Icon: DollarSign, titre: "Revenus estimés", desc: "Ce que ce produit peut te rapporter semaine / mois / an" },
+              { Icon: BarChart2, titre: "Plan de vente complet", desc: "Des actions concrètes pour vendre rapidement" },
+              { Icon: TrendingUp, titre: "Verdict honnête", desc: "Fonce / Attends / Évite — basé sur les vraies données" },
+              { Icon: Target, titre: "Battre la concurrence", desc: "Ton angle gagnant pour dominer le marché" },
+              { Icon: Calendar, titre: "Plan de lancement", desc: "4 semaines d'actions concrètes" },
+              { Icon: BookOpen, titre: "Titres accrocheurs", desc: "3 titres optimisés pour vendre immédiatement" },
+            ].map((p, i) => (
+              <div key={i} className="flex items-start gap-3 p-4 bg-neutral-50 border border-neutral-100 rounded-xl">
+                <div className="w-8 h-8 rounded-lg bg-white border border-neutral-200 flex items-center justify-center shrink-0">
+                  <p.Icon size={15} className="text-neutral-700" />
+                </div>
+                <div>
+                  <p className="text-[13px] font-semibold text-neutral-900 mb-0.5">{p.titre}</p>
+                  <p className="text-xs text-neutral-500 leading-snug">{p.desc}</p>
+                </div>
               </div>
-              <div>
-                <p style={{ fontSize: "13px", fontWeight: "700", color: "#0f172a", margin: "0 0 4px" }}>{p.titre}</p>
-                <p style={{ fontSize: "12px", color: "#64748b", margin: 0, lineHeight: "1.5" }}>{p.desc}</p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
