@@ -39,12 +39,9 @@ export default function Hero() {
 
         {/* Titre punchy */}
         <motion.h1 variants={fadeUp} custom={1} initial="hidden" animate="show"
-          className="text-[38px] leading-[1.04] sm:text-[56px] sm:leading-[1.01] font-extrabold tracking-tight text-neutral-900">
-          Ton ebook pro en 1 minute.
-          <br />
-          L'IA écrit et designe.
-          <br />
-          Pour <span style={{ color: ACCENT }}>vendre, former ou partager.</span>
+          className="text-[30px] leading-[1.12] sm:text-[46px] sm:leading-[1.07] font-extrabold tracking-tight text-neutral-900">
+          Déléguez la rédaction, le design et la mise en page de votre ebook à Bookzy.
+          <span className="block mt-2" style={{ color: ACCENT }}>Réjouissez-vous du résultat.</span>
         </motion.h1>
 
         {/* Sous-titre concret */}
