@@ -45,7 +45,7 @@ export default function TarifsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ packId: offerId, returnUrl: `${window.location.origin}/dashboard/credits` }),
+        body: JSON.stringify({ packId: offerId, returnUrl: `${window.location.origin}/dashboard/tarifs` }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Erreur paiement");

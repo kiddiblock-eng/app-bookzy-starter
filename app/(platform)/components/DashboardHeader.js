@@ -68,7 +68,7 @@ export default function DashboardHeader({ onMenuClick }) {
       {/* Right — crédits + profil */}
       <div className="flex items-center gap-2">
         <Link
-          href="/dashboard/credits"
+          href="/dashboard/tarifs"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors"
           title="Mes ebooks"
         >

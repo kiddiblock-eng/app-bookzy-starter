@@ -135,7 +135,7 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
         })}
       </nav>
       <div className="w-full flex flex-col items-center gap-1 pt-2 border-t border-neutral-100">
-        <Link href="/dashboard/credits" onMouseEnter={(e) => showTip(e, "Mes ebooks")} onMouseLeave={hideTip} className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-100">
+        <Link href="/dashboard/tarifs" onMouseEnter={(e) => showTip(e, "Mes ebooks")} onMouseLeave={hideTip} className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-100">
           <CreditCard className="w-[18px] h-[18px] text-neutral-500" />
         </Link>
         <button onClick={handleLogout} onMouseEnter={(e) => showTip(e, "Se déconnecter")} onMouseLeave={hideTip} className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-100">
@@ -241,9 +241,9 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
 
         {/* Footer */}
         <div className="px-2 py-2 border-t border-neutral-100">
-          <Link href="/dashboard/credits" onClick={close} className={`${itemCls(isActive("/dashboard/credits"))} justify-between`}>
+          <Link href="/dashboard/tarifs" onClick={close} className={`${itemCls(isActive("/dashboard/tarifs"))} justify-between`}>
             <span className="flex items-center gap-3">
-              <CreditCard className={iconCls(isActive("/dashboard/credits"))} />
+              <CreditCard className={iconCls(isActive("/dashboard/tarifs"))} />
               Mes ebooks
             </span>
             {balance !== null && (
