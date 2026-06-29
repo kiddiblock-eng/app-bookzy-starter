@@ -1,330 +1,101 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import { Menu, X, Target, TrendingUp, Youtube, ChevronDown, Gift, ArrowRight, Book } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, ArrowRight } from "lucide-react";
 
-/* --- LOGO ORIGINAL --- */
-function BookOpenSVG(props) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-    </svg>
-  );
-}
+const LINKS = [
+  { label: "Comment ça marche", href: "#how" },
+  { label: "Outils", href: "#outils" },
+  { label: "Tarifs", href: "#tarifs" },
+  { label: "FAQ", href: "#faq" },
+];
 
 export default function Navbar() {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showTools, setShowTools] = useState(false);
-  const dropdownRef = useRef(null);
-  const pathname = usePathname();
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setShowTools(false);
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => { document.body.style.overflow = 'unset'; };
-  }, [isMobileMenuOpen]);
-
-  const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      window.scrollTo({ top: element.offsetTop - 100, behavior: "smooth" });
-      setIsMobileMenuOpen(false);
-    }
-  };
-
-  const EXCLUDE_PATHS = ['/radar-cash', '/blog', '/niche-hunter', '/youbook', '/legal', '/auth', '/dashboard', '/affiliation', '/changelog', '/suggestions','/express', '/smart-shop', '/exemples-ebooks', '/validateur', ];
-  if (EXCLUDE_PATHS.some(path => pathname.startsWith(path))) return null;
 
   return (
-    <>
-      {/* ══════════════════════════════════════════════════════════════════
-          NAVBAR STYLE DOKIE - TRANSPARENTE
-      ══════════════════════════════════════════════════════════════════ */}
-      <header
-        className={`
-          fixed top-0 left-0 right-0 z-50
-          transition-all duration-300
-          ${isScrolled
-            ? 'bg-white/80 backdrop-blur-xl shadow-sm'
-            : 'bg-transparent'
-          }
-        `}
-        style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
-      >
-        <nav className="max-w-6xl mx-auto px-5 sm:px-6">
-          <div className="flex items-center justify-between h-16 lg:h-20">
-            
-            {/* ─── LOGO ─── */}
-            <Link href="/" className="flex items-center">
-              <img src="/logo12.webp" alt="Bookzy" className="h-7 lg:h-8 w-auto object-contain" />
-            </Link>
+    <motion.header
+      initial={{ y: -80, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      className={`fixed top-0 inset-x-0 z-50 transition-colors duration-300 ${
+        scrolled ? "bg-white/80 backdrop-blur-xl border-b border-neutral-200/70" : "bg-transparent"
+      }`}
+    >
+      <nav className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <Link href="/" className="flex items-center shrink-0">
+          <img src="/logo12.webp" alt="Bookzy" className="h-7 w-auto object-contain" />
+        </Link>
 
-            {/* ─── NAVIGATION DESKTOP ─── */}
-            <div className="hidden lg:flex items-center gap-1">
-              
-              <button 
-                onClick={() => scrollToSection('features')} 
-                className="px-4 py-2 text-[14px] font-medium text-slate-600 hover:text-slate-900 transition-colors"
-              >
-                Fonctionnalités
-              </button>
-              
-              <button 
-                onClick={() => scrollToSection('pricing')} 
-                className="px-4 py-2 text-[14px] font-medium text-slate-600 hover:text-slate-900 transition-colors"
-              >
-                Tarifs
-              </button>
-              
-              <Link 
-                href="/blog" 
-                className="px-4 py-2 text-[14px] font-medium text-slate-600 hover:text-slate-900 transition-colors"
-              >
-                Blog
-              </Link>
-
-              {/* Dropdown Outils */}
-              <div className="relative" ref={dropdownRef}>
-                <button 
-                  onClick={() => setShowTools(!showTools)}
-                  className={`
-                    flex items-center gap-1.5 px-4 py-2 text-[14px] font-medium transition-colors
-                    ${showTools ? 'text-slate-900' : 'text-slate-600 hover:text-slate-900'}
-                  `}
-                >
-                  Outils 
-                  <ChevronDown size={14} className={`transition-transform duration-200 ${showTools ? 'rotate-180' : ''}`} />
-                </button>
-
-                {/* Dropdown */}
-                <div className={`
-                  absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 
-                  bg-white border border-slate-200 rounded-xl p-1.5
-                  shadow-xl shadow-slate-900/10
-                  transition-all duration-200 origin-top
-                  ${showTools 
-                    ? 'opacity-100 scale-100' 
-                    : 'opacity-0 scale-95 pointer-events-none'
-                  }
-                `}>
-                  <Link 
-                    href="/niche-hunter" 
-                    onClick={() => setShowTools(false)}
-                    className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
-                  >
-                    <Target size={16} className="text-pink-500" />
-                    <span className="text-[13px] font-medium text-slate-700">Niche Hunter</span>
-                  </Link>
-                   <Link 
-                    href="/express" 
-                    onClick={() => setShowTools(false)}
-                    className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
-                  >
-                    <Book size={16} className="text-pink-500" />
-                    <span className="text-[13px] font-medium text-slate-700">Ebook Designer</span>
-                  </Link>
-                  <Link 
-                    href="/youbook" 
-                    onClick={() => setShowTools(false)}
-                    className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
-                  >
-                    <Youtube size={16} className="text-red-500" />
-                    <span className="text-[13px] font-medium text-slate-700">Youbook</span>
-                  </Link>
-                  
-                  <Link 
-                    href="/validateur" 
-                    onClick={() => setShowTools(false)}
-                    className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
-                  >
-                    <TrendingUp size={16} className="text-orange-500" />
-                    <span className="text-[13px] font-medium text-slate-700">Validateur</span>
-                  </Link>
-                </div>
-              </div>
-
-              {/* Affiliation */}
-              <Link 
-                href="/affiliation" 
-                className="flex items-center gap-1.5 px-4 py-2 text-[14px] font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
-              >
-                <Gift size={15} />
-                Affiliation
-              </Link>
-            </div>
-
-            {/* ─── ACTIONS DROITE ─── */}
-            <div className="flex items-center gap-3">
-              
-              <Link 
-                href="/auth/login" 
-                className="hidden lg:block px-4 py-2 text-[14px] font-medium text-slate-600 hover:text-slate-900 transition-colors"
-              >
-                Connexion
-              </Link>
-              
-              <Link 
-                href="/auth/register" 
-                className="
-                  inline-flex items-center gap-1.5 
-                  px-5 py-2.5
-                  text-[13px] sm:text-[14px] font-semibold text-white 
-                  bg-slate-900 hover:bg-slate-800
-                  rounded-full
-                  transition-all duration-200
-                  active:scale-[0.98]
-                "
-              >
-                Commencer
-              </Link>
-
-              {/* Toggle Mobile */}
-              <button 
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
-                className="lg:hidden p-2 text-slate-700 hover:text-slate-900 transition-colors"
-              >
-                {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-              </button>
-            </div>
-          </div>
-        </nav>
-      </header>
-
-      {/* ══════════════════════════════════════════════════════════════════
-          MENU MOBILE FULLSCREEN
-      ══════════════════════════════════════════════════════════════════ */}
-      <div className={`
-        fixed inset-0 z-40 bg-white
-        transition-all duration-300 lg:hidden
-        ${isMobileMenuOpen 
-          ? 'opacity-100 pointer-events-auto' 
-          : 'opacity-0 pointer-events-none'
-        }
-      `}>
-        <div className={`
-          flex flex-col h-full pb-8 px-6 overflow-y-auto
-          transition-transform duration-300
-          ${isMobileMenuOpen ? 'translate-y-0' : '-translate-y-4'}
-        `}
-        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 80px)' }}>
-          
-          {/* Navigation Links */}
-          <div className="flex flex-col">
-            <button 
-              onClick={() => scrollToSection('features')} 
-              className="py-4 text-left text-[16px] font-medium text-slate-900 border-b border-slate-100"
-            >
-              Fonctionnalités
-            </button>
-            
-            <button 
-              onClick={() => scrollToSection('pricing')} 
-              className="py-4 text-left text-[16px] font-medium text-slate-900 border-b border-slate-100"
-            >
-              Tarifs
-            </button>
-            
-            <Link 
-              href="/blog" 
-              onClick={() => setIsMobileMenuOpen(false)} 
-              className="py-4 text-left text-[16px] font-medium text-slate-900 border-b border-slate-100"
-            >
-              Blog
-            </Link>
-
-            {/* Outils Section */}
-            <div className="py-5 border-b border-slate-100">
-              <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-3">Outils gratuits</div>
-              <div className="flex flex-col gap-2">
-                <Link 
-                  href="/niche-hunter" 
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 active:bg-slate-100"
-                >
-                  <Target size={18} className="text-pink-500" />
-                  <span className="text-[14px] font-medium text-slate-700">Niche Hunter</span>
-                </Link>
-                 <Link 
-                    href="/express" 
-                    onClick={() => setShowTools(false)}
-                    className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
-                  >
-                    <Book size={16} className="text-pink-500" />
-                    <span className="text-[13px] font-medium text-slate-700">Ebook Designer</span>
-                  </Link>
-                
-                <Link 
-                  href="/youbook" 
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 active:bg-slate-100"
-                >
-                  <Youtube size={18} className="text-red-500" />
-                  <span className="text-[14px] font-medium text-slate-700">Youbook</span>
-                </Link>
-                
-                <Link 
-                  href="/validateur" 
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 active:bg-slate-100"
-                >
-                  <TrendingUp size={18} className="text-orange-500" />
-                  <span className="text-[14px] font-medium text-slate-700">Validateur</span>
-                </Link>
-              </div>
-            </div>
-
-            {/* Affiliation */}
-            <Link 
-              href="/affiliation" 
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="py-4 flex items-center gap-2.5 text-[16px] font-medium text-emerald-600"
-            >
-              <Gift size={18} />
-              Programme Affiliation
-            </Link>
-          </div>
-
-          {/* CTA Buttons - Fixed at bottom */}
-          <div className="flex flex-col gap-3 mt-auto pt-6">
-            <Link 
-              href="/auth/login" 
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="w-full py-3.5 text-center text-[14px] font-medium text-slate-600 border border-slate-200 rounded-full active:bg-slate-50"
-            >
-              Connexion
-            </Link>
-            
-            <Link 
-              href="/auth/register" 
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="w-full py-3.5 text-center text-[14px] font-semibold text-white bg-slate-900 rounded-full active:bg-slate-800"
-            >
-              Commencer gratuitement
-            </Link>
-          </div>
+        <div className="hidden md:flex items-center gap-0.5">
+          {LINKS.map((l) => (
+            <a key={l.href} href={l.href} className="px-3.5 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors">
+              {l.label}
+            </a>
+          ))}
         </div>
-      </div>
-    </>
+
+        <div className="hidden md:flex items-center gap-1.5">
+          <Link href="/auth/login" className="px-3.5 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors">
+            Se connecter
+          </Link>
+          <Link href="/auth/register" className="group inline-flex items-center gap-1.5 px-4 py-2 bg-neutral-900 text-white text-sm font-semibold rounded-full hover:bg-neutral-800 transition-colors">
+            Commencer <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
+          </Link>
+        </div>
+
+        <button onClick={() => setOpen(true)} className="md:hidden w-10 h-10 -mr-2 flex items-center justify-center text-neutral-800" aria-label="Menu">
+          <Menu size={22} />
+        </button>
+      </nav>
+
+      <AnimatePresence>
+        {open && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/30 md:hidden" onClick={() => setOpen(false)}
+            />
+            <motion.div
+              initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              className="fixed top-0 right-0 bottom-0 w-72 bg-white z-50 md:hidden p-5 flex flex-col"
+            >
+              <div className="flex items-center justify-between mb-8">
+                <img src="/logo12.webp" alt="Bookzy" className="h-7 w-auto object-contain" />
+                <button onClick={() => setOpen(false)} className="w-9 h-9 flex items-center justify-center text-neutral-500" aria-label="Fermer">
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="flex flex-col gap-0.5">
+                {LINKS.map((l) => (
+                  <a key={l.href} href={l.href} onClick={() => setOpen(false)} className="px-3 py-3 text-[15px] font-medium text-neutral-700 hover:bg-neutral-100 rounded-xl transition-colors">
+                    {l.label}
+                  </a>
+                ))}
+              </div>
+              <div className="mt-auto flex flex-col gap-2">
+                <Link href="/auth/login" onClick={() => setOpen(false)} className="w-full py-3 text-center text-sm font-semibold text-neutral-700 border border-neutral-200 rounded-xl">
+                  Se connecter
+                </Link>
+                <Link href="/auth/register" onClick={() => setOpen(false)} className="w-full py-3 text-center text-sm font-semibold text-white bg-neutral-900 rounded-xl">
+                  Commencer gratuitement
+                </Link>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </motion.header>
   );
 }
