@@ -9,17 +9,17 @@ const fmt =(n) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " 
 // Avantages affichés par offre
 const PERKS = {
   decouverte: [
-    "2 ebooks complets (PDF + kit marketing)",
+    "Chaque ebook : PDF + kit marketing inclus",
     "Qualité IA premium, prêt à vendre",
     "Ne débloque pas les autres outils",
   ],
   createur: [
-    "5 ebooks complets",
+    "Chaque ebook : PDF + kit marketing inclus",
     "Tous les outils débloqués (Niche Hunter, Radar Cash, Validateur, Youbook, Designer, Romans)",
     "Outils actifs tant qu'il te reste des ebooks",
   ],
   pro: [
-    "15 ebooks complets",
+    "Chaque ebook : PDF + kit marketing inclus",
     "Tous les outils débloqués",
     "Idéal si tu crées en volume",
   ],
@@ -91,7 +91,7 @@ export default function TarifsPage() {
                   <span className="text-sm text-neutral-400 ml-1">FCFA</span>
                 </div>
                 <div className="text-xs text-neutral-500 mb-1">
-                  <strong className="text-neutral-900">{o.ebooks} ebook{o.ebooks > 1 ? "s" : ""}</strong>
+                  <strong className="text-neutral-900">Crée jusqu'à {o.ebooks} ebook{o.ebooks > 1 ? "s" : ""}</strong>
                   {disc > 0 && <span className="ml-1.5 font-semibold text-emerald-600">· économise {disc}%</span>}
                 </div>
                 {id === "decouverte" && o.welcomePriceFcfa && (
