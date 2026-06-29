@@ -854,7 +854,7 @@ function NouveauProjetPageContent() {
         /* ── FOCUS (accueil Claude) — centré verticalement, rien d'autre ── */
         <div className="flex-1 flex flex-col items-center justify-center px-5 pb-32">
           <div className="w-full max-w-3xl text-center">
-            <h1 className="text-3xl sm:text-4xl md:text-[2.6rem] font-semibold text-slate-900 mb-8 leading-tight">Quel ebook veux-tu créer aujourd'hui ?</h1>
+            <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 mb-8 leading-tight">Quel ebook veux-tu créer aujourd'hui ?</h1>
             <div className="relative">
               {/* Lanceur d'outils */}
               <button type="button" onClick={() => setToolsOpen((v) => !v)} aria-label="Autres outils"
