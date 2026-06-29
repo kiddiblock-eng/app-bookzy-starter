@@ -44,17 +44,13 @@ export default function Hero() {
           <br />
           L'IA écrit et designe.
           <br />
-          Toi, tu{" "}
-          <span className="relative whitespace-nowrap" style={{ color: ACCENT }}>
-            vends.
-            <span className="absolute left-0 right-0 -bottom-1 h-[6px] rounded-full" style={{ background: ACCENT, opacity: 0.28 }} />
-          </span>
+          Pour <span style={{ color: ACCENT }}>vendre, former ou partager.</span>
         </motion.h1>
 
         {/* Sous-titre concret */}
         <motion.p variants={fadeUp} custom={2} initial="hidden" animate="show"
           className="mt-6 text-base sm:text-lg text-neutral-600 leading-relaxed">
-          L'IA écrit et designe ton ebook. Vends-le sur <strong className="font-semibold text-neutral-900">WhatsApp</strong> et encaisse par <strong className="font-semibold text-neutral-900">Wave</strong>, <strong className="font-semibold text-neutral-900">Orange Money</strong> ou <strong className="font-semibold text-neutral-900">MTN MoMo</strong>. Sans rien rédiger.
+          L'IA écrit et designe ton ebook. Vends-le, fais-en une <strong className="font-semibold text-neutral-900">formation</strong>, ou partage-le avec ta <strong className="font-semibold text-neutral-900">communauté</strong> — et encaisse par <strong className="font-semibold text-neutral-900">Wave</strong>, <strong className="font-semibold text-neutral-900">Orange Money</strong> ou <strong className="font-semibold text-neutral-900">MTN MoMo</strong>.
         </motion.p>
 
         {/* Champ "essaie tout de suite" */}
