@@ -4,6 +4,8 @@ import { getAIText } from "../../../../lib/ai";
 import { dbConnect } from "../../../../lib/db";
 import User, { DAILY_LIMITS } from "../../../../models/User";
 import { jwtVerify } from "jose";
+import { toolsUnlocked } from "@/lib/plans";
+import { toolsLockedResponse } from "@/lib/toolGate";
 
 function extractVideoId(url) {
   const patterns = [
@@ -48,6 +50,7 @@ export async function POST(req) {
 
     const userDoc = await User.findById(userId);
     if (!userDoc) return NextResponse.json({ success: false, message: "Utilisateur introuvable." }, { status: 404 });
+    if (!toolsUnlocked(userDoc)) return toolsLockedResponse();
 
     const canUseQuota = userDoc.canDoDaily("youtubeAnalysis");
     let usedQuota = false;

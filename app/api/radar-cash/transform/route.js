@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import { verifyAuth } from "@/lib/auth";
+import { requireToolsUnlocked } from "@/lib/toolGate";
 import { getAIText } from "@/lib/ai";
 
 export async function POST(req) {
@@ -10,6 +11,9 @@ export async function POST(req) {
 
     const user = await verifyAuth(req);
     if (!user) return NextResponse.json({ success: false, message: "Non authentifié" }, { status: 401 });
+
+    const gate = await requireToolsUnlocked(user.id);
+    if (gate.error) return gate.error;
 
     const { subject, pageName, bodyText } = await req.json();
     if (!subject) return NextResponse.json({ success: false, message: "Sujet requis." }, { status: 400 });

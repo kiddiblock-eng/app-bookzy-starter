@@ -14,6 +14,8 @@ import { PDFDocument } from "pdf-lib";
 
 // ✅ AJOUT : Import middleware crédits
 import { checkCredits } from "@/middleware/checkCredits";
+import { toolsUnlocked } from "@/lib/plans";
+import { toolsLockedResponse } from "@/lib/toolGate";
 
 const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
@@ -26,6 +28,7 @@ export async function POST(req) {
     // ✅ AJOUT : Vérifier et déduire 10 crédits (mise en page)
     const { user: userWithCredits, error: creditError } = await checkCredits(req, "mise_en_page");
     if (creditError) return creditError;
+    if (!toolsUnlocked(userWithCredits)) return toolsLockedResponse();
     await userWithCredits.spendCredits("mise_en_page");
     console.log(`💳 [Express Generate] 10 crédits déduits — solde restant: ${userWithCredits.credits.balance}`);
     
