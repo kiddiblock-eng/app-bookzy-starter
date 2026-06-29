@@ -1062,7 +1062,7 @@ function NouveauProjetPageContent() {
           ) : (
             <button type="button" onClick={handleSubmit}
               className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
-              Voir mon aperçu gratuit <ArrowRight className="w-4 h-4" />
+              Générer mon ebook <ArrowRight className="w-4 h-4" />
             </button>
           )}
         </div>
