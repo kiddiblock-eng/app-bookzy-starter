@@ -59,7 +59,7 @@ export default function RomansPage() {
   const router = useRouter();
   const { mutateBalance } = useCredits();
 
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -161,6 +161,37 @@ export default function RomansPage() {
   const inputCls = "w-full px-4 py-3 border border-neutral-200 rounded-xl text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all";
   const primaryBtn = "flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold bg-neutral-900 text-white hover:bg-neutral-800 transition-colors disabled:bg-neutral-200 disabled:text-neutral-400 disabled:cursor-not-allowed";
   const secondaryBtn = "flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-colors";
+
+  // ── ÉTAPE 0 : Focus (l'idée de l'histoire) ──────────────────────────────────
+  if (step === 0) {
+    return (
+      <div className="min-h-[calc(100dvh-56px)] bg-white flex flex-col items-center justify-center px-4 py-10">
+        <div className="w-full max-w-xl text-center">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-neutral-900 mb-5">
+            <Feather size={22} className="text-white" />
+          </div>
+          <h1 className="font-serif text-[28px] leading-tight sm:text-4xl font-semibold text-neutral-900 mb-2.5 tracking-tight">
+            Quel roman veux-tu écrire aujourd'hui ?
+          </h1>
+          <p className="text-sm text-neutral-500 mb-7">Décris ton idée — l'IA construit l'histoire complète avec toi.</p>
+
+          <textarea
+            value={intrigue}
+            onChange={e => setIntrigue(e.target.value)}
+            placeholder="Ex : un détective à Abidjan découvre une corruption, est traqué, et doit choisir entre fuir ou exposer la vérité…"
+            rows={3}
+            className="w-full px-5 py-4 bg-white border border-neutral-200 rounded-[28px] text-[15px] text-neutral-900 placeholder:text-neutral-400 outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all resize-none text-left"
+          />
+
+          <button onClick={() => setStep(1)} className={`mt-4 w-full ${primaryBtn}`}>
+            Commencer mon roman <ArrowRight size={16} />
+          </button>
+
+          <p className="mt-5 text-xs text-neutral-400">Tu préciseras ensuite le genre, les personnages et le ton.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[calc(100dvh-56px)] bg-white">
