@@ -4,7 +4,7 @@
 import { useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Hero from "@/app/(marketing)/components/Hero";
-import Features from "@/app/(marketing)/components/Features";
+import Usages from "@/app/(marketing)/components/Usages";
 import HowitWork from "@/app/(marketing)/components/HowitWork";
 import Pricing from "@/app/(marketing)/components/Pricing";
 import FAQ from "@/app/(marketing)/components/FAQ";
@@ -36,7 +36,7 @@ export default function HomePage() {
       </Suspense>
 
       <Hero />
-      <Features />
+      <Usages />
       <HowitWork />
       <Pricing />
       <FAQ />
