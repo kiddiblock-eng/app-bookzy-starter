@@ -2,35 +2,35 @@
 
 import { Check } from "lucide-react";
 import { Reveal } from "./Reveal";
-import { VisualWriting, VisualDesign, VisualMarket } from "./FeatureVisuals";
+import ScreenFrame from "./ScreenFrame";
 
 const ACCENT = "#5f7aa6";
 
 const ROWS = [
   {
-    eyebrow: "Rédaction",
-    title: "L'IA rédige votre ebook, du début à la fin.",
-    text: "Décrivez votre sujet en une phrase. Bookzy structure le plan, écrit chaque chapitre et adapte le ton à votre audience.",
-    bullets: ["Sommaire et chapitres complets", "Ton adapté à votre cible", "Prêt à vendre en une minute"],
-    Visual: VisualWriting, reverse: false,
+    eyebrow: "Stratégie",
+    title: "Créez sur ce qui se vend déjà.",
+    text: "Niche Hunter, Radar Cash et le Validateur analysent le marché réel pour vous dire quoi créer — avant même d'écrire une ligne.",
+    bullets: ["Niches rentables en 30 secondes", "Score de rentabilité sur 100", "Pubs gagnantes espionnées en direct"],
+    img: "/screenshots/niche-hunter.png", reverse: false,
   },
   {
     eyebrow: "Design",
-    title: "Une mise en page et une cover dignes d'un pro.",
-    text: "Pas besoin de graphiste. Bookzy applique un design propre et génère une cover qui donne envie d'acheter.",
-    bullets: ["12 templates professionnels", "Cover générée automatiquement", "Export PDF haute qualité"],
-    Visual: VisualDesign, reverse: true,
+    title: "Importez votre texte, obtenez un ebook pro.",
+    text: "Collez votre contenu ou un fichier Word : Bookzy applique une mise en page et une cover professionnelles en 20 secondes.",
+    bullets: ["Import .docx automatique", "12 templates professionnels", "Export PDF haute qualité"],
+    img: "/screenshots/express.png", reverse: true,
   },
   {
-    eyebrow: "Stratégie",
-    title: "Créez ce qui se vend déjà.",
-    text: "Niche Hunter, Radar Cash et le Validateur analysent le marché réel pour vous dire quoi créer — avant d'écrire une ligne.",
-    bullets: ["Niches rentables en 30 secondes", "Score de rentabilité sur 100", "Pubs gagnantes espionnées en direct"],
-    Visual: VisualMarket, reverse: false,
+    eyebrow: "Recyclage",
+    title: "Une vidéo YouTube devient un ebook.",
+    text: "Collez le lien d'une formation, d'un podcast ou d'un tuto : l'IA en extrait le contenu et le structure en ebook complet.",
+    bullets: ["Formations, podcasts, tutos", "Contenu structuré en chapitres", "Prêt à vendre"],
+    img: "/screenshots/youbook.png", reverse: false,
   },
 ];
 
-function Row({ eyebrow, title, text, bullets, Visual, reverse }) {
+function Row({ eyebrow, title, text, bullets, img, reverse }) {
   return (
     <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
       <Reveal y={28} className={reverse ? "lg:order-2" : ""}>
@@ -49,11 +49,7 @@ function Row({ eyebrow, title, text, bullets, Visual, reverse }) {
         </ul>
       </Reveal>
 
-      <Reveal y={28} delay={0.1} className={reverse ? "lg:order-1" : ""}>
-        <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-6 sm:p-10">
-          <Visual />
-        </div>
-      </Reveal>
+      <ScreenFrame src={img} alt={title} aspect="4/3" className={reverse ? "lg:order-1" : ""} />
     </div>
   );
 }
