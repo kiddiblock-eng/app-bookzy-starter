@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import useSWR, { useSWRConfig } from "swr";
-import { ChevronDown, LogOut, UserCircle2, Settings, Menu, Lightbulb, Users, CreditCard, Sparkles, BookOpen } from "lucide-react";
+import { ChevronDown, LogOut, UserCircle2, Settings, Menu, Lightbulb, Users, CreditCard, BookOpen } from "lucide-react";
 import Link from "next/link";
 
 const fetcher = (url) => fetch(url, { credentials: "include" }).then((r) => r.json());
@@ -158,7 +158,6 @@ function PlanSwitcher({ plan }) {
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
           <div className="absolute left-0 mt-2 w-72 bg-white border border-neutral-200 rounded-2xl shadow-xl p-2 z-50">
             <div className="flex items-start gap-3 p-2">
-              <Sparkles className="w-5 h-5 text-neutral-700 mt-0.5 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-neutral-900">Passe à l'abonnement</p>
                 <p className="text-xs text-neutral-500">Crée plus d'ebooks et débloque tous les outils</p>
