@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import useSWR, { useSWRConfig } from "swr";
 import { ChevronDown, LogOut, UserCircle2, Settings, Menu, Lightbulb, Users, CreditCard, BookOpen } from "lucide-react";
 import Link from "next/link";
+import { ebooksFromCredits } from "@/lib/plans";
 
 const fetcher = (url) => fetch(url, { credentials: "include" }).then((r) => r.json());
 
@@ -69,10 +70,12 @@ export default function DashboardHeader({ onMenuClick }) {
         <Link
           href="/dashboard/credits"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors"
-          title="Mes crédits"
+          title="Mes ebooks"
         >
-          <CreditCard className="w-3.5 h-3.5 text-neutral-500" />
-          <span className="text-xs font-semibold text-neutral-800">{balance !== null ? `${balance} cr.` : "—"}</span>
+          <BookOpen className="w-3.5 h-3.5 text-neutral-500" />
+          <span className="text-xs font-semibold text-neutral-800">
+            {balance !== null ? `${ebooksFromCredits(balance)} ebook${ebooksFromCredits(balance) !== 1 ? "s" : ""}` : "—"}
+          </span>
         </Link>
 
         <div className="relative">
