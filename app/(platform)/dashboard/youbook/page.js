@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Youtube, Loader2, AlertCircle, ArrowRight, CreditCard } from "lucide-react";
+import { Youtube, Loader2, AlertCircle, ArrowRight } from "lucide-react";
 import { useCredits } from "@/hooks/useCredits";
 import InsufficientCreditsModal from "@/components/ui/InsufficientCreditsModal";
 
 export default function YoubookPage() {
   const router = useRouter();
-  
+
   const [url, setUrl] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState("");
@@ -19,13 +19,13 @@ export default function YoubookPage() {
 
   const handleAnalyze = async () => {
     if (!url || isAnalyzing) return;
-    
+
     if (!url.includes("youtube.com") && !url.includes("youtu.be")) {
-      setError("Veuillez entrer un lien YouTube valide.");
+      setError("Entre un lien YouTube valide.");
       setErrorType("general");
       return;
     }
-    
+
     setIsAnalyzing(true);
     setError("");
     setErrorType("");
@@ -78,7 +78,7 @@ export default function YoubookPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-[calc(100dvh-56px)] bg-white flex items-center justify-center px-4 py-12">
       <InsufficientCreditsModal
         open={showModal}
         onClose={() => setShowModal(false)}
@@ -86,49 +86,35 @@ export default function YoubookPage() {
         balance={balance}
       />
 
-      <div className="max-w-xl mx-auto px-4 py-20">
-        
+      <div className="w-full max-w-xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-red-600 rounded-2xl mb-4">
-            <Youtube className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-neutral-900 mb-5">
+            <Youtube className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Youbook</h1>
-          <p className="text-slate-500">
-            Transforme n'importe quelle vidéo YouTube en ebook structuré
-          </p>
-
-          {balance !== null && (
-            <div className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 bg-slate-100 rounded-full">
-              <CreditCard size={12} className="text-slate-500" />
-              <span className="text-xs font-medium text-slate-600">
-                {balance} crédit{balance !== 1 ? "s" : ""} disponibles
-              </span>
-            </div>
-          )}
+          <h1 className="text-2xl sm:text-3xl font-semibold text-neutral-900 mb-2">Youbook</h1>
+          <p className="text-neutral-500 text-sm">Transforme une vidéo YouTube en ebook structuré.</p>
         </div>
 
         {/* Input */}
-        <form onSubmit={(e) => { e.preventDefault(); handleAnalyze(); }} className="mb-6">
+        <form onSubmit={(e) => { e.preventDefault(); handleAnalyze(); }}>
           <input
             type="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://www.youtube.com/watch?v=..."
+            placeholder="Colle le lien YouTube ici"
             disabled={isAnalyzing}
-            className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all text-center disabled:opacity-50"
+            className="w-full px-5 py-4 bg-white border border-neutral-200 rounded-[28px] text-[15px] text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all disabled:opacity-50"
           />
         </form>
 
         {/* Progress */}
         {isAnalyzing && (
-          <div className="space-y-2 mb-6">
-            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-              <div className="h-full bg-slate-900 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
+          <div className="mt-5 space-y-2">
+            <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+              <div className="h-full bg-neutral-900 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
             </div>
-            <p className="text-xs text-slate-500 text-center">
-              Analyse en cours... {Math.round(progress)}%
-            </p>
+            <p className="text-xs text-neutral-500 text-center">Analyse en cours… {Math.round(progress)}%</p>
           </div>
         )}
 
@@ -137,34 +123,36 @@ export default function YoubookPage() {
           type="button"
           onClick={handleAnalyze}
           disabled={isAnalyzing || !url}
-          className="w-full py-4 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-xl font-medium transition-all flex items-center justify-center gap-2"
+          className="mt-4 w-full py-3.5 bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-200 disabled:text-neutral-400 text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2"
         >
           {isAnalyzing ? (
-            <><Loader2 className="w-5 h-5 animate-spin" />Analyse en cours...</>
+            <><Loader2 className="w-4 h-4 animate-spin" />Analyse en cours…</>
           ) : (
-            <>Transformer en ebook<ArrowRight className="w-5 h-5" /></>
+            <>Transformer en ebook<ArrowRight className="w-4 h-4" /></>
           )}
         </button>
 
         {/* Error */}
         {error && (
-          <div className="mt-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <div className="mt-5 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-red-900">Erreur</p>
-              <p className="text-sm text-red-700 mb-3">{error}</p>
+              <p className="text-sm text-red-700">{error}</p>
               {(errorType === "credits" || errorType === "quota") && (
                 <button
                   onClick={() => router.push("/dashboard/tarifs")}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg transition-all"
+                  className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold rounded-lg transition-colors"
                 >
-                  Voir les plans <ArrowRight size={12} />
+                  Voir les offres <ArrowRight size={12} />
                 </button>
               )}
             </div>
           </div>
         )}
 
+        <p className="mt-6 text-center text-xs text-neutral-400">
+          Colle un lien, l'IA en fait un ebook structuré prêt à éditer.
+        </p>
       </div>
     </div>
   );
