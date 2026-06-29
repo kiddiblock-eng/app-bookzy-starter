@@ -412,7 +412,7 @@ function OffersModal({ onClose, projetId }) {
                 </span>
                 <span className="flex items-baseline gap-1.5">
                   <span className="text-2xl font-extrabold text-neutral-900">{o.ebooks}</span>
-                  <span className="text-sm text-neutral-600">ebook{o.ebooks > 1 ? "s" : ""} à vie</span>
+                  <span className="text-sm text-neutral-600">ebook{o.ebooks > 1 ? "s" : ""}</span>
                 </span>
                 {o.unlocksTools ? (
                   <span className="block mt-2">
