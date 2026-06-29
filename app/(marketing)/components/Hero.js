@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowRight, Star } from "lucide-react";
+import { ArrowRight, Star, Check } from "lucide-react";
 
 const EASE = [0.22, 1, 0.36, 1];
 const ACCENT = "#5f7aa6";
@@ -66,9 +66,10 @@ export default function Hero() {
           </button>
         </motion.form>
 
-        <motion.p variants={fadeUp} custom={4} initial="hidden" animate="show" className="mt-4 text-[13px] font-medium text-emerald-600">
-          Gratuit. Sans carte bancaire. 1 minute pour démarrer.
-        </motion.p>
+        <motion.div variants={fadeUp} custom={4} initial="hidden" animate="show" className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[13px] text-neutral-600">
+          <span className="inline-flex items-center gap-1.5"><Check size={14} style={{ color: ACCENT }} strokeWidth={3} /> Un ebook complet en 1 minute</span>
+          <span className="inline-flex items-center gap-1.5"><Check size={14} style={{ color: ACCENT }} strokeWidth={3} /> Un rendu digne d'un pro</span>
+        </motion.div>
 
         {/* Preuve sociale */}
         <motion.div variants={fadeUp} custom={5} initial="hidden" animate="show" className="mt-7 flex items-center justify-center gap-3">
