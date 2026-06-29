@@ -9,6 +9,7 @@ import { Resend } from "resend";
 import { paymentSuccessTemplate } from "@/lib/emailTemplates/paymentSuccessTemplate";
 import { creditSuccessTemplate } from "@/lib/creditSuccessTemplate";
 import MonerooProvider from "@/lib/payment/providers/MonerooProvider";
+import { OFFERS, offerCredits } from "@/lib/plans";
 import { processCommission } from "@/utils/affiliation";
 import crypto from "crypto";
 
@@ -145,13 +146,19 @@ export async function POST(req) {
     // ═══════════════════════════════════════════════════════════════════════
     if (tx.purpose === "credit_pack" && tx.packId) {
 
-      let credits, plan, isRecharge = false;
+      let credits, plan, isRecharge = false, isOffer = false, toolsTier = null;
 
       const recharge = parseRechargePackId(tx.packId);
       if (recharge) {
         credits    = recharge.credits;
         plan       = null;
         isRecharge = true;
+      } else if (OFFERS[tx.packId]) {
+        // Nouvelle offre ebooks qui n'expirent jamais (Découverte / Créateur / Pro)
+        credits   = offerCredits(tx.packId);
+        plan      = null;
+        isOffer   = true;
+        toolsTier = OFFERS[tx.packId].unlocksTools ? tx.packId : null;
       } else {
         credits = PACK_CREDITS[tx.packId];
         plan    = PACK_PLAN[tx.packId];
@@ -171,6 +178,10 @@ export async function POST(req) {
       if (isRecharge) {
         await user.addCredits(credits);
         console.log(`✅ [Recharge] +${credits} crédits (plan inchangé) — User: ${tx.userId}`);
+      } else if (isOffer) {
+        await user.addCredits(credits); // ebooks non-expirants, plan inchangé
+        if (toolsTier) { user.toolsTier = toolsTier; await user.save(); }
+        console.log(`✅ [Offre] ${tx.packId} +${credits} crédits — toolsTier: ${toolsTier || "—"} — User: ${tx.userId}`);
       } else {
         await user.addCredits(credits, plan);
         // Calculer la date d'expiration selon le type d'abonnement

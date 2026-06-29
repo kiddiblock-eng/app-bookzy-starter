@@ -71,6 +71,10 @@ const userSchema = new mongoose.Schema(
     },
     planExpiresAt: { type: Date, default: null },
 
+    // Statut "outils débloqués" (acheteurs Créateur/Pro) — null sinon.
+    // Reverrouillé automatiquement quand le solde d'ebooks tombe à 0.
+    toolsTier: { type: String, default: null },
+
     // Limites journalières
     dailyUsage: {
       date:            { type: String, default: "" },
@@ -151,6 +155,8 @@ userSchema.methods.spendCredits = async function (action) {
   if (this.credits.balance < cost) throw new Error(`Crédits insuffisants (${this.credits.balance}/${cost})`);
   this.credits.balance   -= cost;
   this.credits.totalSpent += cost;
+  // Plus d'ebooks → on reverrouille les outils (statut Créateur/Pro perdu)
+  if (this.credits.balance <= 0) this.toolsTier = null;
   await this.save();
   return this.credits.balance;
 };
