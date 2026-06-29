@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { OFFERS, OFFER_ORDER, pricePerEbook } from "@/lib/plans";
+import { OFFERS, OFFER_ORDER, discountPercent } from "@/lib/plans";
 import {
   CheckCircle2, Loader2, FileText, MessageCircle, PenTool,
   Download, Smartphone, ArrowRight, ArrowLeft, Check, BookOpen,
@@ -409,7 +409,7 @@ function OffersModal({ onClose, projetId }) {
           {OFFER_ORDER.map((id) => {
             const o = OFFERS[id];
             const reco = o.recommended;
-            const ppe = pricePerEbook(id);
+            const disc = discountPercent(id);
             return (
               <button key={id} onClick={() => buy(id)} disabled={!!buying}
                 className={`w-full text-left p-4 rounded-2xl border transition-all ${reco ? "border-neutral-900 bg-neutral-50 ring-1 ring-neutral-900" : "border-neutral-200 hover:border-neutral-300"} ${buying && buying !== id ? "opacity-50" : ""}`}>
@@ -422,7 +422,7 @@ function OffersModal({ onClose, projetId }) {
                     {buying === id ? <Loader2 className="w-4 h-4 animate-spin ml-auto" /> : (
                       <span className="block">
                         <span className="block text-base font-bold text-neutral-900">{fmt(o.priceFcfa)} F</span>
-                        {ppe && <span className="block text-[10px] text-neutral-400">{fmt(ppe)} F / ebook</span>}
+                        {disc > 0 && <span className="block text-[10px] font-semibold text-emerald-600">économise {disc}%</span>}
                       </span>
                     )}
                   </span>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Loader2, Check, ArrowRight } from "lucide-react";
-import { OFFERS, OFFER_ORDER, pricePerEbook } from "@/lib/plans";
+import { OFFERS, OFFER_ORDER, discountPercent } from "@/lib/plans";
 
 const fmt =(n) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
@@ -70,7 +70,7 @@ export default function TarifsPage() {
           {OFFER_ORDER.map((id) => {
             const o = OFFERS[id];
             const reco = o.recommended;
-            const ppe = pricePerEbook(id);
+            const disc = discountPercent(id);
             const isLoadingThis = loading === id;
             return (
               <div
@@ -92,7 +92,7 @@ export default function TarifsPage() {
                 </div>
                 <div className="text-xs text-neutral-500 mb-1">
                   <strong className="text-neutral-900">{o.ebooks} ebook{o.ebooks > 1 ? "s" : ""}</strong>
-                  {ppe ? ` · ${fmt(ppe)} FCFA / ebook` : ""}
+                  {disc > 0 && <span className="ml-1.5 font-semibold text-emerald-600">· économise {disc}%</span>}
                 </div>
                 {id === "decouverte" && o.welcomePriceFcfa && (
                   <div className="text-xs font-semibold text-emerald-600 mb-3">1er ebook à {fmt(o.welcomePriceFcfa)} FCFA</div>
