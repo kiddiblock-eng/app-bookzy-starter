@@ -12,9 +12,9 @@ const fmt = (n) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "�
 // Avantages affichés par offre
 const PERKS = {
   decouverte: [
-    "1 ebook complet (PDF + kit marketing)",
+    "2 ebooks complets (PDF + kit marketing)",
     "Qualité IA premium, prêt à vendre",
-    "Ne s'utilise pas pour les autres outils",
+    "Ne débloque pas les autres outils",
   ],
   createur: [
     "5 ebooks complets",
