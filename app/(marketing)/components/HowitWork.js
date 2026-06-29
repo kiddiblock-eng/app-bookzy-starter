@@ -1,14 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MessageSquareText, Sparkles, Download } from "lucide-react";
+import { MessageSquareText, PenLine, Download } from "lucide-react";
 import { Reveal, Stagger, staggerItem } from "./Reveal";
 
 const ACCENT = "#5f7aa6";
 
 const STEPS = [
   { n: "01", Icon: MessageSquareText, title: "Décris ton idée", desc: "En une phrase, dis à l'IA le sujet de ton ebook. Pas besoin d'écrire quoi que ce soit — juste l'idée." },
-  { n: "02", Icon: Sparkles, title: "L'IA écrit et designe tout", desc: "Contenu, chapitres, mise en page et cover : générés automatiquement en une minute. Zéro compétence technique." },
+  { n: "02", Icon: PenLine, title: "L'IA écrit et designe tout", desc: "Contenu, chapitres, mise en page et cover : générés automatiquement en une minute. Zéro compétence technique." },
   { n: "03", Icon: Download, title: "Télécharge et vends", desc: "Ton PDF pro est prêt, avec le kit marketing pour le partager sur WhatsApp et le vendre." },
 ];
 
