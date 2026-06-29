@@ -119,6 +119,7 @@ export default function RomansPage() {
         }),
       });
       const data = await res.json();
+      if (data?.locked) { window.location.href = data.redirectTo || "/dashboard/tarifs"; return; }
 
       if (!data.success) {
         if (data.insufficientCredits) {

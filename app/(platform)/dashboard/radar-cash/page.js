@@ -153,6 +153,7 @@ export default function RadarCashPage() {
         body: JSON.stringify({ subject: ad.title || ad.bodyText?.substring(0, 100), pageName: ad.pageName, bodyText: ad.bodyText }),
       });
       const data = await res.json();
+      if (data?.locked) { window.location.href = data.redirectTo || "/dashboard/tarifs"; return; }
       if (data.success) setModalResult(data.data);
     } catch (e) { console.error(e); }
     finally { setModalLoading(false); }

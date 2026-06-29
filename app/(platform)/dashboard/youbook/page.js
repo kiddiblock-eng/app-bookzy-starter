@@ -45,7 +45,8 @@ export default function YoubookPage() {
         body: JSON.stringify({ url }),
       });
       const data = await res.json();
-      
+      if (data?.locked) { clearInterval(progressInterval); window.location.href = data.redirectTo || "/dashboard/tarifs"; return; }
+
       clearInterval(progressInterval);
       setProgress(100);
 

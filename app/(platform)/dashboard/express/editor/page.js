@@ -633,11 +633,13 @@ export default function BookzyExpressEditor() {
       setShowModal(true);
 
       // Lancer la génération PDF
-      await fetch("/api/express/generate", {
+      const genRes = await fetch("/api/express/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ projetId: createData.projetId }),
       });
+      const genData = await genRes.json().catch(() => ({}));
+      if (genData?.locked) { window.location.href = genData.redirectTo || "/dashboard/tarifs"; return; }
 
     } catch (error) {
       console.error(error);

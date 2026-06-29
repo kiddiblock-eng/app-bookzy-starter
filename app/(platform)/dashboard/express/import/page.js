@@ -351,6 +351,7 @@ export default function ExpressImport() {
         body: JSON.stringify({ projetId: createData.projetId }),
       });
       const genData = await genRes.json();
+      if (genData?.locked) { window.location.href = genData.redirectTo || "/dashboard/tarifs"; return; }
       if (genData.success) { setGeneratedPdfUrl(genData.pdfUrl); setShowSuccessModal(true); mutateBalance(); }
       else throw new Error(genData.error || "Erreur génération");
     } catch (error) {
