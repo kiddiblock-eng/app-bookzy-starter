@@ -381,12 +381,15 @@ function OffersModal({ onClose, projetId }) {
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:9999,padding:"16px"}}>
       <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="p-5 border-b border-neutral-100 flex items-start justify-between sticky top-0 bg-white z-10">
-          <div>
+        <div className="p-5 border-b border-neutral-100 sticky top-0 bg-white z-10">
+          <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-bold text-neutral-900">Génère cet ebook</h3>
-            <p className="text-xs text-neutral-500 mt-0.5">Générer utilise <strong className="text-neutral-700">1 ebook</strong>. Les ebooks en plus restent pour tes prochaines créations — ils n'expirent jamais.</p>
+            <button onClick={onClose} className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center shrink-0"><X size={14} /></button>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center shrink-0"><X size={14} /></button>
+          <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
+            <span className="text-base leading-none">💡</span>
+            <p className="text-[13px] text-amber-900 leading-snug">Générer utilise <strong>1 ebook</strong>. Les ebooks en plus restent pour tes prochaines créations — <strong>ils n'expirent jamais</strong>.</p>
+          </div>
         </div>
         <div className="p-3 space-y-2.5">
           {OFFER_ORDER.map((id) => {
