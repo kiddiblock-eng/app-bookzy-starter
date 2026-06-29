@@ -4,6 +4,7 @@ import { dbConnect } from "@/lib/db";
 import PaymentProviderService from "@/lib/payment/PaymentProviderService";
 import { verifyAuth } from "@/lib/auth";
 import Transaction from "@/models/Transaction";
+import { OFFERS, offerCredits } from "@/lib/plans";
 
 const PACKS = {
   solo_monthly:       { credits: 100,  amount: 7500,  plan: "solo",     label: "Pass Solo — Mensuel"         },
@@ -52,6 +53,21 @@ export async function POST(req) {
 
     let pack = PACKS[packId] ?? null;
     let isRecharge = false;
+    let toolsTier = null;
+
+    // Nouvelles offres "ebooks qui n'expirent jamais" (Découverte / Créateur / Pro)
+    if (!pack && OFFERS[packId]) {
+      const o = OFFERS[packId];
+      const isFirstPurchase = (await Transaction.countDocuments({ userId: user.id, status: "completed" })) === 0;
+      const amount = packId === "decouverte" && isFirstPurchase && o.welcomePriceFcfa ? o.welcomePriceFcfa : o.priceFcfa;
+      toolsTier = o.unlocksTools ? packId : null; // "createur" | "pro" | null
+      pack = {
+        credits: offerCredits(packId),
+        amount,
+        plan: null, // on ne touche pas user.plan (ebooks non-expirants)
+        label: `${o.label} · ${o.ebooks} ebook${o.ebooks > 1 ? "s" : ""}`,
+      };
+    }
 
     if (!pack) {
       pack = parseRechargePackId(packId);
@@ -75,6 +91,7 @@ export async function POST(req) {
         label:      pack.label,
         amount:     pack.amount,
         isRecharge,
+        toolsTier,
       },
     });
 
