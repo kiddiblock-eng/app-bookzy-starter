@@ -383,8 +383,8 @@ function OffersModal({ onClose, projetId }) {
       <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="p-5 border-b border-neutral-100 flex items-start justify-between sticky top-0 bg-white z-10">
           <div>
-            <h3 className="text-lg font-bold text-neutral-900">Débloque ton ebook</h3>
-            <p className="text-xs text-neutral-500 mt-0.5">PDF + kit marketing, prêt à vendre. Tes ebooks n'expirent jamais.</p>
+            <h3 className="text-lg font-bold text-neutral-900">Génère cet ebook</h3>
+            <p className="text-xs text-neutral-500 mt-0.5">Générer utilise <strong className="text-neutral-700">1 ebook</strong>. Les ebooks en plus restent pour tes prochaines créations — ils n'expirent jamais.</p>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center shrink-0"><X size={14} /></button>
         </div>
