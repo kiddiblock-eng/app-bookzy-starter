@@ -132,7 +132,7 @@ function Row({ eyebrow, title, text, bullets, Graphic, reverse }) {
     <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
       <Reveal y={28} className={reverse ? "lg:order-2" : ""}>
         <p className="text-xs font-bold uppercase tracking-[0.2em] mb-3" style={{ color: ACCENT }}>{eyebrow}</p>
-        <h3 className="font-serif text-3xl sm:text-4xl font-semibold tracking-tight text-neutral-900 mb-4 leading-tight">{title}</h3>
+        <h3 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-900 mb-4 leading-tight">{title}</h3>
         <p className="text-neutral-500 text-lg leading-relaxed mb-6">{text}</p>
         <ul className="space-y-3">
           {bullets.map((b) => (

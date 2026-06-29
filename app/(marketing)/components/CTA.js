@@ -14,7 +14,7 @@ export default function CTA() {
             <div className="pointer-events-none absolute inset-0"
               style={{ background: "radial-gradient(ellipse 60% 70% at 50% 0%, rgba(95,122,166,0.45), transparent 70%)" }} />
             <div className="relative">
-              <h2 className="font-serif text-white text-3xl sm:text-5xl font-semibold tracking-tight">Ton premier ebook t'attend.</h2>
+              <h2 className="text-white text-3xl sm:text-5xl font-extrabold tracking-tight">Ton premier ebook t'attend.</h2>
               <p className="text-neutral-400 mt-4 max-w-lg mx-auto leading-relaxed">
                 Rejoins 25 000+ créateurs. Trouve un sujet, génère ton ebook, vends-le. Gratuit pour commencer.
               </p>
