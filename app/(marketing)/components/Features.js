@@ -132,7 +132,7 @@ function Row({ eyebrow, title, text, bullets, Graphic, reverse }) {
     <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
       <Reveal y={28} className={reverse ? "lg:order-2" : ""}>
         <p className="text-xs font-bold uppercase tracking-[0.2em] mb-3" style={{ color: ACCENT }}>{eyebrow}</p>
-        <h3 className="text-3xl sm:text-4xl font-bold tracking-tight text-neutral-900 mb-4 leading-tight">{title}</h3>
+        <h3 className="font-serif text-3xl sm:text-4xl font-semibold tracking-tight text-neutral-900 mb-4 leading-tight">{title}</h3>
         <p className="text-neutral-500 text-lg leading-relaxed mb-6">{text}</p>
         <ul className="space-y-3">
           {bullets.map((b) => (
@@ -157,8 +157,8 @@ function Row({ eyebrow, title, text, bullets, Graphic, reverse }) {
 
 export default function Features() {
   return (
-    <section id="outils" className="bg-white py-20 sm:py-28">
-      <div className="max-w-6xl mx-auto px-5 sm:px-6 space-y-24 sm:space-y-32">
+    <section id="outils" className="bg-white py-14 sm:py-20">
+      <div className="max-w-6xl mx-auto px-5 sm:px-6 space-y-16 sm:space-y-20">
         {ROWS.map((r, i) => <Row key={i} {...r} />)}
       </div>
     </section>

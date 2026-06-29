@@ -14,11 +14,11 @@ const STEPS = [
 
 export default function HowitWork() {
   return (
-    <section id="how" className="bg-white py-20 sm:py-28">
+    <section id="how" className="bg-white py-14 sm:py-20">
       <div className="max-w-6xl mx-auto px-5 sm:px-6">
         <Reveal className="text-center max-w-2xl mx-auto mb-14 sm:mb-16">
           <p className="text-xs font-bold uppercase tracking-[0.2em] mb-3" style={{ color: ACCENT }}>Comment ça marche</p>
-          <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-neutral-900">Créer un ebook, c'est devenu enfantin.</h2>
+          <h2 className="font-serif text-3xl sm:text-5xl font-semibold tracking-tight text-neutral-900">Créer un ebook, c'est devenu enfantin.</h2>
           <p className="mt-4 text-neutral-500">Pas besoin d'écrire, ni de savoir designer. Tu donnes l'idée, l'IA fait absolument tout.</p>
         </Reveal>
 

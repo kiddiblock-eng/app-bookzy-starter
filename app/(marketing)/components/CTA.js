@@ -6,7 +6,7 @@ import { Reveal } from "./Reveal";
 
 export default function CTA() {
   return (
-    <section className="bg-white py-20 sm:py-28">
+    <section className="bg-white py-14 sm:py-20">
       <div className="max-w-4xl mx-auto px-5 sm:px-6">
         <Reveal>
           <div className="relative overflow-hidden rounded-3xl bg-neutral-900 px-6 py-16 sm:py-20 text-center">
@@ -14,7 +14,7 @@ export default function CTA() {
             <div className="pointer-events-none absolute inset-0"
               style={{ background: "radial-gradient(ellipse 60% 70% at 50% 0%, rgba(95,122,166,0.45), transparent 70%)" }} />
             <div className="relative">
-              <h2 className="text-white text-3xl sm:text-5xl font-bold tracking-tight">Ton premier ebook t'attend.</h2>
+              <h2 className="font-serif text-white text-3xl sm:text-5xl font-semibold tracking-tight">Ton premier ebook t'attend.</h2>
               <p className="text-neutral-400 mt-4 max-w-lg mx-auto leading-relaxed">
                 Rejoins 25 000+ créateurs. Trouve un sujet, génère ton ebook, vends-le. Gratuit pour commencer.
               </p>

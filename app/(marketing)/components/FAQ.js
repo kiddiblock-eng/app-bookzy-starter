@@ -19,11 +19,11 @@ const QA = [
 export default function FAQ() {
   const [open, setOpen] = useState(0);
   return (
-    <section id="faq" className="bg-white py-20 sm:py-28">
+    <section id="faq" className="bg-white py-14 sm:py-20">
       <div className="max-w-3xl mx-auto px-5 sm:px-6">
         <Reveal className="text-center max-w-2xl mx-auto mb-12">
           <p className="text-xs font-bold uppercase tracking-[0.2em] mb-3" style={{ color: ACCENT }}>FAQ</p>
-          <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-neutral-900">Questions fréquentes.</h2>
+          <h2 className="font-serif text-3xl sm:text-5xl font-semibold tracking-tight text-neutral-900">Questions fréquentes.</h2>
         </Reveal>
 
         <div className="space-y-3">
