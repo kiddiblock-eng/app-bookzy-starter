@@ -1,15 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Search, Sparkles, Wallet } from "lucide-react";
+import { MessageSquareText, Sparkles, Download } from "lucide-react";
 import { Reveal, Stagger, staggerItem } from "./Reveal";
 
 const ACCENT = "#5f7aa6";
 
 const STEPS = [
-  { n: "01", Icon: Search, title: "Trouve un sujet qui rapporte", desc: "Niche Hunter, Radar Cash et le Validateur scannent Facebook Ads, Google et le marché. Tu sais quoi créer avant d'écrire une ligne." },
-  { n: "02", Icon: Sparkles, title: "L'IA crée ton ebook", desc: "Contenu complet, design pro et cover générés en une minute. Un PDF prêt à vendre, sans aucun effort." },
-  { n: "03", Icon: Wallet, title: "Vends et encaisse", desc: "Kit marketing inclus : textes WhatsApp, Facebook et descriptions de vente. Tu partages, tu encaisses." },
+  { n: "01", Icon: MessageSquareText, title: "Décris ton idée", desc: "En une phrase, dis à l'IA le sujet de ton ebook. Pas besoin d'écrire quoi que ce soit — juste l'idée." },
+  { n: "02", Icon: Sparkles, title: "L'IA écrit et designe tout", desc: "Contenu, chapitres, mise en page et cover : générés automatiquement en une minute. Zéro compétence technique." },
+  { n: "03", Icon: Download, title: "Télécharge et vends", desc: "Ton PDF pro est prêt, avec le kit marketing pour le partager sur WhatsApp et le vendre." },
 ];
 
 export default function HowitWork() {
@@ -18,7 +18,8 @@ export default function HowitWork() {
       <div className="max-w-6xl mx-auto px-5 sm:px-6">
         <Reveal className="text-center max-w-2xl mx-auto mb-14 sm:mb-16">
           <p className="text-xs font-bold uppercase tracking-[0.2em] mb-3" style={{ color: ACCENT }}>Comment ça marche</p>
-          <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-neutral-900">De l'idée au cash, en 3 étapes.</h2>
+          <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-neutral-900">Créer un ebook, c'est devenu enfantin.</h2>
+          <p className="mt-4 text-neutral-500">Pas besoin d'écrire, ni de savoir designer. Tu donnes l'idée, l'IA fait absolument tout.</p>
         </Reveal>
 
         <Stagger className="grid md:grid-cols-3 gap-5">

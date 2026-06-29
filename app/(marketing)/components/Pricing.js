@@ -31,7 +31,7 @@ export default function Pricing() {
             const disc = discountPercent(id);
             return (
               <Reveal key={id} delay={idx * 0.08}
-                className={`relative rounded-2xl bg-white p-6 flex flex-col ${reco ? "order-first sm:order-none border-2 border-[#5f7aa6] shadow-xl" : "border border-neutral-200"}`}>
+                className={`relative rounded-2xl bg-white p-6 flex flex-col ${reco ? "border-2 border-[#5f7aa6] shadow-xl" : "border border-neutral-200"}`}>
                 {reco && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full" style={{ background: ACCENT }}>
                     Le plus populaire
