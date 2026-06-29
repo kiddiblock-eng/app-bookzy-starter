@@ -809,7 +809,7 @@ function NouveauProjetPageContent() {
   if (previewData && kitData) return <PreviewPage kit={kitData} previewData={previewData} onEdit={() => { setPreviewData(null); setKitData(null); setIsLoading(false); }} />;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-[calc(100dvh-120px)] bg-slate-50 flex flex-col">
 
       {/* Drawer menu */}
       {menuOpen && (

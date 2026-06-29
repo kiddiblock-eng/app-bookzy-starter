@@ -79,7 +79,7 @@ export default function DashboardLayout({ children }) {
           {!loading && user && <WhatsNewBanner user={user} />}
         </div>
 
-        <main className="bg-neutral-50 dark:bg-neutral-950 min-h-screen overflow-x-hidden">
+        <main className="bg-neutral-50 dark:bg-neutral-950 min-h-[calc(100dvh-56px)] overflow-x-hidden">
           <div className="p-4 md:p-6 lg:p-8 w-full max-w-full">
             {children}
           </div>
