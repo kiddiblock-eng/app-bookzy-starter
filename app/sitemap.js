@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { dbConnect } from "@/lib/db";
 import Blog from "@/models/Blog";
+import { ALL_TOPICS } from "@/lib/seoTopics";
 
 export default async function sitemap() {
   const baseUrl = 'https://www.bookzy.io';
@@ -88,6 +89,19 @@ export default async function sitemap() {
       changeFrequency: 'monthly',
       priority: 0.3,
     },
+    // --- HUB SEO + 300+ PAGES SUJETS ---
+    {
+      url: `${baseUrl}/creer-un-ebook`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    ...ALL_TOPICS.map((t) => ({
+      url: `${baseUrl}/creer-un-ebook/${t.slug}`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    })),
     // --- LES BLOGS DYNAMIQUES ---
     ...blogPosts,
   ];
