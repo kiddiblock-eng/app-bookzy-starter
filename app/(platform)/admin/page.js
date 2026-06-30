@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import {
   Users,
   FileText,
@@ -354,13 +354,27 @@ export default function AdminDashboard() {
   async function fetchRevenue() { try { const res = await fetch("/api/admin/analytics/revenue-monthly?months=6", { headers: getAdminHeaders(), cache: "no-store" }); const data = await res.json(); if (data.success && Array.isArray(data.data)) setRevenueData(data.data); } catch (err) { console.error("Erreur revenue:", err); } }
   async function fetchPerformance() { try { const res = await fetch("/api/admin/analytics/performance", { headers: getAdminHeaders(), cache: "no-store" }); const data = await res.json(); if (data.success && Array.isArray(data.data)) setPerformanceData(data.data); } catch (err) { console.error("Erreur performance:", err); } }
 
-  async function loadAllData() {
-    await Promise.all([ fetchDashboard(), fetchTimeline(), fetchRecentUsers(), fetchRecentEbooks(), fetchNotifications(), fetchGoals(), fetchLeaderboard(), fetchActivity(), fetchRevenue(), fetchPerformance() ]);
+  // Données indépendantes de la période → chargées une seule fois
+  async function loadStaticData() {
+    await Promise.all([ fetchDashboard(), fetchRecentUsers(), fetchRecentEbooks(), fetchNotifications(), fetchGoals(), fetchLeaderboard(), fetchActivity(), fetchPerformance() ]);
   }
+  // Données dépendantes de la période → re-chargées seulement au changement de période
+  async function loadPeriodData() {
+    await Promise.all([ fetchTimeline(), fetchRevenue() ]);
+  }
+  async function loadAllData() { await Promise.all([ loadStaticData(), loadPeriodData() ]); }
 
   async function handleRefresh() { setIsRefreshing(true); await loadAllData(); setIsRefreshing(false); }
 
-  useEffect(() => { setLoading(true); loadAllData().then(() => setLoading(false)); }, [period]);
+  const mountedRef = useRef(false);
+  useEffect(() => {
+    setLoading(true);
+    loadAllData().then(() => { setLoading(false); mountedRef.current = true; });
+  }, []);
+  useEffect(() => {
+    if (!mountedRef.current) return; // évite le double chargement au montage
+    loadPeriodData();
+  }, [period]);
 
   const sparklineData = useMemo(() => {
     if (!timeline || timeline.length === 0) return [];
