@@ -5,9 +5,15 @@ import Blog from "@/models/Blog";
  import { verifyAdmin } from "../../../../lib/auth"; // Décommente si tu as l'auth
 
 // GET — Liste des blogs
-export async function GET() {
+export async function GET(req) {
   try {
     await dbConnect();
+
+    const admin = await verifyAdmin(req);
+    if (!admin?.authorized) {
+      return NextResponse.json({ success: false, message: "Non autorisé" }, { status: 403 });
+    }
+
     const blogs = await Blog.find().sort({ createdAt: -1 }).lean();
     return NextResponse.json({ success: true, blogs });
   } catch (err) {
@@ -26,7 +32,7 @@ export async function POST(req) {
 
     // Vérification admin (décommente si nécessaire)
      const admin = await verifyAdmin(req);
-    if (!admin) {
+    if (!admin?.authorized) {
       return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
      }
 

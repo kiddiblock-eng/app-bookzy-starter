@@ -9,7 +9,7 @@ export async function PUT(req, { params }) {
     await dbConnect();
 
     const admin = await verifyAdmin(req);
-    if (!admin) {
+    if (!admin?.authorized) {
       return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
     }
 

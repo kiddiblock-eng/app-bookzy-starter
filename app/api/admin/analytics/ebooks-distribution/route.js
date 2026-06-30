@@ -5,8 +5,12 @@ export const dynamic = "force-dynamic";
 import { dbConnect } from "@/lib/db";
 import Projet from "@/models/Projet"; // ✅ CHANGÉ
 import { NextResponse } from "next/server";
-export async function GET() {
+import { verifyAdmin } from "@/lib/auth";
+export async function GET(req) {
   await dbConnect();
+
+  const { authorized } = await verifyAdmin(req);
+  if (!authorized) return NextResponse.json({ success: false, message: "Non autorisé" }, { status: 403 });
 
   const stats = await Projet.aggregate([ // ✅ CHANGÉ
     {

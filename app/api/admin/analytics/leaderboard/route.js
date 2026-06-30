@@ -7,10 +7,14 @@ import { dbConnect } from "@/lib/db";
 import User from "@/models/User";
 import Projet from "@/models/Projet"; // ✅ CHANGÉ
 import { withCache } from "@/lib/miniCache";
+import { verifyAdmin } from "@/lib/auth";
 
 export async function GET(req) {
   try {
     await dbConnect();
+
+    const { authorized } = await verifyAdmin(req);
+    if (!authorized) return NextResponse.json({ success: false, message: "Non autorisé" }, { status: 403 });
 
     const formatted = await withCache("admin:leaderboard", 30000, async () => {
       const top = await Projet.aggregate([

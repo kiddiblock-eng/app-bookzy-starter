@@ -12,7 +12,7 @@ export async function GET(req) {
     return NextResponse.json({ success: false, message: "Non autorisé" }, { status: 403 });
   }
 
-  const users = await User.find().sort({ createdAt: -1 }).lean();
+  const users = await User.find().select("-password -security.twoFASecret").sort({ createdAt: -1 }).lean();
 
   return NextResponse.json({ 
     success: true, 

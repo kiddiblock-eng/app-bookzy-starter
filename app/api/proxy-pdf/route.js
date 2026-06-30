@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isAllowedCloudinaryUrl } from "@/lib/safeFetchUrl";
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
@@ -6,6 +7,11 @@ export async function GET(req) {
 
   if (!url) {
     return new NextResponse("URL manquante", { status: 400 });
+  }
+
+  // 🛡️ Anti-SSRF : seules les URLs Cloudinary sont proxifiables
+  if (!isAllowedCloudinaryUrl(url)) {
+    return new NextResponse("URL non autorisée", { status: 400 });
   }
 
   try {

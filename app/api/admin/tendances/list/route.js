@@ -9,7 +9,7 @@ export async function GET(req) {
 
     // Vérification admin
     const admin = await verifyAdmin(req);
-    if (!admin) {
+    if (!admin?.authorized) {
       return new Response(
         JSON.stringify({ success: false, message: "Accès non autorisé" }),
         { status: 403 }

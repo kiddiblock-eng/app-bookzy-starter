@@ -26,7 +26,7 @@ export async function GET(req, { params }) {
     }
 
     // 🔍 Récupérer l'utilisateur
-    const user = await User.findById(userId).lean();
+    const user = await User.findById(userId).select("-password -security.twoFASecret").lean();
     if (!user) {
       return NextResponse.json(
         { success: false, message: "Utilisateur introuvable" },

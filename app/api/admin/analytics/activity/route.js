@@ -3,9 +3,13 @@ import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import Activity from "@/models/Activity";
 import { withCache } from "@/lib/miniCache";
+import { verifyAdmin } from "@/lib/auth";
 export async function GET(req) {
   try {
     await dbConnect();
+
+    const { authorized } = await verifyAdmin(req);
+    if (!authorized) return NextResponse.json({ success: false, message: "Non autorisé" }, { status: 403 });
 
     const { searchParams } = new URL(req.url);
     const days = parseInt(searchParams.get("days") || "7");

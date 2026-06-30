@@ -6,10 +6,14 @@ import { dbConnect } from "@/lib/db";
 import User from "@/models/User";
 import Projet from "@/models/Projet"; // ✅ CHANGÉ
 import { NextResponse } from "next/server";
+import { verifyAdmin } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(req) {
   try {
     await dbConnect();
+
+    const { authorized } = await verifyAdmin(req);
+    if (!authorized) return NextResponse.json({ success: false, message: "Non autorisé" }, { status: 403 });
 
     // Logins groupés par heure
     const logins = await User.aggregate([

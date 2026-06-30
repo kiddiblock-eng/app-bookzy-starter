@@ -10,7 +10,7 @@ export async function GET(req, { params }) {
 
     // Auth admin (si tu utilises un middleware)
     const admin = await verifyAdmin(req);
-    if (!admin) {
+    if (!admin?.authorized) {
       return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
     }
 

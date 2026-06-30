@@ -3,10 +3,14 @@ import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import User from "@/models/User";
 import { withCache } from "@/lib/miniCache";
+import { verifyAdmin } from "@/lib/auth";
 
 export async function GET(req) {
   try {
     await dbConnect();
+
+    const { authorized } = await verifyAdmin(req);
+    if (!authorized) return NextResponse.json({ success: false, message: "Non autorisé" }, { status: 403 });
 
     const notifications = await withCache("admin:notifications", 30000, async () => {
       const list = [];

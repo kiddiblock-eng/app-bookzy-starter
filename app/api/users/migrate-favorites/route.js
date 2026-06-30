@@ -1,11 +1,21 @@
 export const dynamic = "force-dynamic";
+import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
+import { verifyAdmin } from "@/lib/auth";
 import User from "@/models/User";
 
 // ✅ Change POST en GET
-export async function GET(request) {
+export async function GET(req) {
   try {
     await dbConnect();
+
+    const admin = await verifyAdmin(req);
+    if (!admin?.authorized) {
+      return NextResponse.json(
+        { success: false, message: "Non autorisé" },
+        { status: 403 }
+      );
+    }
 
     // Mettre à jour TOUS les users sans favorites
     const result = await User.updateMany(

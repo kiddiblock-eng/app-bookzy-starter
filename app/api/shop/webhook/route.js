@@ -8,6 +8,8 @@ import { dbConnect } from "@/lib/db";
 import Shop from "@/models/Shop";
 import ShopProduct from "@/models/ShopProduct";
 import ShopSale from "@/models/ShopSale";
+import Settings from "@/models/settings";
+import MonerooProvider from "@/lib/payment/providers/MonerooProvider";
 import crypto from "crypto";
 
 // Fonction pour envoyer l'email avec le lien de téléchargement
@@ -93,22 +95,30 @@ export async function POST(req) {
     await dbConnect();
 
     const body = await req.json();
-    console.log("🔔 [Shop Webhook] Reçu:", JSON.stringify(body, null, 2));
+    console.log("🔔 [Shop Webhook] Reçu");
 
-    // Vérifier le type d'événement
-    const eventType = body.event || body.type;
-    const paymentData = body.data || body;
-
-    // On ne traite que les paiements réussis
-    if (eventType !== "payment.success" && paymentData.status !== "success") {
-      console.log(`ℹ️ [Shop Webhook] Événement ignoré: ${eventType}`);
+    // 🔒 SÉCURITÉ : on NE fait PAS confiance au corps du webhook.
+    // On re-vérifie le paiement directement auprès de l'API Moneroo
+    // (un attaquant ne peut pas forger un paiement : l'ID est vérifié à la source).
+    const webhookDataRaw = body.data || body;
+    const monerooTransactionId = webhookDataRaw.id;
+    if (!monerooTransactionId) {
+      console.log("❌ [Shop Webhook] ID de transaction manquant");
       return NextResponse.json({ received: true });
     }
 
-    // Récupérer les métadonnées
-    const metadata = paymentData.metadata || {};
-    
-    // Vérifier que c'est un paiement Smart Shop
+    const settings = await Settings.findOne({ key: "global" }).lean();
+    const provider = new MonerooProvider(settings?.payment?.moneroo);
+    const verifiedData = await provider.verifyPayment(monerooTransactionId);
+
+    if (verifiedData?.status !== "completed") {
+      console.log(`ℹ️ [Shop Webhook] Paiement non confirmé par Moneroo (${verifiedData?.status})`);
+      return NextResponse.json({ received: true });
+    }
+
+    // On utilise les métadonnées VÉRIFIÉES (renvoyées par l'API), pas le corps brut
+    const metadata = verifiedData.metadata || webhookDataRaw.metadata || {};
+
     if (metadata.type !== "smart_shop") {
       console.log("ℹ️ [Shop Webhook] Pas un paiement Smart Shop");
       return NextResponse.json({ received: true });
@@ -127,7 +137,7 @@ export async function POST(req) {
       return NextResponse.json({ received: true });
     }
 
-    // Vérifier si déjà traitée
+    // Vérifier si déjà traitée (idempotence)
     if (sale.status === "completed") {
       console.log(`ℹ️ [Shop Webhook] Vente déjà traitée: ${saleId}`);
       return NextResponse.json({ received: true });

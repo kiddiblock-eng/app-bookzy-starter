@@ -8,6 +8,7 @@
 
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
+import { isAllowedCloudinaryUrl } from "@/lib/safeFetchUrl";
 
 // Config Cloudinary
 cloudinary.config({
@@ -22,6 +23,11 @@ export async function POST(request) {
 
     if (!pdfUrl) {
       return NextResponse.json({ success: false, error: "URL PDF requise" }, { status: 400 });
+    }
+
+    // 🛡️ Anti-SSRF : seules les URLs Cloudinary sont autorisées
+    if (!isAllowedCloudinaryUrl(pdfUrl)) {
+      return NextResponse.json({ success: false, error: "URL non autorisée" }, { status: 400 });
     }
 
     console.log("📄 [PDF-to-Images] Début conversion Cloudinary:", pdfUrl);
