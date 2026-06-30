@@ -1,0 +1,62 @@
+{
+  "title": "Combien de pages doit faire un ebook",
+  "metaTitle": "Combien de pages doit faire un ebook | Bookzy",
+  "metaDescription": "Combien de pages doit faire un ebook pour bien se vendre ? Découvre le bon nombre selon ton prix, ton sujet et ton public, sans tomber dans le remplissage.",
+  "keyword": "combien de pages ebook",
+  "pillar": "Créer un ebook",
+  "intro": "C'est la première question que se pose tout créateur : mon ebook doit-il faire 20, 50 ou 150 pages ? La vérité, c'est qu'il n'existe pas de chiffre magique. Ce qui compte, c'est que ton ebook tienne sa promesse — ni plus, ni moins. Voici comment trouver la bonne longueur sans perdre ton lecteur ni gonfler artificiellement ton contenu.",
+  "sections": [
+    {
+      "h2": "Pourquoi le nombre de pages n'est pas le vrai sujet",
+      "body": [
+        "Beaucoup de débutants pensent qu'un ebook « sérieux » doit être épais. C'est faux. Un lecteur n'achète pas du papier, il achète une transformation : résoudre un problème, apprendre une compétence, gagner du temps. Si tu y arrives en 25 pages, ton ebook est excellent. Si tu noies la solution dans 120 pages, tu fais fuir.",
+        "Le bon réflexe n'est donc pas de viser un nombre de pages, mais de viser un résultat clair. Tu décides d'abord ce que ton lecteur doit savoir-faire à la fin, puis tu écris exactement ce qu'il faut pour l'y amener. La longueur découle du contenu, jamais l'inverse."
+      ]
+    },
+    {
+      "h2": "Les fourchettes qui fonctionnent selon le type d'ebook",
+      "body": [
+        "Même s'il n'y a pas de règle absolue, certaines fourchettes reviennent souvent parce qu'elles correspondent à l'attente du lecteur. Un guide pratique court se lit vite et passe à l'action : c'est souvent ce que les gens préfèrent acheter en ligne aujourd'hui.",
+        "Au-delà d'un certain volume, le lecteur a besoin de structure : chapitres, sommaire, exercices. Sinon, l'ebook devient une corvée et finit non lu, ce qui tue les recommandations et les ventes futures."
+      ],
+      "list": [
+        "Guide pratique ou checklist : 15 à 40 pages, droit au but.",
+        "Ebook de formation ou méthode complète : 40 à 80 pages.",
+        "Ouvrage de référence ou roman : 100 pages et plus, avec une vraie structure.",
+        "Lead magnet gratuit (pour capter des contacts) : 8 à 20 pages."
+      ]
+    },
+    {
+      "h2": "Adapter la longueur à ton prix",
+      "body": [
+        "Le nombre de pages et le prix sont liés dans la tête de l'acheteur, mais pas comme on le croit. Un ebook court et ultra-actionnable peut se vendre cher s'il fait gagner du temps ou de l'argent. À l'inverse, un pavé peu structuré vendu cher déçoit et génère des demandes de remboursement.",
+        "Sur le marché africain francophone, où le pouvoir d'achat varie beaucoup, mieux vaut un format clair et abordable qui livre un résultat précis qu'un gros document impressionnant mais flou. La valeur perçue vient de la promesse tenue, pas de l'épaisseur."
+      ]
+    },
+    {
+      "h2": "Éviter le remplissage qui tue ton ebook",
+      "body": [
+        "Quand on veut « atteindre 50 pages », la tentation est d'ajouter des introductions interminables, des répétitions, des banalités. Le lecteur le sent immédiatement et perd confiance. Chaque page doit apporter quelque chose : une idée, un exemple, une action.",
+        "Une bonne méthode : après l'écriture, relis chaque section et demande-toi « si je supprime ça, le lecteur perd-il quelque chose d'utile ? ». Si la réponse est non, supprime. Un ebook dense et court bat toujours un ebook long et creux."
+      ]
+    },
+    {
+      "h2": "Laisser l'outil gérer la mise en page",
+      "body": [
+        "Le nombre de pages dépend aussi énormément de la mise en forme : taille de police, marges, images, espacements. Un même contenu peut faire 30 ou 60 pages selon le design. Ne te focalise donc pas sur le compteur de pages de ton traitement de texte.",
+        "Avec un outil comme l'Ebook Designer de Bookzy, tu écris ton contenu dans Word, puis tu le transformes en PDF propre et professionnel sans te soucier de la pagination technique. Tu te concentres sur la valeur, l'outil s'occupe de l'apparence."
+      ]
+    }
+  ],
+  "takeaways": [
+    "Vise un résultat clair pour le lecteur, pas un nombre de pages.",
+    "Un guide pratique de 15 à 40 pages convertit souvent mieux qu'un pavé.",
+    "La valeur perçue vient de la promesse tenue, pas de l'épaisseur.",
+    "Supprime tout ce qui n'apporte ni idée, ni exemple, ni action."
+  ],
+  "faq": [
+    { "q": "Un ebook de 20 pages, c'est trop court ?", "a": "Pas du tout, si ces 20 pages résolvent vraiment un problème. Beaucoup d'ebooks courts et actionnables se vendent très bien parce qu'ils respectent le temps du lecteur." },
+    { "q": "Plus de pages permet-il de vendre plus cher ?", "a": "Non. Le prix dépend de la valeur du résultat, pas du volume. Un ebook court qui fait gagner du temps ou de l'argent peut se vendre cher." },
+    { "q": "Comment savoir si mon ebook est trop long ?", "a": "Relis chaque section : si tu peux la supprimer sans que le lecteur perde quelque chose d'utile, c'est du remplissage. Un contenu dense vaut mieux qu'un contenu gonflé." }
+  ]
+}

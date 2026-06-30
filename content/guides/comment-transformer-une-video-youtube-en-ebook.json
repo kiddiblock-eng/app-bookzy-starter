@@ -1,0 +1,62 @@
+{
+  "title": "Comment transformer une vidéo YouTube en ebook",
+  "metaTitle": "Comment transformer une vidéo YouTube en ebook | Bookzy",
+  "metaDescription": "Apprends à transformer une vidéo YouTube en ebook vendable : extraire le contenu, le structurer, l'enrichir et le mettre en forme rapidement, étape par étape.",
+  "keyword": "transformer une vidéo YouTube en ebook",
+  "pillar": "Créer un ebook",
+  "intro": "Tu as déjà des vidéos YouTube, ou tu en regardes une qui contient une vraie méthode ? Tout ce savoir peut devenir un ebook que les gens préfèrent parfois lire plutôt que regarder. Transformer une vidéo en ebook est l'un des moyens les plus rapides de créer un produit, à condition de ne pas se contenter d'un simple copier-coller du discours.",
+  "sections": [
+    {
+      "h2": "Pourquoi transformer une vidéo en ebook",
+      "body": [
+        "Une vidéo et un ebook ne servent pas le même besoin. La vidéo capte l'attention, mais le lecteur ne peut pas la parcourir, surligner ou retrouver une info précise en deux secondes. L'ebook, lui, se consulte, s'imprime, se garde. Beaucoup de gens paient pour avoir la même information sous une forme plus pratique.",
+        "C'est aussi une question de monétisation. Une vidéo YouTube gratuite te rapporte peu directement. Le même contenu transformé en ebook structuré devient un produit que tu peux vendre encore et encore, sans dépendre des algorithmes ni de la publicité."
+      ]
+    },
+    {
+      "h2": "Récupérer le contenu de la vidéo",
+      "body": [
+        "La première étape consiste à extraire ce que dit la vidéo. Tu peux travailler à partir de la transcription : la plupart des vidéos YouTube en proposent une, que tu peux récupérer et nettoyer. Cette transcription brute est ta matière première, mais elle n'est pas encore un ebook.",
+        "Le langage parlé est plein de répétitions, d'hésitations et de phrases qui ne fonctionnent pas à l'écrit. Tu ne vas donc pas garder le texte tel quel : tu vas en extraire les idées, les étapes et les exemples, puis les réécrire dans un style fait pour être lu."
+      ],
+      "list": [
+        "Récupère la transcription complète de la vidéo.",
+        "Repère les grandes idées et les étapes clés.",
+        "Mets de côté les digressions et répétitions.",
+        "Note les exemples concrets à conserver."
+      ]
+    },
+    {
+      "h2": "Structurer comme un livre, pas comme un discours",
+      "body": [
+        "Une vidéo suit le fil de la parole ; un ebook doit suivre une logique de lecture. Transforme les idées en chapitres clairs, ajoute un sommaire, des titres et des sous-titres. Le lecteur doit pouvoir comprendre la progression d'un coup d'œil et retrouver facilement ce qu'il cherche.",
+        "Profite de l'écrit pour ajouter ce que la vidéo ne pouvait pas offrir : des listes, des encadrés, des résumés en fin de chapitre, des exercices. C'est ce travail de structuration qui fait la différence entre une simple retranscription et un vrai ebook qui mérite d'être acheté."
+      ]
+    },
+    {
+      "h2": "Enrichir pour que ça vaille le prix",
+      "body": [
+        "Un acheteur attend plus que ce qu'il aurait eu gratuitement sur YouTube. Enrichis donc le contenu : ajoute des exemples adaptés à ton public, des cas concrets locaux, des modèles à copier, des checklists. Cette valeur ajoutée justifie que l'on paie pour la version écrite.",
+        "Tu peux aussi combiner plusieurs vidéos sur un même thème pour créer un ebook plus complet qu'aucune vidéo prise séparément. Tu offres alors une synthèse organisée, ce que ton lecteur ne trouverait nulle part ailleurs sous cette forme."
+      ]
+    },
+    {
+      "h2": "Mettre en forme et publier rapidement",
+      "body": [
+        "Une fois le contenu réécrit et structuré, il reste la mise en page : couverture, titres, sommaire, rendu PDF propre. C'est souvent l'étape qui décourage, car elle est technique et chronophage quand on la fait à la main.",
+        "C'est précisément ce que l'outil Youbook de Bookzy automatise : il aide à transformer une vidéo YouTube en ebook structuré, et l'Ebook Designer te donne un PDF professionnel à partir de ton texte. Tu passes ainsi d'une vidéo à un produit vendable en un temps très court, en gardant toute ta concentration sur la qualité du contenu."
+      ]
+    }
+  ],
+  "takeaways": [
+    "Une vidéo et un ebook répondent à des besoins différents et complémentaires.",
+    "Pars de la transcription, mais réécris pour la lecture, ne copie pas le discours.",
+    "Structure en chapitres avec sommaire et titres pour un vrai confort de lecture.",
+    "Enrichis le contenu pour offrir plus que la vidéo gratuite et justifier le prix."
+  ],
+  "faq": [
+    { "q": "Puis-je vendre un ebook tiré de ma propre vidéo YouTube ?", "a": "Oui, tant que le contenu est le tien. Beaucoup de créateurs transforment leurs vidéos en ebooks pour vendre la même information sous une forme plus pratique et durable." },
+    { "q": "Faut-il garder la transcription telle quelle ?", "a": "Non. Le langage parlé fonctionne mal à l'écrit. Tu dois extraire les idées et les réécrire dans un style clair, structuré et agréable à lire." },
+    { "q": "Comment aller vite sans sacrifier la qualité ?", "a": "Utilise un outil qui automatise l'extraction et la structuration, comme Youbook de Bookzy, puis concentre ton effort sur l'enrichissement et la relecture du contenu." }
+  ]
+}

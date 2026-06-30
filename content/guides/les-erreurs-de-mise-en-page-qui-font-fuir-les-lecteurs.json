@@ -1,0 +1,73 @@
+{
+  "title": "Les erreurs de mise en page qui font fuir les lecteurs",
+  "metaTitle": "Les erreurs de mise en page qui font fuir les lecteurs | Bookzy",
+  "metaDescription": "Découvre les erreurs de mise en page d'ebook qui font fuir les lecteurs : murs de texte, mauvaises polices, manque d'air, et comment les corriger pour garder ton audience.",
+  "keyword": "mise en page ebook",
+  "pillar": "Design et couverture",
+  "intro": "Un contenu excellent peut être saboté par une mise en page maladroite. Avant même de juger tes idées, le lecteur juge la page : si elle fatigue ses yeux, il referme. Voici les erreurs de mise en page les plus courantes et comment les éviter pour garder ton lecteur.",
+  "sections": [
+    {
+      "h2": "Le mur de texte qui décourage",
+      "body": [
+        "L'erreur la plus répandue : des paragraphes énormes, denses, qui occupent toute la page sans la moindre respiration. Face à ce mur, le lecteur ressent une fatigue avant même de commencer. Sur un téléphone, où la majorité de ton audience te lira, l'effet est encore pire : le bloc paraît interminable.",
+        "La solution est simple : coupe. Un paragraphe ne devrait presque jamais dépasser quatre ou cinq lignes. Aère avec des sauts de ligne, des sous-titres, des listes. L'espace blanc n'est pas du vide perdu : c'est ce qui rend la lecture légère et donne l'impression qu'on avance vite."
+      ]
+    },
+    {
+      "h2": "Des polices mal choisies ou trop nombreuses",
+      "body": [
+        "Multiplier les polices est un réflexe de débutant qui donne un rendu brouillon et amateur. Une police pour les titres, une pour le corps de texte : deux suffisent presque toujours. Au-delà, la page perd sa cohérence et ressemble à un patchwork.",
+        "Attention aussi aux polices fantaisistes ou trop fines pour le corps du texte. Elles peuvent sembler originales, mais elles fatiguent l'œil sur de longues lectures. Pour le texte courant, choisis une police nette, classique et confortable. L'originalité de ton ebook doit venir de tes idées, pas d'une typo difficile à lire."
+      ],
+      "list": [
+        "Limite-toi à deux polices : une pour les titres, une pour le texte.",
+        "Évite les polices fines ou fantaisistes pour le corps du texte.",
+        "Garde la même police d'un bout à l'autre de l'ebook."
+      ]
+    },
+    {
+      "h2": "Le manque d'air et les marges écrasées",
+      "body": [
+        "Quand le texte touche les bords de la page et que les lignes sont collées les unes aux autres, la lecture devient étouffante. Les marges et l'espacement entre les lignes ne sont pas des détails esthétiques : ils déterminent le confort de lecture, donc la durée pendant laquelle le lecteur reste.",
+        "Donne de la respiration : des marges généreuses, un interligne confortable, de l'espace entre les paragraphes et autour des titres. Une page bien aérée se lit sans effort et paraît plus professionnelle. Une page tassée, même avec un contenu brillant, donne envie de fermer le fichier."
+      ]
+    },
+    {
+      "h2": "L'incohérence d'un bout à l'autre",
+      "body": [
+        "Rien ne trahit l'amateurisme comme l'incohérence : un titre centré ici, aligné à gauche là ; une taille de police qui change sans raison ; des espaces différents à chaque chapitre. Le lecteur ne saura pas forcément nommer le problème, mais il sentira un malaise diffus et un manque de sérieux.",
+        "La cohérence rassure. Définis des règles claires — même style pour tous les titres, même taille pour tout le texte, même traitement pour les listes — et applique-les partout. Un ebook cohérent paraît conçu par un professionnel, même si tu l'as fait toi-même. C'est l'un des leviers de confiance les plus sous-estimés."
+      ],
+      "list": [
+        "Garde le même style pour tous les titres de même niveau.",
+        "Conserve une taille et un alignement de texte constants.",
+        "Traite les listes et les encadrés de façon identique partout."
+      ]
+    },
+    {
+      "h2": "Oublier que la majorité lit sur téléphone",
+      "body": [
+        "Beaucoup conçoivent leur ebook sur grand écran et oublient que leur lecteur, lui, est sur un petit écran de téléphone. Une mise en page splendide sur ordinateur peut devenir illisible sur mobile : texte minuscule, images débordantes, colonnes inadaptées, tableaux impossibles à lire.",
+        "Avant de finaliser, ouvre toujours ton ebook sur un téléphone et lis-le réellement, comme le ferait ton acheteur. Tu repéreras immédiatement ce qui coince. En Afrique francophone, ce réflexe n'est pas optionnel : c'est sur mobile que ton ebook vivra, sera lu et sera partagé."
+      ]
+    },
+    {
+      "h2": "Mettre en page sans y passer des heures",
+      "body": [
+        "La bonne mise en page suit des règles régulières, ce qui la rend facile à automatiser. Plutôt que de te battre des heures avec les marges, les titres et les espacements, pars d'un système cohérent qui applique ces règles partout pour toi.",
+        "L'Ebook Designer de Bookzy transforme par exemple un simple document Word en PDF mis en page proprement, avec une typographie et un espacement cohérents d'un bout à l'autre. Tu évites d'un coup la plupart des erreurs ci-dessus, et tu gardes ton énergie pour ce qui compte : le contenu, et un dernier test sur téléphone."
+      ]
+    }
+  ],
+  "takeaways": [
+    "Les murs de texte et le manque d'air font fuir avant même la lecture.",
+    "Limite-toi à deux polices nettes et reste cohérent partout.",
+    "Aère avec des marges, un bon interligne et des paragraphes courts.",
+    "Teste toujours ton ebook sur téléphone avant de le finaliser."
+  ],
+  "faq": [
+    { "q": "Combien de polices utiliser dans un ebook ?", "a": "Deux au maximum : une pour les titres, une pour le corps de texte. Au-delà, le rendu devient brouillon et amateur, et la lecture perd en cohérence." },
+    { "q": "Quelle longueur idéale pour un paragraphe ?", "a": "Quatre à cinq lignes au plus. Des paragraphes courts aèrent la page, facilitent la lecture sur téléphone et donnent au lecteur un sentiment de progression rapide." },
+    { "q": "Pourquoi tester son ebook sur téléphone ?", "a": "Parce que la majorité de tes lecteurs te liront sur mobile. Une mise en page parfaite sur ordinateur peut devenir illisible sur petit écran : seul le test réel le révèle." }
+  ]
+}
