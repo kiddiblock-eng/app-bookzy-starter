@@ -7,10 +7,11 @@ const ACCENT = "#059669";
 const TINT = "rgba(5,150,105,0.10)";
 const BASE = "https://www.bookzy.io";
 
+// Volume élevé : rendu à la demande + cache (ISR) plutôt que tout pré-générer au build.
+export const dynamicParams = true;
+export const revalidate = 86400;
 export function generateStaticParams() {
-  const out = [];
-  for (const t of ALL_TOPICS) for (const c of COUNTRIES) out.push({ slug: t.slug, pays: c.slug });
-  return out;
+  return [];
 }
 
 export function generateMetadata({ params }) {
@@ -37,6 +38,7 @@ export default function SubjectCountryPage({ params }) {
   const sujetL = t.titre.toLowerCase();
   const vi = (t.slug.length + c.slug.length) % 3; // variation déterministe
   const isDiaspora = c.zone === "diaspora";
+  const capPrep = { en: "En", au: "Au", aux: "Aux", "à": "À" }[c.prep] || "À";
 
   const introVariants = [
     `Tu veux créer un ebook sur ${sujetL} et le vendre ${c.prep} ${c.nom} ? Tu es au bon endroit. Le marché digital ${c.prep} ${c.nom} est ${c.note}, et un ebook bien fait peut devenir une vraie source de revenus. Voici comment t'y prendre, du contenu à l'encaissement, sans rien rédiger toi-même.`,
@@ -49,7 +51,7 @@ export default function SubjectCountryPage({ params }) {
       h2: `Pourquoi créer un ebook sur ${sujetL} ${c.prep} ${c.nom}`,
       body: [
         `${c.nom} fait partie des marchés où la demande pour du contenu utile et accessible ne cesse de croître. Sur le thème « ${sujet} » — dans le domaine ${t.categorie.toLowerCase()} — beaucoup de gens cherchent des réponses claires, prêtes à l'emploi. Un ebook répond exactement à ce besoin : c'est concret, ça se consomme facilement sur téléphone, et ça se partage en un clic.`,
-        `L'avantage d'un ebook, c'est qu'il ne coûte presque rien à produire et se vend autant de fois que tu veux. Tu le crées une fois, et il peut te rapporter pendant des mois. ${c.prep === "en" ? "En" : c.prep === "au" ? "Au" : "À"} ${c.nom}, où le téléphone est l'outil principal pour apprendre et acheter, ce format est particulièrement adapté.`,
+        `L'avantage d'un ebook, c'est qu'il ne coûte presque rien à produire et se vend autant de fois que tu veux. Tu le crées une fois, et il peut te rapporter pendant des mois. ${capPrep} ${c.nom}, où le téléphone est l'outil principal pour apprendre et acheter, ce format est particulièrement adapté.`,
       ],
     },
     {
@@ -64,7 +66,7 @@ export default function SubjectCountryPage({ params }) {
     {
       h2: `Comment te faire payer ${c.prep} ${c.nom}`,
       body: [
-        `${c.prep === "en" ? "En" : c.prep === "au" ? "Au" : "À"} ${c.nom}, tes clients peuvent te payer directement, sans intermédiaire compliqué. Les moyens les plus utilisés sont ${c.mm.join(", ")}.`,
+        `${capPrep} ${c.nom}, tes clients peuvent te payer directement, sans intermédiaire compliqué. Les moyens les plus utilisés sont ${c.mm.join(", ")}.`,
         `Concrètement : ton client te confirme son intérêt, tu lui indiques ton numéro ${isDiaspora ? "ou ton lien de paiement" : "mobile money"}, il t'envoie le montant, et tu lui livres l'ebook en PDF dans la foulée. C'est instantané, et c'est TOI qui encaisses : Bookzy ne prend aucune commission sur tes ventes.`,
       ],
       list: c.mm.map((m) => `Encaisse par ${m}`),
@@ -94,7 +96,7 @@ export default function SubjectCountryPage({ params }) {
 
   const faq = [
     { q: `Comment vendre un ebook sur ${sujetL} ${c.prep} ${c.nom} ?`, a: `Le plus simple est de vendre sur WhatsApp et les réseaux sociaux, puis d'encaisser par ${c.mm.slice(0, 2).join(" ou ")}. Tu livres l'ebook en PDF directement à l'acheteur.` },
-    { q: `Faut-il une carte bancaire pour se faire payer ${c.prep} ${c.nom} ?`, a: isDiaspora ? `${c.prep === "en" ? "En" : "Au"} ${c.nom}, la carte bancaire et PayPal sont les moyens les plus courants, mais tu peux aussi accepter d'autres options selon ton audience.` : `Non. ${c.prep === "en" ? "En" : c.prep === "au" ? "Au" : "À"} ${c.nom}, le mobile money (${c.mm.slice(0, 2).join(", ")}) suffit largement : tes clients paient depuis leur téléphone, sans carte.` },
+    { q: `Faut-il une carte bancaire pour se faire payer ${c.prep} ${c.nom} ?`, a: isDiaspora ? `${c.prep === "en" ? "En" : "Au"} ${c.nom}, la carte bancaire et PayPal sont les moyens les plus courants, mais tu peux aussi accepter d'autres options selon ton audience.` : `Non. ${capPrep} ${c.nom}, le mobile money (${c.mm.slice(0, 2).join(", ")}) suffit largement : tes clients paient depuis leur téléphone, sans carte.` },
     { q: `Combien de temps pour créer cet ebook ?`, a: `Environ une minute avec l'IA de Bookzy. Tu donnes le sujet, et le contenu, le design et la couverture sont générés automatiquement.` },
   ];
 

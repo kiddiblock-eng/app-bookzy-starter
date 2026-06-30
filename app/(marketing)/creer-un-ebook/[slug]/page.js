@@ -18,7 +18,7 @@ export function generateMetadata({ params }) {
   const description = `Génère un ebook professionnel sur « ${t.titre} » en 1 minute grâce à l'IA : contenu, design et cover inclus. Prêt à vendre, à enseigner ou à partager.`;
   const url = `${BASE}/creer-un-ebook/${t.slug}`;
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: { canonical: url },
     openGraph: { title, description, url, type: "article", siteName: "Bookzy" },
