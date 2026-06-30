@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   ArrowRight, ArrowLeft, Check, X, Menu, Star,
   Youtube, Play, Wand2, FileText, ChevronDown,
-  Zap, BookOpen, Sparkles, Copy, MousePointer,
+  Zap, BookOpen, Copy, MousePointer,
   TrendingUp, Users, Clock, Lock
 } from "lucide-react";
 
@@ -54,23 +54,23 @@ function Nav() {
   ];
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-[#F5F2ED]/95 backdrop-blur-md border-b border-[#D6CFC4] shadow-sm" : "bg-transparent"}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-[#ffffff]/95 backdrop-blur-md border-b border-[#e5e5e5] shadow-sm" : "bg-transparent"}`}>
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: GRAIN, backgroundRepeat: "repeat", backgroundSize: "128px" }} />
       <div className="relative max-w-7xl mx-auto px-6 flex items-center justify-between h-16 md:h-20">
 
         <div className="flex items-center gap-5">
-          <Link href="/" className="group flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors">
+          <Link href="/" className="group flex items-center gap-2 text-neutral-500 hover:text-neutral-900 transition-colors">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
             <span className="text-xs font-bold uppercase tracking-widest hidden sm:block">Bookzy</span>
           </Link>
-          <div className="w-px h-5 bg-[#C8BFB0] hidden sm:block" />
+          <div className="w-px h-5 bg-[#e5e5e5] hidden sm:block" />
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center">
               <Youtube className="w-3.5 h-3.5 text-white" />
             </div>
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-900 leading-none">Youbook</p>
-              <p className="text-[9px] font-semibold text-red-600 uppercase tracking-widest mt-0.5">by Bookzy</p>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-neutral-900 leading-none">Youbook</p>
+              <p className="text-[9px] font-semibold text-[#059669] uppercase tracking-widest mt-0.5">by Bookzy</p>
             </div>
           </div>
         </div>
@@ -78,33 +78,33 @@ function Nav() {
         <div className="hidden lg:flex items-center gap-8">
           {links.map(l => (
             <a key={l.id} href={`#${l.id}`} onClick={e => scrollTo(e, l.id)}
-              className="text-xs font-black text-slate-500 hover:text-slate-900 uppercase tracking-widest transition-colors">
+              className="text-xs font-black text-neutral-500 hover:text-neutral-900 uppercase tracking-widest transition-colors">
               {l.label}
             </a>
           ))}
         </div>
 
         <div className="hidden lg:flex items-center gap-3">
-          <Link href="/auth/login" className="px-4 py-2 border border-[#C8BFB0] bg-white text-slate-600 text-[11px] font-bold rounded-lg uppercase tracking-widest hover:border-slate-400 transition-colors">Connexion</Link>
-          <Link href="/auth/register" className="px-4 py-2 bg-red-600 text-white text-[11px] font-bold rounded-lg uppercase tracking-widest hover:bg-red-700 transition-colors flex items-center gap-1.5">
+          <Link href="/auth/login" className="px-4 py-2 border border-[#e5e5e5] bg-white text-neutral-600 text-[11px] font-bold rounded-lg uppercase tracking-widest hover:border-neutral-400 transition-colors">Connexion</Link>
+          <Link href="/auth/register" className="px-4 py-2 bg-neutral-900 text-white text-[11px] font-bold rounded-lg uppercase tracking-widest hover:bg-neutral-800 transition-colors flex items-center gap-1.5">
             Essayer gratuit <Play className="w-2.5 h-2.5" fill="currentColor" />
           </Link>
         </div>
 
-        <button onClick={() => setOpen(!open)} className="lg:hidden p-2 rounded-lg hover:bg-[#E8E2D9]">
-          {open ? <X className="w-5 h-5 text-slate-700" /> : <Menu className="w-5 h-5 text-slate-700" />}
+        <button onClick={() => setOpen(!open)} className="lg:hidden p-2 rounded-lg hover:bg-[#f5f5f5]">
+          {open ? <X className="w-5 h-5 text-neutral-700" /> : <Menu className="w-5 h-5 text-neutral-700" />}
         </button>
       </div>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 bg-[#F5F2ED] border-b border-[#D6CFC4] p-6 shadow-xl flex flex-col gap-4 lg:hidden">
+        <div className="absolute top-full left-0 right-0 bg-[#ffffff] border-b border-[#e5e5e5] p-6 shadow-xl flex flex-col gap-4 lg:hidden">
           {links.map(l => (
             <a key={l.id} href={`#${l.id}`} onClick={e => scrollTo(e, l.id)}
-              className="text-sm font-black text-slate-700 uppercase tracking-widest py-2 border-b border-[#E8E2D9]">{l.label}</a>
+              className="text-sm font-black text-neutral-700 uppercase tracking-widest py-2 border-b border-[#f5f5f5]">{l.label}</a>
           ))}
           <div className="flex flex-col gap-3 mt-1">
-            <Link href="/auth/login" onClick={() => setOpen(false)} className="text-center py-3 font-bold text-slate-600 border border-[#C8BFB0] rounded-xl text-sm">Connexion</Link>
-            <Link href="/auth/register" onClick={() => setOpen(false)} className="flex items-center justify-center gap-2 bg-red-600 text-white px-6 py-3.5 rounded-xl font-black text-sm uppercase tracking-widest">
+            <Link href="/auth/login" onClick={() => setOpen(false)} className="text-center py-3 font-bold text-neutral-600 border border-[#e5e5e5] rounded-xl text-sm">Connexion</Link>
+            <Link href="/auth/register" onClick={() => setOpen(false)} className="flex items-center justify-center gap-2 bg-neutral-900 text-white px-6 py-3.5 rounded-xl font-black text-sm uppercase tracking-widest">
               <Play className="w-3.5 h-3.5" fill="currentColor" /> Essayer gratuit
             </Link>
           </div>
@@ -117,41 +117,41 @@ function Nav() {
 // ─── HERO ───────────────────────────────────────────────────────────────────────
 function Hero() {
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[#F5F2ED] px-6 pt-24 pb-16">
+    <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[#ffffff] px-6 pt-24 pb-16">
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: GRAIN, backgroundRepeat: "repeat", backgroundSize: "128px" }} />
       {/* Cercle déco */}
-      <div className="absolute top-16 right-[-80px] w-[420px] h-[420px] rounded-full border border-[#D6CFC4] opacity-40 pointer-events-none" />
-      <div className="absolute bottom-[-60px] left-[-100px] w-[320px] h-[320px] rounded-full bg-red-50 opacity-50 pointer-events-none" />
+      <div className="absolute top-16 right-[-80px] w-[420px] h-[420px] rounded-full border border-[#e5e5e5] opacity-40 pointer-events-none" />
+      <div className="absolute bottom-[-60px] left-[-100px] w-[320px] h-[320px] rounded-full bg-[rgba(5,150,105,0.10)] opacity-100 pointer-events-none" />
 
       <div className="relative z-10 max-w-5xl mx-auto text-center">
 
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#C8BFB0] bg-white/60 backdrop-blur-sm mb-8">
-          <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-          <span className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">447 vidéos converties aujourd'hui</span>
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#e5e5e5] bg-white/60 backdrop-blur-sm mb-8">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#059669] animate-pulse" />
+          <span className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-500">447 vidéos converties aujourd'hui</span>
         </div>
 
         <h1 className="font-black leading-[0.88] tracking-tight mb-8">
-          <span className="block text-6xl md:text-8xl lg:text-[108px] text-slate-900">You</span>
-          <span className="block text-6xl md:text-8xl lg:text-[108px] text-red-600">book</span>
+          <span className="block text-6xl md:text-8xl lg:text-[108px] text-neutral-900">You</span>
+          <span className="block text-6xl md:text-8xl lg:text-[108px] text-[#059669]">book</span>
         </h1>
 
-        <p className="text-slate-500 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-2">
+        <p className="text-neutral-500 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-2">
           Collez une URL YouTube. L'IA lit la vidéo, comprend le contenu, recommande le sommaire.
-          <span className="text-slate-900 font-semibold"> Vous validez, l'ebook sort en 60 secondes.</span>
+          <span className="text-neutral-900 font-semibold"> Vous validez, l'ebook sort en 60 secondes.</span>
         </p>
-        <p className="text-slate-400 text-sm mb-10 uppercase tracking-widest font-bold">
+        <p className="text-neutral-400 text-sm mb-10 uppercase tracking-widest font-bold">
           Transcription · Analyse Gemini · Sommaire recommandé · 30 templates · PDF pro
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-          <Link href="/auth/register" className="group inline-flex items-center gap-3 px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl transition-all text-sm uppercase tracking-widest shadow-lg shadow-red-600/20">
+          <Link href="/auth/register" className="group inline-flex items-center gap-3 px-8 py-4 bg-neutral-900 hover:bg-neutral-800 text-white font-black rounded-xl transition-all text-sm uppercase tracking-widest shadow-lg shadow-neutral-900/20">
             <Play className="w-4 h-4" fill="currentColor" />
             Convertir gratuitement
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>
-          <div className="inline-flex items-center gap-2 px-5 py-4 border border-[#C8BFB0] rounded-xl bg-white/60">
-            <span className="text-xs font-black text-slate-900 uppercase tracking-widest">2 cr. après quota</span>
-            <span className="text-xs text-slate-400">· gratuit selon plan</span>
+          <div className="inline-flex items-center gap-2 px-5 py-4 border border-[#e5e5e5] rounded-xl bg-white/60">
+            <span className="text-xs font-black text-neutral-900 uppercase tracking-widest">2 cr. après quota</span>
+            <span className="text-xs text-neutral-400">· gratuit selon plan</span>
           </div>
         </div>
 
@@ -164,15 +164,15 @@ function Hero() {
             { value: "2 cr.", label: "Après quota" },
           ].map(s => (
             <div key={s.label} className="text-center">
-              <div className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">{s.value}</div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-1">{s.label}</div>
+              <div className="text-3xl md:text-4xl font-black text-neutral-900 tracking-tight">{s.value}</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mt-1">{s.label}</div>
             </div>
           ))}
         </div>
       </div>
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
-        <div className="w-px h-8 bg-slate-400 animate-pulse" />
+        <div className="w-px h-8 bg-neutral-400 animate-pulse" />
       </div>
     </section>
   );
@@ -190,22 +190,22 @@ function Flow() {
       title: "Copiez le lien depuis YouTube",
       desc: "N'importe quelle vidéo avec transcription : tutoriels, formations, podcasts, interviews, conférences. Collez l'URL dans Youbook.",
       visual: (
-        <div className="bg-white rounded-2xl border border-[#D6CFC4] p-6 shadow-sm">
-          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">URL YouTube</p>
-          <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3.5">
+        <div className="bg-white rounded-2xl border border-[#e5e5e5] p-6 shadow-sm">
+          <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-3">URL YouTube</p>
+          <div className="flex items-center gap-3 bg-neutral-50 border border-neutral-200 rounded-xl p-3.5">
             <div className="w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center flex-shrink-0">
               <Youtube className="w-3.5 h-3.5 text-white" />
             </div>
-            <span className="text-xs text-slate-500 font-mono truncate flex-1">youtube.com/watch?v=dQw4w9WgXcQ</span>
-            <div className="w-6 h-6 rounded bg-slate-200 flex items-center justify-center flex-shrink-0">
-              <ArrowRight className="w-3 h-3 text-slate-500" />
+            <span className="text-xs text-neutral-500 font-mono truncate flex-1">youtube.com/watch?v=dQw4w9WgXcQ</span>
+            <div className="w-6 h-6 rounded bg-neutral-200 flex items-center justify-center flex-shrink-0">
+              <ArrowRight className="w-3 h-3 text-neutral-500" />
             </div>
           </div>
           <div className="mt-4 space-y-1.5">
             {["Tutoriels & formations", "Podcasts & interviews", "Conférences & talks", "Vidéos éducatives"].map(t => (
               <div key={t} className="flex items-center gap-2">
                 <Check className="w-3 h-3 text-emerald-500 flex-shrink-0" />
-                <span className="text-xs text-slate-500">{t}</span>
+                <span className="text-xs text-neutral-500">{t}</span>
               </div>
             ))}
           </div>
@@ -220,8 +220,8 @@ function Flow() {
       title: "L'IA lit et comprend la vidéo",
       desc: "Gemini extrait la transcription complète, identifie les idées clés, le problème traité, la transformation promise et l'audience cible. Tout ça en 30 secondes.",
       visual: (
-        <div className="bg-white rounded-2xl border border-[#D6CFC4] p-6 shadow-sm space-y-3">
-          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Résultats de l'analyse IA</p>
+        <div className="bg-white rounded-2xl border border-[#e5e5e5] p-6 shadow-sm space-y-3">
+          <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Résultats de l'analyse IA</p>
           {[
             { label: "Titre généré", val: "Comment lancer un business digital rentable depuis l'Afrique", color: "slate" },
             { label: "Hook", val: "L'angle que personne n'a encore exploité sur ce marché", color: "blue" },
@@ -230,10 +230,10 @@ function Flow() {
             { label: "Audience", val: "Entrepreneurs 25-40 ans · Niveau débutant", color: "violet" },
           ].map(item => (
             <div key={item.label} className="flex items-start gap-2.5">
-              <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5 ${item.color === "blue" ? "bg-blue-500" : item.color === "orange" ? "bg-orange-500" : item.color === "emerald" ? "bg-emerald-500" : item.color === "violet" ? "bg-violet-500" : "bg-slate-400"}`} />
+              <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5 ${item.color === "emerald" ? "bg-[#059669]" : "bg-neutral-400"}`} />
               <div>
-                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">{item.label}</p>
-                <p className="text-xs text-slate-700 mt-0.5 leading-snug">{item.val}</p>
+                <p className="text-[9px] font-black uppercase tracking-widest text-neutral-400">{item.label}</p>
+                <p className="text-xs text-neutral-700 mt-0.5 leading-snug">{item.val}</p>
               </div>
             </div>
           ))}
@@ -248,9 +248,9 @@ function Flow() {
       title: "Validez le sommaire recommandé par l'IA",
       desc: "L'IA propose un sommaire complet avec le nombre de chapitres optimal. Vous choisissez le nombre de chapitres, le titre, et sélectionnez votre thème parmi les 30 templates.",
       visual: (
-        <div className="bg-white rounded-2xl border border-[#D6CFC4] p-6 shadow-sm">
+        <div className="bg-white rounded-2xl border border-[#e5e5e5] p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Sommaire recommandé</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Sommaire recommandé</p>
             <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               <span className="text-[9px] font-black text-emerald-700 uppercase tracking-wider">IA recommande 7 ch.</span>
@@ -258,10 +258,10 @@ function Flow() {
           </div>
           {/* Sélecteur chapitres */}
           <div className="flex items-center gap-2 mb-4">
-            <span className="text-xs text-slate-500 font-bold">Chapitres :</span>
+            <span className="text-xs text-neutral-500 font-bold">Chapitres :</span>
             <div className="flex gap-1.5">
               {[3,4,5,6,7,8,9,10].map(n => (
-                <div key={n} className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black ${n === 7 ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500"}`}>{n}</div>
+                <div key={n} className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black ${n === 7 ? "bg-neutral-900 text-white" : "bg-neutral-100 text-neutral-500"}`}>{n}</div>
               ))}
             </div>
           </div>
@@ -275,27 +275,27 @@ function Flow() {
               "Ch. 5 : Automatiser et scaler",
               "Conclusion + Plan d'action 30 jours",
             ].map((ch, i) => (
-              <div key={i} className="flex items-center gap-2.5 py-1.5 px-2.5 rounded-lg bg-slate-50 border border-slate-100">
+              <div key={i} className="flex items-center gap-2.5 py-1.5 px-2.5 rounded-lg bg-neutral-50 border border-neutral-100">
                 <Check className="w-3 h-3 text-emerald-500 flex-shrink-0" />
-                <span className="text-xs text-slate-700">{ch}</span>
+                <span className="text-xs text-neutral-700">{ch}</span>
               </div>
             ))}
           </div>
-          <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
-            <span className="text-xs text-slate-500 font-bold">Thème :</span>
+          <div className="flex items-center gap-2 pt-3 border-t border-neutral-100">
+            <span className="text-xs text-neutral-500 font-bold">Thème :</span>
             <div className="flex gap-1.5">
               {[
-                { c1: "#667eea", c2: "#764ba2" },
+                { c1: "#059669", c2: "#047857" },
                 { c1: "#d4af37", c2: "#ffd700" },
                 { c1: "#0f766e", c2: "#14b8a6" },
                 { c1: "#f97316", c2: "#dc2626" },
                 { c1: "#0a0e27", c2: "#00d4ff" },
               ].map((t, i) => (
-                <div key={i} className={`w-7 h-7 rounded-lg ${i === 0 ? "ring-2 ring-slate-900 ring-offset-1" : ""}`}
+                <div key={i} className={`w-7 h-7 rounded-lg ${i === 0 ? "ring-2 ring-neutral-900 ring-offset-1" : ""}`}
                   style={{ background: `linear-gradient(135deg, ${t.c1}, ${t.c2})` }} />
               ))}
-              <div className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center">
-                <span className="text-[8px] font-black text-slate-500">+25</span>
+              <div className="w-7 h-7 rounded-lg bg-neutral-100 border border-neutral-200 flex items-center justify-center">
+                <span className="text-[8px] font-black text-neutral-500">+25</span>
               </div>
             </div>
           </div>
@@ -310,12 +310,12 @@ function Flow() {
       title: "L'IA génère l'ebook pro en 60 secondes",
       desc: "Bookzy rédige chaque chapitre, applique le design du template, génère la couverture et produit un PDF haute qualité. Kit marketing WhatsApp et posts réseaux inclus.",
       visual: (
-        <div className="bg-white rounded-2xl border border-[#D6CFC4] p-6 shadow-sm">
-          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Ebook généré</p>
+        <div className="bg-white rounded-2xl border border-[#e5e5e5] p-6 shadow-sm">
+          <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-4">Ebook généré</p>
           {/* Mini ebook preview */}
           <div className="flex gap-4 items-start mb-4">
             <div className="w-24 h-32 rounded-xl flex-shrink-0 overflow-hidden shadow-lg"
-              style={{ background: "linear-gradient(135deg, #667eea, #764ba2)" }}>
+              style={{ background: "linear-gradient(135deg, #059669, #047857)" }}>
               <div className="p-2.5 text-white h-full flex flex-col">
                 <div className="text-[6px] uppercase tracking-widest opacity-50 mb-1">Bookzy</div>
                 <div className="text-[8px] font-black leading-tight flex-1">Comment lancer un business digital rentable depuis l'Afrique</div>
@@ -330,18 +330,18 @@ function Flow() {
                 { label: "Cover", val: "Incluse" },
               ].map(m => (
                 <div key={m.label} className="flex items-center justify-between">
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">{m.label}</span>
-                  <span className="text-xs font-bold text-slate-700">{m.val}</span>
+                  <span className="text-[10px] text-neutral-400 uppercase tracking-wider font-bold">{m.label}</span>
+                  <span className="text-xs font-bold text-neutral-700">{m.val}</span>
                 </div>
               ))}
             </div>
           </div>
-          <div className="border-t border-slate-100 pt-3 space-y-1.5">
-            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Kit marketing inclus</p>
+          <div className="border-t border-neutral-100 pt-3 space-y-1.5">
+            <p className="text-[9px] font-black uppercase tracking-widest text-neutral-400 mb-2">Kit marketing inclus</p>
             {["Posts Instagram + Facebook prêts", "Scripts WhatsApp d'envoi", "Textes de vente optimisés"].map(k => (
               <div key={k} className="flex items-center gap-2">
                 <Check className="w-3 h-3 text-emerald-500 flex-shrink-0" />
-                <span className="text-xs text-slate-600">{k}</span>
+                <span className="text-xs text-neutral-600">{k}</span>
               </div>
             ))}
           </div>
@@ -352,23 +352,23 @@ function Flow() {
   ];
 
   const colorMap = {
-    red: { dot: "bg-red-500", badge: "bg-red-50 text-red-700 border-red-200", active: "border-red-300 bg-red-50/50" },
-    blue: { dot: "bg-blue-500", badge: "bg-blue-50 text-blue-700 border-blue-200", active: "border-blue-300 bg-blue-50/50" },
-    violet: { dot: "bg-violet-500", badge: "bg-violet-50 text-violet-700 border-violet-200", active: "border-violet-300 bg-violet-50/50" },
+    red: { dot: "bg-[#059669]", badge: "bg-[rgba(5,150,105,0.10)] text-[#047857] border-[rgba(5,150,105,0.30)]", active: "border-[rgba(5,150,105,0.40)] bg-[rgba(5,150,105,0.06)]" },
+    blue: { dot: "bg-[#059669]", badge: "bg-[rgba(5,150,105,0.10)] text-[#047857] border-[rgba(5,150,105,0.30)]", active: "border-[rgba(5,150,105,0.40)] bg-[rgba(5,150,105,0.06)]" },
+    violet: { dot: "bg-[#059669]", badge: "bg-[rgba(5,150,105,0.10)] text-[#047857] border-[rgba(5,150,105,0.30)]", active: "border-[rgba(5,150,105,0.40)] bg-[rgba(5,150,105,0.06)]" },
     emerald: { dot: "bg-emerald-500", badge: "bg-emerald-50 text-emerald-700 border-emerald-200", active: "border-emerald-300 bg-emerald-50/50" },
   };
 
   return (
-    <section id="flow" className="bg-[#F5F2ED] py-24 px-6 relative overflow-hidden">
+    <section id="flow" className="bg-[#ffffff] py-24 px-6 relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.025] pointer-events-none" style={{ backgroundImage: GRAIN, backgroundRepeat: "repeat", backgroundSize: "128px" }} />
       <div className="relative z-10 max-w-6xl mx-auto">
 
-        <div className="mb-14 pb-10 border-b border-[#C8BFB0]">
-          <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-400 mb-3">Le flow complet</p>
-          <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
+        <div className="mb-14 pb-10 border-b border-[#e5e5e5]">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-neutral-400 mb-3">Le flow complet</p>
+          <h2 className="text-4xl md:text-5xl font-black text-neutral-900 tracking-tight">
             De YouTube à l'ebook pro<br />en 4 étapes.
           </h2>
-          <p className="text-slate-500 mt-3 text-base max-w-xl">Vous copiez le lien. L'IA fait le reste. Vous validez et téléchargez.</p>
+          <p className="text-neutral-500 mt-3 text-base max-w-xl">Vous copiez le lien. L'IA fait le reste. Vous validez et téléchargez.</p>
         </div>
 
         {/* Tabs étapes */}
@@ -377,10 +377,10 @@ function Flow() {
             const c = colorMap[s.color];
             return (
               <button key={i} onClick={() => setActiveStep(i)}
-                className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border transition-all ${activeStep === i ? c.active + " border-opacity-100" : "bg-white border-[#D6CFC4] hover:border-slate-300"}`}>
-                <span className={`text-[10px] font-black ${activeStep === i ? "" : "text-slate-300"}`}>{s.num}</span>
+                className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border transition-all ${activeStep === i ? c.active + " border-opacity-100" : "bg-white border-[#e5e5e5] hover:border-neutral-300"}`}>
+                <span className={`text-[10px] font-black ${activeStep === i ? "" : "text-neutral-300"}`}>{s.num}</span>
                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${c.badge}`}>{s.label}</span>
-                <s.icon className={`w-3.5 h-3.5 ${activeStep === i ? "text-slate-700" : "text-slate-400"}`} />
+                <s.icon className={`w-3.5 h-3.5 ${activeStep === i ? "text-neutral-700" : "text-neutral-400"}`} />
               </button>
             );
           })}
@@ -395,15 +395,15 @@ function Flow() {
                 <s.icon className="w-3 h-3" />
                 Étape {s.num} · {s.label}
               </div>
-              <h3 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-4 leading-tight">{s.title}</h3>
-              <p className="text-slate-500 text-base leading-relaxed mb-8">{s.desc}</p>
+              <h3 className="text-3xl md:text-4xl font-black text-neutral-900 tracking-tight mb-4 leading-tight">{s.title}</h3>
+              <p className="text-neutral-500 text-base leading-relaxed mb-8">{s.desc}</p>
 
               {i === 0 && (
                 <div className="space-y-3">
                   {["Toute vidéo YouTube avec sous-titres ou transcription", "Tutoriels, formations, podcasts, conférences", "Vidéos en français, anglais, arabe — toutes langues", "Pas de limite de durée · Jusqu'à 15 000 caractères analysés"].map(f => (
                     <div key={f} className="flex items-start gap-3">
                       <Check className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-slate-600">{f}</span>
+                      <span className="text-sm text-neutral-600">{f}</span>
                     </div>
                   ))}
                 </div>
@@ -418,10 +418,10 @@ function Flow() {
                     { icon: "🔄", label: "Transformation", sub: "Ce que le lecteur gagnera" },
                     { icon: "📖", label: "Verbatim", sub: "La citation la plus forte" },
                   ].map(f => (
-                    <div key={f.label} className="p-3.5 bg-white border border-[#D6CFC4] rounded-xl">
+                    <div key={f.label} className="p-3.5 bg-white border border-[#e5e5e5] rounded-xl">
                       <div className="text-base mb-1">{f.icon}</div>
-                      <p className="text-xs font-bold text-slate-900">{f.label}</p>
-                      <p className="text-[10px] text-slate-400 mt-0.5">{f.sub}</p>
+                      <p className="text-xs font-bold text-neutral-900">{f.label}</p>
+                      <p className="text-[10px] text-neutral-400 mt-0.5">{f.sub}</p>
                     </div>
                   ))}
                 </div>
@@ -434,11 +434,11 @@ function Flow() {
                     { label: "Titre et description pré-remplis", sub: "Modifiables avant de lancer la génération" },
                     { label: "Aperçu du template avant de payer", sub: "Changez de thème à l'infini gratuitement" },
                   ].map(f => (
-                    <div key={f.label} className="flex items-start gap-3 p-3.5 bg-white border border-[#D6CFC4] rounded-xl">
-                      <Check className="w-4 h-4 text-violet-500 flex-shrink-0 mt-0.5" />
+                    <div key={f.label} className="flex items-start gap-3 p-3.5 bg-white border border-[#e5e5e5] rounded-xl">
+                      <Check className="w-4 h-4 text-[#059669] flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-sm font-bold text-slate-900">{f.label}</p>
-                        <p className="text-xs text-slate-400 mt-0.5">{f.sub}</p>
+                        <p className="text-sm font-bold text-neutral-900">{f.label}</p>
+                        <p className="text-xs text-neutral-400 mt-0.5">{f.sub}</p>
                       </div>
                     </div>
                   ))}
@@ -452,11 +452,11 @@ function Flow() {
                     { label: "Kit marketing complet inclus", sub: "Posts, scripts WhatsApp, textes de vente" },
                     { label: "Téléchargement immédiat", sub: "Prêt à mettre en vente sur Smart Shop ou WhatsApp" },
                   ].map(f => (
-                    <div key={f.label} className="flex items-start gap-3 p-3.5 bg-white border border-[#D6CFC4] rounded-xl">
+                    <div key={f.label} className="flex items-start gap-3 p-3.5 bg-white border border-[#e5e5e5] rounded-xl">
                       <Check className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-sm font-bold text-slate-900">{f.label}</p>
-                        <p className="text-xs text-slate-400 mt-0.5">{f.sub}</p>
+                        <p className="text-sm font-bold text-neutral-900">{f.label}</p>
+                        <p className="text-xs text-neutral-400 mt-0.5">{f.sub}</p>
                       </div>
                     </div>
                   ))}
@@ -465,13 +465,13 @@ function Flow() {
 
               {i < 3 && (
                 <button onClick={() => setActiveStep(i + 1)}
-                  className="mt-8 inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 transition-colors">
+                  className="mt-8 inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-neutral-500 hover:text-neutral-900 transition-colors">
                   Étape suivante <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               )}
               {i === 3 && (
                 <Link href="/auth/register"
-                  className="mt-8 inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl text-xs uppercase tracking-widest transition-colors">
+                  className="mt-8 inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 hover:bg-neutral-800 text-white font-black rounded-xl text-xs uppercase tracking-widest transition-colors">
                   <Play className="w-3.5 h-3.5" fill="currentColor" /> Essayer maintenant
                 </Link>
               )}
@@ -489,7 +489,7 @@ function Flow() {
 // ─── TEMPLATES ─────────────────────────────────────────────────────────────────
 function Templates() {
   return (
-    <section id="templates" className="bg-slate-900 py-24 px-6 relative overflow-hidden">
+    <section id="templates" className="bg-neutral-900 py-24 px-6 relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: GRAIN, backgroundRepeat: "repeat", backgroundSize: "128px" }} />
       <div className="relative z-10 max-w-6xl mx-auto">
 
@@ -505,7 +505,7 @@ function Templates() {
 
         {/* Image des templates */}
         <div className="rounded-2xl overflow-hidden border border-white/10 shadow-2xl mb-8">
-          <div className="bg-slate-800/60 border-b border-white/10 px-4 py-2.5 flex items-center gap-3">
+          <div className="bg-neutral-800/60 border-b border-white/10 px-4 py-2.5 flex items-center gap-3">
             <div className="flex gap-1.5">
               <div className="w-3 h-3 rounded-full bg-red-500/60" />
               <div className="w-3 h-3 rounded-full bg-amber-500/60" />
@@ -527,7 +527,7 @@ function Templates() {
           {[
             { icon: "🎨", title: "Changement instantané", desc: "Cliquez sur un template, l'aperçu se met à jour immédiatement. Gratuit à chaque changement." },
             { icon: "📐", title: "Couverture automatique", desc: "Chaque template génère une couverture unique avec votre titre, sous-titre et nom d'auteur." },
-            { icon: "✨", title: "PDF haute qualité", desc: "Rendu Puppeteer — qualité impression professionnelle. Prêt à vendre dès le téléchargement." },
+            { icon: "📄", title: "PDF haute qualité", desc: "Rendu Puppeteer — qualité impression professionnelle. Prêt à vendre dès le téléchargement." },
           ].map(f => (
             <div key={f.title} className="p-6 bg-white/5 border border-white/10 rounded-2xl">
               <div className="text-2xl mb-3">{f.icon}</div>
@@ -544,13 +544,13 @@ function Templates() {
 // ─── AVANT / APRÈS ─────────────────────────────────────────────────────────────
 function AvantApres() {
   return (
-    <section className="bg-[#F5F2ED] py-24 px-6 relative overflow-hidden">
+    <section className="bg-[#ffffff] py-24 px-6 relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.025] pointer-events-none" style={{ backgroundImage: GRAIN, backgroundRepeat: "repeat", backgroundSize: "128px" }} />
       <div className="relative z-10 max-w-5xl mx-auto">
 
-        <div className="mb-16 pb-10 border-b border-[#C8BFB0]">
-          <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-400 mb-3">La réalité</p>
-          <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
+        <div className="mb-16 pb-10 border-b border-[#e5e5e5]">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-neutral-400 mb-3">La réalité</p>
+          <h2 className="text-4xl md:text-5xl font-black text-neutral-900 tracking-tight">
             Avant Youbook vs après.
           </h2>
         </div>
@@ -563,7 +563,7 @@ function AvantApres() {
                 <X className="w-4 h-4 text-white" />
               </div>
               <div>
-                <p className="font-black text-slate-900 text-base uppercase tracking-wider">Sans Youbook</p>
+                <p className="font-black text-neutral-900 text-base uppercase tracking-wider">Sans Youbook</p>
                 <p className="text-red-500 text-xs font-bold">La galère habituelle</p>
               </div>
             </div>
@@ -581,8 +581,8 @@ function AvantApres() {
                     <X className="w-3 h-3 text-red-500" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-slate-800">{item.pain}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{item.sub}</p>
+                    <p className="text-sm font-bold text-neutral-800">{item.pain}</p>
+                    <p className="text-xs text-neutral-400 mt-0.5">{item.sub}</p>
                   </div>
                 </div>
               ))}
@@ -590,14 +590,14 @@ function AvantApres() {
           </div>
 
           {/* AVEC YOUBOOK */}
-          <div className="rounded-2xl border-2 border-red-400 bg-white overflow-hidden">
-            <div className="bg-red-600 px-8 py-5 flex items-center gap-3 border-b border-red-700">
+          <div className="rounded-2xl border-2 border-[#059669] bg-white overflow-hidden">
+            <div className="bg-[#059669] px-8 py-5 flex items-center gap-3 border-b border-[#047857]">
               <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
                 <Youtube className="w-4 h-4 text-white" />
               </div>
               <div>
                 <p className="font-black text-white text-base uppercase tracking-wider">Avec Youbook</p>
-                <p className="text-red-200 text-xs font-bold">3 minutes. Résultat pro.</p>
+                <p className="text-white/70 text-xs font-bold">3 minutes. Résultat pro.</p>
               </div>
             </div>
             <div className="p-8 space-y-4">
@@ -610,12 +610,12 @@ function AvantApres() {
                 { win: "Total : moins de 3 minutes", sub: "Prêt à mettre en vente sur WhatsApp ou Smart Shop" },
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
-                  <div className="w-5 h-5 rounded-full bg-red-50 border border-red-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Check className="w-3 h-3 text-red-600" />
+                  <div className="w-5 h-5 rounded-full bg-[rgba(5,150,105,0.10)] border border-[rgba(5,150,105,0.30)] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 text-[#059669]" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-slate-800">{item.win}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{item.sub}</p>
+                    <p className="text-sm font-bold text-neutral-800">{item.win}</p>
+                    <p className="text-xs text-neutral-400 mt-0.5">{item.sub}</p>
                   </div>
                 </div>
               ))}
@@ -630,30 +630,30 @@ function AvantApres() {
 // ─── TÉMOIGNAGES MARQUEE ────────────────────────────────────────────────────────
 function Testimonials() {
   return (
-    <section className="bg-[#EDE8E0] py-20 px-0 relative overflow-hidden">
+    <section className="bg-[#fafafa] py-20 px-0 relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.025] pointer-events-none" style={{ backgroundImage: GRAIN, backgroundRepeat: "repeat", backgroundSize: "128px" }} />
       <div className="relative z-10 max-w-5xl mx-auto px-6 mb-12">
-        <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-400 mb-3">Ils ont essayé</p>
-        <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">Ce qu'ils en disent.</h2>
+        <p className="text-xs font-black uppercase tracking-[0.3em] text-neutral-400 mb-3">Ils ont essayé</p>
+        <h2 className="text-4xl md:text-5xl font-black text-neutral-900 tracking-tight">Ce qu'ils en disent.</h2>
       </div>
 
       <div className="overflow-hidden">
         <div className="flex gap-5 w-max" style={{ animation: "marquee 40s linear infinite" }}>
           {DOUBLED.map((t, i) => (
-            <div key={i} className="w-72 flex-shrink-0 bg-white border border-[#D6CFC4] rounded-2xl p-6">
+            <div key={i} className="w-72 flex-shrink-0 bg-white border border-[#e5e5e5] rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-4">
                 <img src={t.avatar} alt={t.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
                 <div>
-                  <p className="text-sm font-bold text-slate-900">{t.name}</p>
-                  <p className="text-[10px] text-slate-400">{t.role} · {t.location}</p>
+                  <p className="text-sm font-bold text-neutral-900">{t.name}</p>
+                  <p className="text-[10px] text-neutral-400">{t.role} · {t.location}</p>
                 </div>
               </div>
               <div className="flex gap-0.5 mb-3">
                 {[1,2,3,4,5].map(s => <Star key={s} className="w-3 h-3 text-amber-400 fill-amber-400" />)}
               </div>
-              <p className="text-sm text-slate-600 leading-relaxed mb-4 italic">"{t.quote}"</p>
-              <div className="pt-3 border-t border-[#E8E2D9]">
-                <span className="text-sm font-black text-red-600">{t.result}</span>
+              <p className="text-sm text-neutral-600 leading-relaxed mb-4 italic">"{t.quote}"</p>
+              <div className="pt-3 border-t border-[#f5f5f5]">
+                <span className="text-sm font-black text-[#059669]">{t.result}</span>
               </div>
             </div>
           ))}
@@ -727,31 +727,31 @@ function Pricing() {
   const fmt = n => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f");
 
   return (
-    <section id="pricing" className="bg-[#F5F2ED] py-24 px-6 relative overflow-hidden">
+    <section id="pricing" className="bg-[#ffffff] py-24 px-6 relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.025] pointer-events-none" style={{ backgroundImage: GRAIN, backgroundRepeat: "repeat", backgroundSize: "128px" }} />
       <div className="relative z-10 max-w-6xl mx-auto">
 
-        <div className="mb-10 pb-10 border-b border-[#C8BFB0]">
-          <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-400 mb-3">Tarification</p>
+        <div className="mb-10 pb-10 border-b border-[#e5e5e5]">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-neutral-400 mb-3">Tarification</p>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-4xl md:text-5xl font-black text-neutral-900 tracking-tight">
               Youbook gratuit selon votre plan.<br />Payez uniquement après le quota.
             </h2>
-            <div className="inline-flex bg-white border border-[#D6CFC4] rounded-full p-1 gap-1 self-start md:self-auto">
+            <div className="inline-flex bg-white border border-[#e5e5e5] rounded-full p-1 gap-1 self-start md:self-auto">
               {[
                 { id: "monthly", label: "Mensuel", badge: null },
                 { id: "quarterly", label: "Trimestriel", badge: "−15%" },
               ].map(opt => (
                 <button key={opt.id} onClick={() => setBilling(opt.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${billing === opt.id ? "bg-slate-900 text-white shadow-sm" : "text-slate-500 hover:text-slate-900"}`}>
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${billing === opt.id ? "bg-neutral-900 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-900"}`}>
                   {opt.label}
                   {opt.badge && <span className="bg-emerald-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{opt.badge}</span>}
                 </button>
               ))}
             </div>
           </div>
-          <p className="text-slate-500 mt-3 text-sm">
-            <span className="font-bold text-slate-900">Les crédits s'accumulent</span> et <span className="font-bold text-slate-900">n'expirent jamais.</span> · Paiement sécurisé · 13 pays
+          <p className="text-neutral-500 mt-3 text-sm">
+            <span className="font-bold text-neutral-900">Les crédits s'accumulent</span> et <span className="font-bold text-neutral-900">n'expirent jamais.</span> · Paiement sécurisé · 13 pays
           </p>
         </div>
 
@@ -760,39 +760,39 @@ function Pricing() {
             const priceDisplay = !plan.price ? 0 : isQ ? Math.round(plan.price * 3 * 0.85) : plan.price;
             const creditsDisplay = !plan.credits ? null : isQ ? plan.credits * 3 : plan.credits;
             return (
-              <div key={i} className={`relative rounded-2xl p-6 border flex flex-col ${plan.dark ? "bg-slate-900 border-slate-800" : "bg-white border-[#C8BFB0]"}`}>
+              <div key={i} className={`relative rounded-2xl p-6 border flex flex-col ${plan.dark ? "bg-neutral-900 border-neutral-800" : "bg-white border-[#e5e5e5]"}`}>
                 {plan.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full whitespace-nowrap">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#059669] text-white text-[10px] font-black uppercase tracking-widest rounded-full whitespace-nowrap">
                     {plan.badge}
                   </div>
                 )}
-                <p className={`text-xs font-black uppercase tracking-widest mb-0.5 ${plan.dark ? "text-white/30" : "text-slate-400"}`}>{plan.name}</p>
-                <p className={`text-[10px] mb-4 ${plan.dark ? "text-white/20" : "text-slate-300"}`}>{plan.desc}</p>
+                <p className={`text-xs font-black uppercase tracking-widest mb-0.5 ${plan.dark ? "text-white/30" : "text-neutral-400"}`}>{plan.name}</p>
+                <p className={`text-[10px] mb-4 ${plan.dark ? "text-white/20" : "text-neutral-300"}`}>{plan.desc}</p>
 
                 {isQ && plan.price > 0 && (
-                  <p className={`text-xs line-through mb-0.5 ${plan.dark ? "text-white/20" : "text-slate-300"}`}>{fmt(plan.price * 3)} FCFA</p>
+                  <p className={`text-xs line-through mb-0.5 ${plan.dark ? "text-white/20" : "text-neutral-300"}`}>{fmt(plan.price * 3)} FCFA</p>
                 )}
-                <p className={`text-3xl font-black mb-0.5 ${plan.dark ? "text-white" : "text-slate-900"}`}>
+                <p className={`text-3xl font-black mb-0.5 ${plan.dark ? "text-white" : "text-neutral-900"}`}>
                   {plan.price === 0 ? "Gratuit" : <>{fmt(priceDisplay)} <span className="text-base font-bold">FCFA</span></>}
                 </p>
                 {creditsDisplay && (
-                  <p className={`text-xs font-bold mb-5 ${plan.dark ? "text-red-400/70" : "text-slate-500"}`}>
+                  <p className={`text-xs font-bold mb-5 ${plan.dark ? "text-[#059669]/70" : "text-neutral-500"}`}>
                     {fmt(creditsDisplay)} crédits{isQ ? " / 3 mois" : " / mois"}
                   </p>
                 )}
-                {!creditsDisplay && <p className="text-xs font-bold mb-5 text-slate-400">4 crédits offerts</p>}
+                {!creditsDisplay && <p className="text-xs font-bold mb-5 text-neutral-400">4 crédits offerts</p>}
 
                 <div className="space-y-2 flex-1 mb-6">
                   {plan.features.map(f => (
                     <div key={f.label} className="flex items-start justify-between gap-2">
-                      <span className={`text-xs flex-shrink-0 ${plan.dark ? "text-white/60" : "text-slate-600"}`}>{f.label}</span>
-                      <span className={`text-[10px] font-bold text-right ${plan.dark ? "text-red-400/60" : "text-slate-400"}`}>{f.val}</span>
+                      <span className={`text-xs flex-shrink-0 ${plan.dark ? "text-white/60" : "text-neutral-600"}`}>{f.label}</span>
+                      <span className={`text-[10px] font-bold text-right ${plan.dark ? "text-[#059669]/60" : "text-neutral-400"}`}>{f.val}</span>
                     </div>
                   ))}
                 </div>
 
                 <Link href="/auth/register"
-                  className={`block w-full text-center py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-colors ${plan.dark ? "bg-red-600 hover:bg-red-700 text-white" : "bg-slate-900 text-white hover:bg-slate-800"}`}>
+                  className={`block w-full text-center py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-colors ${plan.dark ? "bg-neutral-900 hover:bg-neutral-800 text-white" : "bg-neutral-900 text-white hover:bg-neutral-800"}`}>
                   {plan.cta}
                 </Link>
               </div>
@@ -800,7 +800,7 @@ function Pricing() {
           })}
         </div>
 
-        <p className="text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+        <p className="text-center text-xs text-neutral-400 flex items-center justify-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
           Les crédits s'accumulent et n'expirent pas · Youbook inclus dès le Pass Solo
         </p>
@@ -823,23 +823,23 @@ function FAQ() {
   ];
 
   return (
-    <section id="faq" className="bg-[#EDE8E0] py-24 px-6 relative overflow-hidden">
+    <section id="faq" className="bg-[#fafafa] py-24 px-6 relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.025] pointer-events-none" style={{ backgroundImage: GRAIN, backgroundRepeat: "repeat", backgroundSize: "128px" }} />
       <div className="relative z-10 max-w-3xl mx-auto">
-        <div className="mb-12 pb-10 border-b border-[#C8BFB0] text-center">
-          <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-400 mb-3">Questions fréquentes</p>
-          <h2 className="text-4xl font-black text-slate-900 tracking-tight">FAQ</h2>
+        <div className="mb-12 pb-10 border-b border-[#e5e5e5] text-center">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-neutral-400 mb-3">Questions fréquentes</p>
+          <h2 className="text-4xl font-black text-neutral-900 tracking-tight">FAQ</h2>
         </div>
         <div className="space-y-3">
           {faqs.map((faq, i) => (
-            <div key={i} className="bg-white border border-[#D6CFC4] rounded-xl overflow-hidden">
+            <div key={i} className="bg-white border border-[#e5e5e5] rounded-xl overflow-hidden">
               <button onClick={() => setOpenIdx(openIdx === i ? -1 : i)}
                 className="w-full flex items-center justify-between p-5 text-left gap-4">
-                <span className={`font-bold text-sm ${openIdx === i ? "text-red-600" : "text-slate-900"}`}>{faq.q}</span>
-                <ChevronDown className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 ${openIdx === i ? "rotate-180 text-red-600" : "text-slate-300"}`} />
+                <span className={`font-bold text-sm ${openIdx === i ? "text-[#059669]" : "text-neutral-900"}`}>{faq.q}</span>
+                <ChevronDown className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 ${openIdx === i ? "rotate-180 text-[#059669]" : "text-neutral-300"}`} />
               </button>
               <div className={`overflow-hidden transition-all duration-200 ${openIdx === i ? "max-h-64 opacity-100" : "max-h-0 opacity-0"}`}>
-                <div className="px-5 pb-5 text-sm text-slate-500 leading-relaxed">{faq.a}</div>
+                <div className="px-5 pb-5 text-sm text-neutral-500 leading-relaxed">{faq.a}</div>
               </div>
             </div>
           ))}
@@ -852,20 +852,20 @@ function FAQ() {
 // ─── CTA FINAL ─────────────────────────────────────────────────────────────────
 function CTAFinal() {
   return (
-    <section className="bg-slate-900 py-24 px-6 relative overflow-hidden">
+    <section className="bg-neutral-900 py-24 px-6 relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: GRAIN, backgroundRepeat: "repeat", backgroundSize: "128px" }} />
-      <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-red-600/10 blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-[#059669]/15 blur-3xl pointer-events-none" />
       <div className="relative z-10 max-w-4xl mx-auto text-center">
         <p className="text-xs font-black uppercase tracking-[0.3em] text-white/20 mb-6">Gratuit selon votre plan · Sans carte bancaire · Accès immédiat</p>
         <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight mb-6 leading-tight">
           Arrêtez de regarder des vidéos.<br />
-          <span className="text-red-500">Monétisez-les.</span>
+          <span className="text-[#34d399]">Monétisez-les.</span>
         </h2>
         <p className="text-white/40 text-lg mb-10 max-w-xl mx-auto">
           Rejoignez les créateurs qui transforment leur contenu YouTube en ebooks rentables — en 3 minutes.
         </p>
         <Link href="/auth/register"
-          className="inline-flex items-center gap-3 px-10 py-5 bg-red-600 hover:bg-red-700 text-white text-base font-black rounded-2xl transition-colors shadow-xl shadow-red-600/20 uppercase tracking-widest">
+          className="inline-flex items-center gap-3 px-10 py-5 bg-neutral-900 hover:bg-neutral-800 text-white text-base font-black rounded-2xl transition-colors shadow-xl shadow-neutral-900/20 uppercase tracking-widest">
           <Play className="w-5 h-5" fill="currentColor" />
           Commencer gratuitement
           <ArrowRight className="w-5 h-5" />
@@ -881,51 +881,51 @@ function CTAFinal() {
 // ─── FOOTER ────────────────────────────────────────────────────────────────────
 function Footer() {
   return (
-    <footer className="bg-[#EDE8E0] border-t border-[#C8BFB0] pt-16 pb-10 px-6">
+    <footer className="bg-[#fafafa] border-t border-[#e5e5e5] pt-16 pb-10 px-6">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-neutral-900 flex items-center justify-center">
                 <BookOpenSVG className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold text-slate-900">Bookzy</span>
+              <span className="font-bold text-neutral-900">Bookzy</span>
             </div>
-            <p className="text-slate-400 text-sm">Plateforme de génération d'ebooks par IA pour les marchés francophones africains.</p>
+            <p className="text-neutral-400 text-sm">Plateforme de génération d'ebooks par IA pour les marchés francophones africains.</p>
           </div>
           <div>
-            <h3 className="font-black mb-4 text-xs uppercase tracking-widest text-slate-400">Produits</h3>
-            <ul className="space-y-3 text-sm text-slate-500">
-              <li><Link href="/youbook" className="hover:text-slate-900 transition-colors">Youbook</Link></li>
-              <li><Link href="/ebook-designer" className="hover:text-slate-900 transition-colors">Ebook Designer</Link></li>
+            <h3 className="font-black mb-4 text-xs uppercase tracking-widest text-neutral-400">Produits</h3>
+            <ul className="space-y-3 text-sm text-neutral-500">
+              <li><Link href="/youbook" className="hover:text-neutral-900 transition-colors">Youbook</Link></li>
+              <li><Link href="/ebook-designer" className="hover:text-neutral-900 transition-colors">Ebook Designer</Link></li>
               
-              <li><Link href="/niche-hunter" className="hover:text-slate-900 transition-colors">Niche Hunter</Link></li>
-              <li><Link href="/radar-cash" className="hover:text-slate-900 transition-colors">Radar Cash</Link></li>
+              <li><Link href="/niche-hunter" className="hover:text-neutral-900 transition-colors">Niche Hunter</Link></li>
+              <li><Link href="/radar-cash" className="hover:text-neutral-900 transition-colors">Radar Cash</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="font-black mb-4 text-xs uppercase tracking-widest text-slate-400">Ressources</h3>
-            <ul className="space-y-3 text-sm text-slate-500">
-              <li><Link href="/suggestions" className="hover:text-slate-900 transition-colors">Roadmap</Link></li>
-              <li><Link href="/changelog" className="hover:text-slate-900 transition-colors">Nouveautés</Link></li>
-              <li><a href="#faq" className="hover:text-slate-900 transition-colors">FAQ</a></li>
+            <h3 className="font-black mb-4 text-xs uppercase tracking-widest text-neutral-400">Ressources</h3>
+            <ul className="space-y-3 text-sm text-neutral-500">
+              <li><Link href="/suggestions" className="hover:text-neutral-900 transition-colors">Roadmap</Link></li>
+              <li><Link href="/changelog" className="hover:text-neutral-900 transition-colors">Nouveautés</Link></li>
+              <li><a href="#faq" className="hover:text-neutral-900 transition-colors">FAQ</a></li>
             </ul>
           </div>
           <div>
-            <h3 className="font-black mb-4 text-xs uppercase tracking-widest text-slate-400">Contact</h3>
-            <ul className="space-y-3 text-sm text-slate-500">
+            <h3 className="font-black mb-4 text-xs uppercase tracking-widest text-neutral-400">Contact</h3>
+            <ul className="space-y-3 text-sm text-neutral-500">
               <li className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" /> Support 7j/7
               </li>
-              <li><a href="mailto:support@bookzy.io" className="hover:text-slate-900 transition-colors">support@bookzy.io</a></li>
+              <li><a href="mailto:support@bookzy.io" className="hover:text-neutral-900 transition-colors">support@bookzy.io</a></li>
             </ul>
           </div>
         </div>
-        <div className="border-t border-[#C8BFB0] pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400">
+        <div className="border-t border-[#e5e5e5] pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-neutral-400">
           <p>© 2026 Bookzy Inc. Tous droits réservés.</p>
           <div className="flex gap-6">
-            <Link href="/legal/terms" className="hover:text-slate-900 transition-colors">CGU</Link>
-            <Link href="/legal/confidentialite" className="hover:text-slate-900 transition-colors">Confidentialité</Link>
+            <Link href="/legal/terms" className="hover:text-neutral-900 transition-colors">CGU</Link>
+            <Link href="/legal/confidentialite" className="hover:text-neutral-900 transition-colors">Confidentialité</Link>
           </div>
         </div>
       </div>
@@ -937,10 +937,10 @@ function Footer() {
 export default function YoubookPage() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
-  if (!mounted) return <div className="min-h-screen bg-[#F5F2ED]" />;
+  if (!mounted) return <div className="min-h-screen bg-[#ffffff]" />;
 
   return (
-    <div className="min-h-screen bg-[#F5F2ED] font-sans text-slate-900 overflow-x-hidden">
+    <div className="min-h-screen bg-[#ffffff] font-sans text-neutral-900 overflow-x-hidden">
       <Nav />
       <Hero />
       <Flow />

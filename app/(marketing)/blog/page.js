@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Search, Calendar, ArrowRight, BookOpen, TrendingUp, Filter, Clock, Eye } from "lucide-react";
+import { Search, Calendar, ArrowRight, BookOpen, TrendingUp, Filter, Clock, Eye, Check } from "lucide-react";
 import Link from "next/link";
 
 export default function BlogPage() {
@@ -105,17 +105,17 @@ export default function BlogPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Modern Hero with Visual Elements */}
-      <section className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white overflow-hidden">
+      <section className="relative bg-neutral-900 text-white overflow-hidden">
         {/* Animated background */}
         <div className="absolute inset-0">
           {/* Gradient orbs */}
-          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/30 rounded-full blur-[100px] animate-float" />
-          <div className="absolute top-40 right-20 w-96 h-96 bg-cyan-500/20 rounded-full blur-[120px] animate-float-delayed" />
-          <div className="absolute bottom-20 left-1/3 w-80 h-80 bg-indigo-500/25 rounded-full blur-[110px] animate-pulse-slow" />
-          
+          <div className="absolute top-20 left-10 w-72 h-72 rounded-full blur-[100px] animate-float" style={{ backgroundColor: 'rgba(5,150,105,0.30)' }} />
+          <div className="absolute top-40 right-20 w-96 h-96 rounded-full blur-[120px] animate-float-delayed" style={{ backgroundColor: 'rgba(5,150,105,0.20)' }} />
+          <div className="absolute bottom-20 left-1/3 w-80 h-80 rounded-full blur-[110px] animate-pulse-slow" style={{ backgroundColor: 'rgba(5,150,105,0.14)' }} />
+
           {/* Grid pattern */}
           <div className="absolute inset-0 opacity-[0.05]" style={{
-            backgroundImage: 'linear-gradient(rgba(59, 130, 246, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(59, 130, 246, 0.5) 1px, transparent 1px)',
+            backgroundImage: 'linear-gradient(rgba(5, 150, 105, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(5, 150, 105, 0.5) 1px, transparent 1px)',
             backgroundSize: '50px 50px'
           }} />
 
@@ -124,7 +124,7 @@ export default function BlogPage() {
             {[...Array(30)].map((_, i) => (
               <div
                 key={i}
-                className="absolute w-1 h-1 bg-blue-400 rounded-full animate-twinkle"
+                className="absolute w-1 h-1 bg-[#059669] rounded-full animate-twinkle"
                 style={{
                   left: `${Math.random() * 100}%`,
                   top: `${Math.random() * 100}%`,
@@ -141,70 +141,70 @@ export default function BlogPage() {
             {/* Left: Content */}
             <div className="text-center lg:text-left">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 bg-blue-500/10 backdrop-blur-sm border border-blue-400/20 px-5 py-2.5 rounded-full mb-8 group hover:bg-blue-500/20 transition-all">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                <span className="font-bold text-sm text-blue-100">Blog Bookzy • Nouvelles ressources</span>
+              <div className="inline-flex items-center gap-2 backdrop-blur-sm border px-5 py-2.5 rounded-full mb-8 group transition-all" style={{ backgroundColor: 'rgba(5,150,105,0.10)', borderColor: 'rgba(5,150,105,0.14)' }}>
+                <div className="w-2 h-2 bg-[#34d399] rounded-full animate-pulse" />
+                <span className="font-bold text-sm text-neutral-200">Blog Bookzy • Nouvelles ressources</span>
               </div>
 
               {/* Title */}
-              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-8 leading-[0.95]">
+              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-8 leading-[0.95]">
                 <span className="block text-white mb-2">Maîtrise</span>
                 <span className="block text-white mb-2">l'art de</span>
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 animate-gradient">
+                <span className="block text-[#34d399]">
                   l'ebook
                 </span>
               </h1>
 
               {/* Description */}
-              <p className="text-xl md:text-2xl text-blue-100 mb-10 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+              <p className="text-xl md:text-2xl text-neutral-300 mb-10 leading-relaxed max-w-2xl mx-auto lg:mx-0">
                 Guides pratiques, stratégies de vente éprouvées et tendances du marché pour
-                <span className="text-cyan-300 font-bold"> maximiser tes revenus</span>
+                <span className="text-[#34d399] font-bold"> maximiser tes revenus</span>
               </p>
 
               {/* Search bar */}
               <div className="max-w-2xl mx-auto lg:mx-0">
                 <div className="bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-2xl">
                   <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-blue-200" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-neutral-300" />
                     <input
                       type="text"
                       placeholder="Cherche un guide, une astuce, un tutoriel..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-14 pr-4 py-5 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 text-lg font-medium shadow-lg"
+                      className="w-full pl-14 pr-4 py-5 rounded-xl bg-white text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#059669] text-lg font-medium shadow-lg"
                     />
                   </div>
                 </div>
 
                 {/* Quick stats */}
-                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 mt-6 text-blue-100">
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 mt-6 text-neutral-300">
                   <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-lg bg-blue-500/20 border border-blue-400/30 flex items-center justify-center">
-                      <TrendingUp className="w-5 h-5 text-cyan-400" />
+                    <div className="w-10 h-10 rounded-lg border flex items-center justify-center" style={{ backgroundColor: 'rgba(5,150,105,0.12)', borderColor: 'rgba(5,150,105,0.14)' }}>
+                      <TrendingUp className="w-5 h-5 text-[#34d399]" />
                     </div>
                     <div>
-                      <div className="text-2xl font-black text-white">{blogs.length}+</div>
-                      <div className="text-xs text-blue-200">Articles</div>
+                      <div className="text-2xl font-extrabold text-white">{blogs.length}+</div>
+                      <div className="text-xs text-neutral-400">Articles</div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-lg bg-cyan-500/20 border border-cyan-400/30 flex items-center justify-center">
-                      <Eye className="w-5 h-5 text-cyan-400" />
+                    <div className="w-10 h-10 rounded-lg border flex items-center justify-center" style={{ backgroundColor: 'rgba(5,150,105,0.12)', borderColor: 'rgba(5,150,105,0.14)' }}>
+                      <Eye className="w-5 h-5 text-[#34d399]" />
                     </div>
                     <div>
-                      <div className="text-2xl font-black text-white">Quotidien</div>
-                      <div className="text-xs text-blue-200">Mis à jour</div>
+                      <div className="text-2xl font-extrabold text-white">Quotidien</div>
+                      <div className="text-xs text-neutral-400">Mis à jour</div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-lg bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center">
-                      <BookOpen className="w-5 h-5 text-cyan-400" />
+                    <div className="w-10 h-10 rounded-lg border flex items-center justify-center" style={{ backgroundColor: 'rgba(5,150,105,0.12)', borderColor: 'rgba(5,150,105,0.14)' }}>
+                      <BookOpen className="w-5 h-5 text-[#34d399]" />
                     </div>
                     <div>
-                      <div className="text-2xl font-black text-white">100%</div>
-                      <div className="text-xs text-blue-200">Gratuit</div>
+                      <div className="text-2xl font-extrabold text-white">100%</div>
+                      <div className="text-xs text-neutral-400">Gratuit</div>
                     </div>
                   </div>
                 </div>
@@ -216,7 +216,7 @@ export default function BlogPage() {
               {/* Main illustration container */}
               <div className="relative">
                 {/* Floating cards */}
-                <div className="absolute -top-10 -left-10 w-64 h-80 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-3xl shadow-2xl transform rotate-[-5deg] animate-float opacity-90">
+                <div className="absolute -top-10 -left-10 w-64 h-80 bg-gradient-to-br from-[#059669] to-[#047857] rounded-3xl shadow-2xl transform rotate-[-5deg] animate-float opacity-90">
                   <div className="p-6 h-full flex flex-col">
                     <div className="w-12 h-12 bg-white/20 rounded-xl mb-4" />
                     <div className="flex-1 space-y-3">
@@ -228,7 +228,7 @@ export default function BlogPage() {
                   </div>
                 </div>
 
-                <div className="absolute top-20 right-0 w-56 h-72 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-3xl shadow-2xl transform rotate-[8deg] animate-float-delayed opacity-90">
+                <div className="absolute top-20 right-0 w-56 h-72 bg-gradient-to-br from-neutral-700 to-neutral-900 rounded-3xl shadow-2xl transform rotate-[8deg] animate-float-delayed opacity-90">
                   <div className="p-6 h-full flex flex-col">
                     <div className="w-10 h-10 bg-white/20 rounded-lg mb-4" />
                     <div className="flex-1 space-y-3">
@@ -239,7 +239,7 @@ export default function BlogPage() {
                   </div>
                 </div>
 
-                <div className="absolute -bottom-10 left-20 w-60 h-76 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-3xl shadow-2xl transform rotate-[3deg] animate-pulse-slow opacity-90">
+                <div className="absolute -bottom-10 left-20 w-60 h-76 bg-gradient-to-br from-[#34d399] to-[#059669] rounded-3xl shadow-2xl transform rotate-[3deg] animate-pulse-slow opacity-90">
                   <div className="p-6 h-full flex flex-col">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 bg-white/20 rounded-full" />
@@ -256,15 +256,15 @@ export default function BlogPage() {
                 </div>
 
                 {/* Center glow */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-blue-400/30 to-cyan-400/30 rounded-full blur-[100px] animate-pulse-slow" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full blur-[100px] animate-pulse-slow" style={{ background: 'rgba(5,150,105,0.30)' }} />
 
                 {/* Floating icons */}
                 <div className="absolute top-10 left-1/4 w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center animate-float border border-white/20">
-                  <BookOpen className="w-8 h-8 text-cyan-300" />
+                  <BookOpen className="w-8 h-8 text-[#34d399]" />
                 </div>
 
                 <div className="absolute bottom-20 right-10 w-14 h-14 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center animate-float-delayed border border-white/20">
-                  <TrendingUp className="w-7 h-7 text-blue-300" />
+                  <TrendingUp className="w-7 h-7 text-[#34d399]" />
                 </div>
               </div>
             </div>
@@ -287,15 +287,15 @@ export default function BlogPage() {
             {[...Array(6)].map((_, i) => (
               <div
                 key={i}
-                className="bg-gray-50 rounded-3xl overflow-hidden animate-pulse"
+                className="bg-neutral-50 rounded-3xl overflow-hidden animate-pulse"
               >
-                <div className="w-full h-56 bg-gray-200" />
+                <div className="w-full h-56 bg-neutral-200" />
                 <div className="p-6">
-                  <div className="h-4 bg-gray-200 rounded mb-3 w-24" />
-                  <div className="h-7 bg-gray-200 rounded mb-3" />
-                  <div className="h-4 bg-gray-200 rounded mb-2" />
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-4" />
-                  <div className="h-10 bg-gray-200 rounded-full" />
+                  <div className="h-4 bg-neutral-200 rounded mb-3 w-24" />
+                  <div className="h-7 bg-neutral-200 rounded mb-3" />
+                  <div className="h-4 bg-neutral-200 rounded mb-2" />
+                  <div className="h-4 bg-neutral-200 rounded w-3/4 mb-4" />
+                  <div className="h-10 bg-neutral-200 rounded-full" />
                 </div>
               </div>
             ))}
@@ -303,18 +303,18 @@ export default function BlogPage() {
         ) : filteredBlogs.length === 0 ? (
           // No results
           <div className="text-center py-20">
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-full mb-8">
-              <Search className="w-12 h-12 text-blue-600" />
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full mb-8" style={{ backgroundColor: 'rgba(5,150,105,0.10)' }}>
+              <Search className="w-12 h-12 text-[#059669]" />
             </div>
-            <h3 className="text-3xl font-black text-gray-900 mb-4">
+            <h3 className="text-3xl font-extrabold tracking-tight text-neutral-900 mb-4">
               Aucun article trouvé
             </h3>
-            <p className="text-gray-600 text-lg mb-8">
+            <p className="text-neutral-500 text-lg mb-8">
               Essayez avec d'autres mots-clés ou explorez tous nos articles
             </p>
             <button
               onClick={() => setSearchQuery("")}
-              className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-full font-bold hover:bg-blue-700 transition-all"
+              className="inline-flex items-center gap-2 bg-neutral-900 text-white px-6 py-3 rounded-full font-bold hover:bg-neutral-800 transition-all"
             >
               Voir tous les articles
             </button>
@@ -330,10 +330,10 @@ export default function BlogPage() {
                   ref={index === displayedBlogs.length - 1 ? lastBlogRef : null}
                   className="group"
                 >
-                  <article className="h-full bg-white rounded-3xl border-2 border-gray-100 hover:border-blue-300 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 overflow-hidden">
+                  <article className="h-full bg-white rounded-3xl border-2 border-neutral-100 hover:border-[#059669] hover:shadow-2xl transition-all duration-500 overflow-hidden">
                     {/* Cover image */}
                     {blog.cover ? (
-                      <div className="relative h-56 overflow-hidden bg-gradient-to-br from-blue-50 to-cyan-50">
+                      <div className="relative h-56 overflow-hidden bg-neutral-100">
                         <img
                           src={blog.cover}
                           alt={blog.title}
@@ -342,7 +342,7 @@ export default function BlogPage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                       </div>
                     ) : (
-                      <div className="relative h-56 bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                      <div className="relative h-56 bg-gradient-to-br from-[#059669] to-[#047857] flex items-center justify-center">
                         <BookOpen className="w-16 h-16 text-white opacity-50" />
                       </div>
                     )}
@@ -350,7 +350,7 @@ export default function BlogPage() {
                     {/* Content */}
                     <div className="p-6">
                       {/* Meta */}
-                      <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
+                      <div className="flex items-center gap-4 text-xs text-neutral-500 mb-4">
                         <div className="flex items-center gap-1.5">
                           <Calendar className="w-4 h-4" />
                           <span className="font-medium">{formatDate(blog.createdAt)}</span>
@@ -362,24 +362,24 @@ export default function BlogPage() {
                       </div>
 
                       {/* Title */}
-                      <h2 className="text-xl font-black text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2 leading-tight">
+                      <h2 className="text-xl font-extrabold tracking-tight text-neutral-900 mb-3 group-hover:text-[#059669] transition-colors line-clamp-2 leading-tight">
                         {blog.title}
                       </h2>
 
                       {/* Excerpt */}
-                      <p className="text-gray-600 text-sm leading-relaxed mb-5 line-clamp-3">
+                      <p className="text-neutral-500 text-sm leading-relaxed mb-5 line-clamp-3">
                         {blog.excerpt || "Découvrez cet article pour en savoir plus sur ce sujet passionnant..."}
                       </p>
 
                       {/* Read more button */}
-                      <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-5 py-2.5 rounded-full font-bold text-sm group-hover:gap-3 group-hover:shadow-lg transition-all">
+                      <div className="inline-flex items-center gap-2 bg-neutral-900 text-white px-5 py-2.5 rounded-full font-bold text-sm group-hover:gap-3 group-hover:bg-neutral-800 group-hover:shadow-lg transition-all">
                         <span>Lire l'article</span>
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                       </div>
                     </div>
 
                     {/* Bottom accent */}
-                    <div className="h-1.5 bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="h-1.5 bg-[#059669] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   </article>
                 </Link>
               ))}
@@ -388,17 +388,17 @@ export default function BlogPage() {
             {/* Loading more indicator */}
             {hasMore && (
               <div className="text-center py-8">
-                <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                <p className="text-gray-600 mt-4 font-medium">Chargement d'autres articles...</p>
+                <div className="inline-block w-8 h-8 border-4 border-[#059669] border-t-transparent rounded-full animate-spin" />
+                <p className="text-neutral-500 mt-4 font-medium">Chargement d'autres articles...</p>
               </div>
             )}
 
             {/* End message */}
             {!hasMore && displayedBlogs.length > 0 && (
               <div className="text-center py-8">
-                <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 px-6 py-3 rounded-full">
-                  <span className="text-xl">✓</span>
-                  <span className="text-blue-900 font-semibold">
+                <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full border" style={{ backgroundColor: 'rgba(5,150,105,0.10)', borderColor: 'rgba(5,150,105,0.14)' }}>
+                  <Check className="w-4 h-4 text-[#059669]" />
+                  <span className="text-neutral-900 font-semibold">
                     Vous avez vu tous les {filteredBlogs.length} articles
                   </span>
                 </div>
@@ -409,36 +409,36 @@ export default function BlogPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white py-20 md:py-28">
+      <section className="bg-neutral-900 text-white py-20 md:py-28">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-5 py-2.5 rounded-full mb-8">
-            <TrendingUp className="w-5 h-5" />
+          <div className="inline-flex items-center gap-2 backdrop-blur-sm border px-5 py-2.5 rounded-full mb-8" style={{ backgroundColor: 'rgba(5,150,105,0.12)', borderColor: 'rgba(5,150,105,0.14)' }}>
+            <TrendingUp className="w-5 h-5 text-[#34d399]" />
             <span className="font-bold text-sm">Prêt à passer à l'action ?</span>
           </div>
 
-          <h3 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight">
+          <h3 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
             Transforme tes idées en
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-200">
+            <span className="text-[#34d399]">
               ebooks rentables
             </span>
           </h3>
 
-          <p className="text-xl text-blue-100 mb-10 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-neutral-300 mb-10 max-w-3xl mx-auto leading-relaxed">
             Génère ton kit complet en 5 minutes : ebook professionnel + mockup 3D + visuels publicitaires + textes marketing
           </p>
 
           <Link
             href="/auth/register"
-            className="group inline-flex items-center gap-3 bg-white text-blue-600 px-10 py-5 rounded-full font-black text-lg shadow-2xl hover:shadow-white/20 transition-all duration-300 hover:scale-105"
+            className="group inline-flex items-center gap-3 bg-white text-neutral-900 px-10 py-5 rounded-full font-extrabold text-lg shadow-2xl hover:shadow-white/20 transition-all duration-300 hover:scale-105"
           >
             <BookOpen className="w-6 h-6 group-hover:rotate-12 transition-transform" />
             <span>Créer mon premier ebook</span>
             <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
           </Link>
 
-          <p className="text-blue-200 text-sm mt-6">
-            🔥 <span className="font-bold">2000 FCFA</span> seulement pendant 3 mois
+          <p className="text-neutral-400 text-sm mt-6">
+            <span className="font-bold text-[#34d399]">2000 FCFA</span> seulement pendant 3 mois
           </p>
         </div>
       </section>
