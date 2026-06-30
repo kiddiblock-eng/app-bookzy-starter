@@ -607,7 +607,7 @@ function ApercuGratuit() {
                 </div>
                 <div>
                   <p className="text-white font-black text-base mb-1">Aperçu 100% gratuit</p>
-                  <p className="text-white/50 text-sm leading-relaxed">Générez l'aperçu autant de fois que vous voulez avec n'importe quel template. Aucun crédit débité jusqu'à ce que vous validiez.</p>
+                  <p className="text-white/50 text-sm leading-relaxed">Générez l'aperçu autant de fois que vous voulez avec n'importe quel template. Aucun ebook décompté tant que vous n'avez pas validé.</p>
                 </div>
               </div>
             </div>

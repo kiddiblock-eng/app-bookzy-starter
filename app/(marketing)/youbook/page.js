@@ -150,8 +150,8 @@ function Hero() {
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>
           <div className="inline-flex items-center gap-2 px-5 py-4 border border-[#e5e5e5] rounded-xl bg-white/60">
-            <span className="text-xs font-black text-neutral-900 uppercase tracking-widest">2 cr. après quota</span>
-            <span className="text-xs text-neutral-400">· gratuit selon plan</span>
+            <span className="text-xs font-black text-neutral-900 uppercase tracking-widest">Inclus dans ton offre</span>
+            <span className="text-xs text-neutral-400">· sans carte bancaire</span>
           </div>
         </div>
 
@@ -160,8 +160,8 @@ function Hero() {
           {[
             { value: "30s", label: "Analyse IA" },
             { value: "30", label: "Templates" },
-            { value: "4+", label: "Analyses offertes" },
-            { value: "2 cr.", label: "Après quota" },
+            { value: "60s", label: "Ebook généré" },
+            { value: "Inclus", label: "Dans ton offre" },
           ].map(s => (
             <div key={s.label} className="text-center">
               <div className="text-3xl md:text-4xl font-black text-neutral-900 tracking-tight">{s.value}</div>
@@ -667,64 +667,14 @@ function Testimonials() {
 
 // ─── PRICING ───────────────────────────────────────────────────────────────────
 function Pricing() {
-  const [billing, setBilling] = useState("monthly");
-  const isQ = billing === "quarterly";
-
-  const PLANS = [
-    {
-      name: "Gratuit", desc: "Pour découvrir", price: 0, credits: "4 crédits offerts",
-      features: [
-        { label: "Youbook", val: "Non disponible" },
-        { label: "Niche Hunter", val: "3 gratuits/j puis 1 cr." },
-        { label: "Analyse niche", val: "3 gratuits/j puis 1 cr." },
-        { label: "Générer un ebook", val: "20 cr." },
-        { label: "Mise en page", val: "10 cr." },
-        { label: "Validateur d'idée", val: "4 cr." },
-      ],
-      cta: "Commencer gratuitement", dark: false, badge: null, id: null,
-    },
-    {
-      name: "Pass Solo", desc: "Pour démarrer", price: 7500, credits: 100,
-      features: [
-        { label: "Youbook", val: "2 gratuits/j puis 2 cr." },
-        { label: "Niche Hunter", val: "3 gratuits/j puis 1 cr." },
-        { label: "Analyse niche", val: "3 gratuits/j puis 1 cr." },
-        { label: "Générer un ebook", val: "20 cr." },
-        { label: "Mise en page", val: "10 cr." },
-        { label: "Validateur d'idée", val: "4 cr." },
-        { label: "Support", val: "Email" },
-      ],
-      cta: "Choisir ce plan", dark: false, badge: null,
-    },
-    {
-      name: "Pack Créateur", desc: "Le plus populaire", price: 22000, credits: 400,
-      features: [
-        { label: "Youbook", val: "8 gratuits/j puis 2 cr." },
-        { label: "Niche Hunter", val: "8 gratuits/j puis 1 cr." },
-        { label: "Analyse niche", val: "8 gratuits/j puis 1 cr." },
-        { label: "Générer un ebook", val: "20 cr." },
-        { label: "Mise en page", val: "10 cr." },
-        { label: "Validateur d'idée", val: "4 cr." },
-        { label: "Support", val: "Email" },
-      ],
-      cta: "Choisir ce plan", dark: true, badge: "Recommandé",
-    },
-    {
-      name: "Pack Agence", desc: "Pour les équipes", price: 45000, credits: 900,
-      features: [
-        { label: "Youbook", val: "15 gratuits/j puis 2 cr." },
-        { label: "Niche Hunter", val: "20 gratuits/j puis 1 cr." },
-        { label: "Analyse niche", val: "20 gratuits/j puis 1 cr." },
-        { label: "Générer un ebook", val: "20 cr." },
-        { label: "Mise en page", val: "10 cr." },
-        { label: "Validateur d'idée", val: "4 cr." },
-        { label: "Support", val: "WhatsApp prioritaire" },
-      ],
-      cta: "Choisir ce plan", dark: false, badge: null,
-    },
+  const perks = [
+    "Analyse Youbook incluse dans ton offre",
+    "Génération d'ebooks selon ton offre",
+    "30 templates professionnels, changement gratuit",
+    "Couverture + kit marketing générés à chaque ebook",
+    "PDF haute qualité prêt à vendre",
+    "Aucune carte bancaire pour démarrer",
   ];
-
-  const fmt = n => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f");
 
   return (
     <section id="pricing" className="bg-[#ffffff] py-24 px-6 relative overflow-hidden">
@@ -732,77 +682,47 @@ function Pricing() {
       <div className="relative z-10 max-w-6xl mx-auto">
 
         <div className="mb-10 pb-10 border-b border-[#e5e5e5]">
-          <p className="text-xs font-black uppercase tracking-[0.3em] text-neutral-400 mb-3">Tarification</p>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <h2 className="text-4xl md:text-5xl font-black text-neutral-900 tracking-tight">
-              Youbook gratuit selon votre plan.<br />Payez uniquement après le quota.
-            </h2>
-            <div className="inline-flex bg-white border border-[#e5e5e5] rounded-full p-1 gap-1 self-start md:self-auto">
-              {[
-                { id: "monthly", label: "Mensuel", badge: null },
-                { id: "quarterly", label: "Trimestriel", badge: "−15%" },
-              ].map(opt => (
-                <button key={opt.id} onClick={() => setBilling(opt.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${billing === opt.id ? "bg-neutral-900 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-900"}`}>
-                  {opt.label}
-                  {opt.badge && <span className="bg-emerald-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{opt.badge}</span>}
-                </button>
-              ))}
-            </div>
-          </div>
-          <p className="text-neutral-500 mt-3 text-sm">
-            <span className="font-bold text-neutral-900">Les crédits s'accumulent</span> et <span className="font-bold text-neutral-900">n'expirent jamais.</span> · Paiement sécurisé · 13 pays
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-neutral-400 mb-3">L'offre Youbook</p>
+          <h2 className="text-4xl md:text-5xl font-black text-neutral-900 tracking-tight">
+            Colle un lien.<br />Repars avec un ebook.
+          </h2>
+          <p className="text-neutral-500 mt-3 text-base max-w-xl">
+            Youbook est inclus dans ton offre Bookzy. Pas de calcul compliqué : tu transformes tes vidéos en ebooks prêts à vendre.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
-          {PLANS.map((plan, i) => {
-            const priceDisplay = !plan.price ? 0 : isQ ? Math.round(plan.price * 3 * 0.85) : plan.price;
-            const creditsDisplay = !plan.credits ? null : isQ ? plan.credits * 3 : plan.credits;
-            return (
-              <div key={i} className={`relative rounded-2xl p-6 border flex flex-col ${plan.dark ? "bg-neutral-900 border-neutral-800" : "bg-white border-[#e5e5e5]"}`}>
-                {plan.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#059669] text-white text-[10px] font-black uppercase tracking-widest rounded-full whitespace-nowrap">
-                    {plan.badge}
-                  </div>
-                )}
-                <p className={`text-xs font-black uppercase tracking-widest mb-0.5 ${plan.dark ? "text-white/30" : "text-neutral-400"}`}>{plan.name}</p>
-                <p className={`text-[10px] mb-4 ${plan.dark ? "text-white/20" : "text-neutral-300"}`}>{plan.desc}</p>
+        <div className="rounded-2xl border border-[#e5e5e5] bg-white p-8 md:p-10 flex flex-col lg:flex-row gap-10 items-start">
+          <div className="flex-1">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[rgba(5,150,105,0.30)] bg-[rgba(5,150,105,0.10)] text-[#047857] text-[10px] font-black uppercase tracking-widest mb-6">
+              <BookOpen className="w-3 h-3" /> Tout inclus
+            </div>
+            <p className="text-3xl md:text-4xl font-black text-neutral-900 tracking-tight mb-2">
+              De la vidéo à l'ebook<span className="text-[#059669]">.</span>
+            </p>
+            <p className="text-neutral-500 text-sm mb-8 max-w-md">
+              Analyse IA, sommaire recommandé, design, couverture et kit marketing — tout est compris dans Bookzy.
+            </p>
+            <Link href="/auth/register"
+              className="group inline-flex items-center gap-3 px-8 py-4 bg-neutral-900 hover:bg-neutral-800 text-white font-black rounded-full transition-all text-sm uppercase tracking-widest">
+              <Play className="w-4 h-4" fill="currentColor" />
+              Créer mon ebook
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+          </div>
 
-                {isQ && plan.price > 0 && (
-                  <p className={`text-xs line-through mb-0.5 ${plan.dark ? "text-white/20" : "text-neutral-300"}`}>{fmt(plan.price * 3)} FCFA</p>
-                )}
-                <p className={`text-3xl font-black mb-0.5 ${plan.dark ? "text-white" : "text-neutral-900"}`}>
-                  {plan.price === 0 ? "Gratuit" : <>{fmt(priceDisplay)} <span className="text-base font-bold">FCFA</span></>}
-                </p>
-                {creditsDisplay && (
-                  <p className={`text-xs font-bold mb-5 ${plan.dark ? "text-[#059669]/70" : "text-neutral-500"}`}>
-                    {fmt(creditsDisplay)} crédits{isQ ? " / 3 mois" : " / mois"}
-                  </p>
-                )}
-                {!creditsDisplay && <p className="text-xs font-bold mb-5 text-neutral-400">4 crédits offerts</p>}
-
-                <div className="space-y-2 flex-1 mb-6">
-                  {plan.features.map(f => (
-                    <div key={f.label} className="flex items-start justify-between gap-2">
-                      <span className={`text-xs flex-shrink-0 ${plan.dark ? "text-white/60" : "text-neutral-600"}`}>{f.label}</span>
-                      <span className={`text-[10px] font-bold text-right ${plan.dark ? "text-[#059669]/60" : "text-neutral-400"}`}>{f.val}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <Link href="/auth/register"
-                  className={`block w-full text-center py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-colors ${plan.dark ? "bg-neutral-900 hover:bg-neutral-800 text-white" : "bg-neutral-900 text-white hover:bg-neutral-800"}`}>
-                  {plan.cta}
-                </Link>
+          <div className="w-full lg:w-auto lg:min-w-[300px] space-y-3">
+            {perks.map(p => (
+              <div key={p} className="flex items-start gap-3">
+                <Check className="w-4 h-4 text-[#059669] flex-shrink-0 mt-0.5" />
+                <span className="text-sm text-neutral-600">{p}</span>
               </div>
-            );
-          })}
+            ))}
+          </div>
         </div>
 
-        <p className="text-center text-xs text-neutral-400 flex items-center justify-center gap-2">
+        <p className="text-center text-xs text-neutral-400 flex items-center justify-center gap-2 mt-6">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
-          Les crédits s'accumulent et n'expirent pas · Youbook inclus dès le Pass Solo
+          Youbook inclus dans ton offre Bookzy · Paiement sécurisé · 13 pays
         </p>
       </div>
     </section>
@@ -814,12 +734,12 @@ function FAQ() {
   const [openIdx, setOpenIdx] = useState(0);
   const faqs = [
     { q: "Comment fonctionne Youbook ?", a: "Vous collez une URL YouTube, Youbook récupère la transcription automatiquement via l'API, puis Gemini analyse le contenu et génère : titre, hook, description, problème résolu, transformation, audience, sommaire complet, insights clés et verbatim. En 30 secondes. Vous validez le sommaire, choisissez un template parmi les 30 disponibles, et l'IA génère l'ebook complet en 60 secondes." },
-    { q: "C'est vraiment gratuit ?", a: "Youbook est inclus dans tous les plans payants avec un quota journalier gratuit : 2 analyses/jour (Pass Solo), 8/jour (Pack Créateur), 15/jour (Pack Agence). Au-delà du quota, chaque analyse coûte 2 crédits. Sans abonnement, Youbook n'est pas disponible. Vous recevez 4 crédits à l'inscription pour tester les autres outils." },
+    { q: "C'est vraiment gratuit ?", a: "Youbook est inclus dans ton offre Bookzy : tu colles un lien YouTube et tu repars avec un ebook prêt à vendre, sans surcoût à l'usage. Tu peux créer ton compte et commencer sans carte bancaire." },
     { q: "Quelles vidéos peuvent être converties ?", a: "Toute vidéo YouTube avec sous-titres ou transcription automatique : tutoriels, formations, podcasts, interviews, conférences, talks TEDx. Fonctionne en français, anglais, arabe et autres langues. La vidéo doit avoir au minimum 1-2 minutes de contenu parlé." },
     { q: "Puis-je modifier le titre et le sommaire avant de générer ?", a: "Absolument. Après l'analyse, Youbook pré-remplit le formulaire avec le titre, la description et le sommaire recommandé. Vous pouvez tout modifier, choisir le nombre de chapitres (3 à 10), sélectionner votre template, puis lancer la génération." },
     { q: "Quelle différence entre Youbook et Bookzy standard ?", a: "Bookzy standard : vous rédigez vous-même le contenu dans l'éditeur ou importez un Word. Youbook : vous collez un lien YouTube et l'IA extrait le contenu, génère le plan et rédige l'ebook entier. Youbook est fait pour monétiser du contenu vidéo existant. Les deux utilisent les mêmes 30 templates et le même moteur PDF." },
-    { q: "Combien de crédits pour générer l'ebook après l'analyse ?", a: "L'analyse Youbook coûte 2 cr. après quota. La génération de l'ebook complet coûte 20 cr. supplémentaires. Soit 22 cr. au total si vous n'avez plus de quota. Avec le Pack Créateur (400 cr./mois) : vous pouvez faire jusqu'à 15 ebooks complets via Youbook par mois." },
-    { q: "Les crédits expirent-ils ?", a: "Non. Les crédits s'accumulent et n'expirent jamais. Si vous avez 60 crédits ce mois et n'en utilisez que 30, les 30 restants s'ajoutent aux crédits du mois suivant." },
+    { q: "Que se passe-t-il après l'analyse ?", a: "Une fois l'analyse terminée, tu valides le sommaire recommandé, tu choisis ton template, et l'IA génère l'ebook complet — contenu, couverture et kit marketing — en 60 secondes. Tu télécharges ton PDF, prêt à mettre en vente." },
+    { q: "Youbook est-il inclus dans mon offre ?", a: "Oui. Youbook fait partie de ton offre Bookzy : analyse de la vidéo, sommaire recommandé, génération de l'ebook, design et kit marketing sont compris. Tu te concentres sur le choix de tes vidéos, l'IA fait le reste." },
   ];
 
   return (

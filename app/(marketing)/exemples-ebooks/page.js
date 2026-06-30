@@ -529,7 +529,7 @@ export default function EbooksVitrinePage() {
             Générer mon ebook  <ArrowRight size={15} />
           </Link>
           <p style={{ margin:"16px 0 0",fontSize:11,color:"#A09080" }}>
-            Pas de carte bancaire · Premiers crédits offerts
+            Pas de carte bancaire · Gratuit pour commencer
           </p>
         </div>
       </section>
