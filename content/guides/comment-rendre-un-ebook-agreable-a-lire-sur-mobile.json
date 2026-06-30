@@ -1,0 +1,73 @@
+{
+  "title": "Comment rendre un ebook agréable à lire sur mobile",
+  "metaTitle": "Comment rendre un ebook agréable à lire sur mobile | Bookzy",
+  "metaDescription": "Découvre comment rendre un ebook agréable à lire sur mobile : taille du texte, paragraphes courts, marges, contraste et format adapté aux petits écrans.",
+  "keyword": "ebook lisible sur mobile",
+  "pillar": "Design et couverture",
+  "intro": "En Afrique francophone, la quasi-totalité de tes lecteurs ouvriront ton ebook sur un téléphone. Un ebook pensé pour l'ordinateur devient vite illisible sur petit écran. Voici comment rendre ton ebook réellement agréable à lire sur mobile.",
+  "sections": [
+    {
+      "h2": "Le mobile d'abord, pas l'ordinateur",
+      "body": [
+        "La plupart des créateurs conçoivent leur ebook sur ordinateur et le valident sur ordinateur. Erreur. Une page qui paraît élégante et aérée sur un grand écran peut devenir un mur de texte compact et fatigant sur un téléphone. Or c'est sur téléphone que ton lecteur va réellement te lire.",
+        "Adopter le réflexe « mobile d'abord » change tout. Cela signifie penser chaque paragraphe, chaque marge, chaque taille de texte en imaginant un petit écran tenu à bout de bras, parfois dans le bus ou sous une faible luminosité. Un ebook confortable sur mobile sera confortable partout ; l'inverse n'est pas vrai."
+      ]
+    },
+    {
+      "h2": "Du texte assez grand et bien espacé",
+      "body": [
+        "Sur un téléphone, un texte trop petit oblige le lecteur à zoomer ou à plisser les yeux, et il abandonne vite. Choisis une taille de police généreuse, confortable à lire sans effort. Mieux vaut un texte légèrement trop grand que trop petit.",
+        "L'espacement compte autant que la taille. Un espace suffisant entre les lignes empêche le texte de paraître écrasé et repose l'œil. Des lignes trop serrées donnent une impression d'étouffement et ralentissent la lecture. Cet air entre les lignes est l'un des réglages les plus simples et les plus efficaces pour le confort mobile."
+      ],
+      "list": [
+        "Utilise une taille de police généreuse, lisible sans zoomer.",
+        "Laisse un bon espace entre les lignes pour aérer le texte.",
+        "En cas de doute, choisis un peu plus grand plutôt que plus petit."
+      ]
+    },
+    {
+      "h2": "Des paragraphes courts et beaucoup de respiration",
+      "body": [
+        "Le mur de texte est l'ennemi numéro un du lecteur mobile. Un paragraphe de dix lignes sur ordinateur peut occuper la moitié de l'écran d'un téléphone, et cette densité décourage instantanément. Découpe tes idées en paragraphes courts, de deux à quatre lignes.",
+        "Multiplie les respirations : sauts de ligne, sous-titres réguliers, listes à puces. Chaque blanc dans la page agit comme une pause qui repose l'œil et donne envie de continuer à scroller. Une page aérée se lit vite et procure un sentiment de progression, alors qu'une page dense donne envie de fermer l'ebook."
+      ],
+      "list": [
+        "Limite tes paragraphes à 2 à 4 lignes.",
+        "Insère sous-titres et listes pour rythmer la lecture.",
+        "Laisse des blancs : ils reposent l'œil et invitent à continuer."
+      ]
+    },
+    {
+      "h2": "Soigner les marges, le contraste et les images",
+      "body": [
+        "Des marges suffisantes empêchent le texte de coller aux bords de l'écran, ce qui rend la lecture nettement plus confortable. Un texte collé au bord paraît étouffé et amateur ; un peu d'espace autour respire et fait pro.",
+        "Le contraste est crucial sur mobile, souvent lu en pleine lumière ou avec la luminosité baissée pour économiser la batterie. Un texte gris pâle sur fond blanc devient illisible dehors. Vise un fort contraste, du texte foncé sur fond clair. Pour les images, assure-toi qu'elles s'adaptent à la largeur de l'écran sans déborder ni forcer le lecteur à zoomer."
+      ]
+    },
+    {
+      "h2": "Choisir un format adapté à la lecture mobile",
+      "body": [
+        "Le format compte. Un PDF conçu pour le format papier A4 oblige souvent à zoomer et à déplacer la page sur un téléphone, ce qui est pénible. Si tu pars sur du PDF, conçois-le dès le départ dans des proportions confortables à l'écran, avec une mise en page pensée pour le défilement vertical.",
+        "L'idée n'est pas qu'un format soit interdit, mais que ton ebook soit construit pour le geste réel du lecteur : faire défiler avec le pouce, sans pincer ni tourner l'écran. Teste l'ouverture de ton fichier sur plusieurs téléphones pour vérifier qu'il s'affiche correctement partout."
+      ]
+    },
+    {
+      "h2": "Tester sur un vrai téléphone avant de publier",
+      "body": [
+        "La seule façon d'être sûr, c'est de lire ton ebook sur ton propre téléphone, comme un client le ferait. Tu repéreras tout de suite les paragraphes trop denses, le texte trop petit, les images qui débordent ou les titres mal coupés. Ce test final t'évite de publier un produit inconfortable.",
+        "Pour t'épargner ces réglages techniques, l'Ebook Designer de Bookzy produit des ebooks déjà optimisés pour la lecture sur petit écran : tailles de texte, marges et mise en page sont pensées pour le mobile par défaut. Tu te concentres sur ton contenu, et la lisibilité sur téléphone est gérée pour toi."
+      ]
+    }
+  ],
+  "takeaways": [
+    "Conçois et valide ton ebook pour le mobile, pas pour l'ordinateur.",
+    "Texte assez grand, bien espacé, et paragraphes courts de 2 à 4 lignes.",
+    "Soigne marges, contraste et images adaptées à la largeur de l'écran.",
+    "Teste toujours sur un vrai téléphone avant de publier."
+  ],
+  "faq": [
+    { "q": "Pourquoi mon ebook est-il difficile à lire sur téléphone ?", "a": "Le plus souvent à cause d'un texte trop petit, de paragraphes trop denses et d'une mise en page pensée pour le format papier. Sur petit écran, ces choix forcent à zoomer et découragent la lecture." },
+    { "q": "Le PDF est-il un bon format pour le mobile ?", "a": "Le PDF fonctionne s'il est conçu dès le départ pour l'écran, avec des proportions confortables et un défilement vertical. Un PDF format A4 destiné à l'impression, lui, oblige souvent à zoomer et devient pénible sur téléphone." },
+    { "q": "Quelle taille de texte choisir pour la lecture mobile ?", "a": "Une taille généreuse, lisible sans zoomer ni plisser les yeux. En cas de doute, choisis légèrement plus grand : sur mobile, un texte trop grand gêne moins qu'un texte trop petit." }
+  ]
+}

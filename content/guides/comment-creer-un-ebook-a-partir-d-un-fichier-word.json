@@ -1,0 +1,73 @@
+{
+  "title": "Comment créer un ebook à partir d'un fichier Word",
+  "metaTitle": "Comment créer un ebook à partir d'un fichier Word | Bookzy",
+  "metaDescription": "Tu as déjà ton texte dans Word ? Découvre comment créer un ebook à partir d'un fichier Word : structure, mise en page, conversion PDF et rendu professionnel.",
+  "keyword": "créer un ebook à partir d'un fichier Word",
+  "pillar": "Créer un ebook",
+  "intro": "Beaucoup de créateurs ont déjà leur contenu prêt dans un document Word, mais ils restent bloqués à l'étape qui transforme ce texte brut en véritable ebook. La bonne nouvelle : tu n'as pas besoin de tout recommencer. Voici comment passer d'un fichier Word à un ebook propre, lisible et professionnel.",
+  "sections": [
+    {
+      "h2": "Pourquoi partir de Word est une bonne idée",
+      "body": [
+        "Si ton texte est déjà écrit dans Word, tu as fait le plus dur : le contenu existe. Word est un excellent outil pour rédiger, parce qu'il te laisse te concentrer sur les idées sans te soucier du design. Le problème, c'est qu'un document Word brut n'est pas un ebook : il a un look « bureautique » qui ne donne ni envie d'acheter ni envie de lire.",
+        "L'erreur de beaucoup serait de croire qu'il faut tout réécrire dans un autre logiciel. Au contraire, partir de ton Word existant te fait gagner un temps énorme. Tout l'enjeu consiste à transformer ce contenu en un document mis en forme, structuré et exporté dans un format propre, sans toucher au fond.",
+        "Autrement dit, Word est ton brouillon de travail. La création de l'ebook commence là où Word s'arrête : la structure, le style et la conversion finale."
+      ]
+    },
+    {
+      "h2": "Préparer proprement ton document Word",
+      "body": [
+        "Avant toute conversion, mets de l'ordre dans ton fichier. Le secret d'un bon ebook, c'est une structure claire : utilise les styles de titres de Word (Titre 1 pour les chapitres, Titre 2 pour les sous-parties) plutôt que de simplement agrandir et mettre en gras le texte à la main. Ces styles servent de squelette : ils permettront ensuite de générer un sommaire automatique et de garder une hiérarchie cohérente.",
+        "Profites-en pour aérer ton texte. Des paragraphes courts, des sauts de ligne réguliers, des listes à puces là où c'est pertinent : tout cela rend la lecture plus confortable une fois converti. Un mur de texte compact rebute, même si le contenu est bon."
+      ],
+      "list": [
+        "Applique les styles de titres (Titre 1, Titre 2) au lieu de mettre en gras à la main.",
+        "Découpe les longs paragraphes et ajoute des listes à puces.",
+        "Vérifie l'orthographe et la cohérence des titres.",
+        "Retire les éléments parasites : commentaires, surlignages de travail, notes personnelles."
+      ]
+    },
+    {
+      "h2": "Soigner la mise en page avant la conversion",
+      "body": [
+        "Une fois le texte structuré, occupe-toi de l'apparence. Choisis une police lisible et garde-la cohérente sur tout le document. Évite de mélanger trois ou quatre polices différentes : l'unité visuelle est ce qui distingue un ebook pro d'un patchwork amateur. Une police pour les titres, une pour le corps de texte, c'est largement suffisant.",
+        "Pense aussi aux marges et à l'espacement. Un texte qui touche les bords de la page fatigue l'œil ; des marges généreuses respirent et donnent une impression de qualité. L'interligne joue le même rôle : un texte trop serré décourage, un texte trop espacé gaspille les pages.",
+        "À ce stade, ajoute les éléments qui feront ressembler ton document à un vrai ebook : une page de garde avec le titre, un sommaire si le document est long, éventuellement des numéros de page. Ce sont ces détails qui transforment une simple suite de paragraphes en produit fini."
+      ]
+    },
+    {
+      "h2": "Convertir Word en PDF, le format de référence",
+      "body": [
+        "Le PDF est le format roi pour un ebook destiné à être vendu ou partagé. Pourquoi ? Parce qu'il fige la mise en page : ton lecteur verra exactement ce que tu as conçu, quel que soit son téléphone ou son ordinateur. Un fichier Word, lui, peut s'afficher différemment d'un appareil à l'autre, casser les marges ou demander un logiciel que tout le monde n'a pas.",
+        "La conversion en PDF se fait directement depuis Word via « Enregistrer sous » ou « Exporter ». Mais attention : une conversion brute conserve souvent le look bureautique d'origine. Si ton document Word ressemble à un rapport, ton PDF ressemblera aussi à un rapport. La qualité du PDF dépend entièrement du soin que tu as mis dans la mise en page précédente."
+      ]
+    },
+    {
+      "h2": "Automatiser le rendu professionnel",
+      "body": [
+        "C'est précisément à cette étape que beaucoup de créateurs perdent des heures, voire abandonnent. Régler manuellement les marges, harmoniser les titres, construire une page de garde et un sommaire cohérents demande des compétences en mise en page que tout le monde n'a pas et qui n'apportent rien au contenu.",
+        "C'est là qu'un outil comme l'Ebook Designer de Bookzy prend tout son sens : tu importes ton fichier Word et il s'occupe de le transformer en PDF mis en page proprement, avec une structure cohérente et un rendu professionnel, sans que tu touches aux réglages. Tu gardes ton texte, la machine s'occupe de l'habillage.",
+        "L'intérêt n'est pas seulement le gain de temps. C'est aussi la régularité : tous tes ebooks auront un niveau de finition constant, ce qui renforce ta crédibilité de créateur sur la durée. Tu peux ainsi sortir un produit propre à chaque fois, sans devenir graphiste."
+      ]
+    },
+    {
+      "h2": "Vérifier le résultat final avant de diffuser",
+      "body": [
+        "Avant de mettre ton ebook en vente ou de l'envoyer, relis-le dans son format final, pas dans Word. Ouvre le PDF comme le ferait ton lecteur, sur ton téléphone notamment, puisque c'est souvent là que ton public le consultera. Vérifie que rien n'est coupé, que les titres tombent au bon endroit et que le sommaire correspond bien au contenu.",
+        "Traque les détails qui trahissent un travail bâclé : une page presque vide en fin de chapitre, une image mal alignée, un titre orphelin en bas de page. Ces petits défauts, pris isolément, semblent mineurs, mais ils s'accumulent dans l'esprit du lecteur et entament la valeur perçue.",
+        "Enfin, demande à une personne extérieure de jeter un œil. Tu connais ton texte par cœur, donc tu ne vois plus ses défauts. Un regard neuf repère en quelques minutes ce que tu ne vois plus, et te permet de livrer un ebook vraiment prêt."
+      ]
+    }
+  ],
+  "takeaways": [
+    "Partir d'un fichier Word te fait gagner du temps : le contenu existe déjà, il reste à l'habiller.",
+    "Structure ton document avec les styles de titres pour permettre un sommaire automatique et une hiérarchie claire.",
+    "Le PDF est le format de référence car il fige la mise en page sur tous les appareils.",
+    "Un outil dédié comme l'Ebook Designer transforme ton Word en PDF propre sans compétences en design."
+  ],
+  "faq": [
+    { "q": "Dois-je réécrire mon texte pour le transformer en ebook ?", "a": "Non. Si ton contenu est déjà dans Word, tu le gardes tel quel. Le travail consiste à le structurer, le mettre en page et le convertir, pas à le réécrire." },
+    { "q": "Pourquoi convertir en PDF plutôt que garder le Word ?", "a": "Le PDF fige la mise en page : ton lecteur voit exactement ce que tu as conçu, sur n'importe quel appareil. Un Word peut s'afficher différemment et casser ta présentation." },
+    { "q": "Comment obtenir un rendu pro sans savoir faire du design ?", "a": "Soigne d'abord la structure dans Word, puis utilise un outil qui automatise la mise en page. L'Ebook Designer de Bookzy transforme ton fichier Word en PDF propre sans réglages manuels." }
+  ]
+}
