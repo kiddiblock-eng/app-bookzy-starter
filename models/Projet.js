@@ -115,5 +115,7 @@ const ProjetSchema = new mongoose.Schema(
 ProjetSchema.index({ userId: 1, createdAt: -1 });
 ProjetSchema.index({ userId: 1, status: 1 });
 ProjetSchema.index({ transactionId: 1 });
+// Admin analytics : leaderboard + liste ebooks (match status + tri par date)
+ProjetSchema.index({ status: 1, createdAt: -1 });
 
 export default mongoose.models.Projet || mongoose.model("Projet", ProjetSchema);

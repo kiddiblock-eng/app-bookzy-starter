@@ -223,4 +223,8 @@ userSchema.methods.canResendVerification = function () {
   return (now - lastSent) >= 60 * 1000;
 };
 
+// ─── INDEXATION (admin analytics : listes/timelines par date + filtres login) ──
+userSchema.index({ createdAt: -1 });
+userSchema.index({ lastLogin: -1 });
+
 export default mongoose.models.User || mongoose.model("User", userSchema);

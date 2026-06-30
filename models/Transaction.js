@@ -77,6 +77,9 @@ TransactionSchema.index({ internalId: 1 }, { sparse: true });
 TransactionSchema.index({ userId: 1, status: 1 });
 TransactionSchema.index({ providerTransactionId: 1 });
 TransactionSchema.index({ packId: 1, status: 1 });
+// Admin analytics : revenus/timelines (match status + tri/plage par date) et liste paiements
+TransactionSchema.index({ status: 1, createdAt: -1 });
+TransactionSchema.index({ createdAt: -1 });
 
 export default mongoose.models.Transaction ||
   mongoose.model("Transaction", TransactionSchema);
