@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import Transaction from "@/models/Transaction";
+import { withCache } from "@/lib/miniCache";
 
 export async function GET(req) {
   try {
@@ -10,40 +11,45 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const monthsCount = parseInt(searchParams.get("months") || "6");
 
-    const revenueData = [];
+    const revenueData = await withCache(`admin:revenue:${monthsCount}`, 30000, async () => {
     const now = new Date();
 
+    // Les N mois sont calculés EN PARALLÈLE (avant : séquentiel = N allers-retours)
+    const monthTasks = [];
     for (let i = monthsCount - 1; i >= 0; i--) {
       const start = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
 
-      // 🔥 VRAIES transactions
-      const monthlyTx = await Transaction.aggregate([
-        {
-          $match: {
-            createdAt: { $gte: start, $lt: end },
-            status: "completed",
-            amount: { $gt: 0 },
+      monthTasks.push(
+        Transaction.aggregate([
+          {
+            $match: {
+              createdAt: { $gte: start, $lt: end },
+              status: "completed",
+              amount: { $gt: 0 },
+            },
           },
-        },
-        {
-          $group: {
-            _id: null,
-            totalRevenue: { $sum: "$amount" },
-            totalSales: { $sum: 1 },
+          {
+            $group: {
+              _id: null,
+              totalRevenue: { $sum: "$amount" },
+              totalSales: { $sum: 1 },
+            },
           },
-        },
-      ]);
-
-      const monthName = start.toLocaleDateString("fr-FR", { month: "short" });
-      const formattedName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-
-      revenueData.push({
-        month: formattedName,
-        revenue: monthlyTx.length > 0 ? monthlyTx[0].totalRevenue : 0,
-        sales: monthlyTx.length > 0 ? monthlyTx[0].totalSales : 0,
-      });
+        ]).then((monthlyTx) => {
+          const monthName = start.toLocaleDateString("fr-FR", { month: "short" });
+          const formattedName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+          return {
+            month: formattedName,
+            revenue: monthlyTx.length > 0 ? monthlyTx[0].totalRevenue : 0,
+            sales: monthlyTx.length > 0 ? monthlyTx[0].totalSales : 0,
+          };
+        })
+      );
     }
+
+      return Promise.all(monthTasks);
+    });
 
     return NextResponse.json({
       success: true,
