@@ -1,0 +1,74 @@
+{
+  "title": "Comment éviter que ton ebook IA sonne robotique",
+  "metaTitle": "Comment éviter que ton ebook IA sonne robotique | Bookzy",
+  "metaDescription": "Comment éviter que ton ebook IA sonne robotique : repérer les tics de l'IA, donner un ton humain, ajouter ta voix et des exemples concrets pour un texte vivant.",
+  "keyword": "éviter un ebook IA robotique",
+  "pillar": "IA et outils du créateur",
+  "intro": "Un ebook écrit avec l'IA peut être clair et bien structuré, mais sonner étrangement froid, lisse, sans âme. Ce ton robotique fait fuir les lecteurs et nuit à ta crédibilité. La bonne nouvelle : il est facile à corriger une fois qu'on sait le repérer. Voici comment éviter que ton ebook IA sonne robotique et lui donner une vraie voix humaine.",
+  "sections": [
+    {
+      "h2": "Reconnaître la signature robotique de l'IA",
+      "body": [
+        "Avant de corriger, il faut savoir repérer. L'IA non guidée a des tics reconnaissables : phrases toutes de la même longueur, transitions mécaniques, formules creuses comme « dans le monde d'aujourd'hui » ou « il est important de noter que ». Le texte avance sans jamais surprendre.",
+        "Un autre signe est l'absence totale de prise de risque. L'IA tend à rester neutre, à ménager tout le monde, à empiler des évidences. Résultat : un contenu correct mais sans relief, qui n'engage personne parce qu'il ne dit jamais rien de tranché.",
+        "Enfin, le texte robotique parle « en général ». Il décrit des concepts au lieu de raconter des situations. Là où un humain dirait « mon premier client m'a payé en retard », l'IA écrira « les retards de paiement peuvent survenir »."
+      ],
+      "list": [
+        "Phrases uniformes et transitions mécaniques.",
+        "Formules creuses et neutralité excessive.",
+        "Concepts abstraits au lieu de situations concrètes."
+      ]
+    },
+    {
+      "h2": "Donner un ton dès le départ",
+      "body": [
+        "La meilleure façon d'éviter le robotique, c'est de l'empêcher dès la rédaction plutôt que de le corriger après. Demande explicitement un ton : tutoiement, phrases courtes, langage parlé, comme si tu expliquais à un ami. L'IA suit très bien ces consignes quand on les donne.",
+        "Précise aussi ce que tu refuses : pas de jargon, pas de formules creuses, pas de neutralité molle. En fermant ces portes, tu forces le texte à prendre position et à respirer. Le ton se décide en amont, pas à la fin."
+      ]
+    },
+    {
+      "h2": "Injecter ta voix et ton vocabulaire",
+      "body": [
+        "Un ebook humain porte la marque de son auteur. Pour transférer ta voix à l'IA, donne-lui des exemples concrets de ta façon de parler : quelques phrases que tu dirais vraiment, des expressions que tu utilises, ton niveau de familiarité avec le lecteur.",
+        "Tu peux aussi relire chaque chapitre en te demandant : « Est-ce que je parlerais comme ça ? » Là où la réponse est non, réécris à voix haute, comme si tu t'adressais à quelqu'un en face de toi. Ce simple réflexe casse instantanément le ton machine."
+      ]
+    },
+    {
+      "h2": "Remplacer l'abstrait par du concret",
+      "body": [
+        "Rien n'humanise un texte autant que des exemples réels. Une statistique vague devient vivante quand tu la rattaches à une histoire. Un conseil général devient crédible quand tu montres une situation précise où il s'applique.",
+        "Passe ton ebook au crible : pour chaque idée importante, ajoute un exemple, une anecdote, un cas concret tiré de ton expérience ou de celle de ton public. C'est ce que l'IA ne peut pas inventer, et c'est exactement ce qui distingue ton livre de tous les autres."
+      ],
+      "list": [
+        "Remplace chaque idée abstraite par un exemple précis.",
+        "Ajoute des anecdotes vécues que l'IA ne peut pas inventer.",
+        "Cite des situations réelles de ton public."
+      ]
+    },
+    {
+      "h2": "Varier le rythme pour que ça respire",
+      "body": [
+        "Le ton robotique vient beaucoup de la monotonie. Un texte humain alterne phrases courtes et longues, paragraphes denses et respirations, questions directes et affirmations. Cette variation crée un rythme agréable qui maintient l'attention.",
+        "Relis ton ebook à voix haute. Si tu butes, si tu t'ennuies, si tout sonne pareil, c'est le signal. Coupe les phrases trop longues, ose une question au lecteur, ajoute une phrase courte qui claque. Le rythme est la différence entre lire et survoler."
+      ]
+    },
+    {
+      "h2": "Garder l'humain au centre, l'IA comme outil",
+      "body": [
+        "Au fond, un ebook ne sonne pas robotique à cause de l'IA, mais à cause d'un manque de retravail. L'outil produit une base ; c'est ta relecture qui lui donne une âme. Plus tu t'impliques dans cette dernière couche, plus le résultat respire l'humain.",
+        "Avec un outil comme Bookzy, tu obtiens rapidement un contenu structuré et propre, ce qui te laisse justement le temps et l'énergie pour ce travail de personnalisation. Le gain de temps ne sert pas à zapper l'humain : il sert à le réinjecter là où ça compte."
+      ]
+    }
+  ],
+  "takeaways": [
+    "Le ton robotique se reconnaît à ses formules creuses et son abstraction.",
+    "Décide d'un ton clair dès la rédaction plutôt que de corriger après.",
+    "Injecte ta voix, ton vocabulaire et des exemples vécus.",
+    "Varie le rythme et relis à voix haute pour que le texte respire."
+  ],
+  "faq": [
+    { "q": "Pourquoi mon ebook IA sonne-t-il froid ?", "a": "Le plus souvent parce que le texte reste abstrait et neutre. Ajoute des exemples concrets, un ton défini et ta propre voix pour le réchauffer." },
+    { "q": "Faut-il tout réécrire à la main ?", "a": "Non. Une relecture ciblée suffit : varie le rythme, remplace l'abstrait par du concret et ajuste les passages qui ne te ressemblent pas." },
+    { "q": "L'IA peut-elle imiter mon style ?", "a": "En partie, si tu lui donnes des exemples de ta façon de parler. Mais ta relecture finale reste ce qui rend vraiment le texte vivant." }
+  ]
+}

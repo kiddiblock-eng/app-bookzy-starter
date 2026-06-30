@@ -1,0 +1,79 @@
+{
+  "title": "Les meilleurs prompts pour créer un ebook avec l'IA",
+  "metaTitle": "Les meilleurs prompts pour créer un ebook avec l'IA | Bookzy",
+  "metaDescription": "Les meilleurs prompts pour créer un ebook avec l'IA : trouver un sujet, bâtir un plan, rédiger et peaufiner le ton. Des modèles concrets à copier et adapter.",
+  "keyword": "prompts pour créer un ebook avec l'IA",
+  "pillar": "IA et outils du créateur",
+  "intro": "L'IA est capable d'écrire un ebook entier, mais la qualité de ce qu'elle produit dépend de ce que tu lui demandes. Un bon prompt fait toute la différence entre un texte fade et un contenu vivant et utile. Ce guide te donne les meilleurs prompts pour créer un ebook avec l'IA, étape par étape, avec des modèles que tu peux copier et adapter à ton projet.",
+  "sections": [
+    {
+      "h2": "Pourquoi le prompt change tout",
+      "body": [
+        "L'IA ne devine pas tes intentions. Si tu lui demandes simplement « écris un ebook sur le marketing », elle te livrera un texte générique, plat, qui ressemble à mille autres. Le prompt est ton cahier des charges : plus il est précis, plus le résultat te ressemble.",
+        "Un bon prompt précise trois choses : à qui s'adresse l'ebook, quel problème il résout, et sur quel ton il doit être écrit. Ces trois éléments orientent l'IA bien plus efficacement qu'une liste interminable de consignes.",
+        "Garde en tête que tu n'écris pas un seul prompt magique, mais une suite de prompts : un pour trouver le sujet, un pour le plan, un pour rédiger, un pour peaufiner. C'est cet enchaînement qui produit un ebook cohérent."
+      ]
+    },
+    {
+      "h2": "Prompts pour trouver et cadrer ton sujet",
+      "body": [
+        "Avant d'écrire, il faut savoir quoi écrire. L'IA peut t'aider à transformer une idée vague en sujet précis et vendeur. L'astuce est de lui demander plusieurs angles plutôt qu'une seule réponse, puis de choisir.",
+        "Tu peux par exemple lui faire jouer le rôle de ton client idéal pour comprendre ses vrais blocages. Cela t'évite d'écrire un ebook sur ce que tu crois être un problème, alors que ton public en vit un autre."
+      ],
+      "list": [
+        "« Je veux écrire un ebook pour [public]. Propose-moi 10 problèmes précis et urgents que ces personnes cherchent à résoudre. »",
+        "« Pour le sujet [X], donne-moi 5 angles différents et indique lequel est le plus original et vendeur. »",
+        "« Joue le rôle de [mon client type]. Quelles sont tes 3 plus grandes frustrations sur [thème] ? »"
+      ]
+    },
+    {
+      "h2": "Prompts pour bâtir un plan solide",
+      "body": [
+        "Un ebook qui se lit bien repose sur une structure logique. Avant de générer le texte, demande à l'IA de produire un plan détaillé : tu corriges la colonne vertébrale une fois, puis tu rédiges chapitre par chapitre en suivant ce plan.",
+        "Demande un plan progressif, qui part du problème pour aller vers la solution, étape par étape. Précise le nombre de chapitres souhaité et la promesse globale de l'ebook : l'IA gardera le cap au lieu de partir dans tous les sens."
+      ],
+      "list": [
+        "« Crée un plan détaillé d'ebook sur [sujet] pour [public]. Promesse : [résultat]. 6 à 8 chapitres, du problème vers la solution. »",
+        "« Pour chaque chapitre du plan ci-dessus, liste 3 idées clés à développer. »",
+        "« Vérifie ce plan : y a-t-il des redites, des trous ou un ordre illogique ? Propose une version améliorée. »"
+      ]
+    },
+    {
+      "h2": "Prompts pour rédiger sans tomber dans le générique",
+      "body": [
+        "C'est l'étape où la plupart des ebooks IA deviennent fades. Le secret, c'est de rédiger chapitre par chapitre en imposant un ton et un cadre précis, plutôt que de demander tout le livre d'un coup.",
+        "Donne à l'IA des contraintes utiles : tutoiement, phrases courtes, exemples concrets, interdiction des formules creuses. Plus tu fermes les portes du générique, plus le texte gagne en caractère et en crédibilité."
+      ],
+      "list": [
+        "« Rédige le chapitre [X] à partir de ces idées : [...]. Ton : tutoiement, direct, exemples concrets. Évite les généralités et les phrases creuses. »",
+        "« Réécris ce passage comme si tu l'expliquais à un ami autour d'un café, sans jargon. »",
+        "« Ajoute un exemple réel et un cas concret pour illustrer chaque idée de ce chapitre. »"
+      ]
+    },
+    {
+      "h2": "Prompts pour peaufiner le ton et la valeur",
+      "body": [
+        "Une fois le texte écrit, l'IA peut aussi t'aider à le rendre plus humain et plus utile. Utilise-la comme relecteur : repérer les longueurs, les répétitions, les passages flous ou trop théoriques.",
+        "Tu peux aussi lui demander d'injecter ta personnalité. Donne-lui quelques phrases que tu dirais vraiment, ou décris ta façon de t'exprimer, et demande-lui d'aligner le texte sur ce style. C'est ce qui fait passer un ebook de correct à mémorable."
+      ]
+    },
+    {
+      "h2": "L'erreur du prompt unique et comment l'éviter",
+      "body": [
+        "La plus grande erreur est de chercher LE prompt parfait qui écrirait tout l'ebook d'un seul coup. Cela donne presque toujours un résultat superficiel, car l'IA dilue son attention sur trop de tâches à la fois.",
+        "Travaille par couches : sujet, plan, rédaction, relecture. Si tu veux sauter cette gymnastique de prompts, un outil comme Bookzy enchaîne déjà ces étapes pour toi, du plan à la mise en page. Mais que tu utilises un outil ou non, le principe reste le même : guider l'IA étape par étape donne toujours un meilleur livre."
+      ]
+    }
+  ],
+  "takeaways": [
+    "Un bon prompt précise le public, le problème et le ton.",
+    "Travaille par étapes : sujet, plan, rédaction, relecture.",
+    "Impose des contraintes claires pour éviter le texte générique.",
+    "Le prompt unique qui écrit tout d'un coup donne presque toujours un résultat fade."
+  ],
+  "faq": [
+    { "q": "Un seul prompt suffit-il pour écrire un ebook ?", "a": "Non. Un ebook de qualité s'obtient en enchaînant plusieurs prompts : trouver le sujet, bâtir le plan, rédiger chapitre par chapitre, puis peaufiner le ton." },
+    { "q": "Comment éviter que le texte sonne générique ?", "a": "Impose un ton précis, demande des exemples concrets et interdis explicitement les formules creuses. Plus tes consignes sont fermes, plus le texte a du caractère." },
+    { "q": "Faut-il connaître les prompts pour utiliser un outil comme Bookzy ?", "a": "Non. Un outil dédié enchaîne déjà les bonnes étapes pour toi. Connaître les prompts reste utile pour affiner et personnaliser le résultat." }
+  ]
+}
