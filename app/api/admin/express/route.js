@@ -8,6 +8,7 @@ import { dbConnect } from "@/lib/db";
 import Projet from "@/models/Projet";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
+import { withCache } from "@/lib/miniCache";
 
 function getUserFromCookie(req) {
   const cookie = req.headers.get("cookie") || "";
@@ -63,85 +64,95 @@ export async function GET(req) {
     const search = searchParams.get("search") || "";
     const status = searchParams.get("status"); // COMPLETED, processing, DRAFT, ERROR
 
-    // Construire le filtre - uniquement expressMode: true
-    const filter = { expressMode: true };
-    
-    if (search) {
-      // Recherche par titre ou email utilisateur
-      const users = await User.find({
-        $or: [
-          { email: { $regex: search, $options: "i" } },
-          { firstName: { $regex: search, $options: "i" } },
-        ]
-      }).select("_id");
-      
-      const userIds = users.map(u => u._id);
-      
-      filter.$or = [
-        { titre: { $regex: search, $options: "i" } },
-        { userId: { $in: userIds } },
-      ];
-    }
+    const data = await withCache(
+      `admin:express:${page}:${limit}:${search}:${status}`,
+      30000,
+      async () => {
+        // Construire le filtre - uniquement expressMode: true
+        const filter = { expressMode: true };
 
-    if (status) {
-      filter.status = status;
-    }
+        if (search) {
+          // Recherche par titre ou email utilisateur
+          const users = await User.find({
+            $or: [
+              { email: { $regex: search, $options: "i" } },
+              { firstName: { $regex: search, $options: "i" } },
+            ]
+          }).select("_id");
 
-    // Récupérer les projets avec les infos utilisateur
-    const projets = await Projet.find(filter)
-      .populate("userId", "email firstName lastName")
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .lean();
+          const userIds = users.map(u => u._id);
 
-    // Reformater pour le frontend
-    const formattedProjets = projets.map(p => ({
-      ...p,
-      user: p.userId ? {
-        email: p.userId.email,
-        firstName: p.userId.firstName,
-        lastName: p.userId.lastName,
-      } : null
-    }));
+          filter.$or = [
+            { titre: { $regex: search, $options: "i" } },
+            { userId: { $in: userIds } },
+          ];
+        }
 
-    const totalCount = await Projet.countDocuments(filter);
+        if (status) {
+          filter.status = status;
+        }
 
-    // Stats globales pour Express
-    const total = await Projet.countDocuments({ expressMode: true });
-    const paid = await Projet.countDocuments({ expressMode: true, isPaid: true });
-    const completed = await Projet.countDocuments({ expressMode: true, status: "COMPLETED" });
-    const pending = await Projet.countDocuments({ 
-      expressMode: true, 
-      status: { $in: ["DRAFT", "processing", "PREVIEW_READY"] } 
-    });
-    const errors = await Projet.countDocuments({ expressMode: true, status: "ERROR" });
+        // Récupérer les projets avec les infos utilisateur
+        const projets = await Projet.find(filter)
+          .populate("userId", "email firstName lastName")
+          .sort({ createdAt: -1 })
+          .skip((page - 1) * limit)
+          .limit(limit)
+          .lean();
 
-    // Calculer le revenue (1000 FCFA par projet payé + IA extra)
-    const paidProjets = await Projet.find({ expressMode: true, isPaid: true }).select("aiExtraCost").lean();
-    const revenue = paidProjets.reduce((sum, p) => {
-      return sum + 1000 + (p.aiExtraCost || 0);
-    }, 0);
+        // Reformater pour le frontend
+        const formattedProjets = projets.map(p => ({
+          ...p,
+          user: p.userId ? {
+            email: p.userId.email,
+            firstName: p.userId.firstName,
+            lastName: p.userId.lastName,
+          } : null
+        }));
 
-    const globalStats = {
-      total,
-      paid,
-      completed,
-      pending,
-      errors,
-      revenue,
-    };
+        const totalCount = await Projet.countDocuments(filter);
+
+        // Stats globales pour Express
+        const total = await Projet.countDocuments({ expressMode: true });
+        const paid = await Projet.countDocuments({ expressMode: true, isPaid: true });
+        const completed = await Projet.countDocuments({ expressMode: true, status: "COMPLETED" });
+        const pending = await Projet.countDocuments({
+          expressMode: true,
+          status: { $in: ["DRAFT", "processing", "PREVIEW_READY"] }
+        });
+        const errors = await Projet.countDocuments({ expressMode: true, status: "ERROR" });
+
+        // Calculer le revenue (1000 FCFA par projet payé + IA extra)
+        const paidProjets = await Projet.find({ expressMode: true, isPaid: true }).select("aiExtraCost").lean();
+        const revenue = paidProjets.reduce((sum, p) => {
+          return sum + 1000 + (p.aiExtraCost || 0);
+        }, 0);
+
+        const globalStats = {
+          total,
+          paid,
+          completed,
+          pending,
+          errors,
+          revenue,
+        };
+
+        return {
+          projets: formattedProjets,
+          globalStats,
+          pagination: {
+            page,
+            limit,
+            totalCount,
+            totalPages: Math.ceil(totalCount / limit),
+          },
+        };
+      }
+    );
 
     return NextResponse.json({
       success: true,
-      projets: formattedProjets,
-      globalStats,
-      pagination: {
-        page,
-        limit,
-        totalCount,
-        totalPages: Math.ceil(totalCount / limit),
-      },
+      ...data,
     });
   } catch (error) {
     console.error("❌ [Admin Express] Erreur:", error);

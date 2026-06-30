@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 // ✅ VERSION CORRIGÉE - Utilise Projet au lieu de Ebook
 
 import { NextResponse } from "next/server";
+import { withCache } from "@/lib/miniCache";
 import { dbConnect } from "@/lib/db";
 import { verifyAdmin } from "@/lib/auth";
 import User from "@/models/User";
@@ -33,6 +34,7 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const days = parseInt(searchParams.get("days") || "30", 10);
 
+    const data = await withCache(`admin:analytics-stats:${days}`, 30000, async () => {
     const sinceDate = new Date();
     sinceDate.setDate(sinceDate.getDate() - (isNaN(days) ? 30 : days) + 1);
     sinceDate.setHours(0, 0, 0, 0);
@@ -222,25 +224,25 @@ export async function GET(req) {
     });
 
     // ---------- Réponse ----------
-    return NextResponse.json({
-      success: true,
-      data: {
-        kpis: {
-          totalUsers,
-          activeUsers,
-          totalEbooks,
-          totalRevenue,
-          totalSales,
-        },
-        usersDaily,
-        ebooksDaily,
-        revenueDaily,
-        usersByCountry,
-        templatesStats,
-        topUsers,
-        periodDays: days,
+    return {
+      kpis: {
+        totalUsers,
+        activeUsers,
+        totalEbooks,
+        totalRevenue,
+        totalSales,
       },
+      usersDaily,
+      ebooksDaily,
+      revenueDaily,
+      usersByCountry,
+      templatesStats,
+      topUsers,
+      periodDays: days,
+    };
     });
+
+    return NextResponse.json({ success: true, data });
   } catch (error) {
     console.error("❌ /api/admin/analytics/stats error:", error);
     return NextResponse.json(

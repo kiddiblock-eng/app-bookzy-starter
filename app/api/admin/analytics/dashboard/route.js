@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
+import { withCache } from "@/lib/miniCache";
 import { verifyAdmin } from "@/lib/auth";
 
 import User from "@/models/User";
@@ -21,6 +22,7 @@ export async function GET(req) {
       );
     }
 
+    const data = await withCache(`admin:dashboard`, 30000, async () => {
     // -----------------------------
     // 1️⃣ TOTAL USERS
     // -----------------------------
@@ -62,17 +64,17 @@ export async function GET(req) {
       lastSeen: { $gte: last5min },
     });
 
-    // ✅ RÉPONSE
-    return NextResponse.json({
-      success: true,
-      data: {
-        totalUsers,
-        totalEbooks,
-        revenue,
-        totalSales,
-        activeNow,
-      },
+    return {
+      totalUsers,
+      totalEbooks,
+      revenue,
+      totalSales,
+      activeNow,
+    };
     });
+
+    // ✅ RÉPONSE
+    return NextResponse.json({ success: true, data });
   } catch (error) {
     console.error("❌ Dashboard error:", error);
     return NextResponse.json(

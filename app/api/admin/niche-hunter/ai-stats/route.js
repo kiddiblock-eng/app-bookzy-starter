@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { dbConnect } from "@/lib/db";
+import { withCache } from "@/lib/miniCache";
 import NicheAnalysis from "@/models/NicheAnalysis";
 import User from "@/models/User";
 
@@ -96,6 +97,7 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const range = searchParams.get("range") || "7d";
 
+    const responseData = await withCache(`admin:niche-hunter:ai-stats:${range}`, 30000, async () => {
     const date = getStartDate(range);
     const previousDate = getPreviousStartDate(range);
 
@@ -266,7 +268,7 @@ export async function GET(req) {
     // RÉPONSE FINALE
     // ========================================
 
-    return NextResponse.json({
+    return {
       success: true,
       stats: {
         totalAnalyses,
@@ -291,7 +293,10 @@ export async function GET(req) {
         },
         generatedAt: a.createdAt
       }))
+    };
     });
+
+    return NextResponse.json(responseData);
 
   } catch (error) {
     console.error("❌ Erreur admin AI stats:", error);
