@@ -13,6 +13,8 @@ async function getInitialData() {
     const opts = {
       headers: { "x-admin-secret": process.env.ADMIN_SECRET || "" },
       next: { revalidate: 20 },
+      // Garde-fou : un endpoint lent ne doit jamais bloquer la navigation > 8s
+      signal: AbortSignal.timeout(8000),
     };
 
     async function get(path) {
