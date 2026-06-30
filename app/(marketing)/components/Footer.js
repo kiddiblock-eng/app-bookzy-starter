@@ -84,7 +84,7 @@ export default function Footer() {
                 <li><button onClick={() => scrollToSection("howitWorks")} className="text-white/40 hover:text-white transition-colors font-medium">Comment ça marche</button></li>
                 <li>
                   <Link href="/express" className="text-white/40 hover:text-white transition-colors flex items-center gap-2 font-medium">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400/60 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60 flex-shrink-0" />
                     Ebook Designer
                   </Link>
                 </li>
@@ -93,7 +93,7 @@ export default function Footer() {
                 </li>
                 <li className="pt-1">
                   <Link href="/affiliation" className="text-white/40 hover:text-white transition-colors flex items-center gap-2 font-medium">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400/60 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60 flex-shrink-0" />
                     Devenir Affilié
                     <span className="bg-white/10 border border-white/10 text-white/60 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">New</span>
                   </Link>
@@ -107,29 +107,29 @@ export default function Footer() {
               <ul className="space-y-3 text-sm">
                 <li>
                   <Link href="/niche-hunter" className="text-white/40 hover:text-white transition-colors flex items-center gap-2 font-medium">
-                    <span className="w-1.5 h-1.5 rounded-full bg-pink-400/60 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60 flex-shrink-0" />
                     Niche Hunter
                   </Link>
                 </li>
                 <li>
                   <Link href="/radar-cash" className="text-white/40 hover:text-white transition-colors flex items-center gap-2 font-medium">
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange-400/60 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60 flex-shrink-0" />
                     Radar Cash
                   </Link>
                 </li>
                 <li>
                   <Link href="/youbook" className="text-white/40 hover:text-white transition-colors flex items-center gap-2 font-medium">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-400/60 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60 flex-shrink-0" />
                     Youbook
                   </Link>
                 </li>
                 <li>
-                  <li>
                   <Link href="/validateur" className="text-white/40 hover:text-white transition-colors flex items-center gap-2 font-medium">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-400/60 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60 flex-shrink-0" />
                     Validateur d'idées
                   </Link>
                 </li>
+                <li>
                   <button onClick={() => scrollToSection("faq")} className="text-white/40 hover:text-white transition-colors font-medium">FAQ</button>
                 </li>
               </ul>
@@ -141,26 +141,26 @@ export default function Footer() {
               <ul className="space-y-3 text-sm">
                 <li>
                   <Link href="/suggestions" className="text-white/40 hover:text-white transition-colors flex items-center gap-2 font-medium">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400/60 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60 flex-shrink-0" />
                     Suggestions
                   </Link>
                 </li>
                 <li>
                   <Link href="/changelog" className="text-white/40 hover:text-white transition-colors flex items-center gap-2 font-medium">
-                    <span className="w-1.5 h-1.5 rounded-full bg-violet-400/60 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60 flex-shrink-0" />
                     Nouveautés
                   </Link>
                 </li>
                 <li>
                   <Link href="/exemples-ebooks" className="text-white/40 hover:text-white transition-colors flex items-center gap-2 font-medium">
-                    <span className="w-1.5 h-1.5 rounded-full bg-violet-400/60 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60 flex-shrink-0" />
                     Exemples d'Ebooks
                   </Link>
                 </li>
                 <li>
                   <a href="https://t.me/+Yad7Hj17d445Mzdk" target="_blank" rel="noopener noreferrer"
                     className="text-white/40 hover:text-white transition-colors flex items-center gap-2 font-medium">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400/60 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60 flex-shrink-0" />
                     Telegram
                   </a>
                 </li>
