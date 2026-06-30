@@ -1,15 +1,25 @@
 import mongoose from "mongoose";
 
-const activitySchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  type: { type: String, required: true },      
-  message: { type: String, required: true },   
-  ip: { type: String },
-  userAgent: { type: String },
-  createdAt: { type: Date, default: Date.now }
-});
+/**
+ * PRÉSENCE EN LIGNE (1 document par utilisateur, mis à jour en continu).
+ * Distinct du journal d'événements `Activity` (append-only, collection "activities").
+ * Utilisé par : activity/track (upsert lastSeen), admin dashboard (actifs maintenant),
+ * admin security/overview (dernière activité de l'admin), dev/seed.
+ */
+const userActivitySchema = new mongoose.Schema(
+  {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
+    lastSeen: { type: Date, default: Date.now },
+    ip: { type: String },
+    userAgent: { type: String },
+    path: { type: String },
+    seed: { type: Boolean }, // marqueur pour le nettoyage du seed de dev
+  },
+  { timestamps: true }
+);
 
-// Admin analytics : comptages d'activité par plage de dates
-activitySchema.index({ createdAt: 1 });
+// Admin dashboard : "utilisateurs actifs maintenant" (lastSeen >= now-5min)
+userActivitySchema.index({ lastSeen: 1 });
 
-export default mongoose.models.Activity || mongoose.model("Activity", activitySchema);
+export default mongoose.models.UserActivity ||
+  mongoose.model("UserActivity", userActivitySchema);

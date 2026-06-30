@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
-import UserActivity from "@/models/UserActivity";
+import Activity from "@/models/Activity";
 export async function GET(req) {
   try {
     await dbConnect();
@@ -19,7 +19,7 @@ export async function GET(req) {
       const end = new Date(start);
       end.setDate(end.getDate() + 1);
 
-      const count = await UserActivity.countDocuments({
+      const count = await Activity.countDocuments({
         createdAt: { $gte: start, $lt: end }
       });
 

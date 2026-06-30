@@ -9,4 +9,7 @@ const activitySchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+// Admin analytics : comptages d'activité par plage de dates (timeline 7/30 j)
+activitySchema.index({ createdAt: 1 });
+
 export default mongoose.models.Activity || mongoose.model("Activity", activitySchema);
