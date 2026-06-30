@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { 
-  Check, X, Loader2, Phone, Trash2, Plus, 
-  Image as ImageIcon, FileText, Trophy, Banknote, LayoutGrid 
+import {
+  Check, X, Loader2, Phone, Trash2, Plus,
+  Image as ImageIcon, FileText, Trophy, Banknote, LayoutGrid
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -11,23 +11,23 @@ export default function AdminAffiliationPage() {
   const [activeTab, setActiveTab] = useState("payouts");
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 p-6 md:p-8">
+    <div className="min-h-screen bg-neutral-50 text-neutral-700 p-6 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
-        
+
         {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-              <span className="bg-violet-600/20 p-2 rounded-lg border border-violet-500/30">
-                <LayoutGrid className="w-6 h-6 text-violet-400" />
+            <h1 className="text-3xl font-bold text-neutral-900 tracking-tight flex items-center gap-3">
+              <span className="bg-emerald-600/10 p-2 rounded-lg border border-emerald-500/30">
+                <LayoutGrid className="w-6 h-6 text-emerald-600" />
               </span>
               Gestion Affiliation
             </h1>
-            <p className="text-slate-500 mt-1">Supervisez les paiements et les ressources marketing.</p>
+            <p className="text-neutral-500 mt-1">Supervisez les paiements et les ressources marketing.</p>
           </div>
-          
-          {/* TABS DARK MODE */}
-          <div className="flex bg-slate-900 p-1 rounded-xl border border-slate-800 shadow-xl">
+
+          {/* TABS */}
+          <div className="flex bg-white p-1 rounded-xl border border-neutral-200 shadow-sm">
             <TabBtn id="payouts" label="Retraits" icon={Banknote} active={activeTab} set={setActiveTab} />
             <TabBtn id="resources" label="Ressources" icon={ImageIcon} active={activeTab} set={setActiveTab} />
             <TabBtn id="sponsors" label="Top Parrains" icon={Trophy} active={activeTab} set={setActiveTab} />
@@ -46,7 +46,7 @@ export default function AdminAffiliationPage() {
   );
 }
 
-// --- ONGLET 1 : GESTION DES RETRAITS (DARK) ---
+// --- ONGLET 1 : GESTION DES RETRAITS ---
 function PayoutsManager() {
   const [payouts, setPayouts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -76,12 +76,12 @@ function PayoutsManager() {
     setProcessingId(null);
   };
 
-  if (loading) return <div className="text-center py-10 text-slate-500 animate-pulse">Chargement des données...</div>;
+  if (loading) return <div className="text-center py-10 text-neutral-500 animate-pulse">Chargement des données...</div>;
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+    <div className="bg-white border border-neutral-200 rounded-2xl overflow-hidden shadow-sm">
       <table className="w-full text-sm text-left">
-        <thead className="bg-slate-950/50 border-b border-slate-800 uppercase text-xs font-bold text-slate-500">
+        <thead className="bg-neutral-50 border-b border-neutral-200 uppercase text-xs font-bold text-neutral-500">
           <tr>
             <th className="px-6 py-4">Utilisateur</th>
             <th className="px-6 py-4">Montant</th>
@@ -90,32 +90,32 @@ function PayoutsManager() {
             <th className="px-6 py-4 text-right">Action</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/50">
+        <tbody className="divide-y divide-neutral-200">
           {payouts.map(p => (
-            <tr key={p._id} className="hover:bg-slate-800/50 transition-colors group">
-              <td className="px-6 py-4 font-medium text-slate-200">
-                <div className="text-white font-bold">{p.userId?.firstName} {p.userId?.lastName}</div>
-                <div className="text-xs text-slate-500 font-mono">{p.userId?.email}</div>
+            <tr key={p._id} className="hover:bg-neutral-50 transition-colors group">
+              <td className="px-6 py-4 font-medium text-neutral-700">
+                <div className="text-neutral-900 font-bold">{p.userId?.firstName} {p.userId?.lastName}</div>
+                <div className="text-xs text-neutral-500 font-mono">{p.userId?.email}</div>
               </td>
               <td className="px-6 py-4">
-                 <span className="text-green-400 font-mono font-bold text-lg bg-green-400/10 px-2 py-1 rounded">
+                 <span className="text-emerald-600 font-mono font-bold text-lg bg-emerald-500/10 px-2 py-1 rounded">
                     {p.amount} F
                  </span>
               </td>
               <td className="px-6 py-4">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-slate-300">{p.method}</span>
-                  <span className="text-[10px] bg-slate-800 border border-slate-700 text-slate-400 px-1.5 py-0.5 rounded uppercase tracking-wide">{p.country}</span>
+                  <span className="font-bold text-neutral-700">{p.method}</span>
+                  <span className="text-[10px] bg-neutral-100 border border-neutral-200 text-neutral-500 px-1.5 py-0.5 rounded uppercase tracking-wide">{p.country}</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs mt-1 text-slate-400 font-mono">
+                <div className="flex items-center gap-1.5 text-xs mt-1 text-neutral-500 font-mono">
                   <Phone size={12} className="text-blue-500"/> {p.phoneNumber}
                 </div>
               </td>
               <td className="px-6 py-4">
                  <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${
-                   p.status === 'PENDING' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' : 
-                   p.status === 'PAID' ? 'bg-green-500/10 text-green-500 border-green-500/20' : 
-                   'bg-red-500/10 text-red-500 border-red-500/20'
+                   p.status === 'PENDING' ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' :
+                   p.status === 'PAID' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' :
+                   'bg-red-500/10 text-red-600 border-red-500/20'
                  }`}>
                    {p.status === 'PENDING' ? 'En attente' : p.status === 'PAID' ? 'Payé' : 'Rejeté'}
                  </span>
@@ -123,35 +123,35 @@ function PayoutsManager() {
               <td className="px-6 py-4 text-right">
                 {p.status === "PENDING" ? (
                   <div className="flex justify-end gap-2 opacity-100 transition-opacity">
-                    <button 
-                      onClick={() => handleAction(p._id, "REJECTED")} 
-                      disabled={processingId === p._id} 
-                      className="p-2 text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg hover:bg-red-400/20 transition-colors"
+                    <button
+                      onClick={() => handleAction(p._id, "REJECTED")}
+                      disabled={processingId === p._id}
+                      className="p-2 text-red-600 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-colors"
                       title="Rejeter"
                     >
                       <X size={16}/>
                     </button>
-                    <button 
-                      onClick={() => handleAction(p._id, "PAID")} 
-                      disabled={processingId === p._id} 
-                      className="p-2 text-green-400 bg-green-400/10 border border-green-400/20 rounded-lg hover:bg-green-400/20 transition-colors shadow-[0_0_10px_rgba(74,222,128,0.1)]"
+                    <button
+                      onClick={() => handleAction(p._id, "PAID")}
+                      disabled={processingId === p._id}
+                      className="p-2 text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors"
                       title="Valider Paiement"
                     >
                       {processingId === p._id ? <Loader2 size={16} className="animate-spin"/> : <Check size={16}/>}
                     </button>
                   </div>
                 ) : (
-                  <span className="text-xs text-slate-600 font-medium italic">Clôturé</span>
+                  <span className="text-xs text-neutral-500 font-medium italic">Clôturé</span>
                 )}
               </td>
             </tr>
           ))}
           {payouts.length === 0 && (
             <tr>
-              <td colSpan="5" className="p-12 text-center text-slate-500">
+              <td colSpan="5" className="p-12 text-center text-neutral-500">
                 <div className="flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center">
-                    <Check className="text-slate-600"/>
+                  <div className="w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center">
+                    <Check className="text-neutral-500"/>
                   </div>
                   Aucune demande de retrait en attente.
                 </div>
@@ -164,7 +164,7 @@ function PayoutsManager() {
   );
 }
 
-// --- ONGLET 2 : GESTION DES RESSOURCES (DARK) ---
+// --- ONGLET 2 : GESTION DES RESSOURCES ---
 function ResourcesManager() {
   const [assets, setAssets] = useState([]);
   const [form, setForm] = useState({ title: "", type: "TEXT", imageUrl: "", textContent: "", format: "" });
@@ -205,128 +205,128 @@ function ResourcesManager() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      
-      {/* FORMULAIRE (DARK) */}
-      <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl h-fit sticky top-6">
-        <h3 className="font-bold text-lg mb-6 text-white flex items-center gap-2">
-          <Plus className="w-5 h-5 text-violet-500" /> Ajouter
+
+      {/* FORMULAIRE */}
+      <div className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-sm h-fit sticky top-6">
+        <h3 className="font-bold text-lg mb-6 text-neutral-900 flex items-center gap-2">
+          <Plus className="w-5 h-5 text-emerald-600" /> Ajouter
         </h3>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">Titre</label>
-            <input 
-              className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none transition-all" 
-              value={form.title} 
-              onChange={e => setForm({...form, title: e.target.value})} 
-              placeholder="Ex: Story Instagram" 
-              required 
+            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1.5 block">Titre</label>
+            <input
+              className="w-full p-3 bg-neutral-50 border border-neutral-200 rounded-xl text-neutral-900 placeholder-neutral-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+              value={form.title}
+              onChange={e => setForm({...form, title: e.target.value})}
+              placeholder="Ex: Story Instagram"
+              required
             />
           </div>
           <div>
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">Type</label>
+            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1.5 block">Type</label>
             <div className="grid grid-cols-2 gap-2">
-              <button 
+              <button
                 type="button"
                 onClick={() => setForm({...form, type: "TEXT"})}
-                className={`p-2 rounded-lg text-sm font-bold border transition-all ${form.type === "TEXT" ? "bg-violet-600 border-violet-600 text-white" : "bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700"}`}
+                className={`p-2 rounded-lg text-sm font-bold border transition-all ${form.type === "TEXT" ? "bg-emerald-600 border-emerald-600 text-white" : "bg-neutral-50 border-neutral-200 text-neutral-500 hover:border-neutral-300"}`}
               >
                 Texte
               </button>
-              <button 
+              <button
                 type="button"
                 onClick={() => setForm({...form, type: "IMAGE"})}
-                className={`p-2 rounded-lg text-sm font-bold border transition-all ${form.type === "IMAGE" ? "bg-blue-600 border-blue-600 text-white" : "bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700"}`}
+                className={`p-2 rounded-lg text-sm font-bold border transition-all ${form.type === "IMAGE" ? "bg-blue-600 border-blue-600 text-white" : "bg-neutral-50 border-neutral-200 text-neutral-500 hover:border-neutral-300"}`}
               >
                 Image
               </button>
             </div>
           </div>
-          
+
           {form.type === "IMAGE" ? (
             <div className="space-y-4 animate-in fade-in">
               <div>
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">URL Image (Cloudinary)</label>
-                <input 
-                  className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none" 
-                  value={form.imageUrl} 
-                  onChange={e => setForm({...form, imageUrl: e.target.value})} 
-                  placeholder="https://..." 
-                  required 
+                <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1.5 block">URL Image (Cloudinary)</label>
+                <input
+                  className="w-full p-3 bg-neutral-50 border border-neutral-200 rounded-xl text-neutral-900 placeholder-neutral-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                  value={form.imageUrl}
+                  onChange={e => setForm({...form, imageUrl: e.target.value})}
+                  placeholder="https://..."
+                  required
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">Format</label>
-                <input 
-                  className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:border-blue-500 outline-none" 
-                  value={form.format} 
-                  onChange={e => setForm({...form, format: e.target.value})} 
-                  placeholder="Ex: 1080x1920" 
+                <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1.5 block">Format</label>
+                <input
+                  className="w-full p-3 bg-neutral-50 border border-neutral-200 rounded-xl text-neutral-900 placeholder-neutral-400 focus:border-blue-500 outline-none"
+                  value={form.format}
+                  onChange={e => setForm({...form, format: e.target.value})}
+                  placeholder="Ex: 1080x1920"
                 />
               </div>
             </div>
           ) : (
             <div className="animate-in fade-in">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">Contenu du texte</label>
-              <textarea 
-                className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl h-32 text-white placeholder-slate-600 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none resize-none font-mono text-sm" 
-                value={form.textContent} 
-                onChange={e => setForm({...form, textContent: e.target.value})} 
-                placeholder="Utilisez {{LINK}} pour insérer le lien affilié..." 
-                required 
+              <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1.5 block">Contenu du texte</label>
+              <textarea
+                className="w-full p-3 bg-neutral-50 border border-neutral-200 rounded-xl h-32 text-neutral-900 placeholder-neutral-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none resize-none font-mono text-sm"
+                value={form.textContent}
+                onChange={e => setForm({...form, textContent: e.target.value})}
+                placeholder="Utilisez {{LINK}} pour insérer le lien affilié..."
+                required
               />
-              <p className="text-[10px] text-slate-500 mt-2 bg-slate-950 p-2 rounded border border-slate-800">
-                <span className="text-yellow-500 font-bold">Astuce :</span> <code>{'{{LINK}}'}</code> sera remplacé automatiquement par le lien unique du parrain.
+              <p className="text-[10px] text-neutral-500 mt-2 bg-neutral-50 p-2 rounded border border-neutral-200">
+                <span className="text-amber-600 font-bold">Astuce :</span> <code>{'{{LINK}}'}</code> sera remplacé automatiquement par le lien unique du parrain.
               </p>
             </div>
           )}
 
-          <button disabled={loading} className="w-full bg-white text-slate-900 py-3 rounded-xl font-bold hover:bg-slate-200 transition-colors flex justify-center items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+          <button disabled={loading} className="w-full bg-neutral-900 text-white py-3 rounded-xl font-bold hover:bg-neutral-800 transition-colors flex justify-center items-center gap-2">
             {loading ? <Loader2 className="animate-spin"/> : <Plus size={18} strokeWidth={3} />}
             Ajouter la ressource
           </button>
         </form>
       </div>
 
-      {/* LISTE (DARK) */}
+      {/* LISTE */}
       <div className="lg:col-span-2 space-y-6">
-        <h3 className="font-bold text-lg text-white flex items-center gap-2">
+        <h3 className="font-bold text-lg text-neutral-900 flex items-center gap-2">
            <LayoutGrid className="w-5 h-5 text-blue-500" />
-           Ressources actives <span className="text-slate-500 text-sm font-normal">({assets.length})</span>
+           Ressources actives <span className="text-neutral-500 text-sm font-normal">({assets.length})</span>
         </h3>
-        
+
         <div className="grid gap-4">
           {assets.map(asset => (
-            <div key={asset._id} className="bg-slate-900 p-5 border border-slate-800 rounded-2xl flex justify-between items-start group hover:border-slate-700 transition-colors">
+            <div key={asset._id} className="bg-white p-5 border border-neutral-200 rounded-2xl flex justify-between items-start group hover:border-neutral-300 transition-colors">
               <div className="flex gap-5 w-full">
-                <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ${asset.type === "IMAGE" ? "bg-blue-500/10 text-blue-500" : "bg-violet-500/10 text-violet-500"}`}>
+                <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${asset.type === "IMAGE" ? "bg-blue-500/10 text-blue-500" : "bg-emerald-500/10 text-emerald-600"}`}>
                   {asset.type === "IMAGE" ? <ImageIcon size={24}/> : <FileText size={24}/>}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                     <h4 className="font-bold text-white text-lg truncate">{asset.title}</h4>
-                     <span className="text-[10px] font-bold bg-slate-950 text-slate-400 px-2 py-0.5 rounded border border-slate-800 uppercase">{asset.type}</span>
+                     <h4 className="font-bold text-neutral-900 text-lg truncate">{asset.title}</h4>
+                     <span className="text-[10px] font-bold bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded border border-neutral-200 uppercase">{asset.type}</span>
                   </div>
-                  
+
                   {asset.type === "TEXT" && (
-                     <div className="bg-slate-950 p-3 rounded-lg border border-slate-800 text-slate-400 text-sm font-mono line-clamp-2 mt-2">
+                     <div className="bg-neutral-50 p-3 rounded-lg border border-neutral-200 text-neutral-500 text-sm font-mono line-clamp-2 mt-2">
                         {asset.textContent}
                      </div>
                   )}
                   {asset.type === "IMAGE" && (
                     <div className="mt-2 flex items-center gap-3">
-                       <span className="text-xs text-slate-500">{asset.format || "Format inconnu"}</span>
-                       <a href={asset.imageUrl} target="_blank" className="text-xs font-bold text-blue-400 hover:text-blue-300 underline">Voir l'image</a>
+                       <span className="text-xs text-neutral-500">{asset.format || "Format inconnu"}</span>
+                       <a href={asset.imageUrl} target="_blank" className="text-xs font-bold text-blue-600 hover:text-blue-500 underline">Voir l'image</a>
                     </div>
                   )}
                 </div>
               </div>
-              <button onClick={() => handleDelete(asset._id)} className="text-slate-600 hover:text-red-500 p-2 transition-colors ml-4 bg-slate-950 rounded-lg border border-slate-800 hover:border-red-500/30 hover:bg-red-500/10">
+              <button onClick={() => handleDelete(asset._id)} className="text-neutral-500 hover:text-red-500 p-2 transition-colors ml-4 bg-neutral-50 rounded-lg border border-neutral-200 hover:border-red-500/30 hover:bg-red-500/10">
                 <Trash2 size={18} />
               </button>
             </div>
           ))}
           {assets.length === 0 && (
-             <div className="p-8 border-2 border-dashed border-slate-800 rounded-xl text-center text-slate-500">
+             <div className="p-8 border-2 border-dashed border-neutral-200 rounded-xl text-center text-neutral-500">
                Aucune ressource pour le moment.
              </div>
           )}
@@ -336,18 +336,18 @@ function ResourcesManager() {
   );
 }
 
-// --- ONGLET 3 : TOP PARRAINS (DARK) ---
+// --- ONGLET 3 : TOP PARRAINS ---
 function SponsorsManager() {
   const [sponsors, setSponsors] = useState([]);
-  
+
   useEffect(() => {
     fetch("/api/admin/affiliation/sponsors").then(r => r.json()).then(d => d.success && setSponsors(d.data));
   }, []);
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+    <div className="bg-white border border-neutral-200 rounded-2xl overflow-hidden shadow-sm">
       <table className="w-full text-sm text-left">
-        <thead className="bg-slate-950/50 border-b border-slate-800 uppercase text-xs font-bold text-slate-500">
+        <thead className="bg-neutral-50 border-b border-neutral-200 uppercase text-xs font-bold text-neutral-500">
           <tr>
             <th className="px-6 py-4">Rang</th>
             <th className="px-6 py-4">Parrain</th>
@@ -355,30 +355,30 @@ function SponsorsManager() {
             <th className="px-6 py-4 text-right">Gains Totaux</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/50">
+        <tbody className="divide-y divide-neutral-200">
           {sponsors.map((s, i) => (
-            <tr key={s._id} className="hover:bg-slate-800/30 transition-colors">
+            <tr key={s._id} className="hover:bg-neutral-50 transition-colors">
               <td className="px-6 py-4">
                  <div className={`w-8 h-8 flex items-center justify-center rounded-full font-black text-xs ${
-                   i === 0 ? "bg-yellow-500 text-black" : 
-                   i === 1 ? "bg-slate-300 text-black" : 
-                   i === 2 ? "bg-orange-700 text-white" : "bg-slate-800 text-slate-400"
+                   i === 0 ? "bg-amber-500 text-white" :
+                   i === 1 ? "bg-neutral-300 text-neutral-900" :
+                   i === 2 ? "bg-orange-700 text-white" : "bg-neutral-100 text-neutral-500"
                  }`}>
                    #{i + 1}
                  </div>
               </td>
-              <td className="px-6 py-4 font-medium text-slate-200">
-                <div className="text-white font-bold">{s.firstName} {s.lastName}</div>
-                <div className="text-xs text-slate-500 font-mono">{s.email}</div>
+              <td className="px-6 py-4 font-medium text-neutral-700">
+                <div className="text-neutral-900 font-bold">{s.firstName} {s.lastName}</div>
+                <div className="text-xs text-neutral-500 font-mono">{s.email}</div>
               </td>
               <td className="px-6 py-4 font-bold">
-                 <div className="flex items-center gap-2 text-blue-400">
+                 <div className="flex items-center gap-2 text-blue-600">
                     <Trophy size={14} />
                     {s.referralCount}
                  </div>
               </td>
               <td className="px-6 py-4 text-right">
-                 <span className="font-mono font-bold text-violet-400 bg-violet-400/10 px-2 py-1 rounded">
+                 <span className="font-mono font-bold text-emerald-600 bg-emerald-500/10 px-2 py-1 rounded">
                    {s.wallet?.totalEarned || 0} F
                  </span>
               </td>
@@ -386,7 +386,7 @@ function SponsorsManager() {
           ))}
           {sponsors.length === 0 && (
              <tr>
-               <td colSpan="4" className="p-12 text-center text-slate-500">Aucune donnée disponible.</td>
+               <td colSpan="4" className="p-12 text-center text-neutral-500">Aucune donnée disponible.</td>
              </tr>
           )}
         </tbody>
@@ -395,21 +395,21 @@ function SponsorsManager() {
   );
 }
 
-// BOUTON TAB (STYLE DARK & NEON)
+// BOUTON TAB
 function TabBtn({ id, label, icon: Icon, active, set }) {
   const isActive = active === id;
   return (
-    <button 
-      onClick={() => set(id)} 
+    <button
+      onClick={() => set(id)}
       className={`
         flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all relative overflow-hidden
-        ${isActive 
-          ? "text-white shadow-[0_0_20px_rgba(124,58,237,0.3)] bg-violet-600" 
-          : "text-slate-400 hover:text-white hover:bg-slate-800"
+        ${isActive
+          ? "text-white bg-neutral-900"
+          : "text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100"
         }
       `}
     >
-      <Icon size={16} className={isActive ? "text-white" : "text-slate-500"} /> 
+      <Icon size={16} className={isActive ? "text-white" : "text-neutral-500"} />
       {label}
     </button>
   );

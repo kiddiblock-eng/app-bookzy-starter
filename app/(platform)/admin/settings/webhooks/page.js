@@ -119,7 +119,7 @@ export default function WebhooksSettingsPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="w-10 h-10 animate-spin text-purple-400" />
+        <Loader2 className="w-10 h-10 animate-spin text-emerald-400" />
       </div>
     );
   }
@@ -141,7 +141,7 @@ export default function WebhooksSettingsPage() {
   return (
     <div className="max-w-4xl space-y-10">
       <h1 className="text-3xl font-bold flex items-center gap-3">
-        <Network className="text-purple-400" />
+        <Network className="text-emerald-400" />
         Configuration des Webhooks
       </h1>
 
@@ -214,7 +214,7 @@ export default function WebhooksSettingsPage() {
                       className="p-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition"
                     >
                       {copiedStates[`url-${providerName}`] ? (
-                        <Check className="w-4 h-4 text-green-400" />
+                        <Check className="w-4 h-4 text-emerald-600" />
                       ) : (
                         <Copy className="w-4 h-4" />
                       )}
@@ -261,7 +261,7 @@ export default function WebhooksSettingsPage() {
                       className="p-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition"
                     >
                       {copiedStates[`secret-${providerName}`] ? (
-                        <Check className="w-4 h-4 text-green-400" />
+                        <Check className="w-4 h-4 text-emerald-600" />
                       ) : (
                         <Copy className="w-4 h-4" />
                       )}
@@ -284,7 +284,7 @@ export default function WebhooksSettingsPage() {
       <button
         onClick={save}
         disabled={saving}
-        className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-semibold transition disabled:opacity-50"
+        className="bg-emerald-600 hover:bg-emerald-700 px-6 py-3 rounded-lg font-semibold transition disabled:opacity-50"
       >
         {saving ? "Enregistrement..." : "Enregistrer tous les secrets"}
       </button>

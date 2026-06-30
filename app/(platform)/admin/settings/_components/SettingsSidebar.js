@@ -15,10 +15,10 @@ export default function SettingsSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-[#0f1623] border-r border-slate-800 h-full flex flex-col">
+    <aside className="w-64 bg-white border-r border-neutral-200 h-full flex flex-col">
       {/* Petit Header de section */}
-      <div className="px-6 py-6 border-b border-slate-800/50">
-        <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+      <div className="px-6 py-6 border-b border-neutral-200">
+        <h2 className="text-xs font-bold text-neutral-500 uppercase tracking-widest">
           Configuration
         </h2>
       </div>
@@ -38,14 +38,14 @@ export default function SettingsSidebar() {
                 group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border
                 ${
                   active
-                    ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.1)]"
-                    : "bg-transparent border-transparent text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+                    ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                    : "bg-transparent border-transparent text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
                 }
               `}
             >
-              <Icon 
-                size={18} 
-                className={`transition-colors ${active ? "text-indigo-400" : "text-slate-500 group-hover:text-slate-300"}`} 
+              <Icon
+                size={18}
+                className={`transition-colors ${active ? "text-emerald-600" : "text-neutral-500 group-hover:text-neutral-700"}`}
               />
               {item.label}
             </Link>

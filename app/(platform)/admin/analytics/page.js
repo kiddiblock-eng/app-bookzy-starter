@@ -47,29 +47,27 @@ function getAdminHeaders() {
 }
 
 /* =========================================================
-   COMPOSANTS UI (Design "Mission Control" - Blocs Sombres)
+   COMPOSANTS UI (Design "Mission Control" - Thème clair)
    ========================================================= */
 
-function StatCard({ icon: Icon, label, value, sub, trend, color = "indigo" }) {
+function StatCard({ icon: Icon, label, value, sub, trend, color = "emerald" }) {
   const themes = {
-    indigo: "text-indigo-400 bg-indigo-400/10 border-indigo-400/20",
-    emerald: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
-    amber: "text-amber-400 bg-amber-400/10 border-amber-400/20",
-    blue: "text-blue-400 bg-blue-400/10 border-blue-400/20",
-    purple: "text-purple-400 bg-purple-400/10 border-purple-400/20",
-    red: "text-red-400 bg-red-400/10 border-red-400/20",
+    emerald: "text-emerald-600 bg-emerald-50 border-emerald-200",
+    amber: "text-amber-600 bg-amber-50 border-amber-200",
+    blue: "text-blue-600 bg-blue-50 border-blue-200",
+    red: "text-red-600 bg-red-50 border-red-200",
   };
-  const theme = themes[color] || themes.indigo;
+  const theme = themes[color] || themes.emerald;
 
   return (
-    <div className="bg-[#0f1623] border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-all group shadow-sm">
+    <div className="bg-white border border-neutral-200 rounded-xl p-5 hover:border-neutral-300 transition-all group shadow-sm">
       <div className="flex justify-between items-start mb-4">
         <div className={`p-2.5 rounded-lg ${theme}`}>
           <Icon size={20} strokeWidth={2} />
         </div>
         {typeof trend === "number" && (
           <div className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md ${
-            trend > 0 ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"
+            trend > 0 ? "bg-emerald-50 text-emerald-600 border border-emerald-200" : "bg-red-50 text-red-600 border border-red-200"
           }`}>
             {trend > 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
             {Math.abs(trend)}%
@@ -77,26 +75,26 @@ function StatCard({ icon: Icon, label, value, sub, trend, color = "indigo" }) {
         )}
       </div>
       <div>
-        <h3 className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">{label}</h3>
-        <div className="text-2xl font-bold text-white tracking-tight">{value}</div>
-        {sub && <p className="text-slate-500 text-xs mt-1">{sub}</p>}
+        <h3 className="text-neutral-500 text-xs font-bold uppercase tracking-wider mb-1">{label}</h3>
+        <div className="text-2xl font-bold text-neutral-900 tracking-tight">{value}</div>
+        {sub && <p className="text-neutral-500 text-xs mt-1">{sub}</p>}
       </div>
     </div>
   );
 }
 
-function SectionHeader({ title, subtitle, icon: Icon, color = "indigo" }) {
+function SectionHeader({ title, subtitle, icon: Icon, color = "emerald" }) {
   const colors = {
-    indigo: "text-indigo-400", emerald: "text-emerald-400", amber: "text-amber-400", blue: "text-blue-400", purple: "text-purple-400", red: "text-red-400"
+    emerald: "text-emerald-600", amber: "text-amber-600", blue: "text-blue-600", red: "text-red-600"
   };
   return (
     <div className="flex items-center gap-3 mb-6">
-      <div className={`p-2 rounded-lg bg-[#0f1623] border border-slate-800 ${colors[color]}`}>
+      <div className={`p-2 rounded-lg bg-neutral-50 border border-neutral-200 ${colors[color]}`}>
         <Icon size={18} />
       </div>
       <div>
-        <h3 className="text-sm font-bold text-white uppercase tracking-wide">{title}</h3>
-        <p className="text-xs text-slate-500">{subtitle}</p>
+        <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wide">{title}</h3>
+        <p className="text-xs text-neutral-500">{subtitle}</p>
       </div>
     </div>
   );
@@ -105,15 +103,15 @@ function SectionHeader({ title, subtitle, icon: Icon, color = "indigo" }) {
 function CustomTooltip({ active, payload, label }) {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#0f1623] border border-slate-700 rounded-lg p-3 shadow-xl">
-        <p className="text-slate-300 text-xs font-bold mb-2 border-b border-slate-700 pb-1">{label}</p>
+      <div className="bg-white border border-neutral-200 rounded-lg p-3 shadow-xl">
+        <p className="text-neutral-700 text-xs font-bold mb-2 border-b border-neutral-200 pb-1">{label}</p>
         {payload.map((entry, index) => (
           <div key={index} className="flex items-center justify-between gap-4 text-xs mb-1">
-            <span className="text-slate-400 flex items-center gap-1.5">
+            <span className="text-neutral-500 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color || entry.fill }} />
               {entry.name}
             </span>
-            <span className="text-white font-mono font-bold">{entry.value}</span>
+            <span className="text-neutral-900 font-mono font-bold">{entry.value}</span>
           </div>
         ))}
       </div>
@@ -123,7 +121,7 @@ function CustomTooltip({ active, payload, label }) {
 }
 
 // Couleurs Charts
-const PIE_COLORS = ["#6366f1", "#10b981", "#f59e0b", "#3b82f6", "#8b5cf6", "#ec4899", "#f43f5e"];
+const PIE_COLORS = ["#059669", "#10b981", "#f59e0b", "#3b82f6", "#34d399", "#ec4899", "#f43f5e"];
 
 /* =========================================================
    PAGE ANALYTICS
@@ -132,7 +130,7 @@ const PIE_COLORS = ["#6366f1", "#10b981", "#f59e0b", "#3b82f6", "#8b5cf6", "#ec4
 export default function AnalyticsPage() {
   const [period, setPeriod] = useState("30");
   const [loading, setLoading] = useState(true);
-  
+
   // --- ETATS DE DONNEES ---
   const [stats, setStats] = useState({ totalUsers: 0, activeUsers: 0, totalEbooks: 0, totalRevenue: 0, totalSales: 0 });
   const [usersDaily, setUsersDaily] = useState([]);
@@ -209,7 +207,7 @@ export default function AnalyticsPage() {
         if (jsonDist.success && Array.isArray(jsonDist.data)) setEbooksDistribution(jsonDist.data);
       } catch (e) { console.error("Erreur distribution:", e); }
 
-    } catch (e) { console.error("loadStats error:", e); } 
+    } catch (e) { console.error("loadStats error:", e); }
     finally { setLoading(false); }
   }
 
@@ -233,33 +231,33 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center gap-4 text-slate-500">
-        <Loader2 className="w-10 h-10 animate-spin text-indigo-500" />
+      <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center gap-4 text-neutral-500">
+        <Loader2 className="w-10 h-10 animate-spin text-emerald-600" />
         <p className="text-xs font-mono tracking-widest uppercase">Analyse des données...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#020617] p-6 md:p-8 space-y-8 text-slate-200 font-sans">
-      
+    <div className="min-h-screen bg-neutral-50 p-6 md:p-8 space-y-8 text-neutral-700 font-sans">
+
       {/* 1. HEADER & PERIOD SELECTOR */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Rapports & Analyses</h1>
-          <p className="text-sm text-slate-500 mt-1 flex items-center gap-2">
-             <Activity size={14} className="text-emerald-500" />
+          <h1 className="text-2xl font-bold text-neutral-900 tracking-tight">Rapports & Analyses</h1>
+          <p className="text-sm text-neutral-500 mt-1 flex items-center gap-2">
+             <Activity size={14} className="text-emerald-600" />
              Système opérationnel • Mise à jour en temps réel
           </p>
         </div>
 
-        <div className="bg-[#0f1623] border border-slate-800 p-1 rounded-lg flex items-center">
+        <div className="bg-white border border-neutral-200 p-1 rounded-lg flex items-center">
           {["7", "30", "90"].map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
               className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${
-                period === p ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20" : "text-slate-400 hover:text-white hover:bg-slate-800"
+                period === p ? "bg-neutral-900 text-white" : "text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100"
               }`}
             >
               {p} Jours
@@ -273,26 +271,26 @@ export default function AnalyticsPage() {
         <StatCard icon={Users} label="Total Utilisateurs" value={stats.totalUsers.toLocaleString()} sub={`${stats.activeUsers} actifs`} trend={12} color="emerald" />
         <StatCard icon={BookOpen} label="Ebooks Générés" value={stats.totalEbooks.toLocaleString()} sub={`${stats.totalSales} ventes`} trend={8} color="blue" />
         <StatCard icon={DollarSign} label="Revenus (FCFA)" value={stats.totalRevenue.toLocaleString()} sub="Volume total" trend={15} color="amber" />
-        <StatCard icon={Calendar} label="Période" value={`${period} Jours`} sub="Plage d'analyse" color="purple" />
+        <StatCard icon={Calendar} label="Période" value={`${period} Jours`} sub="Plage d'analyse" color="emerald" />
       </div>
 
       {/* 3. MAIN CHART (Area) */}
-      <div className="bg-[#0f1623] border border-slate-800 rounded-xl p-6">
+      <div className="bg-white border border-neutral-200 rounded-xl p-6">
         <div className="flex justify-between items-center mb-6">
            <div>
-              <h3 className="text-sm font-bold text-white uppercase tracking-wide">Performance Globale</h3>
-              <p className="text-xs text-slate-500">Utilisateurs, Ebooks et Revenus</p>
+              <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wide">Performance Globale</h3>
+              <p className="text-xs text-neutral-500">Utilisateurs, Ebooks et Revenus</p>
            </div>
            <div className="flex gap-4 text-xs font-medium">
-              <span className="flex items-center gap-1.5 text-emerald-400"><div className="w-2 h-2 rounded-full bg-emerald-400"></div> Utilisateurs</span>
-              <span className="flex items-center gap-1.5 text-blue-400"><div className="w-2 h-2 rounded-full bg-blue-400"></div> eBooks</span>
-              <span className="flex items-center gap-1.5 text-amber-400"><div className="w-2 h-2 rounded-full bg-amber-400"></div> Revenus</span>
+              <span className="flex items-center gap-1.5 text-emerald-600"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Utilisateurs</span>
+              <span className="flex items-center gap-1.5 text-blue-600"><div className="w-2 h-2 rounded-full bg-blue-500"></div> eBooks</span>
+              <span className="flex items-center gap-1.5 text-amber-600"><div className="w-2 h-2 rounded-full bg-amber-500"></div> Revenus</span>
            </div>
         </div>
-        
+
         <div className="h-[350px] w-full">
            {combinedDaily.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-slate-500">
+              <div className="h-full flex flex-col items-center justify-center text-neutral-500">
                  <BarChart3 className="w-10 h-10 mb-2 opacity-20" />
                  <p className="text-xs">Aucune donnée sur cette période</p>
               </div>
@@ -304,10 +302,10 @@ export default function AnalyticsPage() {
                     <linearGradient id="gradEbooks" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/><stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/></linearGradient>
                     <linearGradient id="gradRev" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3}/><stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/></linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-                  <XAxis dataKey="date" stroke="#475569" tick={{fontSize: 11}} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#475569" tick={{fontSize: 11}} tickLine={false} axisLine={false} />
-                  <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#334155', strokeWidth: 1 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" vertical={false} />
+                  <XAxis dataKey="date" stroke="#a3a3a3" tick={{fontSize: 11}} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#a3a3a3" tick={{fontSize: 11}} tickLine={false} axisLine={false} />
+                  <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#d4d4d4', strokeWidth: 1 }} />
                   <Area type="monotone" dataKey="users" stroke="#10b981" strokeWidth={2} fill="url(#gradUsers)" />
                   <Area type="monotone" dataKey="ebooks" stroke="#3b82f6" strokeWidth={2} fill="url(#gradEbooks)" />
                   <Area type="monotone" dataKey="revenue" stroke="#f59e0b" strokeWidth={2} fill="url(#gradRev)" />
@@ -319,23 +317,23 @@ export default function AnalyticsPage() {
 
       {/* 4. DETAILS GRID (Geo + Templates) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-         
+
          {/* GEO MAP (List style) */}
-         <div className="bg-[#0f1623] border border-slate-800 rounded-xl p-6">
+         <div className="bg-white border border-neutral-200 rounded-xl p-6">
             <SectionHeader title="Géographie" subtitle={`Top ${usersByCountry.length} Pays`} icon={Globe2} color="blue" />
             <div className="space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
-               {usersByCountry.length === 0 ? <p className="text-slate-500 text-xs text-center py-10">Aucune donnée</p> : 
+               {usersByCountry.length === 0 ? <p className="text-neutral-500 text-xs text-center py-10">Aucune donnée</p> :
                   usersByCountry.map((c, i) => (
-                     <div key={i} className="flex items-center gap-3 p-3 bg-slate-800/30 rounded-lg border border-slate-800/50 hover:border-slate-700 transition-colors">
-                        <div className="w-8 h-8 rounded bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-400 border border-slate-700">
+                     <div key={i} className="flex items-center gap-3 p-3 bg-neutral-50 rounded-lg border border-neutral-200 hover:border-neutral-300 transition-colors">
+                        <div className="w-8 h-8 rounded bg-neutral-100 flex items-center justify-center text-xs font-bold text-neutral-500 border border-neutral-200">
                            #{i + 1}
                         </div>
                         <div className="flex-1">
                            <div className="flex justify-between items-center mb-1.5">
-                              <span className="text-sm font-medium text-slate-200">{c.country}</span>
-                              <span className="text-xs font-mono text-slate-400">{c.count} users</span>
+                              <span className="text-sm font-medium text-neutral-900">{c.country}</span>
+                              <span className="text-xs font-mono text-neutral-500">{c.count} users</span>
                            </div>
-                           <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                           <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden">
                               <div className="h-full bg-blue-500 rounded-full" style={{ width: `${Math.min((c.count / (stats.totalUsers || 1)) * 100, 100)}%` }}></div>
                            </div>
                         </div>
@@ -346,10 +344,10 @@ export default function AnalyticsPage() {
          </div>
 
          {/* TEMPLATES PIE */}
-         <div className="bg-[#0f1623] border border-slate-800 rounded-xl p-6">
-            <SectionHeader title="Templates" subtitle="Répartition des choix" icon={Layers} color="purple" />
+         <div className="bg-white border border-neutral-200 rounded-xl p-6">
+            <SectionHeader title="Templates" subtitle="Répartition des choix" icon={Layers} color="emerald" />
             {templatesStats.length === 0 ? (
-               <div className="h-[250px] flex items-center justify-center text-slate-500 text-xs">Aucun template utilisé</div>
+               <div className="h-[250px] flex items-center justify-center text-neutral-500 text-xs">Aucun template utilisé</div>
             ) : (
                <div className="flex items-center">
                   <div className="h-[250px] w-1/2">
@@ -367,9 +365,9 @@ export default function AnalyticsPage() {
                         <div key={idx} className="flex items-center justify-between text-xs">
                            <div className="flex items-center gap-2">
                               <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: PIE_COLORS[idx % PIE_COLORS.length] }}></div>
-                              <span className="text-slate-400">{t.template || "Défaut"}</span>
+                              <span className="text-neutral-500">{t.template || "Défaut"}</span>
                            </div>
-                           <span className="text-white font-mono">{t.count}</span>
+                           <span className="text-neutral-900 font-mono">{t.count}</span>
                         </div>
                      ))}
                   </div>
@@ -379,36 +377,36 @@ export default function AnalyticsPage() {
       </div>
 
       {/* 5. TOP USERS TABLE */}
-      <div className="bg-[#0f1623] border border-slate-800 rounded-xl p-6">
+      <div className="bg-white border border-neutral-200 rounded-xl p-6">
          <SectionHeader title="Top Créateurs" subtitle="Classement par activité" icon={Trophy} color="amber" />
          <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
                <thead>
-                  <tr className="border-b border-slate-800 text-xs uppercase text-slate-500">
+                  <tr className="border-b border-neutral-200 text-xs uppercase text-neutral-500">
                      <th className="px-4 py-3 font-semibold">Rang</th>
                      <th className="px-4 py-3 font-semibold">Utilisateur</th>
                      <th className="px-4 py-3 font-semibold">Pays</th>
                      <th className="px-4 py-3 font-semibold text-right">eBooks</th>
                   </tr>
                </thead>
-               <tbody className="divide-y divide-slate-800 text-sm">
+               <tbody className="divide-y divide-neutral-200 text-sm">
                   {topUsers.length === 0 ? (
-                     <tr><td colSpan={4} className="p-8 text-center text-slate-500 text-xs">Aucun créateur actif</td></tr>
+                     <tr><td colSpan={4} className="p-8 text-center text-neutral-500 text-xs">Aucun créateur actif</td></tr>
                   ) : (
                      topUsers.map((u, i) => (
-                        <tr key={i} className="hover:bg-slate-800/30 transition-colors">
+                        <tr key={i} className="hover:bg-neutral-50 transition-colors">
                            <td className="px-4 py-3">
-                              {i === 0 ? <Crown size={16} className="text-amber-400" /> : 
-                               i === 1 ? <Medal size={16} className="text-slate-400" /> :
-                               i === 2 ? <Award size={16} className="text-orange-700" /> : 
-                               <span className="font-mono text-slate-500">#{i + 1}</span>}
+                              {i === 0 ? <Crown size={16} className="text-amber-500" /> :
+                               i === 1 ? <Medal size={16} className="text-neutral-400" /> :
+                               i === 2 ? <Award size={16} className="text-orange-700" /> :
+                               <span className="font-mono text-neutral-500">#{i + 1}</span>}
                            </td>
                            <td className="px-4 py-3">
-                              <div className="font-medium text-slate-200">{u.name}</div>
-                              <div className="text-xs text-slate-500">{u.email}</div>
+                              <div className="font-medium text-neutral-900">{u.name}</div>
+                              <div className="text-xs text-neutral-500">{u.email}</div>
                            </td>
-                           <td className="px-4 py-3 text-slate-400 text-xs">{u.country || "—"}</td>
-                           <td className="px-4 py-3 text-right font-mono font-bold text-white">{u.ebooksCount}</td>
+                           <td className="px-4 py-3 text-neutral-500 text-xs">{u.country || "—"}</td>
+                           <td className="px-4 py-3 text-right font-mono font-bold text-neutral-900">{u.ebooksCount}</td>
                         </tr>
                      ))
                   )}
@@ -419,9 +417,9 @@ export default function AnalyticsPage() {
 
       {/* 6. ADVANCED METRICS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-         
+
          {/* Heatmap (CORRIGÉE) */}
-         <div className="bg-[#0f1623] border border-slate-800 rounded-xl p-6 lg:col-span-2">
+         <div className="bg-white border border-neutral-200 rounded-xl p-6 lg:col-span-2">
             <SectionHeader title="Horaires d'activité" subtitle="Fréquence par heure" icon={Clock} color="emerald" />
             <div className="grid grid-cols-6 sm:grid-cols-12 gap-1 h-32">
                {Array.from({length: 24}).map((_, h) => {
@@ -429,13 +427,13 @@ export default function AnalyticsPage() {
                   const intensity = Math.min(data.count / 5, 1); // Scale simple
                   return (
                      <div key={h} className="flex flex-col gap-1 items-center group relative">
-                        <div 
+                        <div
                            className="w-full h-full rounded-md transition-all hover:border hover:border-emerald-400/50"
                            style={{ backgroundColor: `rgba(16, 185, 129, ${Math.max(intensity, 0.05)})` }}
                         ></div>
-                        <span className="text-[9px] text-slate-600 font-mono group-hover:text-slate-300">{h}h</span>
+                        <span className="text-[9px] text-neutral-400 font-mono group-hover:text-neutral-700">{h}h</span>
                         {data.count > 0 && (
-                           <div className="absolute bottom-full mb-2 bg-slate-900 text-xs text-white px-2 py-1 rounded border border-slate-700 hidden group-hover:block z-10 whitespace-nowrap">
+                           <div className="absolute bottom-full mb-2 bg-neutral-900 text-xs text-white px-2 py-1 rounded border border-neutral-700 hidden group-hover:block z-10 whitespace-nowrap">
                               {data.count} actions
                            </div>
                         )}
@@ -446,17 +444,17 @@ export default function AnalyticsPage() {
          </div>
 
          {/* Device Stats */}
-         <div className="bg-[#0f1623] border border-slate-800 rounded-xl p-6">
+         <div className="bg-white border border-neutral-200 rounded-xl p-6">
             <SectionHeader title="Appareils" subtitle="Usage mobile vs desktop" icon={Smartphone} color="blue" />
             <div className="space-y-4">
-               {deviceStats.length === 0 ? <p className="text-slate-500 text-xs">Aucune donnée</p> : 
+               {deviceStats.length === 0 ? <p className="text-neutral-500 text-xs">Aucune donnée</p> :
                   deviceStats.map((d, i) => (
                      <div key={i}>
                         <div className="flex justify-between text-xs mb-1">
-                           <span className="text-slate-300">{d.device}</span>
-                           <span className="text-slate-500 font-mono">{d.count}</span>
+                           <span className="text-neutral-700">{d.device}</span>
+                           <span className="text-neutral-500 font-mono">{d.count}</span>
                         </div>
-                        <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden">
                            <div className="h-full bg-blue-500" style={{ width: `${Math.min(d.count * 5, 100)}%` }}></div>
                         </div>
                      </div>
@@ -467,20 +465,20 @@ export default function AnalyticsPage() {
 
          {/* Abandon Rates */}
          {abandonStats && (
-            <div className="bg-[#0f1623] border border-slate-800 rounded-xl p-6">
+            <div className="bg-white border border-neutral-200 rounded-xl p-6">
                <SectionHeader title="Abandons" subtitle="Tunnel de création" icon={AlertTriangle} color="red" />
                <div className="flex items-center justify-between text-center gap-2">
-                  <div className="p-3 bg-slate-800/30 rounded-lg flex-1">
-                     <p className="text-xs text-slate-500 uppercase">Brouillons</p>
-                     <p className="text-xl font-bold text-white">{abandonStats.drafts}</p>
+                  <div className="p-3 bg-neutral-50 rounded-lg flex-1">
+                     <p className="text-xs text-neutral-500 uppercase">Brouillons</p>
+                     <p className="text-xl font-bold text-neutral-900">{abandonStats.drafts}</p>
                   </div>
-                  <div className="p-3 bg-slate-800/30 rounded-lg flex-1">
-                     <p className="text-xs text-slate-500 uppercase">Finis</p>
-                     <p className="text-xl font-bold text-emerald-400">{abandonStats.completed}</p>
+                  <div className="p-3 bg-neutral-50 rounded-lg flex-1">
+                     <p className="text-xs text-neutral-500 uppercase">Finis</p>
+                     <p className="text-xl font-bold text-emerald-600">{abandonStats.completed}</p>
                   </div>
-                  <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex-1">
-                     <p className="text-xs text-red-400 uppercase">Taux</p>
-                     <p className="text-xl font-bold text-red-400">{abandonStats.abandonRate}%</p>
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex-1">
+                     <p className="text-xs text-red-600 uppercase">Taux</p>
+                     <p className="text-xl font-bold text-red-600">{abandonStats.abandonRate}%</p>
                   </div>
                </div>
             </div>

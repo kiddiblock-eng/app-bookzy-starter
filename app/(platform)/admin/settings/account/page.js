@@ -177,7 +177,7 @@ export default function AccountSettingsPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="w-10 h-10 animate-spin text-purple-400" />
+        <Loader2 className="w-10 h-10 animate-spin text-emerald-400" />
       </div>
     );
   }
@@ -185,7 +185,7 @@ export default function AccountSettingsPage() {
   return (
     <div className="max-w-3xl space-y-10">
       <h1 className="text-3xl font-bold flex items-center gap-3">
-        <Shield className="text-purple-400" />
+        <Shield className="text-emerald-400" />
         E-mail & Mot de passe
       </h1>
 
@@ -209,7 +209,7 @@ export default function AccountSettingsPage() {
       {/* EMAIL */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4">
         <h2 className="text-lg font-semibold flex items-center gap-2">
-          <Mail className="text-purple-300" /> Email de connexion
+          <Mail className="text-emerald-300" /> Email de connexion
         </h2>
 
         <div>
@@ -226,7 +226,7 @@ export default function AccountSettingsPage() {
       {/* PASSWORD */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4">
         <h2 className="text-lg font-semibold flex items-center gap-2">
-          <Lock className="text-purple-300" /> Changer de mot de passe
+          <Lock className="text-emerald-300" /> Changer de mot de passe
         </h2>
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -263,7 +263,7 @@ export default function AccountSettingsPage() {
       {/* 2FA */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4">
         <h2 className="text-lg font-semibold flex items-center gap-2">
-          <ShieldCheck className="text-purple-300" />
+          <ShieldCheck className="text-emerald-300" />
           Authentification à double facteur (2FA)
         </h2>
 
@@ -276,7 +276,7 @@ export default function AccountSettingsPage() {
           <button
             onClick={() => setTwoFAEnabled((v) => !v)}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-              twoFAEnabled ? "bg-purple-500" : "bg-gray-600"
+              twoFAEnabled ? "bg-emerald-500" : "bg-gray-600"
             }`}
           >
             <span
@@ -323,7 +323,7 @@ export default function AccountSettingsPage() {
                 {!showQR && (
                   <button
                     onClick={generateQR}
-                    className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg"
+                    className="bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-lg"
                   >
                     Générer le QR Code
                   </button>
@@ -372,7 +372,7 @@ export default function AccountSettingsPage() {
       <button
         onClick={handleSave}
         disabled={saving}
-        className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl font-semibold"
+        className="bg-emerald-600 hover:bg-emerald-700 px-6 py-3 rounded-xl font-semibold"
       >
         {saving ? "Enregistrement..." : "Enregistrer les modifications"}
       </button>

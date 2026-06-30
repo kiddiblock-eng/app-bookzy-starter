@@ -280,36 +280,36 @@ export default function AISettingsPage() {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-4 py-6 md:px-8 md:py-10">
+    <div className="min-h-screen w-full bg-neutral-50 px-4 py-6 md:px-8 md:py-10">
       {/* Header */}
       <div className="max-w-5xl mx-auto mb-6 md:mb-10">
         <div className="flex items-center gap-3 mb-3">
-          <div className="h-9 w-9 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-amber-500 flex items-center justify-center shadow-lg shadow-purple-500/40">
+          <div className="h-9 w-9 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center">
             <span className="text-lg">⚙️</span>
           </div>
           <div>
-            <h1 className="text-xl md:text-2xl font-semibold text-white tracking-tight">
+            <h1 className="text-xl md:text-2xl font-bold text-neutral-900 tracking-tight">
               Paramètres IA
             </h1>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-neutral-600">
               Configure Claude, OpenAI, Gemini & Flux, et choisis quel moteur génère chaque partie de tes eBooks.
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3 justify-between">
-          <span className="px-3 py-1 rounded-full text-xs font-medium bg-slate-900/60 border border-slate-700/60 text-slate-300">
+          <span className="px-3 py-1 rounded-full text-xs font-medium bg-white border border-neutral-200 text-neutral-600">
             💡 Tous les changements impactent instantanément Bookzy AI
           </span>
 
           <button
             onClick={handleSave}
             disabled={saving || loading}
-            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-amber-400 px-5 py-2 text-xs md:text-sm font-semibold text-slate-950 shadow-lg shadow-indigo-500/30 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 rounded-xl bg-neutral-900 px-5 py-2 text-xs md:text-sm font-semibold text-white shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {saving ? (
               <>
-                <span className="h-3 w-3 rounded-full border-2 border-slate-900 border-t-transparent animate-spin" />
+                <span className="h-3 w-3 rounded-full border-2 border-white border-t-transparent animate-spin" />
                 Sauvegarde...
               </>
             ) : (
@@ -322,7 +322,7 @@ export default function AISettingsPage() {
         </div>
 
         {loading && (
-          <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 text-xs text-slate-300">
+          <div className="mt-4 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-xs text-neutral-600">
             Chargement de la configuration IA...
           </div>
         )}
@@ -330,12 +330,12 @@ export default function AISettingsPage() {
         {!loading && (message || error) && (
           <div className="mt-4">
             {message && (
-              <div className="mb-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-xs text-emerald-200">
+              <div className="mb-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-700">
                 {message}
               </div>
             )}
             {error && (
-              <div className="mb-2 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-xs text-red-200">
+              <div className="mb-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">
                 {error}
               </div>
             )}
@@ -343,34 +343,63 @@ export default function AISettingsPage() {
         )}
       </div>
 
+      {loading && (
+        <div className="max-w-5xl mx-auto space-y-8 md:space-y-10">
+          <div className="space-y-4">
+            <div className="h-5 w-48 rounded-lg bg-neutral-100 animate-pulse" />
+            <div className="h-3 w-80 rounded bg-neutral-100 animate-pulse" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="rounded-2xl border border-neutral-200 bg-white p-4 md:p-5 space-y-3">
+                  <div className="h-4 w-32 rounded bg-neutral-100 animate-pulse" />
+                  <div className="h-9 w-full rounded-xl bg-neutral-100 animate-pulse" />
+                  <div className="h-9 w-full rounded-xl bg-neutral-100 animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div className="h-5 w-56 rounded-lg bg-neutral-100 animate-pulse" />
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="rounded-xl border border-neutral-200 bg-white p-4 space-y-3">
+                <div className="h-4 w-40 rounded bg-neutral-100 animate-pulse" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="h-9 w-full rounded-xl bg-neutral-100 animate-pulse" />
+                  <div className="h-9 w-full rounded-xl bg-neutral-100 animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {!loading && (
         <div className="max-w-5xl mx-auto space-y-8 md:space-y-10">
           {/* PROVIDERS */}
           <section className="space-y-4">
-            <h2 className="text-sm md:text-base font-semibold text-slate-100 flex items-center gap-2">
-              <span className="h-6 w-6 rounded-full bg-slate-900/80 flex items-center justify-center border border-slate-700/70 text-xs">
+            <h2 className="text-sm md:text-base font-bold text-neutral-900 tracking-tight flex items-center gap-2">
+              <span className="h-6 w-6 rounded-full bg-neutral-100 flex items-center justify-center border border-neutral-200 text-xs text-neutral-600">
                 1
               </span>
               Moteurs IA disponibles
             </h2>
-            <p className="text-xs md:text-sm text-slate-400 max-w-2xl">
+            <p className="text-xs md:text-sm text-neutral-600 max-w-2xl">
               Active les providers que tu utilises, colle tes clés API, puis choisis les modèles par défaut.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
               {/* Claude */}
-              <div className="relative overflow-hidden rounded-2xl border border-indigo-500/40 bg-gradient-to-b from-slate-900/80 via-slate-950 to-slate-950 shadow-[0_18px_45px_rgba(88,28,135,0.35)]">
-                <div className="absolute inset-x-0 -top-16 h-28 bg-gradient-to-b from-indigo-500/40 via-purple-500/20 to-transparent blur-2xl pointer-events-none" />
+              <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
                 <div className="relative p-4 md:p-5 space-y-3">
                   <div className="flex items-center justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-lg">🤖</span>
-                        <h3 className="text-sm font-semibold text-slate-50">
+                        <h3 className="text-sm font-semibold text-neutral-900">
                           Claude (Anthropic)
                         </h3>
                       </div>
-                      <p className="text-[11px] md:text-xs text-slate-400 mt-1">
+                      <p className="text-[11px] md:text-xs text-neutral-500 mt-1">
                         Recommandé pour la génération d'eBooks longue durée.
                       </p>
                     </div>
@@ -385,12 +414,12 @@ export default function AISettingsPage() {
                       }
                       className={`relative inline-flex h-6 w-11 items-center rounded-full border transition ${
                         aiConfig.providers.claude.enabled
-                          ? "bg-emerald-500/80 border-emerald-300/60"
-                          : "bg-slate-800 border-slate-600"
+                          ? "bg-emerald-600 border-emerald-600"
+                          : "bg-neutral-200 border-neutral-300"
                       }`}
                     >
                       <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-slate-950 shadow transition ${
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition ${
                           aiConfig.providers.claude.enabled
                             ? "translate-x-5"
                             : "translate-x-1"
@@ -400,12 +429,12 @@ export default function AISettingsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       API Key Anthropic
                     </label>
                     <input
                       type="password"
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/70"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
                       placeholder="sk-ant-..."
                       value={aiConfig.providers.claude.apiKey || ""}
                       onChange={(e) =>
@@ -415,11 +444,11 @@ export default function AISettingsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       Modèle par défaut
                     </label>
                     <select
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/70"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
                       value={aiConfig.providers.claude.model || ""}
                       onChange={(e) =>
                         updateProviderField("claude", "model", e.target.value)
@@ -436,18 +465,17 @@ export default function AISettingsPage() {
               </div>
 
               {/* OpenAI */}
-              <div className="relative overflow-hidden rounded-2xl border border-sky-500/40 bg-gradient-to-b from-slate-900/80 via-slate-950 to-slate-950 shadow-[0_18px_45px_rgba(56,189,248,0.35)]">
-                <div className="absolute inset-x-0 -top-16 h-28 bg-gradient-to-b from-sky-500/40 via-cyan-500/20 to-transparent blur-2xl pointer-events-none" />
+              <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
                 <div className="relative p-4 md:p-5 space-y-3">
                   <div className="flex items-center justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-lg">💼</span>
-                        <h3 className="text-sm font-semibold text-slate-50">
+                        <h3 className="text-sm font-semibold text-neutral-900">
                           OpenAI
                         </h3>
                       </div>
-                      <p className="text-[11px] md:text-xs text-slate-400 mt-1">
+                      <p className="text-[11px] md:text-xs text-neutral-500 mt-1">
                         Utilisé pour les textes publicitaires & les visuels (DALL·E).
                       </p>
                     </div>
@@ -462,12 +490,12 @@ export default function AISettingsPage() {
                       }
                       className={`relative inline-flex h-6 w-11 items-center rounded-full border transition ${
                         aiConfig.providers.openai.enabled
-                          ? "bg-emerald-500/80 border-emerald-300/60"
-                          : "bg-slate-800 border-slate-600"
+                          ? "bg-emerald-600 border-emerald-600"
+                          : "bg-neutral-200 border-neutral-300"
                       }`}
                     >
                       <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-slate-950 shadow transition ${
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition ${
                           aiConfig.providers.openai.enabled
                             ? "translate-x-5"
                             : "translate-x-1"
@@ -477,12 +505,12 @@ export default function AISettingsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       API Key OpenAI
                     </label>
                     <input
                       type="password"
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/70"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
                       placeholder="sk-proj-..."
                       value={aiConfig.providers.openai.apiKey || ""}
                       onChange={(e) =>
@@ -492,11 +520,11 @@ export default function AISettingsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       Modèle texte par défaut
                     </label>
                     <select
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/70"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
                       value={aiConfig.providers.openai.textModel || ""}
                       onChange={(e) =>
                         updateProviderField(
@@ -515,11 +543,11 @@ export default function AISettingsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       Modèle image (DALL·E)
                     </label>
                     <select
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/70"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
                       value={aiConfig.providers.openai.imageModel || ""}
                       onChange={(e) =>
                         updateProviderField(
@@ -540,18 +568,17 @@ export default function AISettingsPage() {
               </div>
 
               {/* Gemini */}
-              <div className="relative overflow-hidden rounded-2xl border border-amber-500/40 bg-gradient-to-b from-slate-900/80 via-slate-950 to-slate-950 shadow-[0_18px_45px_rgba(245,158,11,0.35)]">
-                <div className="absolute inset-x-0 -top-16 h-28 bg-gradient-to-b from-amber-500/40 via-orange-500/20 to-transparent blur-2xl pointer-events-none" />
+              <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
                 <div className="relative p-4 md:p-5 space-y-3">
                   <div className="flex items-center justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-lg">🌐</span>
-                        <h3 className="text-sm font-semibold text-slate-50">
+                        <h3 className="text-sm font-semibold text-neutral-900">
                           Gemini (Google)
                         </h3>
                       </div>
-                      <p className="text-[11px] md:text-xs text-slate-400 mt-1">
+                      <p className="text-[11px] md:text-xs text-neutral-500 mt-1">
                         Gratuit ! Génère textes marketing + images.
                       </p>
                     </div>
@@ -566,12 +593,12 @@ export default function AISettingsPage() {
                       }
                       className={`relative inline-flex h-6 w-11 items-center rounded-full border transition ${
                         aiConfig.providers.gemini.enabled
-                          ? "bg-emerald-500/80 border-emerald-300/60"
-                          : "bg-slate-800 border-slate-600"
+                          ? "bg-emerald-600 border-emerald-600"
+                          : "bg-neutral-200 border-neutral-300"
                       }`}
                     >
                       <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-slate-950 shadow transition ${
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition ${
                           aiConfig.providers.gemini.enabled
                             ? "translate-x-5"
                             : "translate-x-1"
@@ -581,12 +608,12 @@ export default function AISettingsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       API Key Gemini
                     </label>
                     <input
                       type="password"
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/70"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
                       placeholder="AIzaSyA..."
                       value={aiConfig.providers.gemini.apiKey || ""}
                       onChange={(e) =>
@@ -596,11 +623,11 @@ export default function AISettingsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       Modèle texte par défaut
                     </label>
                     <select
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/70"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
                       value={aiConfig.providers.gemini.textModel || ""}
                       onChange={(e) =>
                         updateProviderField(
@@ -619,11 +646,11 @@ export default function AISettingsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       Modèle image par défaut
                     </label>
                     <select
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/70"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
                       value={aiConfig.providers.gemini.imageModel || ""}
                       onChange={(e) =>
                         updateProviderField(
@@ -644,18 +671,17 @@ export default function AISettingsPage() {
               </div>
 
               {/* ✅ NOUVEAU : Flux (Replicate) */}
-              <div className="relative overflow-hidden rounded-2xl border border-green-500/40 bg-gradient-to-b from-slate-900/80 via-slate-950 to-slate-950 shadow-[0_18px_45px_rgba(34,197,94,0.35)]">
-                <div className="absolute inset-x-0 -top-16 h-28 bg-gradient-to-b from-green-500/40 via-emerald-500/20 to-transparent blur-2xl pointer-events-none" />
+              <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
                 <div className="relative p-4 md:p-5 space-y-3">
                   <div className="flex items-center justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-lg">⚡</span>
-                        <h3 className="text-sm font-semibold text-slate-50">
+                        <h3 className="text-sm font-semibold text-neutral-900">
                           Flux (Replicate)
                         </h3>
                       </div>
-                      <p className="text-[11px] md:text-xs text-slate-400 mt-1">
+                      <p className="text-[11px] md:text-xs text-neutral-500 mt-1">
                         Recommandé ! Images ultra-rapides & 13x moins cher que DALL-E.
                       </p>
                     </div>
@@ -670,12 +696,12 @@ export default function AISettingsPage() {
                       }
                       className={`relative inline-flex h-6 w-11 items-center rounded-full border transition ${
                         aiConfig.providers.replicate?.enabled
-                          ? "bg-emerald-500/80 border-emerald-300/60"
-                          : "bg-slate-800 border-slate-600"
+                          ? "bg-emerald-600 border-emerald-600"
+                          : "bg-neutral-200 border-neutral-300"
                       }`}
                     >
                       <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-slate-950 shadow transition ${
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition ${
                           aiConfig.providers.replicate?.enabled
                             ? "translate-x-5"
                             : "translate-x-1"
@@ -685,12 +711,12 @@ export default function AISettingsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       API Key Replicate
                     </label>
                     <input
                       type="password"
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500/70"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
                       placeholder="r8_..."
                       value={aiConfig.providers.replicate?.apiKey || ""}
                       onChange={(e) =>
@@ -700,11 +726,11 @@ export default function AISettingsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       Modèle image
                     </label>
                     <select
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-green-500/70"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
                       value={aiConfig.providers.replicate?.imageModel || ""}
                       onChange={(e) =>
                         updateProviderField(
@@ -722,11 +748,11 @@ export default function AISettingsPage() {
                     </select>
                   </div>
 
-                  <div className="mt-2 p-2 bg-green-500/10 border border-green-500/20 rounded-lg">
-                    <p className="text-[10px] text-green-300">
+                  <div className="mt-2 p-2 bg-emerald-50 border border-emerald-200 rounded-lg">
+                    <p className="text-[10px] text-emerald-700">
                       💰 <strong>Prix :</strong> $0.003/image (schnell) vs $0.04 DALL-E 3
                     </p>
-                    <p className="text-[10px] text-green-300">
+                    <p className="text-[10px] text-emerald-700">
                       ⚡ <strong>Vitesse :</strong> Ultra rapide
                     </p>
                   </div>
@@ -737,29 +763,29 @@ export default function AISettingsPage() {
 
           {/* GENERATION MAPPING */}
           <section className="space-y-4">
-            <h2 className="text-sm md:text-base font-semibold text-slate-100 flex items-center gap-2">
-              <span className="h-6 w-6 rounded-full bg-slate-900/80 flex items-center justify-center border border-slate-700/70 text-xs">
+            <h2 className="text-sm md:text-base font-semibold text-neutral-900 flex items-center gap-2">
+              <span className="h-6 w-6 rounded-full bg-neutral-100 flex items-center justify-center border border-neutral-200 text-xs text-neutral-600">
                 2
               </span>
               Mappage des fonctionnalités
             </h2>
-            <p className="text-xs md:text-sm text-slate-400 max-w-2xl">
+            <p className="text-xs md:text-sm text-neutral-600 max-w-2xl">
               Associe chaque fonctionnalité au moteur IA de ton choix.
             </p>
 
             <div className="space-y-4">
               {/* Ebook Generation */}
-              <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-                <h3 className="text-sm font-semibold text-slate-50 mb-3">
+              <div className="rounded-xl border border-neutral-200 bg-white p-4">
+                <h3 className="text-sm font-semibold text-neutral-900 mb-3">
                   Génération d'Ebooks (Texte long)
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       Provider IA
                     </label>
                     <select
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/70 mt-1"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 mt-1"
                       value={aiConfig.generation.ebook.provider || ""}
                       onChange={(e) =>
                         updateGenerationField("ebook", "provider", e.target.value)
@@ -773,11 +799,11 @@ export default function AISettingsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       Modèle spécifique
                     </label>
                     <select
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/70 mt-1"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 mt-1"
                       value={aiConfig.generation.ebook.model || ""}
                       onChange={(e) =>
                         updateGenerationField("ebook", "model", e.target.value)
@@ -808,17 +834,17 @@ export default function AISettingsPage() {
               </div>
 
               {/* Cover Generation */}
-              <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-                <h3 className="text-sm font-semibold text-slate-50 mb-3">
+              <div className="rounded-xl border border-neutral-200 bg-white p-4">
+                <h3 className="text-sm font-semibold text-neutral-900 mb-3">
                   Génération de Couverture (Image)
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       Provider IA
                     </label>
                     <select
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/70 mt-1"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 mt-1"
                       value={aiConfig.generation.cover.provider || ""}
                       onChange={(e) =>
                         updateGenerationField("cover", "provider", e.target.value)
@@ -832,11 +858,11 @@ export default function AISettingsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       Modèle spécifique
                     </label>
                     <select
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/70 mt-1"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 mt-1"
                       value={aiConfig.generation.cover.model || ""}
                       onChange={(e) =>
                         updateGenerationField("cover", "model", e.target.value)
@@ -867,17 +893,17 @@ export default function AISettingsPage() {
               </div>
 
               {/* Ads */}
-              <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-                <h3 className="text-sm font-semibold text-slate-50 mb-3">
+              <div className="rounded-xl border border-neutral-200 bg-white p-4">
+                <h3 className="text-sm font-semibold text-neutral-900 mb-3">
                   Génération de Publicités (Ads)
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       Provider IA
                     </label>
                     <select
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/70 mt-1"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 mt-1"
                       value={aiConfig.generation.ads.provider || ""}
                       onChange={(e) =>
                         updateGenerationField("ads", "provider", e.target.value)
@@ -891,11 +917,11 @@ export default function AISettingsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       Modèle spécifique
                     </label>
                     <select
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/70 mt-1"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 mt-1"
                       value={aiConfig.generation.ads.model || ""}
                       onChange={(e) =>
                         updateGenerationField("ads", "model", e.target.value)
@@ -926,17 +952,17 @@ export default function AISettingsPage() {
               </div>
 
               {/* Niche Generate */}
-              <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-                <h3 className="text-sm font-semibold text-slate-50 mb-3">
+              <div className="rounded-xl border border-neutral-200 bg-white p-4">
+                <h3 className="text-sm font-semibold text-neutral-900 mb-3">
                   Niche Hunter : Idéation
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       Provider IA
                     </label>
                     <select
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/70 mt-1"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 mt-1"
                       value={aiConfig.generation.nicheGenerate.provider || ""}
                       onChange={(e) =>
                         updateGenerationField("nicheGenerate", "provider", e.target.value)
@@ -950,11 +976,11 @@ export default function AISettingsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       Modèle spécifique
                     </label>
                     <select
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/70 mt-1"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 mt-1"
                       value={aiConfig.generation.nicheGenerate.model || ""}
                       onChange={(e) =>
                         updateGenerationField("nicheGenerate", "model", e.target.value)
@@ -985,17 +1011,17 @@ export default function AISettingsPage() {
               </div>
 
               {/* Niche Analyze */}
-              <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-                <h3 className="text-sm font-semibold text-slate-50 mb-3">
+              <div className="rounded-xl border border-neutral-200 bg-white p-4">
+                <h3 className="text-sm font-semibold text-neutral-900 mb-3">
                   Niche Hunter : Analyse
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       Provider IA
                     </label>
                     <select
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/70 mt-1"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 mt-1"
                       value={aiConfig.generation.nicheAnalyze.provider || ""}
                       onChange={(e) =>
                         updateGenerationField("nicheAnalyze", "provider", e.target.value)
@@ -1009,11 +1035,11 @@ export default function AISettingsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-[11px] font-medium text-slate-300">
+                    <label className="text-[11px] font-medium text-neutral-600">
                       Modèle spécifique
                     </label>
                     <select
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/70 mt-1"
+                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 mt-1"
                       value={aiConfig.generation.nicheAnalyze.model || ""}
                       onChange={(e) =>
                         updateGenerationField("nicheAnalyze", "model", e.target.value)
