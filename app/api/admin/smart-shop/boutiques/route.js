@@ -52,7 +52,7 @@ export async function GET(req) {
 
     // Vérifier que c'est un admin
     const user = await User.findById(userData.id);
-    if (!user || user.role !== "admin") {
+    if (!user || (user.role !== "admin" && user.role !== "super_admin")) {
       return NextResponse.json(
         { success: false, error: "Accès non autorisé" },
         { status: 403 }
