@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import DashboardSidebar from "@/app/(platform)/components/DashboardSidebar";
 import DashboardHeader from "@/app/(platform)/components/DashboardHeader";
 import WhatsNewBanner from "@/app/(platform)/components/WhatsNewBanner";
-import V11SplashScreen from "@/app/(platform)/components/V11SplashScreen";
 import { MessageCircle, X, Send } from "lucide-react";
 
 function useActiveUserPing() {
@@ -60,8 +59,6 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex w-full overflow-x-hidden">
-      {!loading && user && <V11SplashScreen user={user} />}
-
       <DashboardSidebar
         open={open}
         setOpen={setOpen}
