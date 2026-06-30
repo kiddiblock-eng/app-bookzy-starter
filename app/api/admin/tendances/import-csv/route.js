@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import Trend from "@/models/Trend";
+import { verifyAdmin } from "@/lib/auth";
 
 export async function POST(req) {
   try {
-    const adminSecret = req.headers.get("x-admin-secret");
-    if (adminSecret !== process.env.NEXT_PUBLIC_ADMIN_SECRET) {
+    const admin = await verifyAdmin(req);
+    if (!admin?.authorized) {
       return NextResponse.json({ success: false, message: "Non autorisé" }, { status: 401 });
     }
 

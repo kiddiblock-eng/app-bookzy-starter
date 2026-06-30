@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import Trend from "@/models/Trend";
+import { verifyAdmin } from "@/lib/auth";
 
 // Map catégories Gumroad/Payhip → catégories Bookzy
 const CATEGORY_MAP = {
@@ -131,8 +132,8 @@ Tendances réalistes, variées, pertinentes pour l'Afrique francophone en ${new 
 
 export async function POST(req) {
   try {
-    const adminSecret = req.headers.get("x-admin-secret");
-    if (adminSecret !== process.env.NEXT_PUBLIC_ADMIN_SECRET) {
+    const admin = await verifyAdmin(req);
+    if (!admin?.authorized) {
       return NextResponse.json({ success: false, message: "Non autorisé" }, { status: 401 });
     }
 
