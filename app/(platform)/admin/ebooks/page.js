@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
   BookOpen,
   BarChart3,
@@ -24,32 +25,18 @@ import {
   Layers,
 } from "lucide-react";
 
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Tooltip,
-  Legend,
-  Filler,
-} from "chart.js";
-
-import { Line, Bar, Doughnut } from "react-chartjs-2";
-
-// ChartJS registration (inchangé)
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Tooltip,
-  Legend,
-  Filler
+// Graphes en lazy-load (ssr:false) pour accélérer le 1er affichage
+const Line = dynamic(
+  () => import("./_charts/EbooksCharts").then((m) => m.LineChart),
+  { ssr: false, loading: () => <div className="w-full h-[300px] bg-neutral-100 rounded-xl animate-pulse" /> }
+);
+const Bar = dynamic(
+  () => import("./_charts/EbooksCharts").then((m) => m.BarChart),
+  { ssr: false, loading: () => <div className="w-full h-[250px] bg-neutral-100 rounded-xl animate-pulse" /> }
+);
+const Doughnut = dynamic(
+  () => import("./_charts/EbooksCharts").then((m) => m.DoughnutChart),
+  { ssr: false, loading: () => <div className="w-full h-[250px] bg-neutral-100 rounded-xl animate-pulse" /> }
 );
 
 /* =========================================================

@@ -22,32 +22,20 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  BarElement,
-  LineElement,
-  ArcElement,
-  Tooltip,
-  Legend,
-  Filler,
-} from "chart.js";
+import dynamic from "next/dynamic";
 
-import { Line, Bar, Doughnut } from "react-chartjs-2";
-
-// Register chart.js modules
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Tooltip,
-  Legend,
-  Filler
+// Lazy charts (client-only) pour accélérer le 1er affichage
+const VolumeLineChart = dynamic(
+  () => import("./_charts/AiStatsCharts").then((m) => m.VolumeLineChart),
+  { ssr: false, loading: () => <div className="w-full h-[300px] bg-neutral-100 rounded-xl animate-pulse" /> }
+);
+const StatusDoughnutChart = dynamic(
+  () => import("./_charts/AiStatsCharts").then((m) => m.StatusDoughnutChart),
+  { ssr: false, loading: () => <div className="w-full h-[250px] bg-neutral-100 rounded-xl animate-pulse" /> }
+);
+const CountryBarChart = dynamic(
+  () => import("./_charts/AiStatsCharts").then((m) => m.CountryBarChart),
+  { ssr: false, loading: () => <div className="w-full h-[250px] bg-neutral-100 rounded-xl animate-pulse" /> }
 );
 
 /* =========================================================
@@ -326,7 +314,7 @@ export default function AdminAIStatsPage() {
            
            <div className="h-[300px] w-full">
               {chartData ? (
-                 <Line
+                 <VolumeLineChart
                     data={chartData}
                     options={{
                        responsive: true,
@@ -349,7 +337,7 @@ export default function AdminAIStatsPage() {
            <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wide mb-6">État du système</h3>
            <div className="h-[250px] flex items-center justify-center relative">
               {statusChart ? (
-                 <Doughnut
+                 <StatusDoughnutChart
                     data={statusChart}
                     options={{
                        responsive: true,
@@ -380,7 +368,7 @@ export default function AdminAIStatsPage() {
             </h3>
             <div className="h-[250px]">
                {countryChart ? (
-                  <Bar
+                  <CountryBarChart
                      data={countryChart}
                      options={{
                         responsive: true,

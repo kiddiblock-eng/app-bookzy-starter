@@ -28,23 +28,13 @@ import {
   MoreHorizontal
 } from "lucide-react";
 
-import {
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-  Legend
-} from "recharts";
+import dynamic from "next/dynamic";
+
+// Graphes recharts chargés à la demande (recharts hors du bundle initial)
+const Sparkline = dynamic(() => import("./_charts/DashboardCharts").then(m => m.Sparkline), { ssr: false, loading: () => null });
+const TimelineChart = dynamic(() => import("./_charts/DashboardCharts").then(m => m.TimelineChart), { ssr: false, loading: () => <div className="w-full h-full bg-neutral-100 rounded-xl animate-pulse" /> });
+const RevenueChart = dynamic(() => import("./_charts/DashboardCharts").then(m => m.RevenueChart), { ssr: false, loading: () => <div className="w-full h-[300px] bg-neutral-100 rounded-xl animate-pulse" /> });
+const RadarPerf = dynamic(() => import("./_charts/DashboardCharts").then(m => m.RadarPerf), { ssr: false, loading: () => <div className="w-full h-[300px] bg-neutral-100 rounded-xl animate-pulse" /> });
 
 const ADMIN_SECRET = process.env.NEXT_PUBLIC_ADMIN_SECRET || "";
 
@@ -93,11 +83,7 @@ function StatCard({ icon: Icon, title, value, subtitle, trend, trendValue, color
       {/* Sparkline subtile en fond */}
       {sparkline && sparkline.length > 0 && (
           <div className="absolute bottom-0 left-0 right-0 h-16 opacity-10 pointer-events-none text-emerald-600">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={sparkline}>
-                <Area type="monotone" dataKey="value" stroke="currentColor" fill="currentColor" strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
+            <Sparkline data={sparkline} />
           </div>
       )}
     </div>
@@ -487,22 +473,7 @@ export default function AdminDashboard() {
                 ))}
              </div>
            }>
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData}>
-                  <defs>
-                    <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#059669" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#059669" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" vertical={false} />
-                  <XAxis dataKey="date" stroke="#a3a3a3" tick={{fontSize: 11}} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#a3a3a3" tick={{fontSize: 11}} tickLine={false} axisLine={false} />
-                  <Tooltip contentStyle={{backgroundColor: '#ffffff', borderColor: '#e5e5e5', color: '#171717'}} itemStyle={{color: '#059669'}} />
-                  <Area type="monotone" dataKey="sales" stroke="#059669" strokeWidth={2} fillOpacity={1} fill="url(#colorSales)" />
-                  <Area type="monotone" dataKey="users" stroke="#10b981" strokeWidth={2} fillOpacity={0} />
-                </AreaChart>
-              </ResponsiveContainer>
+              <TimelineChart data={chartData} />
            </ChartCard>
         </div>
 
@@ -516,26 +487,11 @@ export default function AdminDashboard() {
       {/* 4. SECONDARY CHARTS ROW */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ChartCard title="Revenus Mensuels">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={revenueData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" vertical={false} />
-                <XAxis dataKey="month" stroke="#a3a3a3" tick={{fontSize: 11}} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{backgroundColor: '#ffffff', borderColor: '#e5e5e5', color: '#171717'}} cursor={{fill: '#f5f5f5'}} />
-                <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <RevenueChart data={revenueData} />
           </ChartCard>
           
           <ChartCard title="Radar Performance">
-            <ResponsiveContainer width="100%" height={300}>
-              <RadarChart cx="50%" cy="50%" outerRadius="80%" data={performanceData}>
-                <PolarGrid stroke="#e5e5e5" />
-                <PolarAngleAxis dataKey="metric" tick={{ fill: '#737373', fontSize: 11 }} />
-                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                <Radar name="Score" dataKey="value" stroke="#059669" strokeWidth={2} fill="#059669" fillOpacity={0.4} />
-                <Tooltip contentStyle={{backgroundColor: '#ffffff', borderColor: '#e5e5e5', color: '#171717'}} />
-              </RadarChart>
-            </ResponsiveContainer>
+            <RadarPerf data={performanceData} />
           </ChartCard>
       </div>
 

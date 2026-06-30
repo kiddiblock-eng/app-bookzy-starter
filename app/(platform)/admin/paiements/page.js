@@ -25,31 +25,19 @@ import {
   Wallet
 } from "lucide-react";
 
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  BarElement,
-  LineElement,
-  ArcElement,
-  Tooltip,
-  Legend,
-  Filler,
-} from "chart.js";
+import dynamic from "next/dynamic";
 
-import { Line, Bar, Doughnut } from "react-chartjs-2";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Tooltip,
-  Legend,
-  Filler
+const RevenueChart = dynamic(
+  () => import("./_charts/PaiementsCharts").then((m) => m.RevenueChart),
+  { ssr: false, loading: () => <div className="w-full h-[300px] bg-neutral-100 rounded-xl animate-pulse" /> }
+);
+const StatusChart = dynamic(
+  () => import("./_charts/PaiementsCharts").then((m) => m.StatusChart),
+  { ssr: false, loading: () => <div className="w-full h-[140px] bg-neutral-100 rounded-xl animate-pulse" /> }
+);
+const CountryChart = dynamic(
+  () => import("./_charts/PaiementsCharts").then((m) => m.CountryChart),
+  { ssr: false, loading: () => <div className="w-full h-[140px] bg-neutral-100 rounded-xl animate-pulse" /> }
 );
 
 // --- FONCTION UTILITAIRE (Gardée telle quelle) ---
@@ -330,7 +318,7 @@ export default function AdminPaiementsPage() {
                   </div>
                   <div className="h-[300px] w-full">
                      {revenueChart ? (
-                        <Line
+                        <RevenueChart
                            data={revenueChart}
                            options={{
                               responsive: true, maintainAspectRatio: false,
@@ -352,7 +340,7 @@ export default function AdminPaiementsPage() {
                      <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wide mb-2">Répartition Statuts</h3>
                      <div className="flex-1 relative">
                         {statusChart ? (
-                           <Doughnut
+                           <StatusChart
                               data={statusChart}
                               options={{
                                  responsive: true, maintainAspectRatio: false, cutout: '70%',
@@ -368,7 +356,7 @@ export default function AdminPaiementsPage() {
                      <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wide mb-2">Top Pays</h3>
                      <div className="flex-1 relative">
                         {countryChart ? (
-                           <Bar
+                           <CountryChart
                               data={countryChart}
                               options={{
                                  responsive: true, maintainAspectRatio: false, indexAxis: 'y',
