@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { dbConnect } from "@/lib/db";
 import Blog from "@/models/Blog";
 import { ALL_TOPICS } from "@/lib/seoTopics";
+import { getAllGuideSlugs } from "@/lib/guides";
 
 export default async function sitemap() {
   const baseUrl = 'https://www.bookzy.io';
@@ -101,6 +102,19 @@ export default async function sitemap() {
       lastModified: currentDate,
       changeFrequency: 'monthly',
       priority: 0.6,
+    })),
+    // --- GUIDES LONG-FORM ---
+    {
+      url: `${baseUrl}/guides`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    ...getAllGuideSlugs().map((slug) => ({
+      url: `${baseUrl}/guides/${slug}`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.7,
     })),
     // --- LES BLOGS DYNAMIQUES ---
     ...blogPosts,
