@@ -4,6 +4,7 @@ import Blog from "@/models/Blog";
 import { ALL_TOPICS } from "@/lib/seoTopics";
 import { getAllGuideSlugs } from "@/lib/guides";
 import { getAllNicheSlugs } from "@/lib/niches";
+import { COUNTRIES } from "@/lib/seoCountries";
 
 export default async function sitemap() {
   const baseUrl = 'https://www.bookzy.io';
@@ -104,6 +105,13 @@ export default async function sitemap() {
       changeFrequency: 'monthly',
       priority: 0.6,
     })),
+    // sujet × pays (localisé)
+    ...ALL_TOPICS.flatMap((t) => COUNTRIES.map((c) => ({
+      url: `${baseUrl}/creer-un-ebook/${t.slug}/${c.slug}`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    }))),
     // --- GUIDES LONG-FORM ---
     {
       url: `${baseUrl}/guides`,

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ALL_TOPICS, getTopicBySlug, getRelated } from "@/lib/seoTopics";
+import { COUNTRIES } from "@/lib/seoCountries";
 
 const ACCENT = "#059669";
 const TINT = "rgba(5,150,105,0.10)";
@@ -160,6 +161,22 @@ export default function TopicPage({ params }) {
           </div>
         </section>
       )}
+
+      {/* Par pays */}
+      <section className="py-12 border-t border-neutral-100">
+        <div className="max-w-3xl mx-auto px-5">
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-900 mb-2">Créer cet ebook dans ton pays</h2>
+          <p className="text-neutral-500 mb-5">Marché, canaux de vente et paiement adaptés à chez toi.</p>
+          <div className="flex flex-wrap gap-2.5">
+            {COUNTRIES.map((c) => (
+              <Link key={c.slug} href={`/creer-un-ebook/${t.slug}/${c.slug}`}
+                className="px-4 py-2 rounded-full border border-neutral-200 text-sm text-neutral-700 hover:border-neutral-900 hover:text-neutral-900 transition-colors">
+                {c.nom}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* CTA */}
       <section className="py-16">
