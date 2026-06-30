@@ -66,16 +66,16 @@ export default function Hero() {
           </button>
         </motion.form>
 
-        <motion.div variants={fadeUp} custom={4} initial="hidden" animate="show" className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5 text-[13px] font-medium text-neutral-700">
-          <span className="inline-flex items-center gap-2">
-            <span className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: "rgba(5,150,105,0.12)" }}>
-              <Clock size={13} style={{ color: ACCENT }} />
+        <motion.div variants={fadeUp} custom={4} initial="hidden" animate="show" className="mt-5 flex items-center justify-center gap-x-4 sm:gap-x-6 text-[11px] sm:text-[13px] font-medium text-neutral-700">
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+            <span className="w-5 h-5 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(5,150,105,0.12)" }}>
+              <Clock size={11} style={{ color: ACCENT }} />
             </span>
             Un ebook complet en 1 minute
           </span>
-          <span className="inline-flex items-center gap-2">
-            <span className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: "rgba(5,150,105,0.12)" }}>
-              <Award size={13} style={{ color: ACCENT }} />
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+            <span className="w-5 h-5 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(5,150,105,0.12)" }}>
+              <Award size={11} style={{ color: ACCENT }} />
             </span>
             Un rendu digne d'un pro
           </span>
