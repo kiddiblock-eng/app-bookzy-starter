@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db.js";
 import Projet from "@/models/Projet.js";
+import { getUserFromToken } from "@/lib/auth";
 
 
 
@@ -19,6 +20,11 @@ export async function GET(req) {
 
     await dbConnect();
 
+    const user = await getUserFromToken(req);
+    if (!user) {
+      return NextResponse.json({ success: false, message: "Non authentifié" }, { status: 401 });
+    }
+
     const projet = await Projet.findById(id).lean();
 
     if (!projet) {
@@ -26,6 +32,10 @@ export async function GET(req) {
         { success: false, message: "Projet introuvable" },
         { status: 404 }
       );
+    }
+
+    if (String(projet.userId) !== String(user._id)) {
+      return NextResponse.json({ success: false, message: "Accès refusé" }, { status: 403 });
     }
 
     return NextResponse.json({ success: true, projet });

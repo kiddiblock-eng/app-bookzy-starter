@@ -63,7 +63,9 @@ export async function GET(request) {
     if (filter === "profitable") query.isProfitable = true;
 
     if (search) {
-      const regex = new RegExp(search, 'i');
+      // 🛡️ Anti-ReDoS / injection regex : on échappe les métacaractères et on borne la longueur
+      const safe = String(search).slice(0, 80).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(safe, 'i');
       query.$or = [
         { title: { $regex: regex } },
         { description: { $regex: regex } },
