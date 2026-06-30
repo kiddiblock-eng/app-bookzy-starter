@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowRight, Star, Check } from "lucide-react";
+import { ArrowRight, Star, Clock, Award } from "lucide-react";
 
 const EASE = [0.22, 1, 0.36, 1];
 const ACCENT = "#059669";
@@ -66,9 +66,19 @@ export default function Hero() {
           </button>
         </motion.form>
 
-        <motion.div variants={fadeUp} custom={4} initial="hidden" animate="show" className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[13px] text-neutral-600">
-          <span className="inline-flex items-center gap-1.5"><Check size={14} style={{ color: ACCENT }} strokeWidth={3} /> Un ebook complet en 1 minute</span>
-          <span className="inline-flex items-center gap-1.5"><Check size={14} style={{ color: ACCENT }} strokeWidth={3} /> Un rendu digne d'un pro</span>
+        <motion.div variants={fadeUp} custom={4} initial="hidden" animate="show" className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5 text-[13px] font-medium text-neutral-700">
+          <span className="inline-flex items-center gap-2">
+            <span className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: "rgba(5,150,105,0.12)" }}>
+              <Clock size={13} style={{ color: ACCENT }} />
+            </span>
+            Un ebook complet en 1 minute
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <span className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: "rgba(5,150,105,0.12)" }}>
+              <Award size={13} style={{ color: ACCENT }} />
+            </span>
+            Un rendu digne d'un pro
+          </span>
         </motion.div>
 
         {/* Preuve sociale */}
