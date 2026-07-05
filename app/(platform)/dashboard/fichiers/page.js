@@ -5,7 +5,8 @@ import useSWR from "swr";
 import {
   FileText, Download, Clock, Plus, Search,
   LayoutGrid, List, CheckCircle2, AlertCircle,
-  Loader2, RefreshCw, BookOpen, MoreVertical, Package
+  Loader2, RefreshCw, BookOpen, MoreVertical, Package,
+  Trash2, Eye, Store
 } from "lucide-react";
 
 const fetcher = (url) => fetch(url, {
@@ -19,7 +20,7 @@ export default function EbooksPage() {
   const [filter, setFilter] = useState("all");
   const [viewMode, setViewMode] = useState("grid");
 
-  const { data, isLoading } = useSWR("/api/ebooks/user", fetcher, {
+  const { data, isLoading, mutate } = useSWR("/api/ebooks/user", fetcher, {
     revalidateOnFocus: true,
     dedupingInterval: 0,
   });
@@ -124,7 +125,7 @@ export default function EbooksPage() {
         {filtered.length > 0 ? (
           <div className={`grid gap-3 ${viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1"}`}>
             {filtered.map((e) => (
-              <EbookCard key={e.id} ebook={e} viewMode={viewMode} />
+              <EbookCard key={e.id} ebook={e} viewMode={viewMode} onDeleted={mutate} />
             ))}
           </div>
         ) : (
@@ -162,8 +163,65 @@ function FilterPill({ label, count, active, onClick, dot }) {
   );
 }
 
+/* ── Menu 3-points : actions ebook ── */
+function KebabMenu({ ebook, onDeleted }) {
+  const [open, setOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (deleting) return;
+    if (!window.confirm(`Supprimer « ${ebook.titre} » ? Cette action est définitive.`)) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/projets/${ebook.id}`, { method: "DELETE", credentials: "include" });
+      const data = await res.json();
+      if (data.success) { setOpen(false); onDeleted?.(); }
+      else { alert(data.message || "Erreur lors de la suppression."); setDeleting(false); }
+    } catch { alert("Erreur réseau."); setDeleting(false); }
+  };
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="p-2 text-slate-300 hover:text-slate-500 border border-slate-200 rounded-lg transition-colors"
+        aria-label="Actions"
+      >
+        <MoreVertical className="w-3.5 h-3.5" />
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 mt-1 w-52 bg-white border border-slate-200 rounded-xl shadow-lg z-20 overflow-hidden py-1">
+            <a href={`/dashboard/fichiers/${ebook.id}`} className="flex items-center gap-2 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
+              <Eye className="w-4 h-4 text-slate-400" /> Voir
+            </a>
+            <a
+              href="https://taliopay.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
+            >
+              <Store className="w-4 h-4 text-slate-400" /> Vendre sur Taliopay
+            </a>
+            <div className="my-1 border-t border-slate-100" />
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="flex items-center gap-2 w-full px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+            >
+              <Trash2 className="w-4 h-4" /> {deleting ? "Suppression…" : "Supprimer"}
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 /* ── Card ebook ── */
-function EbookCard({ ebook, viewMode }) {
+function EbookCard({ ebook, viewMode, onDeleted }) {
   const [isRetrying, setIsRetrying] = useState(false);
   const [retryError, setRetryError] = useState(null);
   const [showProgress, setShowProgress] = useState(false);
@@ -224,7 +282,7 @@ function EbookCard({ ebook, viewMode }) {
               Relancer
             </button>
           )}
-          <button className="p-1.5 text-slate-300 hover:text-slate-500"><MoreVertical className="w-4 h-4" /></button>
+          <KebabMenu ebook={ebook} onDeleted={onDeleted} />
         </div>
       </div>
     );
@@ -288,9 +346,7 @@ function EbookCard({ ebook, viewMode }) {
                 <AlertCircle className="w-3.5 h-3.5" /> Erreur
               </div>
             )}
-            <button className="p-2 text-slate-300 hover:text-slate-500 border border-slate-200 rounded-lg transition-colors">
-              <MoreVertical className="w-3.5 h-3.5" />
-            </button>
+            <KebabMenu ebook={ebook} onDeleted={onDeleted} />
           </div>
         </div>
       </div>

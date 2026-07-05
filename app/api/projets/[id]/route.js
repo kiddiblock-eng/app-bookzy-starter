@@ -64,3 +64,36 @@ export async function GET(req, { params }) {
     );
   }
 }
+
+export async function DELETE(req, { params }) {
+  try {
+    await dbConnect();
+
+    const token = cookies().get("bookzy_token")?.value;
+    if (!token) {
+      return new Response(JSON.stringify({ success: false, message: "Non authentifié" }), { status: 401 });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id?.toString();
+    const { id } = params;
+
+    // 🔒 On ne supprime QUE son propre projet (propriété)
+    const result = await Projet.deleteOne({
+      _id: new mongoose.Types.ObjectId(id),
+      userId: new mongoose.Types.ObjectId(userId),
+    });
+
+    if (result.deletedCount === 0) {
+      return new Response(JSON.stringify({ success: false, message: "Projet introuvable ou accès refusé" }), { status: 404 });
+    }
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("❌ Erreur DELETE /api/projets/[id] :", error);
+    return new Response(JSON.stringify({ success: false, message: "Erreur serveur" }), { status: 500 });
+  }
+}
