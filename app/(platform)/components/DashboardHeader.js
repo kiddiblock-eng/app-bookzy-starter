@@ -37,6 +37,9 @@ export default function DashboardHeader({ onMenuClick }) {
     user?.displayName ||
     (user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() : "Invité");
 
+  const tier = user?.toolsTier; // "createur" | "pro" | null
+  const planLabel = tier === "pro" ? "Pro" : tier === "createur" ? "Créateur" : "Gratuit";
+
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
@@ -62,7 +65,7 @@ export default function DashboardHeader({ onMenuClick }) {
         >
           <Menu className="w-5 h-5" />
         </button>
-        <PlanSwitcher plan={user?.plan} />
+        <PlanSwitcher tier={user?.toolsTier} />
       </div>
 
       {/* Right — crédits + profil */}
@@ -101,6 +104,9 @@ export default function DashboardHeader({ onMenuClick }) {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-neutral-900 truncate">{displayName}</p>
                       <p className="text-xs text-neutral-500 truncate">{user?.email || ""}</p>
+                      <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${tier ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-500"}`}>
+                        {tier ? `Plan ${planLabel}` : "Gratuit"}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -140,11 +146,9 @@ function MenuItem({ onClick, icon: Icon, label }) {
   );
 }
 
-const PLAN_LABELS = { free: "Free", unit: "À l'unité", createur: "Créateur", pro: "Pro" };
-
-function PlanSwitcher({ plan }) {
+function PlanSwitcher({ tier }) {
   const [open, setOpen] = useState(false);
-  const current = PLAN_LABELS[plan] || "Free";
+  const current = tier === "pro" ? "Pro" : tier === "createur" ? "Créateur" : "Gratuit";
 
   return (
     <div className="relative">

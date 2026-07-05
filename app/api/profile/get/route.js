@@ -57,7 +57,9 @@ export async function GET() {
             photo: user.avatar || user.photo || "", 
             emailVerified: user.emailVerified,
             role: user.role,
-            
+            plan: user.plan || "free",
+            toolsTier: user.toolsTier || null,
+
             // 🔥 C'EST ICI LA CORRECTION 🔥
             // On lit 'user.name' (base de données) et on l'envoie comme 'displayName'
             displayName: user.name || user.displayName || "", 
