@@ -60,6 +60,7 @@ export default function DashboardHeader({ onMenuClick }) {
       <div className="flex items-center gap-1">
         <button
           onClick={onMenuClick}
+          data-tour="menu"
           className="lg:hidden w-10 h-10 -ml-1 rounded-lg flex items-center justify-center text-neutral-700 hover:bg-neutral-100 transition-colors"
           aria-label="Menu"
         >
