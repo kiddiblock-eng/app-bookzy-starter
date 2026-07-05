@@ -1,21 +1,45 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
 import { OFFERS } from "@/lib/plans";
 
 /**
  * Modal de conversion affiché quand le quota gratuit d'un outil est épuisé.
- * Montre directement les 2 offres (Créateur / Pro) pour convertir vite.
+ * Paiement DIRECT depuis le modal (Moneroo) — pas de redirection vers /tarifs.
  */
 export default function UpgradeModal({ open, onClose, title, subtitle }) {
+  const [loading, setLoading] = useState(null);
+
   if (!open) return null;
 
   const offers = [OFFERS.createur, OFFERS.pro].filter(Boolean);
 
+  const handleBuy = async (offerId) => {
+    setLoading(offerId);
+    try {
+      const res = await fetch("/api/credits/purchase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ packId: offerId, returnUrl: window.location.href }),
+      });
+      const data = await res.json();
+      if (data?.paymentUrl) {
+        window.location.href = data.paymentUrl; // → checkout Moneroo
+      } else {
+        setLoading(null);
+        alert(data?.message || "Impossible d'initialiser le paiement. Réessaie.");
+      }
+    } catch {
+      setLoading(null);
+      alert("Erreur de connexion. Réessaie.");
+    }
+  };
+
   return (
     <div
       className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-      onClick={onClose}
+      onClick={() => loading || onClose()}
     >
       <div
         className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl"
@@ -27,7 +51,7 @@ export default function UpgradeModal({ open, onClose, title, subtitle }) {
             {title || "Tu as utilisé tes essais gratuits du jour"}
           </h3>
           <p className="text-sm text-neutral-500 mt-1">
-            {subtitle || "Passe à une offre pour un accès étendu aux outils + plus d'ebooks."}
+            {subtitle || "Choisis une offre pour débloquer les outils + créer plus d'ebooks."}
           </p>
         </div>
 
@@ -53,23 +77,27 @@ export default function UpgradeModal({ open, onClose, title, subtitle }) {
                 {o.ebooks} ebooks + tous les outils
               </div>
               <p className="text-xs text-neutral-500 mt-2 flex-1">{o.tagline}</p>
-              <Link
-                href={`/dashboard/tarifs?offer=${o.id}`}
-                onClick={onClose}
-                className={`mt-3 text-center px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${
+              <button
+                onClick={() => handleBuy(o.id)}
+                disabled={loading !== null}
+                className={`mt-3 text-center px-3 py-2 rounded-xl text-sm font-semibold transition-colors disabled:opacity-60 ${
                   o.recommended
                     ? "bg-emerald-600 text-white hover:bg-emerald-700"
                     : "bg-neutral-900 text-white hover:bg-neutral-800"
                 }`}
               >
-                Choisir {o.label}
-              </Link>
+                {loading === o.id ? "Redirection…" : `Payer ${o.priceFcfa.toLocaleString()} FCFA`}
+              </button>
             </div>
           ))}
         </div>
 
         <div className="px-4 pb-4 text-center">
-          <button onClick={onClose} className="text-xs text-neutral-400 hover:text-neutral-600">
+          <button
+            onClick={onClose}
+            disabled={loading !== null}
+            className="text-xs text-neutral-400 hover:text-neutral-600 disabled:opacity-50"
+          >
             Plus tard
           </button>
         </div>
