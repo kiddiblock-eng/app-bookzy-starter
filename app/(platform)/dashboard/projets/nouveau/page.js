@@ -725,7 +725,6 @@ function PreviewPage({ kit, previewData, onEdit }) {
 }
 
 function NouveauProjetPageContent() {
-  const router = useRouter();
   const params = useSearchParams();
   const { balance } = useCredits();
   const bookRef = useRef(null);
@@ -744,7 +743,6 @@ function NouveauProjetPageContent() {
   const [kitData, setKitData] = useState(null);
   const [improvingTitle, setImprovingTitle] = useState(false);
   const [improvingDescription, setImprovingDescription] = useState(false);
-  const [showLimitModal, setShowLimitModal] = useState(false);
   const [step, setStep] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userName, setUserName] = useState("");
@@ -843,9 +841,6 @@ function NouveauProjetPageContent() {
       if (data.success) {
         setKitData({ projetId: data.projetId, titre, description: finalDescription, tone, audience, pages, chapters, template, langue });
         setPreviewData(data.preview);
-      } else if (data.limitReached) {
-        setIsLoading(false);
-        setShowLimitModal(true);
       } else {
         alert(data.message || "Erreur");
         setIsLoading(false);
@@ -903,31 +898,6 @@ function NouveauProjetPageContent() {
         </div>
       )}
 
-      {/* Modal limite aperçus */}
-      {showLimitModal && (
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:9999,padding:"16px"}}>
-          <div style={{background:"white",borderRadius:"20px",width:"100%",maxWidth:"360px",overflow:"hidden"}}>
-            <div style={{background:"linear-gradient(135deg,#0f172a,#1e293b)",padding:"28px 24px 24px",textAlign:"center"}}>
-              <div style={{fontSize:"40px",marginBottom:"12px"}}>🔒</div>
-              <h3 style={{fontSize:"18px",fontWeight:"900",color:"white",margin:"0 0 8px"}}>3 aperçus utilisés</h3>
-              <p style={{fontSize:"13px",color:"rgba(255,255,255,0.6)",margin:0}}>Tu as déjà généré 3 aperçus sans créer d'ebook.</p>
-            </div>
-            <div style={{padding:"24px"}}>
-              <p style={{fontSize:"14px",color:"#374151",margin:"0 0 20px",lineHeight:1.6,textAlign:"center"}}>
-                Pour continuer à créer des aperçus et générer des ebooks, passe à un abonnement Bookzy.
-              </p>
-              <button onClick={() => { setShowLimitModal(false); router.push("/dashboard/tarifs"); }}
-                style={{width:"100%",padding:"14px",background:"#0f172a",color:"white",fontSize:"14px",fontWeight:"700",border:"none",borderRadius:"12px",cursor:"pointer",marginBottom:"10px"}}>
-                Voir les plans →
-              </button>
-              <button onClick={() => setShowLimitModal(false)}
-                style={{width:"100%",padding:"10px",color:"#94a3b8",fontSize:"12px",border:"none",background:"none",cursor:"pointer"}}>
-                Annuler
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       {step === 0 ? (
         /* ── FOCUS (accueil Claude) — centré verticalement, rien d'autre ── */
         <div className="flex-1 flex flex-col items-center justify-center px-5 pb-32">
