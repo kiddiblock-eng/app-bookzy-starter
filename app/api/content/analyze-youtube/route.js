@@ -5,7 +5,7 @@ import { dbConnect } from "../../../../lib/db";
 import User, { DAILY_LIMITS } from "../../../../models/User";
 import { jwtVerify } from "jose";
 import { toolsUnlocked } from "@/lib/plans";
-import { toolsLockedResponse } from "@/lib/toolGate";
+import { consumeToolUsage } from "@/lib/toolQuota";
 
 function extractVideoId(url) {
   const patterns = [
@@ -50,12 +50,10 @@ export async function POST(req) {
 
     const userDoc = await User.findById(userId);
     if (!userDoc) return NextResponse.json({ success: false, message: "Utilisateur introuvable." }, { status: 404 });
-    if (!toolsUnlocked(userDoc)) return toolsLockedResponse();
-
-    // Youbook est réservé Créateur/Pro (gaté ci-dessus) → l'analyse est GRATUITE.
-    // (la création de l'ebook coûtera 1 ebook via le flux normal de génération)
-    const usedQuota = true; // jamais facturé → les remboursements `if (!usedQuota)` ne s'appliquent pas
-    try { await userDoc.incrementDaily("youtubeAnalysis"); } catch {}
+    // Youbook : Free 2/jour, Créateur/Pro illimité — aucun crédit débité
+    const gate = await consumeToolUsage(userDoc, "youtubeAnalysis");
+    if (gate.error) return gate.error;
+    const usedQuota = true; // jamais facturé → les remboursements `if (!usedQuota)` restent inertes
 
     const { url } = await req.json();
     if (!url) return NextResponse.json({ success: false, message: "URL manquante" }, { status: 400 });

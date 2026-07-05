@@ -5,6 +5,7 @@ import ProductAnalysis from "@/models/ProductAnalysis";
 import User from "@/models/User";
 import { verifyAuth } from "@/lib/auth";
 import { getAIText } from "@/lib/ai";
+import { consumeToolUsage } from "@/lib/toolQuota";
 
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
 const CREDITS_PAR_ANALYSE = 4;
@@ -355,67 +356,9 @@ export async function POST(req) {
 
     const isPremium = ["solo", "createur", "agence"].includes(userDoc.plan);
 
-    // ── Quota ─────────────────────────────────────────────────────────────────
-    const today = new Date().toISOString().split("T")[0];
-    if (userDoc.dailyUsage?.date !== today) {
-      userDoc.dailyUsage = { date: today, youtubeAnalysis: 0, nicheHunter: 0, nicheAnalysis: 0, productAnalysis: 0 };
-    }
-    const usedToday = userDoc.dailyUsage?.productAnalysis || 0;
-    const existingCount = await ProductAnalysis.countDocuments({ userId: user.id });
-    console.log(`📊 [QUOTA] plan: ${userDoc.plan} | isPremium: ${isPremium} | usedToday: ${usedToday} | total: ${existingCount}`);
-
-    if (!isPremium) {
-      if (existingCount === 0) {
-        // 1ère analyse → débiter 4 crédits
-        const balance = userDoc.credits?.balance ?? 0;
-        if (balance < CREDITS_PAR_ANALYSE) {
-          return NextResponse.json({
-            success: false,
-            limitReached: true,
-            insufficientCredits: true,
-            balance,
-            required: CREDITS_PAR_ANALYSE,
-            message: "Crédits insuffisants pour votre première analyse.",
-          }, { status: 402 });
-        }
-        userDoc.credits.balance -= CREDITS_PAR_ANALYSE;
-        userDoc.credits.totalSpent = (userDoc.credits.totalSpent || 0) + CREDITS_PAR_ANALYSE;
-        await userDoc.save();
-        console.log(`💳 [QUOTA] 4 crédits débités — 1ère analyse — solde: ${userDoc.credits.balance}`);
-      } else {
-        // 2ème analyse+ sans abonnement → débiter 8 crédits
-        const CREDITS_SANS_ABONNEMENT = 8;
-        const balance = userDoc.credits?.balance ?? 0;
-        if (balance < CREDITS_SANS_ABONNEMENT) {
-          return NextResponse.json({
-            success: false,
-            limitReached: true,
-            insufficientCredits: true,
-            balance,
-            required: CREDITS_SANS_ABONNEMENT,
-            message: `Il vous faut ${CREDITS_SANS_ABONNEMENT} crédits pour analyser sans abonnement. Rechargez ou passez à Solo.`,
-          }, { status: 402 });
-        }
-        userDoc.credits.balance -= CREDITS_SANS_ABONNEMENT;
-        userDoc.credits.totalSpent = (userDoc.credits.totalSpent || 0) + CREDITS_SANS_ABONNEMENT;
-        await userDoc.save();
-        console.log(`💳 [QUOTA] 8 crédits débités — analyse sans abonnement — solde: ${userDoc.credits.balance}`);
-      }
-    } else if (usedToday < ANALYSES_GRATUITES_PAR_JOUR) {
-      // Premium : analyses incluses dans l'abonnement
-      userDoc.dailyUsage.productAnalysis = (userDoc.dailyUsage.productAnalysis || 0) + 1;
-      await userDoc.save();
-    } else {
-      // Premium : quota journalier dépassé → débiter crédits
-      const balance = userDoc.credits?.balance ?? 0;
-      if (balance < CREDITS_PAR_ANALYSE) {
-        return NextResponse.json({ success: false, insufficientCredits: true, balance, required: CREDITS_PAR_ANALYSE }, { status: 402 });
-      }
-      userDoc.credits.balance -= CREDITS_PAR_ANALYSE;
-      userDoc.credits.totalSpent = (userDoc.credits.totalSpent || 0) + CREDITS_PAR_ANALYSE;
-      userDoc.dailyUsage.productAnalysis = (userDoc.dailyUsage.productAnalysis || 0) + 1;
-      await userDoc.save();
-    }
+    // Quota Validateur par OFFRE (Free 2/j, Créateur/Pro 10/j) — aucun crédit débité
+    const gate = await consumeToolUsage(userDoc, "productAnalysis");
+    if (gate.error) return gate.error;
 
     // ── Fetch données réelles (skip si déjà fourni par /scan) ────────────────
     let fbData = null, trendsData = null;

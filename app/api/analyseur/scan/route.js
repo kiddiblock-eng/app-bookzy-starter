@@ -4,6 +4,8 @@ import { dbConnect } from "@/lib/db";
 import User from "@/models/User";
 import { verifyAuth } from "@/lib/auth";
 import { getAIText } from "@/lib/ai";
+import { hasToolUsage } from "@/lib/toolQuota";
+import { toolsUnlocked } from "@/lib/plans";
 
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
 
@@ -136,23 +138,16 @@ export async function POST(req) {
     const { sujet, checkOnly } = await req.json();
     if (!sujet?.trim()) return NextResponse.json({ success: false }, { status: 400 });
 
-    const userDoc = await (await import("@/models/User")).default.findById(user.id).select("plan credits");
-    const isPremium = ["solo", "createur", "agence"].includes(userDoc?.plan);
+    const userDoc = await User.findById(user.id);
 
-    // Free : vérifier le quota AVANT les appels API
-    if (!isPremium) {
-      const existingCount = await (await import("@/models/ProductAnalysis")).default.countDocuments({ userId: user.id });
-      const balance = userDoc?.credits?.balance ?? 0;
-
-      if (existingCount === 0) {
-        // 1ère analyse → vérifier 4 crédits
-        if (balance < 4) {
-          return NextResponse.json({ success: false, limitReached: true }, { status: 402 });
-        }
-      } else {
-        // 2ème analyse+ → abonnement requis
-        return NextResponse.json({ success: false, limitReached: true }, { status: 402 });
-      }
+    // Pré-check quota SANS consommer (la conso se fait à l'analyse). Aucun crédit.
+    if (userDoc && !hasToolUsage(userDoc, "productAnalysis")) {
+      return NextResponse.json({
+        success: false,
+        limitReached: true,
+        needsOffer: !toolsUnlocked(userDoc),
+        redirectTo: "/dashboard/tarifs",
+      }, { status: 403 });
     }
 
     // Si checkOnly → juste vérifier le quota

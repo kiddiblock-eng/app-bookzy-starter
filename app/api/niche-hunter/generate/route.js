@@ -5,6 +5,7 @@ import NicheAnalysis from "@/models/NicheAnalysis.js";
 import User, { DAILY_LIMITS } from "@/models/User.js";
 import { verifyAuth } from "@/lib/auth.js";
 import { getAIText } from "@/lib/ai.js";
+import { consumeToolUsage } from "@/lib/toolQuota";
 
 // ─── RETRY HELPER ─────────────────────────────────────────────────────────────
 async function getAITextWithRetry(model, prompt, maxTokens, maxRetries = 3) {
@@ -163,29 +164,10 @@ export async function POST(req) {
       return NextResponse.json({ success: false, message: "Utilisateur introuvable." }, { status: 404 });
     }
 
-    // ✅ Quota journalier
-    const canUseQuota = userDoc.canDoDaily("nicheHunter");
-    let usedQuota = false;
-
-    if (canUseQuota) {
-      await userDoc.incrementDaily("nicheHunter");
-      usedQuota = true;
-    } else {
-      const balance = userDoc.credits?.balance ?? 0;
-      if (balance < 2) {
-        return NextResponse.json({
-          success: false,
-          quotaExceeded: true,
-          insufficientCredits: true,
-          plan: userDoc.plan,
-          balance,
-          message: "Quota journalier épuisé et crédits insuffisants.",
-        }, { status: 402 });
-      }
-      userDoc.credits.balance -= 2;
-      userDoc.credits.totalSpent = (userDoc.credits.totalSpent || 0) + 2;
-      await userDoc.save();
-    }
+    // Quota outils par OFFRE (Free 2/j, Créateur/Pro 10/j) — aucun crédit débité
+    const gate = await consumeToolUsage(userDoc, "nicheHunter");
+    if (gate.error) return gate.error;
+    const usedQuota = true;
 
     const startTime = Date.now();
 

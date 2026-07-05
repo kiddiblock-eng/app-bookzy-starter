@@ -5,6 +5,7 @@ import NicheAnalysis from "@/models/NicheAnalysis";
 import User, { DAILY_LIMITS } from "@/models/User";
 import { verifyAuth } from "@/lib/auth";
 import { getAIText } from "@/lib/ai";
+import { consumeToolUsage } from "@/lib/toolQuota";
 
 function cleanMarkdown(text) {
   if (typeof text !== "string") return text;
@@ -81,24 +82,10 @@ export async function POST(req) {
     const userDoc = await User.findById(user.id);
     if (!userDoc) return NextResponse.json({ success: false, message: "Utilisateur introuvable." }, { status: 404 });
 
-    const canUseQuota = userDoc.canDoDaily("nicheAnalysis");
-    let usedQuota = false;
-
-    if (canUseQuota) {
-      await userDoc.incrementDaily("nicheAnalysis");
-      usedQuota = true;
-    } else {
-      const balance = userDoc.credits?.balance ?? 0;
-      if (balance < 2) {
-        return NextResponse.json({
-          success: false, quotaExceeded: true, insufficientCredits: true,
-          plan: userDoc.plan, balance, message: "Quota journalier épuisé et crédits insuffisants."
-        }, { status: 402 });
-      }
-      userDoc.credits.balance -= 2;
-      userDoc.credits.totalSpent = (userDoc.credits.totalSpent || 0) + 2;
-      await userDoc.save();
-    }
+    // Quota outils par OFFRE (Free 2/j, Créateur/Pro 10/j) — aucun crédit débité
+    const gate = await consumeToolUsage(userDoc, "nicheAnalysis");
+    if (gate.error) return gate.error;
+    const usedQuota = true;
 
     const ctx = getAnalysisContext(analysis.targetMarket || "africa");
 
