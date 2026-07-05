@@ -25,12 +25,12 @@ export async function POST(req) {
   try {
     await dbConnect();
 
-    // ✅ AJOUT : Vérifier et déduire 10 crédits (mise en page)
+    // Vérifier et déduire 20 crédits (mise en page = 1 ebook)
     const { user: userWithCredits, error: creditError } = await checkCredits(req, "mise_en_page");
     if (creditError) return creditError;
     if (!toolsUnlocked(userWithCredits)) return toolsLockedResponse();
     await userWithCredits.spendCredits("mise_en_page");
-    console.log(`💳 [Express Generate] 10 crédits déduits — solde restant: ${userWithCredits.credits.balance}`);
+    console.log(`💳 [Express Generate] 20 crédits déduits — solde restant: ${userWithCredits.credits.balance}`);
     
     const { projetId, transactionId } = await req.json();
     
