@@ -56,13 +56,6 @@ export default function DashboardLayout({ children }) {
   useActiveUserPing();
   const { user, loading } = useCurrentUser();
 
-  // Le product tour peut ouvrir/fermer le tiroir de la sidebar (sur mobile)
-  useEffect(() => {
-    const handler = (e) => setOpen(!!e.detail?.open);
-    window.addEventListener("bookzy:sidebar", handler);
-    return () => window.removeEventListener("bookzy:sidebar", handler);
-  }, []);
-
   const sidebarWidth = collapsed ? "lg:ml-[60px]" : "lg:ml-[260px]";
   const headerLeft = collapsed ? "lg:left-[60px]" : "lg:left-[260px]";
 

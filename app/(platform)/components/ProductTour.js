@@ -3,67 +3,27 @@
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 
-// Chaque étape a une LISTE de cibles candidates : on prend la 1ʳᵉ visible.
-// Sur mobile, la sidebar est un tiroir fermé (hors écran) → on retombe sur le
-// burger, et les étapes purement sidebar (outils, mes ebooks) sont sautées.
-const STEPS = [
-  {
-    sels: ['[data-tour="generate"]', '[data-tour="menu"]'],
-    sidebar: true,
-    title: "Crée ton ebook",
-    text: "C'est ici que tu génères tes ebooks (texte + design + PDF) à partir d'un simple titre.",
-  },
-  {
-    sels: ['[data-tour="tools"]'],
-    sidebar: true,
-    title: "Trouve une idée qui vend",
-    text: "Niche Hunter et le Validateur t'aident à repérer et valider des idées rentables avant de créer.",
-  },
-  {
-    sels: ['[data-tour="myebooks"]'],
-    sidebar: true,
-    title: "Mes Ebooks",
-    text: "Retrouve tes ebooks : télécharge le PDF, ou vends-les sur Taliopay via le menu (⋮).",
-  },
-  {
-    sels: ['[data-tour="ebooks"]'],
-    sidebar: false,
-    title: "Tes ebooks",
-    text: "Le nombre d'ebooks qu'il te reste. 1 création = 1 ebook. Ils n'expirent jamais.",
-  },
-  {
-    sels: ['[data-tour="plan"]'],
-    sidebar: false,
-    title: "Ton offre",
-    text: "Passe à Créateur ou Pro pour débloquer tous les outils et créer plus d'ebooks.",
-  },
-];
-
-function isMobile() {
-  return typeof window !== "undefined" && window.innerWidth < 1024;
-}
-
 const TIP_W = 288;
 
-function findVisible(sels) {
-  if (typeof document === "undefined") return null;
-  for (const s of sels) {
-    const el = document.querySelector(s);
-    if (!el) continue;
-    const r = el.getBoundingClientRect();
-    const cs = window.getComputedStyle(el);
-    const visible =
-      r.width > 0 && r.height > 0 &&
-      r.bottom > 0 && r.right > 0 &&
-      r.top < window.innerHeight && r.left < window.innerWidth &&
-      cs.visibility !== "hidden" && cs.display !== "none";
-    if (visible) return el;
-  }
-  return null;
-}
+// Parcours DESKTOP (sidebar visible)
+const DESKTOP = [
+  { sel: '[data-tour="generate"]', title: "Crée ton ebook", text: "C'est ici que tu génères tes ebooks (texte + design + PDF) à partir d'un simple titre." },
+  { sel: '[data-tour="tools"]', title: "Trouve une idée qui vend", text: "Niche Hunter et le Validateur t'aident à repérer et valider des idées rentables avant de créer." },
+  { sel: '[data-tour="myebooks"]', title: "Mes Ebooks", text: "Retrouve tes ebooks : télécharge le PDF, ou vends-les sur Taliopay via le menu (⋮)." },
+  { sel: '[data-tour="ebooks"]', title: "Tes ebooks", text: "Le nombre d'ebooks qu'il te reste. 1 création = 1 ebook. Ils n'expirent jamais." },
+  { sel: '[data-tour="plan"]', title: "Ton offre", text: "Passe à Créateur ou Pro pour débloquer tous les outils et créer plus d'ebooks." },
+];
+
+// Parcours MOBILE (la sidebar est un tiroir fermé) → on pointe des éléments toujours visibles
+const MOBILE = [
+  { sel: '[data-tour="menu"]', title: "Ton menu", text: "Ouvre ce menu pour créer un ebook et accéder à tous les outils (Niche Hunter, Validateur, Youbook, Designer…)." },
+  { sel: '[data-tour="ebooks"]', title: "Tes ebooks", text: "Le nombre d'ebooks qu'il te reste. 1 création = 1 ebook. Ils n'expirent jamais." },
+  { sel: '[data-tour="plan"]', title: "Ton offre", text: "Passe à Créateur ou Pro pour débloquer tous les outils et créer plus d'ebooks." },
+];
 
 export default function ProductTour() {
   const [active, setActive] = useState(false);
+  const [steps, setSteps] = useState([]);
   const [i, setI] = useState(0);
   const [rect, setRect] = useState(null);
 
@@ -74,6 +34,7 @@ export default function ProductTour() {
       .then((d) => {
         const user = d?.user || d;
         if (!cancelled && user && user.tourDone === false) {
+          setSteps(window.innerWidth < 1024 ? MOBILE : DESKTOP);
           setTimeout(() => setActive(true), 900);
         }
       })
@@ -83,92 +44,85 @@ export default function ProductTour() {
 
   const finish = useCallback(() => {
     setActive(false);
-    if (isMobile()) {
-      window.dispatchEvent(new CustomEvent("bookzy:sidebar", { detail: { open: false } }));
-    }
     fetch("/api/profile/tour-done", { method: "POST", credentials: "include" }).catch(() => {});
   }, []);
 
   const updateRect = useCallback(() => {
-    const step = STEPS[i];
-    const el = step ? findVisible(step.sels) : null;
+    const step = steps[i];
+    const el = step ? document.querySelector(step.sel) : null;
     if (el) {
       const r = el.getBoundingClientRect();
-      setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
-    } else {
-      // cible masquée (ex. sidebar fermée sur mobile) → on saute l'étape
-      setRect(null);
-      if (i < STEPS.length - 1) setI((v) => v + 1);
-      else finish();
+      if (r.width > 0 && r.height > 0 && r.bottom > 0 && r.right > 0) {
+        el.scrollIntoView({ block: "center", behavior: "smooth" });
+        setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
+        return;
+      }
     }
-  }, [i, finish]);
+    setRect(null); // introuvable → bulle centrée, sans spotlight (pas de saut d'étape)
+  }, [steps, i]);
 
   useEffect(() => {
     if (!active) return;
-    const step = STEPS[i];
-    let t;
-    if (isMobile()) {
-      // Ouvre le tiroir pour les étapes sidebar, le ferme pour les étapes header,
-      // puis mesure APRÈS l'animation du tiroir.
-      window.dispatchEvent(new CustomEvent("bookzy:sidebar", { detail: { open: !!step?.sidebar } }));
-      t = setTimeout(updateRect, 400);
-    } else {
-      updateRect();
-    }
+    updateRect();
     const on = () => updateRect();
     window.addEventListener("resize", on);
     window.addEventListener("scroll", on, true);
     return () => {
-      if (t) clearTimeout(t);
       window.removeEventListener("resize", on);
       window.removeEventListener("scroll", on, true);
     };
   }, [active, i, updateRect]);
 
-  if (!active || typeof document === "undefined" || !rect) return null;
+  if (!active || typeof document === "undefined" || steps.length === 0) return null;
 
-  const step = STEPS[i];
+  const step = steps[i];
   const pad = 8;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
-  // Placement : à droite si élément sidebar (à gauche) et si la place existe ; sinon dessous ; sinon dessus.
   let top, left;
-  const canRight = rect.left < 300 && rect.top > 90 && rect.left + rect.width + TIP_W + 24 < vw;
-  if (canRight) {
-    left = rect.left + rect.width + 14;
-    top = Math.min(Math.max(12, rect.top), vh - 190);
+  let centered = false;
+  if (rect) {
+    const canRight = rect.left < 300 && rect.left + rect.width + TIP_W + 24 < vw;
+    if (canRight) {
+      left = rect.left + rect.width + 14;
+      top = Math.min(Math.max(12, rect.top), vh - 190);
+    } else {
+      left = Math.min(Math.max(12, rect.left), vw - TIP_W - 12);
+      top = rect.top + rect.height + 14;
+      if (top + 175 > vh) top = Math.max(12, rect.top - 175);
+    }
   } else {
-    left = Math.min(Math.max(12, rect.left), vw - TIP_W - 12);
-    top = rect.top + rect.height + 14;
-    if (top + 175 > vh) top = Math.max(12, rect.top - 175); // pas de place dessous → au-dessus
+    centered = true;
   }
+
+  const tipStyle = centered
+    ? { top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: TIP_W, maxWidth: "calc(100vw - 24px)" }
+    : { top, left, width: TIP_W, maxWidth: "calc(100vw - 24px)" };
 
   return createPortal(
     <div className="fixed inset-0 z-[10001]">
-      {/* Bloque l'interaction avec la page pendant le tour */}
       <div className="absolute inset-0" />
 
-      {/* Spotlight */}
-      <div
-        className="absolute rounded-xl transition-all duration-300 ease-out"
-        style={{
-          top: rect.top - pad,
-          left: rect.left - pad,
-          width: rect.width + pad * 2,
-          height: rect.height + pad * 2,
-          boxShadow: "0 0 0 9999px rgba(15,23,42,0.72)",
-          pointerEvents: "none",
-        }}
-      />
+      {rect ? (
+        <div
+          className="absolute rounded-xl transition-all duration-300 ease-out"
+          style={{
+            top: rect.top - pad,
+            left: rect.left - pad,
+            width: rect.width + pad * 2,
+            height: rect.height + pad * 2,
+            boxShadow: "0 0 0 9999px rgba(15,23,42,0.72)",
+            pointerEvents: "none",
+          }}
+        />
+      ) : (
+        <div className="absolute inset-0 bg-[rgba(15,23,42,0.72)]" />
+      )}
 
-      {/* Bulle */}
-      <div
-        className="absolute bg-white rounded-2xl shadow-2xl p-4 z-[10002]"
-        style={{ top, left, width: TIP_W, maxWidth: "calc(100vw - 24px)" }}
-      >
+      <div className="absolute bg-white rounded-2xl shadow-2xl p-4 z-[10002]" style={tipStyle}>
         <div className="text-[11px] font-bold text-emerald-600 mb-1">
-          Étape {i + 1}/{STEPS.length}
+          Étape {i + 1}/{steps.length}
         </div>
         <h4 className="text-sm font-bold text-neutral-900">{step.title}</h4>
         <p className="text-sm text-neutral-500 mt-1 leading-snug">{step.text}</p>
@@ -186,7 +140,7 @@ export default function ProductTour() {
                 Précédent
               </button>
             )}
-            {i < STEPS.length - 1 ? (
+            {i < steps.length - 1 ? (
               <button
                 onClick={() => setI((v) => v + 1)}
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-neutral-900 hover:bg-neutral-800 transition-colors"
