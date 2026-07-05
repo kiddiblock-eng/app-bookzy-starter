@@ -164,28 +164,54 @@ function PlanSwitcher({ tier }) {
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
           <div className="absolute left-0 mt-2 w-72 bg-white border border-neutral-200 rounded-2xl shadow-xl p-2 z-50">
-            <div className="flex items-start gap-3 p-2">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-neutral-900">Passe à l'abonnement</p>
-                <p className="text-xs text-neutral-500">Crée plus d'ebooks et débloque tous les outils</p>
-              </div>
-              <Link
-                href="/dashboard/tarifs"
-                onClick={() => setOpen(false)}
-                className="shrink-0 px-3 py-1.5 rounded-full bg-neutral-900 text-white text-xs font-semibold hover:bg-neutral-800 transition-colors"
-              >
-                Mettre à niveau
-              </Link>
-            </div>
-            <div className="flex items-start gap-3 p-2 rounded-xl bg-neutral-50 mt-1">
-              <BookOpen className="w-5 h-5 text-neutral-700 mt-0.5 shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-neutral-900">
-                  Plan {current} <span className="text-xs font-normal text-neutral-400">· actuel</span>
-                </p>
-                <p className="text-xs text-neutral-500">Ton offre en cours</p>
-              </div>
-            </div>
+            {tier ? (
+              <>
+                <div className="flex items-start gap-3 p-2 rounded-xl bg-emerald-50">
+                  <BookOpen className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-emerald-700">Plan {current} · actif</p>
+                    <p className="text-xs text-neutral-500">Tous les outils débloqués tant qu'il te reste des ebooks.</p>
+                  </div>
+                </div>
+                {tier === "createur" && (
+                  <Link href="/dashboard/tarifs" onClick={() => setOpen(false)}
+                    className="mt-1 flex items-center justify-between p-2 rounded-xl hover:bg-neutral-50 transition-colors">
+                    <span className="text-sm text-neutral-700">Passer à Pro (15 ebooks)</span>
+                    <span className="text-sm font-semibold text-neutral-900">→</span>
+                  </Link>
+                )}
+                <Link href="/dashboard/tarifs" onClick={() => setOpen(false)}
+                  className="mt-1 flex items-center justify-between p-2 rounded-xl hover:bg-neutral-50 transition-colors">
+                  <span className="text-sm text-neutral-700">Ajouter des ebooks</span>
+                  <span className="text-sm font-semibold text-neutral-900">→</span>
+                </Link>
+              </>
+            ) : (
+              <>
+                <div className="flex items-start gap-3 p-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-neutral-900">Passe à l'abonnement</p>
+                    <p className="text-xs text-neutral-500">Crée plus d'ebooks et débloque tous les outils</p>
+                  </div>
+                  <Link
+                    href="/dashboard/tarifs"
+                    onClick={() => setOpen(false)}
+                    className="shrink-0 px-3 py-1.5 rounded-full bg-neutral-900 text-white text-xs font-semibold hover:bg-neutral-800 transition-colors"
+                  >
+                    Mettre à niveau
+                  </Link>
+                </div>
+                <div className="flex items-start gap-3 p-2 rounded-xl bg-neutral-50 mt-1">
+                  <BookOpen className="w-5 h-5 text-neutral-700 mt-0.5 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-neutral-900">
+                      Plan {current} <span className="text-xs font-normal text-neutral-400">· actuel</span>
+                    </p>
+                    <p className="text-xs text-neutral-500">Ton offre en cours</p>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </>
       )}
