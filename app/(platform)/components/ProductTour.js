@@ -9,30 +9,39 @@ import { createPortal } from "react-dom";
 const STEPS = [
   {
     sels: ['[data-tour="generate"]', '[data-tour="menu"]'],
+    sidebar: true,
     title: "Crée ton ebook",
-    text: "C'est ici que tu génères tes ebooks (texte + design + PDF) et que tu accèdes à tous les outils.",
+    text: "C'est ici que tu génères tes ebooks (texte + design + PDF) à partir d'un simple titre.",
   },
   {
     sels: ['[data-tour="tools"]'],
+    sidebar: true,
     title: "Trouve une idée qui vend",
     text: "Niche Hunter et le Validateur t'aident à repérer et valider des idées rentables avant de créer.",
   },
   {
     sels: ['[data-tour="myebooks"]'],
+    sidebar: true,
     title: "Mes Ebooks",
     text: "Retrouve tes ebooks : télécharge le PDF, ou vends-les sur Taliopay via le menu (⋮).",
   },
   {
     sels: ['[data-tour="ebooks"]'],
+    sidebar: false,
     title: "Tes ebooks",
     text: "Le nombre d'ebooks qu'il te reste. 1 création = 1 ebook. Ils n'expirent jamais.",
   },
   {
     sels: ['[data-tour="plan"]'],
+    sidebar: false,
     title: "Ton offre",
     text: "Passe à Créateur ou Pro pour débloquer tous les outils et créer plus d'ebooks.",
   },
 ];
+
+function isMobile() {
+  return typeof window !== "undefined" && window.innerWidth < 1024;
+}
 
 const TIP_W = 288;
 
@@ -74,6 +83,9 @@ export default function ProductTour() {
 
   const finish = useCallback(() => {
     setActive(false);
+    if (isMobile()) {
+      window.dispatchEvent(new CustomEvent("bookzy:sidebar", { detail: { open: false } }));
+    }
     fetch("/api/profile/tour-done", { method: "POST", credentials: "include" }).catch(() => {});
   }, []);
 
@@ -93,11 +105,21 @@ export default function ProductTour() {
 
   useEffect(() => {
     if (!active) return;
-    updateRect();
+    const step = STEPS[i];
+    let t;
+    if (isMobile()) {
+      // Ouvre le tiroir pour les étapes sidebar, le ferme pour les étapes header,
+      // puis mesure APRÈS l'animation du tiroir.
+      window.dispatchEvent(new CustomEvent("bookzy:sidebar", { detail: { open: !!step?.sidebar } }));
+      t = setTimeout(updateRect, 400);
+    } else {
+      updateRect();
+    }
     const on = () => updateRect();
     window.addEventListener("resize", on);
     window.addEventListener("scroll", on, true);
     return () => {
+      if (t) clearTimeout(t);
       window.removeEventListener("resize", on);
       window.removeEventListener("scroll", on, true);
     };
