@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { OFFERS, OFFER_ORDER, discountPercent } from "@/lib/plans";
+import { OFFERS, OFFER_ORDER, discountPercent, ebooksFromCredits } from "@/lib/plans";
 import {
   CheckCircle2, Loader2, FileText, MessageCircle, PenTool,
   Download, Smartphone, ArrowRight, ArrowLeft, Check, BookOpen,
@@ -581,7 +581,7 @@ function PreviewPage({ kit, previewData, onEdit }) {
         </button>
         <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
           <span style={{background:"#dcfce7",color:"#166534",padding:"5px 12px",borderRadius:"20px",fontSize:"11px",fontWeight:"700"}}>Aperçu gratuit</span>
-          {balance !== null && <span style={{background:"#f1f5f9",color:"#64748b",padding:"5px 12px",borderRadius:"20px",fontSize:"11px"}}>{balance} cr.</span>}
+          {balance !== null && <span style={{background:"#f1f5f9",color:"#64748b",padding:"5px 12px",borderRadius:"20px",fontSize:"11px"}}>{ebooksFromCredits(balance)} ebook{ebooksFromCredits(balance) > 1 ? "s" : ""}</span>}
         </div>
       </div>
 
