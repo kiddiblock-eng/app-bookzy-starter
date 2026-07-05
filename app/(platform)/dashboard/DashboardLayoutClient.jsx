@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import DashboardHeader from "@/components/DashboardHeader";
 import FloatingCreateButton from "@/components/FloatingCreateButton";
-import UpgradeModalHost from "@/components/UpgradeModalHost";
 
 export default function DashboardLayoutClient({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -72,9 +71,6 @@ export default function DashboardLayoutClient({ children }) {
 
         {/* ➕ Bouton flottant (fixe et stable sur mobile) */}
         <FloatingCreateButton />
-
-        {/* 🚀 Modal d'upgrade global (déclenché par window event "bookzy:upgrade") */}
-        <UpgradeModalHost />
       </div>
     </div>
   );

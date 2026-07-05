@@ -5,6 +5,7 @@ import DashboardSidebar from "@/app/(platform)/components/DashboardSidebar";
 import DashboardHeader from "@/app/(platform)/components/DashboardHeader";
 import WhatsNewBanner from "@/app/(platform)/components/WhatsNewBanner";
 import { MessageCircle, X, Send } from "lucide-react";
+import UpgradeModalHost from "@/app/(platform)/components/UpgradeModalHost";
 
 function useActiveUserPing() {
   useEffect(() => {
@@ -84,6 +85,7 @@ export default function DashboardLayout({ children }) {
       </div>
 
       <FloatingSupport open={chatOpen} setOpen={setChatOpen} />
+      <UpgradeModalHost />
     </div>
   );
 }
