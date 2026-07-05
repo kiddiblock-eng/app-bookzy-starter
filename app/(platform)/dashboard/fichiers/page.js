@@ -167,6 +167,7 @@ function FilterPill({ label, count, active, onClick, dot }) {
 /* ── Menu 3-points : actions ebook ── */
 function KebabMenu({ ebook, onDeleted }) {
   const [open, setOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
   const btnRef = useRef(null);
@@ -179,14 +180,13 @@ function KebabMenu({ ebook, onDeleted }) {
     setOpen((v) => !v);
   };
 
-  const handleDelete = async () => {
+  const doDelete = async () => {
     if (deleting) return;
-    if (!window.confirm(`Supprimer « ${ebook.titre} » ? Cette action est définitive.`)) return;
     setDeleting(true);
     try {
       const res = await fetch(`/api/projets/${ebook.id}`, { method: "DELETE", credentials: "include" });
       const data = await res.json();
-      if (data.success) { setOpen(false); onDeleted?.(); }
+      if (data.success) { setConfirmOpen(false); setDeleting(false); onDeleted?.(); }
       else { alert(data.message || "Erreur lors de la suppression."); setDeleting(false); }
     } catch { alert("Erreur réseau."); setDeleting(false); }
   };
@@ -222,14 +222,49 @@ function KebabMenu({ ebook, onDeleted }) {
             </a>
             <div className="my-1 border-t border-slate-100" />
             <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="flex items-center gap-2 w-full px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+              onClick={() => { setOpen(false); setConfirmOpen(true); }}
+              className="flex items-center gap-2 w-full px-3 py-2.5 text-sm text-red-600 hover:bg-red-50"
             >
-              <Trash2 className="w-4 h-4" /> {deleting ? "Suppression…" : "Supprimer"}
+              <Trash2 className="w-4 h-4" /> Supprimer
             </button>
           </div>
         </>,
+        document.body
+      )}
+
+      {confirmOpen && typeof document !== "undefined" && createPortal(
+        <div
+          className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => !deleting && setConfirmOpen(false)}
+        >
+          <div className="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6 text-center">
+              <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-3">
+                <Trash2 className="w-5 h-5 text-red-600" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900">Supprimer cet ebook ?</h3>
+              <p className="text-sm text-slate-500 mt-1">
+                « {ebook.titre} » sera définitivement supprimé. Cette action est irréversible.
+              </p>
+            </div>
+            <div className="p-4 pt-0 flex gap-2">
+              <button
+                onClick={() => setConfirmOpen(false)}
+                disabled={deleting}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors disabled:opacity-50"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={doDelete}
+                disabled={deleting}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-60"
+              >
+                {deleting ? "Suppression…" : "Supprimer"}
+              </button>
+            </div>
+          </div>
+        </div>,
         document.body
       )}
     </>
