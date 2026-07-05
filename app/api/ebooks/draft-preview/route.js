@@ -65,8 +65,32 @@ export async function POST(req) {
     const langueFinale = langue || "français";
     const isEn = langueFinale === "anglais";
 
-    // Aperçus = teaser gratuit (l'ancienne limite "3 aperçus → abonnement" est retirée,
-    // elle datait du modèle par abonnement). Le paiement se fait à la création de l'ebook.
+    // Anti-abus : aperçus gratuits ILLIMITÉS pour qui a de quoi créer au moins 1 ebook
+    // (solde >= 20 crédits). Sinon (compte quasi vide) → 3 aperçus gratuits max (teaser),
+    // puis il faut des crédits. Plus de notion d'"abonnement".
+    if (!projetId) {
+      const User = (await import("@/models/User")).default;
+      const userDoc = await User.findById(userId).select("credits");
+      const balance = userDoc?.credits?.balance || 0;
+
+      if (balance < 20) {
+        const previewCount = await Projet.countDocuments({
+          userId,
+          status: "PREVIEW_READY",
+          isPaid: false,
+        });
+        if (previewCount >= 3) {
+          return NextResponse.json(
+            {
+              success: false,
+              limitReached: true,
+              message: "Tu as utilisé tes 3 aperçus gratuits. Choisis une offre pour continuer à créer.",
+            },
+            { status: 429 }
+          );
+        }
+      }
+    }
 
     let projet;
     if (projetId) {
