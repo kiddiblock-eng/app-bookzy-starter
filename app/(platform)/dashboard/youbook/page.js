@@ -54,6 +54,10 @@ export default function YoubookPage() {
         mutateBalance();
         sessionStorage.setItem("youbookResult", JSON.stringify(data.analysis));
         setTimeout(() => router.push("/dashboard/youbook/result"), 500);
+      } else if (data.needsOffer) {
+        window.dispatchEvent(new CustomEvent("bookzy:upgrade", { detail: { title: data.message } }));
+        setIsAnalyzing(false);
+        setProgress(0);
       } else {
         if (data.quotaExceeded) {
           setErrorType("quota");

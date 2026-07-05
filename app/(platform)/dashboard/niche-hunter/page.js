@@ -106,6 +106,10 @@ export default function NicheHunterPage() {
       });
       const data = await res.json();
       stopLoadingAnimation();
+      if (data.needsOffer) {
+        window.dispatchEvent(new CustomEvent("bookzy:upgrade", { detail: { title: data.message } }));
+        setStep(1); return;
+      }
       if (data.quotaExceeded) { setQuotaExceeded(true); setQuotaPlan(data.plan); setStep(4); return; }
       if (res.status === 402 || data.insufficientCredits) { setError("Crédits insuffisants. Rechargez votre solde."); setStep(4); return; }
       if (!res.ok || !data.success) throw new Error(data.message || "Erreur");

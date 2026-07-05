@@ -37,8 +37,8 @@ export default function AnalyseurPage() {
         body: JSON.stringify({ sujet: sujet.trim(), checkOnly: true }),
       });
       const checkData = await checkRes.json();
-      if (!checkData.success && checkData.limitReached) {
-        setLimitReached(true);
+      if (!checkData.success && (checkData.limitReached || checkData.needsOffer)) {
+        window.dispatchEvent(new CustomEvent("bookzy:upgrade"));
         return;
       }
     } catch {}
@@ -66,7 +66,7 @@ export default function AnalyseurPage() {
 
       if (!scanData.success) {
         setPhase("idle");
-        if (scanData.limitReached) setLimitReached(true);
+        if (scanData.limitReached || scanData.needsOffer) window.dispatchEvent(new CustomEvent("bookzy:upgrade"));
         else setError("Erreur lors du scan. Réessaie.");
         return;
       }
@@ -104,8 +104,7 @@ export default function AnalyseurPage() {
 
       if (!analyseData.success) {
         setPhase("idle");
-        if (analyseData.limitReached) setLimitReached(true);
-        else if (analyseData.insufficientCredits) setLimitReached(true); // Pas assez de crédits → même UI offres
+        if (analyseData.limitReached || analyseData.needsOffer) window.dispatchEvent(new CustomEvent("bookzy:upgrade", { detail: { title: analyseData.message } }));
         else setError(analyseData.message || "Erreur.");
         return;
       }
