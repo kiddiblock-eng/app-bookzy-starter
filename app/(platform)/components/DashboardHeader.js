@@ -72,6 +72,7 @@ export default function DashboardHeader({ onMenuClick }) {
       <div className="flex items-center gap-2">
         <Link
           href="/dashboard/tarifs"
+          data-tour="ebooks"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors"
           title="Mes ebooks"
         >
@@ -154,6 +155,7 @@ function PlanSwitcher({ tier }) {
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
+        data-tour="plan"
         className="flex items-center gap-1.5 pl-1.5 pr-2 py-1.5 rounded-lg hover:bg-neutral-100 transition-colors"
       >
         <img src="/logo12.webp" alt="Bookzy" className="h-6 w-auto object-contain" />

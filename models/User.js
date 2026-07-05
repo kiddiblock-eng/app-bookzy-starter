@@ -75,6 +75,9 @@ const userSchema = new mongoose.Schema(
     // Reverrouillé automatiquement quand le solde d'ebooks tombe à 0.
     toolsTier: { type: String, default: null },
 
+    // Product tour (onboarding guidé) déjà vu ?
+    tourDone: { type: Boolean, default: false },
+
     // Limites journalières
     dailyUsage: {
       date:            { type: String, default: "" },

@@ -178,7 +178,7 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto px-2 pb-2">
           {/* Action principale */}
-          <Link href={PRIMARY.href} onClick={close} className={`${itemCls(primaryOn)} mb-1`}>
+          <Link href={PRIMARY.href} onClick={close} data-tour="generate" className={`${itemCls(primaryOn)} mb-1`}>
             <PenLine className={iconCls(primaryOn)} />
             <span className="flex-1">{PRIMARY.label}</span>
           </Link>
@@ -204,7 +204,7 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
                     const on = isActive(href);
                     return (
                       <div key={label}>
-                        <button onClick={() => setAcc(!accOpen)} className={`${itemCls(on)} w-full`}>
+                        <button onClick={() => setAcc(!accOpen)} data-tour={isNiche ? "tools" : undefined} className={`${itemCls(on)} w-full`}>
                           <Icon className={iconCls(on)} />
                           <span className="flex-1 text-left">{label}</span>
                           <ChevronDown className={`w-3.5 h-3.5 text-neutral-400 transition-transform ${accOpen ? "rotate-180" : ""}`} />
@@ -228,7 +228,7 @@ export default function DashboardSidebar({ open, setOpen, collapsed, setCollapse
                   }
                   const on = isActive(href, exact);
                   return (
-                    <Link key={href} href={href} onClick={close} className={itemCls(on)}>
+                    <Link key={href} href={href} onClick={close} data-tour={href === "/dashboard/fichiers" ? "myebooks" : undefined} className={itemCls(on)}>
                       <Icon className={iconCls(on)} />
                       <span className="flex-1">{label}</span>
                     </Link>

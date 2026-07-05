@@ -59,6 +59,7 @@ export async function GET() {
             role: user.role,
             plan: user.plan || "free",
             toolsTier: user.toolsTier || null,
+            tourDone: user.tourDone || false,
 
             // 🔥 C'EST ICI LA CORRECTION 🔥
             // On lit 'user.name' (base de données) et on l'envoie comme 'displayName'
