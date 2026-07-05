@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import useSWR from "swr";
 import {
   FileText, Download, Clock, Plus, Search,
@@ -167,6 +168,16 @@ function FilterPill({ label, count, active, onClick, dot }) {
 function KebabMenu({ ebook, onDeleted }) {
   const [open, setOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [coords, setCoords] = useState({ top: 0, left: 0 });
+  const btnRef = useRef(null);
+
+  const toggle = () => {
+    if (!open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      setCoords({ top: r.bottom + 6, left: Math.max(8, r.right - 208) });
+    }
+    setOpen((v) => !v);
+  };
 
   const handleDelete = async () => {
     if (deleting) return;
@@ -181,18 +192,22 @@ function KebabMenu({ ebook, onDeleted }) {
   };
 
   return (
-    <div className="relative">
+    <>
       <button
-        onClick={() => setOpen((v) => !v)}
+        ref={btnRef}
+        onClick={toggle}
         className="p-2 text-slate-300 hover:text-slate-500 border border-slate-200 rounded-lg transition-colors"
         aria-label="Actions"
       >
         <MoreVertical className="w-3.5 h-3.5" />
       </button>
-      {open && (
+      {open && typeof document !== "undefined" && createPortal(
         <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 mt-1 w-52 bg-white border border-slate-200 rounded-xl shadow-lg z-20 overflow-hidden py-1">
+          <div className="fixed inset-0 z-[9998]" onClick={() => setOpen(false)} />
+          <div
+            style={{ top: coords.top, left: coords.left }}
+            className="fixed w-52 bg-white border border-slate-200 rounded-xl shadow-xl z-[9999] overflow-hidden py-1"
+          >
             <a href={`/dashboard/fichiers/${ebook.id}`} className="flex items-center gap-2 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
               <Eye className="w-4 h-4 text-slate-400" /> Voir
             </a>
@@ -214,9 +229,10 @@ function KebabMenu({ ebook, onDeleted }) {
               <Trash2 className="w-4 h-4" /> {deleting ? "Suppression…" : "Supprimer"}
             </button>
           </div>
-        </>
+        </>,
+        document.body
       )}
-    </div>
+    </>
   );
 }
 
