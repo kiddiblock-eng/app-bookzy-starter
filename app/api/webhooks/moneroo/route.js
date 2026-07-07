@@ -180,8 +180,14 @@ export async function POST(req) {
         console.log(`✅ [Recharge] +${credits} crédits (plan inchangé) — User: ${tx.userId}`);
       } else if (isOffer) {
         await user.addCredits(credits); // ebooks non-expirants, plan inchangé
-        if (toolsTier) { user.toolsTier = toolsTier; await user.save(); }
-        console.log(`✅ [Offre] ${tx.packId} +${credits} crédits — toolsTier: ${toolsTier || "—"} — User: ${tx.userId}`);
+        if (toolsTier) { user.toolsTier = toolsTier; }
+        // 🎡 Consomme le code promo si ce paiement en utilisait un.
+        if (metadata.promoCode && user.promo?.code === metadata.promoCode && !user.promo.used) {
+          user.promo.used = true;
+          user.promo.usedAt = new Date();
+        }
+        await user.save();
+        console.log(`✅ [Offre] ${tx.packId} +${credits} crédits — toolsTier: ${toolsTier || "—"}${metadata.promoCode ? ` — promo ${metadata.promoCode}` : ""} — User: ${tx.userId}`);
       } else {
         await user.addCredits(credits, plan);
         // Calculer la date d'expiration selon le type d'abonnement

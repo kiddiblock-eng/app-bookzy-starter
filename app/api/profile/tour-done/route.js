@@ -1,22 +1,19 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
-import { dbConnect } from "@/lib/db";
-import User from "@/models/User";
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
+import { getUserFromToken } from "@/lib/auth";
 
 // Marque le product tour comme vu pour l'utilisateur connecté.
 export async function POST() {
   try {
-    await dbConnect();
-    const token = cookies().get("bookzy_token")?.value;
-    if (!token) return NextResponse.json({ success: false }, { status: 401 });
+    const user = await getUserFromToken();
+    if (!user) return NextResponse.json({ success: false }, { status: 401 });
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    await User.updateOne({ _id: decoded.id }, { $set: { tourDone: true } });
+    user.tourDone = true;
+    await user.save();
 
     return NextResponse.json({ success: true });
   } catch (e) {
+    console.error("❌ [tour-done]", e);
     return NextResponse.json({ success: false, message: "Erreur" }, { status: 500 });
   }
 }

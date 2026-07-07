@@ -4,7 +4,9 @@ import { dbConnect } from "@/lib/db";
 import PaymentProviderService from "@/lib/payment/PaymentProviderService";
 import { verifyAuth } from "@/lib/auth";
 import Transaction from "@/models/Transaction";
+import User from "@/models/User";
 import { OFFERS, offerCredits } from "@/lib/plans";
+import { isPromoValid, discountedAmount, PROMO_ELIGIBLE_OFFERS } from "@/lib/promo";
 
 const PACKS = {
   solo_monthly:       { credits: 100,  amount: 7500,  plan: "solo",     label: "Pass Solo — Mensuel"         },
@@ -75,6 +77,19 @@ export async function POST(req) {
       isRecharge = true;
     }
 
+    // 🎡 Remise "roue promo" — uniquement sur Créateur/Pro, si l'utilisateur a un code valable.
+    // Le % est relu depuis la base (jamais depuis le client) et appliqué ici.
+    let promo = null;
+    if (PROMO_ELIGIBLE_OFFERS.includes(packId)) {
+      const fullUser = await User.findById(user.id).select("promo");
+      if (fullUser && isPromoValid(fullUser.promo)) {
+        const original = pack.amount;
+        pack.amount = discountedAmount(original, fullUser.promo.percent);
+        promo = { code: fullUser.promo.code, percent: fullUser.promo.percent, original };
+        pack.label = `${pack.label} · -${promo.percent}%`;
+      }
+    }
+
     const moneroo = await PaymentProviderService.getProvider("moneroo");
     const payment = await moneroo.createPayment({
       amount:        pack.amount,
@@ -92,6 +107,8 @@ export async function POST(req) {
         amount:     pack.amount,
         isRecharge,
         toolsTier,
+        promoCode:    promo?.code || null,
+        promoPercent: promo?.percent || null,
       },
     });
 

@@ -7,6 +7,7 @@ import WhatsNewBanner from "@/app/(platform)/components/WhatsNewBanner";
 import { MessageCircle, X, Send } from "lucide-react";
 import UpgradeModalHost from "@/app/(platform)/components/UpgradeModalHost";
 import ProductTour from "@/app/(platform)/components/ProductTour";
+import PromoWheel from "@/app/(platform)/components/PromoWheel";
 
 function useActiveUserPing() {
   useEffect(() => {
@@ -56,6 +57,13 @@ export default function DashboardLayout({ children }) {
   useActiveUserPing();
   const { user, loading } = useCurrentUser();
 
+  // Le product tour (mobile) pilote l'ouverture du tiroir pour pointer les vrais items.
+  useEffect(() => {
+    const onSidebar = (e) => setOpen(!!e.detail?.open);
+    window.addEventListener("bookzy:sidebar", onSidebar);
+    return () => window.removeEventListener("bookzy:sidebar", onSidebar);
+  }, []);
+
   const sidebarWidth = collapsed ? "lg:ml-[60px]" : "lg:ml-[260px]";
   const headerLeft = collapsed ? "lg:left-[60px]" : "lg:left-[260px]";
 
@@ -88,6 +96,7 @@ export default function DashboardLayout({ children }) {
       <FloatingSupport open={chatOpen} setOpen={setChatOpen} />
       <UpgradeModalHost />
       <ProductTour />
+      <PromoWheel />
     </div>
   );
 }

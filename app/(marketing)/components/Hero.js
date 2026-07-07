@@ -40,14 +40,13 @@ export default function Hero() {
         {/* Titre punchy */}
         <motion.h1 variants={fadeUp} custom={1} initial="hidden" animate="show"
           className="text-[30px] leading-[1.12] sm:text-[46px] sm:leading-[1.07] font-extrabold tracking-tight text-neutral-900">
-          Déléguez la rédaction, le design et la mise en page de votre ebook à Bookzy.
-          <span className="block mt-2" style={{ color: ACCENT }}>Réjouissez-vous du résultat.</span>
+          Créez votre prochain ebook pro <span style={{ color: ACCENT }}>en 60 secondes.</span>
         </motion.h1>
 
         {/* Sous-titre concret */}
         <motion.p variants={fadeUp} custom={2} initial="hidden" animate="show"
           className="mt-6 text-base sm:text-lg text-neutral-600 leading-relaxed">
-          L'IA écrit et designe ton ebook : vends-le, fais-en une formation, ou partage-le avec ta communauté. Un résultat plus pro que 99 % du marché, sans passer des heures à rédiger ou à mettre en page.
+          Bookzy écrit et designe ton ebook. Un résultat plus pro que 99 % du marché, sans passer des heures à rédiger ou à mettre en page.
         </motion.p>
 
         {/* Champ "essaie tout de suite" */}

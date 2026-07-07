@@ -125,7 +125,7 @@ export default function TendancesLayout({ children }) {
             },
             "offers": {
               "@type": "Offer",
-              "description": "Créez votre premier ebook gratuitement avec 4 crédits offerts",
+              "description": "Créez votre premier ebook avec un aperçu gratuit",
               "price": "0",
               "priceCurrency": "XOF",
               "url": "https://www.bookzy.io/auth/register"

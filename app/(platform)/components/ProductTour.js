@@ -5,18 +5,32 @@ import { createPortal } from "react-dom";
 
 const TIP_W = 288;
 
-// Parcours DESKTOP (sidebar visible)
+// Parcours DESKTOP (sidebar visible) → spotlight sur chaque fonctionnalité
 const DESKTOP = [
-  { sel: '[data-tour="generate"]', title: "Crée ton ebook", text: "C'est ici que tu génères tes ebooks (texte + design + PDF) à partir d'un simple titre." },
-  { sel: '[data-tour="tools"]', title: "Trouve une idée qui vend", text: "Niche Hunter et le Validateur t'aident à repérer et valider des idées rentables avant de créer." },
-  { sel: '[data-tour="myebooks"]', title: "Mes Ebooks", text: "Retrouve tes ebooks : télécharge le PDF, ou vends-les sur Taliopay via le menu (⋮)." },
+  { sel: '[data-tour="generate"]', title: "Générer un ebook", text: "Le cœur de Bookzy : crée un ebook complet (texte + design + PDF) à partir d'un simple titre." },
+  { sel: '[data-tour="/dashboard/youbook"]', title: "Youbook", text: "Transforme n'importe quelle vidéo YouTube en ebook prêt à vendre." },
+  { sel: '[data-tour="/dashboard/express"]', title: "Ebook Designer", text: "Mets en page et personnalise le design de tes ebooks en quelques clics." },
+  { sel: '[data-tour="/dashboard/romans"]', title: "Romans IA", text: "Génère des histoires et romans longs, chapitre par chapitre, avec l'IA." },
+  { sel: '[data-tour="/dashboard/niche-hunter"]', title: "Niche Hunter", text: "Repère les niches d'ebooks qui se vendent le mieux sur le marché." },
+  { sel: '[data-tour="/dashboard/radar-cash"]', title: "Radar Cash", text: "Détecte les produits et offres qui rapportent, pour t'inspirer." },
+  { sel: '[data-tour="/dashboard/analyseur"]', title: "Validateur d'idée", text: "Analyse le potentiel d'une idée avant d'investir ton temps à la créer." },
+  { sel: '[data-tour="/dashboard/fichiers"]', title: "Mes Ebooks", text: "Retrouve tes ebooks : télécharge le PDF, ou vends-les sur Taliopay via le menu (⋮)." },
   { sel: '[data-tour="ebooks"]', title: "Tes ebooks", text: "Le nombre d'ebooks qu'il te reste. 1 création = 1 ebook. Ils n'expirent jamais." },
   { sel: '[data-tour="plan"]', title: "Ton offre", text: "Passe à Créateur ou Pro pour débloquer tous les outils et créer plus d'ebooks." },
 ];
 
-// Parcours MOBILE (la sidebar est un tiroir fermé) → on pointe des éléments toujours visibles
+// Parcours MOBILE : le tiroir s'ouvre automatiquement (drawer:true) pour pointer les vrais
+// items de la sidebar, puis on le referme pour le solde + l'offre (visibles dans le header).
 const MOBILE = [
-  { sel: '[data-tour="menu"]', title: "Ton menu", text: "Ouvre ce menu pour créer un ebook et accéder à tous les outils (Niche Hunter, Validateur, Youbook, Designer…)." },
+  { sel: '[data-tour="menu"]', title: "Ton menu", text: "Voici ton menu (☰). On l'ouvre pour toi : découvre chaque fonctionnalité juste ici." },
+  { sel: '[data-tour="generate"]', drawer: true, title: "Générer un ebook", text: "Le cœur de Bookzy : crée un ebook complet (texte + design + PDF) à partir d'un titre." },
+  { sel: '[data-tour="/dashboard/youbook"]', drawer: true, title: "Youbook", text: "Transforme n'importe quelle vidéo YouTube en ebook prêt à vendre." },
+  { sel: '[data-tour="/dashboard/express"]', drawer: true, title: "Ebook Designer", text: "Mets en page et personnalise le design de tes ebooks en quelques clics." },
+  { sel: '[data-tour="/dashboard/romans"]', drawer: true, title: "Romans IA", text: "Génère des histoires et romans longs, chapitre par chapitre, avec l'IA." },
+  { sel: '[data-tour="/dashboard/niche-hunter"]', drawer: true, title: "Niche Hunter", text: "Repère les niches d'ebooks qui se vendent le mieux sur le marché." },
+  { sel: '[data-tour="/dashboard/radar-cash"]', drawer: true, title: "Radar Cash", text: "Détecte les produits et offres qui rapportent, pour t'inspirer." },
+  { sel: '[data-tour="/dashboard/analyseur"]', drawer: true, title: "Validateur d'idée", text: "Analyse le potentiel d'une idée avant d'investir ton temps à la créer." },
+  { sel: '[data-tour="/dashboard/fichiers"]', drawer: true, title: "Mes Ebooks", text: "Retrouve tes ebooks : télécharge le PDF ou vends-les sur Taliopay." },
   { sel: '[data-tour="ebooks"]', title: "Tes ebooks", text: "Le nombre d'ebooks qu'il te reste. 1 création = 1 ebook. Ils n'expirent jamais." },
   { sel: '[data-tour="plan"]', title: "Ton offre", text: "Passe à Créateur ou Pro pour débloquer tous les outils et créer plus d'ebooks." },
 ];
@@ -29,11 +43,23 @@ export default function ProductTour() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/profile/get", { credentials: "include" })
-      .then((r) => r.json())
-      .then((d) => {
+    // Garde locale : si le tour a déjà été vu sur cet appareil, on ne le rejoue pas
+    // (couvre le cas où l'écriture en base échoue/tarde).
+    try {
+      if (localStorage.getItem("bookzy_tour_done") === "1") return;
+    } catch { /* ignore */ }
+    // La roue promo est prioritaire : si elle va s'afficher, on ne lance pas le tour cette fois.
+    Promise.all([
+      fetch("/api/profile/get", { credentials: "include" }).then((r) => r.json()).catch(() => null),
+      fetch("/api/promo/status", { credentials: "include" }).then((r) => r.json()).catch(() => null),
+    ])
+      .then(([d, promo]) => {
         const user = d?.user || d;
-        if (!cancelled && user && user.tourDone === false) {
+        let dismissed = false;
+        try { dismissed = localStorage.getItem("bookzy_promo_dismissed") === "1"; } catch { /* ignore */ }
+        // La roue s'affiche seulement si éligible ET pas déjà fermée sur cet appareil.
+        const wheelWillShow = promo?.success && promo.canSpin && !dismissed;
+        if (!cancelled && !wheelWillShow && user && user.tourDone === false) {
           setSteps(window.innerWidth < 1024 ? MOBILE : DESKTOP);
           setTimeout(() => setActive(true), 900);
         }
@@ -42,36 +68,52 @@ export default function ProductTour() {
     return () => { cancelled = true; };
   }, []);
 
+  const setDrawer = useCallback((wantOpen) => {
+    window.dispatchEvent(new CustomEvent("bookzy:sidebar", { detail: { open: wantOpen } }));
+  }, []);
+
   const finish = useCallback(() => {
     setActive(false);
+    setDrawer(false);
+    // On mémorise tout de suite côté navigateur, puis on persiste en base.
+    try { localStorage.setItem("bookzy_tour_done", "1"); } catch { /* ignore */ }
     fetch("/api/profile/tour-done", { method: "POST", credentials: "include" }).catch(() => {});
-  }, []);
+  }, [setDrawer]);
 
   const updateRect = useCallback(() => {
     const step = steps[i];
-    const el = step ? document.querySelector(step.sel) : null;
-    if (el) {
+    // Plusieurs éléments peuvent partager le même data-tour (sidebar desktop cachée + tiroir mobile) :
+    // on retient le premier réellement visible à l'écran.
+    const els = step?.sel ? document.querySelectorAll(step.sel) : [];
+    let found = null;
+    for (const el of els) {
       const r = el.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0 && r.bottom > 0 && r.right > 0) {
-        el.scrollIntoView({ block: "center", behavior: "smooth" });
-        setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
-        return;
-      }
+      if (r.width > 0 && r.height > 0 && r.bottom > 0 && r.right > 0) { found = el; break; }
+    }
+    if (found) {
+      found.scrollIntoView({ block: "center", behavior: "smooth" });
+      const r = found.getBoundingClientRect();
+      setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
+      return;
     }
     setRect(null); // introuvable → bulle centrée, sans spotlight (pas de saut d'étape)
   }, [steps, i]);
 
   useEffect(() => {
     if (!active) return;
-    updateRect();
+    const needDrawer = !!steps[i]?.drawer;
+    setDrawer(needDrawer);
+    // On mesure APRÈS l'ouverture/fermeture du tiroir (sinon on viserait un élément encore caché).
+    const t = setTimeout(updateRect, needDrawer ? 340 : 60);
     const on = () => updateRect();
     window.addEventListener("resize", on);
     window.addEventListener("scroll", on, true);
     return () => {
+      clearTimeout(t);
       window.removeEventListener("resize", on);
       window.removeEventListener("scroll", on, true);
     };
-  }, [active, i, updateRect]);
+  }, [active, i, updateRect, steps, setDrawer]);
 
   if (!active || typeof document === "undefined" || steps.length === 0) return null;
 

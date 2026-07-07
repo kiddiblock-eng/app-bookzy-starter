@@ -79,7 +79,7 @@ export default function DashboardHeader({ onMenuClick }) {
         >
           <BookOpen className="w-3.5 h-3.5 text-neutral-500" />
           <span className="text-xs font-semibold text-neutral-800">
-            {balance !== null ? `${ebooksFromCredits(balance)} ebook${ebooksFromCredits(balance) !== 1 ? "s" : ""}` : "—"}
+            {balance !== null ? `${ebooksFromCredits(balance)} ebook${ebooksFromCredits(balance) !== 1 ? "s" : ""} restant${ebooksFromCredits(balance) !== 1 ? "s" : ""}` : "—"}
           </span>
         </Link>
 

@@ -90,7 +90,7 @@ export default function ChangelogLayout({ children }) {
                   "name": "Gratuit",
                   "price": "0",
                   "priceCurrency": "XOF",
-                  "description": "4 crédits offerts à l'inscription",
+                  "description": "Aperçu gratuit à l'inscription",
                 },
                 {
                   "@type": "Offer",

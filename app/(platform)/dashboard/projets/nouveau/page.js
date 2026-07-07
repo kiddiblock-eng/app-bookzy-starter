@@ -8,7 +8,7 @@ import {
   CheckCircle2, Loader2, FileText, MessageCircle, PenTool,
   Download, Smartphone, ArrowRight, ArrowLeft, Check, BookOpen,
   X, Lock, FileCheck2, ArrowUpRightFromCircleIcon, CreditCard, Menu,
-  Plus, Target, Radio, Youtube, BarChart2
+  Plus, Target, Radio, Youtube, BarChart2, ArrowUp
 } from "lucide-react";
 import { useCredits } from "@/hooks/useCredits";
 
@@ -822,7 +822,10 @@ function NouveauProjetPageContent() {
     try {
       const res = await fetch("/api/ebooks/improve-description", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ titre, description, tone, audience }) });
       const data = await res.json();
-      if (data.success && data.improvedDescription) setDescription(data.improvedDescription);
+      if (data.success && data.improvedDescription) {
+        const words = data.improvedDescription.split(/\s+/).filter(Boolean);
+        setDescription(words.length <= 100 ? data.improvedDescription : words.slice(0, 100).join(" "));
+      }
     } catch (e) { console.error(e); } finally { setImprovingDescription(false); }
   };
 
@@ -861,7 +864,10 @@ function NouveauProjetPageContent() {
   if (previewData && kitData) return <PreviewPage kit={kitData} previewData={previewData} onEdit={() => { setPreviewData(null); setKitData(null); setIsLoading(false); }} />;
 
   return (
-    <div className="min-h-[calc(100dvh-120px)] bg-slate-50 flex flex-col">
+    <div className="bz-create-bg relative -m-4 md:-m-6 lg:-m-8 min-h-[calc(100dvh-56px)] flex flex-col overflow-hidden">
+      {/* Halo vert diffus en bas (desktop uniquement — sur mobile le bas reste blanc) */}
+      <div className="hidden lg:block pointer-events-none absolute inset-x-0 bottom-0 h-2/3"
+        style={{ background: "radial-gradient(65% 85% at 50% 100%, rgba(16,185,129,0.28), transparent 72%)" }} />
 
       {/* Drawer menu */}
       {menuOpen && (
@@ -902,26 +908,53 @@ function NouveauProjetPageContent() {
         /* ── FOCUS (accueil Claude) — centré verticalement, rien d'autre ── */
         <div className="flex-1 flex flex-col items-center justify-center px-5 pb-32">
           <div className="w-full max-w-3xl text-center">
-            <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 mb-8 leading-tight">Quel ebook veux-tu créer aujourd'hui ?</h1>
+            <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 mb-2 leading-tight">Quel ebook veux-tu créer aujourd'hui{userName ? `, ${userName}` : ""} ?</h1>
+            <p className="text-slate-500 text-sm sm:text-base mb-8">On s'occupe de la rédaction et de la mise en page complète de ton ebook</p>
             <div className="relative">
-              {/* Lanceur d'outils */}
-              <button type="button" onClick={() => setToolsOpen((v) => !v)} aria-label="Autres outils"
-                className="absolute left-2.5 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 transition-all">
-                <Plus className="w-5 h-5" />
-              </button>
-              <input type="text" value={titre} onChange={e => setTitre(e.target.value)} autoFocus
-                onKeyDown={e => { if (e.key === "Enter" && titre.trim().length > 3) setStep(1); }}
-                placeholder="Tapez votre sujet"
-                className="w-full pl-14 pr-14 py-5 bg-white border border-slate-200 rounded-[28px] text-slate-900 text-lg placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-md transition-all" />
-              <button type="button" disabled={titre.trim().length <= 3} onClick={() => setStep(1)}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900 text-white disabled:bg-slate-200 disabled:text-slate-400 hover:bg-slate-800 transition-all">
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              {/* Carte de saisie façon Lovable : zone de texte + barre d'outils en bas */}
+              <div className="bg-white border border-slate-200 rounded-3xl shadow-lg p-2 text-left transition-all focus-within:ring-2 focus-within:ring-indigo-500/40 focus-within:border-transparent">
+                <textarea value={titre} onChange={e => setTitre(e.target.value)} autoFocus rows={1}
+                  onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (titre.trim().length > 3) setStep(1); } }}
+                  placeholder="Tape ici le titre de ton ebook…"
+                  className="w-full resize-none bg-transparent px-3 pt-1.5 pb-0.5 text-slate-900 text-base placeholder:text-slate-400 focus:outline-none" />
+
+                <div className="flex items-center gap-1.5 px-1 pt-1">
+                  {/* Lanceur d'outils */}
+                  <button type="button" onClick={() => setToolsOpen((v) => !v)} aria-label="Autres outils"
+                    className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 transition-all">
+                    <Plus className="w-5 h-5" />
+                  </button>
+
+                  {/* Améliorer le sujet */}
+                  <button type="button" onClick={handleImproveTitle} disabled={!titre || improvingTitle}
+                    className="flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-50 disabled:opacity-30 px-2.5 py-1.5 rounded-full transition-all">
+                    {improvingTitle ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowUpRightFromCircleIcon className="w-3.5 h-3.5" />}
+                    <span className="hidden sm:inline">{improvingTitle ? "..." : "Améliorer"}</span>
+                  </button>
+
+                  <div className="flex-1" />
+
+                  {/* Sélecteur de langue compact */}
+                  {[{ value: "français", label: "FR" }, { value: "anglais", label: "EN" }].map(opt => (
+                    <button key={opt.value} type="button" onClick={() => setLangue(opt.value)}
+                      className={`px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all ${langue === opt.value ? "bg-slate-900 text-white" : "text-slate-400 hover:bg-slate-100"}`}>
+                      {opt.label}
+                    </button>
+                  ))}
+
+                  {/* Envoyer — vert dès qu'un sujet est saisi */}
+                  <button type="button" disabled={titre.trim().length <= 3} onClick={() => setStep(1)} aria-label="Continuer"
+                    className="w-10 h-10 shrink-0 flex items-center justify-center rounded-full bg-emerald-600 text-white disabled:bg-slate-200 disabled:text-slate-400 hover:bg-emerald-700 transition-all">
+                    <ArrowUp className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
 
               {toolsOpen && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setToolsOpen(false)} />
-                  <div className="absolute left-0 top-full mt-2 w-80 max-w-[calc(100vw-40px)] bg-white border border-slate-200 rounded-2xl shadow-xl p-2 z-20 text-left">
+                  <div className="absolute left-0 bottom-full mb-2 w-80 max-w-[calc(100vw-40px)] bg-white border border-slate-200 rounded-2xl shadow-xl p-2 z-20 text-left">
                     {TOOLS.map((t) => (
                       <Link key={t.href} href={t.href} onClick={() => setToolsOpen(false)}
                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 transition-colors">
@@ -936,19 +969,6 @@ function NouveauProjetPageContent() {
                 </>
               )}
             </div>
-            <div className="flex items-center justify-center gap-2 mt-4">
-              <button type="button" onClick={handleImproveTitle} disabled={!titre || improvingTitle}
-                className="flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-50 disabled:opacity-30 px-3 py-1.5 rounded-full transition-all">
-                {improvingTitle ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowUpRightFromCircleIcon className="w-3.5 h-3.5" />}
-                {improvingTitle ? "..." : "Améliorer"}
-              </button>
-              {[{ value: "français", label: "Français" }, { value: "anglais", label: "English" }].map(opt => (
-                <button key={opt.value} type="button" onClick={() => setLangue(opt.value)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${langue === opt.value ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"}`}>
-                  {opt.label}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       ) : (
@@ -960,9 +980,14 @@ function NouveauProjetPageContent() {
           {step === 1 && (
             <div className="text-center">
               <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Veux-tu préciser un peu ?</h1>
-              <p className="text-slate-500 text-sm mb-8">Optionnel — quelques mots sur ce que le lecteur va apprendre. Tu peux passer.</p>
+              <p className="text-slate-500 text-sm mb-8">Optionnel : quelques mots sur ce que le lecteur va apprendre (100 mots max). Tu peux passer.</p>
               <div className="relative">
-                <textarea rows={4} value={description} onChange={e => setDescription(e.target.value)} autoFocus
+                <textarea rows={4} value={description}
+                  onChange={e => {
+                    const words = e.target.value.split(/\s+/).filter(Boolean);
+                    setDescription(words.length <= 100 ? e.target.value : words.slice(0, 100).join(" "));
+                  }}
+                  autoFocus
                   placeholder="Ex: les techniques concrètes pour trouver des clients et vendre sur WhatsApp..."
                   className="w-full px-5 py-4 pr-28 bg-white border border-slate-200 rounded-2xl text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none shadow-sm transition-all" />
                 <button type="button" onClick={handleImproveDescription} disabled={!description || improvingDescription}
@@ -970,6 +995,9 @@ function NouveauProjetPageContent() {
                   {improvingDescription ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowUpRightFromCircleIcon className="w-3.5 h-3.5" />}
                   {improvingDescription ? "..." : "Améliorer"}
                 </button>
+              </div>
+              <div className="mt-2 text-right text-xs text-slate-400">
+                {description.split(/\s+/).filter(Boolean).length}/100 mots
               </div>
             </div>
           )}
@@ -1045,12 +1073,12 @@ function NouveauProjetPageContent() {
           </button>
           {step < 3 ? (
             <button type="button" onClick={() => setStep(s => s + 1)}
-              className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
+              className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
               {step === 1 && description.trim().length === 0 ? "Passer" : "Continuer"} <ArrowRight className="w-4 h-4" />
             </button>
           ) : (
             <button type="button" onClick={handleSubmit}
-              className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
+              className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
               Générer mon ebook <ArrowRight className="w-4 h-4" />
             </button>
           )}
@@ -1060,9 +1088,65 @@ function NouveauProjetPageContent() {
       </div>
       )}
 
+      {step === 0 && <EbookShowcase />}
+
       <style>{`
         .bz-step { animation: bzfade .28s ease; min-height: 320px; }
         @keyframes bzfade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        /* Desktop : dégradé vert soutenu en bas */
+        .bz-create-bg { background: linear-gradient(to bottom, #ffffff 0%, #f4fdf7 38%, #d9f7e5 74%, #a7f3d0 100%); }
+        /* Mobile : vert au centre, mais on revient au blanc tout en bas */
+        @media (max-width: 1023px) {
+          .bz-create-bg { background: linear-gradient(to bottom, #ffffff 0%, #eafaf1 34%, #c9f2da 60%, #eafaf1 82%, #ffffff 100%); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// Éventail d'ebooks façon pub Apple/Linear — mobile uniquement, collé tout en bas.
+function EbookShowcase() {
+  const books = [
+    { src: "/images/gauche1.webp", rot: -22, x: -105, y: 32, s: 0.80, z: 1 },
+    { src: "/images/gauche2.webp", rot: -12, x: -52,  y: 12, s: 0.92, z: 2 },
+    { src: "/images/face.webp",    rot: 0,   x: 0,    y: -12, s: 1.10, z: 5, center: true },
+    { src: "/images/droit1.webp",  rot: 12,  x: 52,   y: 12, s: 0.92, z: 2 },
+    { src: "/images/droit2.webp",  rot: 22,  x: 105,  y: 32, s: 0.80, z: 1 },
+  ];
+  return (
+    <div className="lg:hidden pointer-events-none select-none absolute inset-x-0 bottom-0 z-10 flex justify-center items-end"
+      style={{ height: 260 }}>
+      {books.map((b, i) => (
+        <img
+          key={i}
+          src={b.src}
+          alt=""
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+          className={b.center ? "bz-book-float" : undefined}
+          style={{
+            position: "absolute",
+            bottom: 0,
+            height: 220,
+            width: "auto",
+            transformOrigin: "bottom center",
+            transform: `translateX(${b.x}px) translateY(${b.y}px) rotate(${b.rot}deg) scale(${b.s})`,
+            zIndex: b.z,
+            // Le livre central reste net (héros) ; les latéraux reculent légèrement dans le fond.
+            opacity: b.center ? 0.85 : 0.75,
+            filter: b.center
+              ? "saturate(.8) drop-shadow(0 18px 24px rgba(0,0,0,.12))"
+              : "saturate(.7) drop-shadow(0 18px 24px rgba(0,0,0,.1))",
+          }}
+        />
+      ))}
+      <style>{`
+        .bz-book-float { animation: bzBookFloat 5s ease-in-out infinite; }
+        @keyframes bzBookFloat {
+          0%, 100% { transform: translateY(-12px) scale(1.10); }
+          50%      { transform: translateY(-16px) scale(1.10); }
+        }
       `}</style>
     </div>
   );

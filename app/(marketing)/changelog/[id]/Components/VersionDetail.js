@@ -187,7 +187,7 @@ export default function VersionDetail({ version }) {
             Rejoignez Bookzy aujourd'hui.
           </h3>
           <p className="text-slate-500 text-base mb-10 max-w-md mx-auto">
-            4 crédits offerts à l'inscription. Générez votre premier ebook sans carte bancaire.
+            Aperçu gratuit à l'inscription. Générez votre premier ebook sans carte bancaire.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link

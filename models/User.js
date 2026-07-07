@@ -78,6 +78,17 @@ const userSchema = new mongoose.Schema(
     // Product tour (onboarding guidé) déjà vu ?
     tourDone: { type: Boolean, default: false },
 
+    // Roue promo (premier achat, non-abonnés). Le % et le code sont posés côté serveur.
+    promo: {
+      spun:      { type: Boolean, default: false },   // a déjà tourné la roue
+      percent:   { type: Number,  default: null },    // 5 | 10 | 15
+      code:      { type: String,  default: null },
+      wonAt:     { type: Date,    default: null },
+      expiresAt: { type: Date,    default: null },     // wonAt + 72h
+      used:      { type: Boolean, default: false },    // consommé à l'achat
+      usedAt:    { type: Date,    default: null },
+    },
+
     // Limites journalières
     dailyUsage: {
       date:            { type: String, default: "" },

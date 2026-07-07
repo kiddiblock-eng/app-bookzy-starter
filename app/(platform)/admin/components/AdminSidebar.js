@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, BarChart3, Bell, Flame, BookOpen, CreditCard,
-  Settings, Brain, FileText, X, Banknote, Store, FileEdit, Lightbulb, Activity,
+  Settings, Brain, FileText, X, Banknote, Store, FileEdit, Lightbulb, Activity, Gift,
 } from "lucide-react";
 
 const ACCENT = "#059669";
@@ -38,7 +38,10 @@ const GROUPS = [
       { href: "/admin/niche-hunter/ai-stats", label: "IA — Stats", icon: Activity, badge: "Bêta" },
     ],
   },
-  { label: "Finance", items: [{ href: "/admin/paiements", label: "Paiements", icon: CreditCard }] },
+  { label: "Finance", items: [
+    { href: "/admin/paiements", label: "Paiements", icon: CreditCard },
+    { href: "/admin/promo", label: "Roue promo", icon: Gift },
+  ] },
   { label: "Système", items: [{ href: "/admin/settings", label: "Paramètres", icon: Settings }] },
 ];
 

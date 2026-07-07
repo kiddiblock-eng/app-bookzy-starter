@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2, Check, ArrowRight } from "lucide-react";
 import { OFFERS, OFFER_ORDER, discountPercent } from "@/lib/plans";
+import { discountedAmount, PROMO_ELIGIBLE_OFFERS } from "@/lib/promo";
+import PromoBanner from "@/app/(platform)/components/PromoBanner";
 
 const fmt =(n) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
@@ -28,6 +30,16 @@ const PERKS = {
 export default function TarifsPage() {
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState("");
+  const [promo, setPromo] = useState(null); // { code, percent, expiresAt }
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/promo/status", { credentials: "include" })
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled && d?.success && d.active) setPromo(d.active); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   const handleBuy = async (offerId) => {
     setLoading(offerId);
@@ -50,10 +62,11 @@ export default function TarifsPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <div className="max-w-4xl mx-auto px-5 py-10">
+      <div className="max-w-4xl mx-auto px-5 py-6 sm:py-10">
+        <PromoBanner />
         {/* Titre */}
-        <div className="text-center mb-10">
-          <h1 className="text-2xl sm:text-3xl font-semibold text-neutral-900 mb-2">Combien d'ebooks veux-tu créer ?</h1>
+        <div className="text-center mb-6 sm:mb-10">
+          <h1 className="text-xl sm:text-3xl font-semibold text-neutral-900 mb-1.5 sm:mb-2">Combien d'ebooks veux-tu créer ?</h1>
           <p className="text-neutral-500 text-sm">
             Tu paies tes ebooks une fois. <span className="font-semibold text-neutral-900">Ils n'expirent jamais.</span>
           </p>
@@ -72,10 +85,12 @@ export default function TarifsPage() {
             const reco = o.recommended;
             const disc = discountPercent(id);
             const isLoadingThis = loading === id;
+            const promoOn = promo && PROMO_ELIGIBLE_OFFERS.includes(id);
+            const finalPrice = promoOn ? discountedAmount(o.priceFcfa, promo.percent) : o.priceFcfa;
             return (
               <div
                 key={id}
-                className={`relative rounded-2xl bg-white p-6 flex flex-col border ${reco ? "order-first sm:order-none border-neutral-900 shadow-lg" : "border-neutral-200"}`}
+                className={`relative rounded-2xl bg-white flex flex-col border ${reco ? "order-first sm:order-none border-neutral-900 shadow-lg px-4 pt-6 pb-4 sm:px-6 sm:pt-7 sm:pb-6" : "border-neutral-200 p-4 sm:p-6"}`}
               >
                 {reco && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-neutral-900 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full">
@@ -84,11 +99,22 @@ export default function TarifsPage() {
                 )}
 
                 <p className="text-sm font-bold text-neutral-900">{o.label}</p>
-                <p className="text-xs text-neutral-500 mb-4">{o.tagline}</p>
+                <p className="text-xs text-neutral-500 mb-2 sm:mb-4">{o.tagline}</p>
 
-                <div className="mb-1">
-                  <span className="text-3xl font-bold text-neutral-900">{fmt(o.priceFcfa)}</span>
-                  <span className="text-sm text-neutral-400 ml-1">FCFA</span>
+                <div className="mb-1 flex items-baseline flex-wrap gap-x-2">
+                  {promoOn ? (
+                    <>
+                      <span className="text-2xl sm:text-3xl font-bold text-emerald-600">{fmt(finalPrice)}</span>
+                      <span className="text-sm text-neutral-400">FCFA</span>
+                      <span className="text-sm text-red-500 line-through">{fmt(o.priceFcfa)}</span>
+                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">-{promo.percent}%</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-2xl sm:text-3xl font-bold text-neutral-900">{fmt(o.priceFcfa)}</span>
+                      <span className="text-sm text-neutral-400">FCFA</span>
+                    </>
+                  )}
                 </div>
                 <div className="text-xs text-neutral-500 mb-1">
                   <strong className="text-neutral-900">Crée jusqu'à {o.ebooks} ebook{o.ebooks > 1 ? "s" : ""}</strong>
@@ -98,9 +124,9 @@ export default function TarifsPage() {
                   <div className="text-xs font-semibold text-emerald-600 mb-3">1er ebook à {fmt(o.welcomePriceFcfa)} FCFA</div>
                 )}
 
-                <div className="h-px bg-neutral-100 my-4" />
+                <div className="h-px bg-neutral-100 my-3 sm:my-4" />
 
-                <ul className="space-y-2.5 flex-1 mb-6">
+                <ul className="space-y-1.5 sm:space-y-2.5 flex-1 mb-4 sm:mb-6">
                   {PERKS[id].map((perk, i) => (
                     <li key={i} className="flex items-start gap-2.5">
                       <span className="mt-0.5 w-4 h-4 rounded-full bg-neutral-100 flex items-center justify-center shrink-0">
