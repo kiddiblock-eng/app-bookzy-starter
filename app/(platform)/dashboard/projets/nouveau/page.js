@@ -864,7 +864,7 @@ function NouveauProjetPageContent() {
   if (previewData && kitData) return <PreviewPage kit={kitData} previewData={previewData} onEdit={() => { setPreviewData(null); setKitData(null); setIsLoading(false); }} />;
 
   return (
-    <div className="bz-create-bg relative -m-4 md:-m-6 lg:-m-8 min-h-[calc(100dvh-56px)] flex flex-col overflow-hidden">
+    <div className="bz-create-bg relative -m-4 md:-m-6 lg:-m-8 min-h-[calc(100dvh-56px)] flex flex-col overflow-x-hidden">
       {/* Halo vert diffus en bas (desktop uniquement — sur mobile le bas reste blanc) */}
       <div className="hidden lg:block pointer-events-none absolute inset-x-0 bottom-0 h-2/3"
         style={{ background: "radial-gradient(65% 85% at 50% 100%, rgba(16,185,129,0.28), transparent 72%)" }} />
@@ -915,6 +915,7 @@ function NouveauProjetPageContent() {
               <div className="bg-white border border-slate-200 rounded-3xl shadow-lg p-2 text-left transition-all focus-within:ring-2 focus-within:ring-indigo-500/40 focus-within:border-transparent">
                 <textarea value={titre} onChange={e => setTitre(e.target.value)} autoFocus rows={1}
                   onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (titre.trim().length > 3) setStep(1); } }}
+                  onFocus={e => { const el = e.target; setTimeout(() => el.scrollIntoView({ block: "center", behavior: "smooth" }), 300); }}
                   placeholder="Tape ici le titre de ton ebook…"
                   className="w-full resize-none bg-transparent px-3 pt-1.5 pb-0.5 text-slate-900 text-base placeholder:text-slate-400 focus:outline-none" />
 
