@@ -1088,8 +1088,6 @@ function NouveauProjetPageContent() {
       </div>
       )}
 
-      {step === 0 && <EbookShowcase />}
-
       <style>{`
         .bz-step { animation: bzfade .28s ease; min-height: 320px; }
         @keyframes bzfade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -1098,54 +1096,6 @@ function NouveauProjetPageContent() {
         /* Mobile : vert au centre, mais on revient au blanc tout en bas */
         @media (max-width: 1023px) {
           .bz-create-bg { background: linear-gradient(to bottom, #ffffff 0%, #eafaf1 34%, #c9f2da 60%, #eafaf1 82%, #ffffff 100%); }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-// Éventail d'ebooks façon pub Apple/Linear — mobile uniquement, collé tout en bas.
-function EbookShowcase() {
-  const books = [
-    { src: "/images/gauche1.webp", rot: -22, x: -105, y: 32, s: 0.80, z: 1 },
-    { src: "/images/gauche2.webp", rot: -12, x: -52,  y: 12, s: 0.92, z: 2 },
-    { src: "/images/face.webp",    rot: 0,   x: 0,    y: -12, s: 1.10, z: 5, center: true },
-    { src: "/images/droit1.webp",  rot: 12,  x: 52,   y: 12, s: 0.92, z: 2 },
-    { src: "/images/droit2.webp",  rot: 22,  x: 105,  y: 32, s: 0.80, z: 1 },
-  ];
-  return (
-    <div className="lg:hidden pointer-events-none select-none absolute inset-x-0 bottom-0 z-10 flex justify-center items-end"
-      style={{ height: 260 }}>
-      {books.map((b, i) => (
-        <img
-          key={i}
-          src={b.src}
-          alt=""
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
-          className={b.center ? "bz-book-float" : undefined}
-          style={{
-            position: "absolute",
-            bottom: 0,
-            height: 220,
-            width: "auto",
-            transformOrigin: "bottom center",
-            transform: `translateX(${b.x}px) translateY(${b.y}px) rotate(${b.rot}deg) scale(${b.s})`,
-            zIndex: b.z,
-            // Le livre central reste net (héros) ; les latéraux reculent légèrement dans le fond.
-            opacity: b.center ? 0.85 : 0.75,
-            filter: b.center
-              ? "saturate(.8) drop-shadow(0 18px 24px rgba(0,0,0,.12))"
-              : "saturate(.7) drop-shadow(0 18px 24px rgba(0,0,0,.1))",
-          }}
-        />
-      ))}
-      <style>{`
-        .bz-book-float { animation: bzBookFloat 5s ease-in-out infinite; }
-        @keyframes bzBookFloat {
-          0%, 100% { transform: translateY(-12px) scale(1.10); }
-          50%      { transform: translateY(-16px) scale(1.10); }
         }
       `}</style>
     </div>
