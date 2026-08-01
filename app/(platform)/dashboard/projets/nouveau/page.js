@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useCredits } from "@/hooks/useCredits";
 import GenerationResult from "@/app/(platform)/components/GenerationResult";
-import { sfxTick, sfxClick, sfxBack } from "@/lib/sfx";
+import { sfxTick, sfxClick, sfxBack, sfxLock } from "@/lib/sfx";
 
 // ── DONNÉES ────────────────────────────────────────────────────────────────────
 const TEMPLATES = [
@@ -740,6 +740,8 @@ function NouveauProjetPageContent() {
   const [toolsOpen, setToolsOpen] = useState(false);
   const [trial, setTrial] = useState(null);   // { subscribed, trialActive, eligible }
   const [paywall, setPaywall] = useState(false);
+  const [premiumLock, setPremiumLock] = useState(false); // notif "réservé aux premium"
+  const [premiumLockMsg, setPremiumLockMsg] = useState("");
   const [generating, setGenerating] = useState(false);        // page de cases affichée (dès le clic Générer)
   const [resultProjetId, setResultProjetId] = useState(null); // id du projet à poller (une fois la génération lancée)
 
@@ -808,10 +810,18 @@ function NouveauProjetPageContent() {
   }, []);
 
   useEffect(() => {
-    fetch("/api/trial/status", { credentials: "include" })
-      .then((r) => r.json())
-      .then((d) => { if (d?.success) setTrial(d); })
-      .catch(() => {});
+    const fetchTrial = () =>
+      fetch("/api/trial/status", { credentials: "include" })
+        .then((r) => r.json())
+        .then((d) => { if (d?.success) setTrial(d); })
+        .catch(() => {});
+    fetchTrial();
+    // Retour de paiement essai (?status=success) : le webhook peut tarder → on re-vérifie.
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("status") === "success") {
+      const t1 = setTimeout(fetchTrial, 2500);
+      const t2 = setTimeout(fetchTrial, 6000);
+      return () => { clearTimeout(t1); clearTimeout(t2); };
+    }
   }, []);
 
   // En essai seul : on cale les valeurs sous les limites (défaut chapitres=6 > 3) et on force l'ebook seul.
@@ -899,7 +909,20 @@ function NouveauProjetPageContent() {
 
   const buyEssai = () => {
     setPaywall(false);
-    window.dispatchEvent(new CustomEvent("bookzy:trial-confirm", { detail: { price: 1000 } }));
+    // Retour sur la page de création avec le sujet pré-rempli (pas de génération auto).
+    const p = new URLSearchParams();
+    if (titre.trim()) p.set("suggestion", titre.trim());
+    if (description.trim()) p.set("description", description.trim());
+    p.set("status", "success");
+    const returnUrl = `${window.location.origin}/dashboard/projets/nouveau?${p.toString()}`;
+    window.dispatchEvent(new CustomEvent("bookzy:trial-confirm", { detail: { price: 1000, returnUrl } }));
+  };
+
+  // Option verrouillée (pages/chapitres/kit en essai) → notif premium + son.
+  const showPremiumLock = (msg) => {
+    setPremiumLockMsg(msg || "Réservé aux membres premium");
+    sfxLock();
+    setPremiumLock(true);
   };
 
   const isFormValid = titre.trim().length > 3;
@@ -1094,22 +1117,38 @@ function NouveauProjetPageContent() {
                   <label className="block text-xs font-semibold text-slate-700 mb-1.5">Public</label>
                   <PillSelector options={AUDIENCES} value={audience} onChange={setAudience} />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">Pages</label>
-                    <select value={pages} onChange={(e) => { setPages(e.target.value); sfxTick(); }}
-                      className="w-full px-3 py-2 bg-[#F5F5F4] border border-transparent rounded-xl text-sm text-slate-900 focus:bg-white focus:border-black/10 focus:ring-4 focus:ring-black/[0.04]">
-                      {PAGES_OPTIONS.map((p) => <option key={p} value={p} disabled={trialOnly && p > 30}>{p} pages</option>)}
-                    </select>
-                    {trialOnly && <p className="mt-1 text-[11px] text-amber-600">En essai : 30 pages max</p>}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Pages</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {PAGES_OPTIONS.map((p) => {
+                      const locked = trialOnly && p > 30;
+                      const active = String(pages) === String(p);
+                      return (
+                        <button key={p} type="button"
+                          onClick={() => { if (locked) showPremiumLock("À partir de 40 pages, c'est réservé aux membres premium."); else { setPages(String(p)); sfxTick(); } }}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                            active ? "bg-slate-900 text-white border-slate-900"
+                            : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"}`}>
+                          {p}                        </button>
+                      );
+                    })}
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">Chapitres</label>
-                    <select value={chapters} onChange={(e) => { setChapters(e.target.value); sfxTick(); }}
-                      className="w-full px-3 py-2 bg-[#F5F5F4] border border-transparent rounded-xl text-sm text-slate-900 focus:bg-white focus:border-black/10 focus:ring-4 focus:ring-black/[0.04]">
-                      {CHAPTERS_OPTIONS.map((c) => <option key={c} value={c} disabled={trialOnly && c > 3}>{c} chapitres</option>)}
-                    </select>
-                    {trialOnly && <p className="mt-1 text-[11px] text-amber-600">En essai : 3 chapitres max</p>}
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Chapitres</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {CHAPTERS_OPTIONS.map((c) => {
+                      const locked = trialOnly && c > 3;
+                      const active = String(chapters) === String(c);
+                      return (
+                        <button key={c} type="button"
+                          onClick={() => { if (locked) showPremiumLock("À partir de 4 chapitres, c'est réservé aux membres premium."); else { setChapters(String(c)); sfxTick(); } }}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                            active ? "bg-slate-900 text-white border-slate-900"
+                            : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"}`}>
+                          {c}                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -1119,17 +1158,16 @@ function NouveauProjetPageContent() {
                 <label className="block text-xs font-semibold text-slate-700 mb-2">Que veux-tu obtenir ?</label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { id: "kit", title: "Kit complet", desc: "Ebook + mockup + affiches" },
+                    { id: "kit", title: "Kit complet", desc: "Ebook + mockup 3D + affiches pub + textes marketing" },
                     { id: "ebook", title: "Ebook seul", desc: "PDF + Word" },
                   ].map(o => {
                     const on = outputType === o.id;
                     const locked = trialOnly && o.id === "kit"; // Kit réservé à l'abonnement en essai
                     return (
-                      <button key={o.id} type="button" disabled={locked}
-                        onClick={() => { if (!locked) { setOutputType(o.id); sfxTick(); } }}
+                      <button key={o.id} type="button"
+                        onClick={() => { if (locked) showPremiumLock("Le kit complet est réservé aux membres premium."); else { setOutputType(o.id); sfxTick(); } }}
                         className={`text-left rounded-xl border p-2.5 transition-all ${
-                          locked ? "border-black/[0.07] bg-[#F5F5F4] opacity-50 cursor-not-allowed"
-                          : on ? "border-slate-900 bg-slate-50 ring-1 ring-slate-900"
+                          on && !locked ? "border-slate-900 bg-slate-50 ring-1 ring-slate-900"
                           : "border-black/[0.07] bg-[#F5F5F4] hover:border-slate-300"}`}>
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-bold text-slate-900">{o.title}</span>
@@ -1137,7 +1175,7 @@ function NouveauProjetPageContent() {
                             {on && !locked && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">{locked ? "Réservé à l'abonnement" : o.desc}</p>
+                        <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">{o.desc}</p>
                       </button>
                     );
                   })}
@@ -1178,15 +1216,36 @@ function NouveauProjetPageContent() {
               Active un abonnement ou l'essai à 1 000 FCFA pour générer ton premier ebook.
             </p>
             <button onClick={buyEssai}
-              className="mt-5 w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-colors">
+              className="mt-5 w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition-colors">
               Activer l'essai · 1 000 FCFA
             </button>
-            <button onClick={() => { window.location.href = "/dashboard/tarifs"; }}
-              className="mt-2 w-full py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-semibold transition-colors">
-              Voir les abonnements
-            </button>
+            <div className="mt-4">
+              <button onClick={() => { window.location.href = "/dashboard/tarifs"; }}
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-900 underline underline-offset-2 transition-colors">
+                Voir les abonnements pour plus d'utilisation
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
             <button onClick={() => setPaywall(false)} className="mt-3 text-xs text-slate-400 hover:text-slate-600 underline">
               Plus tard
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Notif "réservé aux membres premium" (option verrouillée en essai) */}
+      {premiumLock && (
+        <div className="fixed z-[10001] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:top-auto sm:translate-y-0 sm:bottom-5 w-[calc(100%-2rem)] max-w-xs">
+          <div className="relative bz-card px-4 pt-7 pb-4 text-center" style={{ animation: "bzlockin .25s ease" }}>
+            <button onClick={() => setPremiumLock(false)} aria-label="Fermer"
+              className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors">
+              <X className="w-4 h-4" />
+            </button>
+            <p className="text-sm font-semibold text-slate-900">{premiumLockMsg}</p>
+            <button onClick={() => { window.location.href = "/dashboard/tarifs"; }}
+              className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 underline underline-offset-2">
+              Devenir membre premium à partir de 2 500 FCFA
+              <ArrowRight className="w-3 h-3" />
             </button>
           </div>
         </div>
@@ -1195,6 +1254,7 @@ function NouveauProjetPageContent() {
       <style>{`
         .bz-step { animation: bzfade .28s ease; }
         @keyframes bzfade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+        @keyframes bzlockin { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
         /* Premium mono — Apple / Notion / Whop, sans dégradé */
         .bz-create-bg { background: #ffffff; }
         .bz-card { background:#fff; border:1px solid rgba(15,23,42,.07); border-radius:20px; box-shadow:0 1px 2px rgba(15,23,42,.03), 0 16px 40px -22px rgba(15,23,42,.22); }

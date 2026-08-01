@@ -38,7 +38,8 @@ export default function DashboardHeader({ onMenuClick, onSupportClick }) {
     (user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() : "Invité");
 
   const tier = user?.toolsTier; // "createur" | "pro" | null
-  const planLabel = tier === "pro" ? "Business" : tier === "createur" ? "Créateur" : "Gratuit";
+  const trialTier = user?.trialTier;
+  const planLabel = tier === "pro" ? "Business" : tier === "createur" ? "Créateur" : trialTier ? "Essai" : "Gratuit";
 
   const handleLogout = async () => {
     try {
@@ -114,8 +115,8 @@ export default function DashboardHeader({ onMenuClick, onSupportClick }) {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-neutral-900 truncate">{displayName}</p>
                       <p className="text-xs text-neutral-500 truncate">{user?.email || ""}</p>
-                      <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${tier ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-500"}`}>
-                        {tier ? `Plan ${planLabel}` : "Gratuit"}
+                      <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${(tier || trialTier) ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-500"}`}>
+                        {tier ? `Plan ${planLabel}` : trialTier ? "Essai" : "Gratuit"}
                       </span>
                     </div>
                   </div>

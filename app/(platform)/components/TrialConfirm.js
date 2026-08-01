@@ -18,9 +18,14 @@ export default function TrialConfirm() {
   const [open, setOpen] = useState(false);
   const [paying, setPaying] = useState(false);
   const [price, setPrice] = useState(1000);
+  const [returnUrl, setReturnUrl] = useState(null);
 
   useEffect(() => {
-    const onOpen = (e) => { if (e.detail?.price) setPrice(e.detail.price); setOpen(true); };
+    const onOpen = (e) => {
+      if (e.detail?.price) setPrice(e.detail.price);
+      setReturnUrl(e.detail?.returnUrl || null);
+      setOpen(true);
+    };
     window.addEventListener("bookzy:trial-confirm", onOpen);
     return () => window.removeEventListener("bookzy:trial-confirm", onOpen);
   }, []);
@@ -31,13 +36,13 @@ export default function TrialConfirm() {
     try {
       const res = await fetch("/api/credits/purchase", {
         method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
-        body: JSON.stringify({ packId: "essai", returnUrl: `${window.location.origin}/dashboard?status=success` }),
+        body: JSON.stringify({ packId: "essai", returnUrl: returnUrl || `${window.location.origin}/dashboard?status=success` }),
       });
       const data = await res.json();
       if (data.success && data.paymentUrl) window.location.href = data.paymentUrl;
       else { alert(data.message || "Erreur"); setPaying(false); }
     } catch { alert("Erreur de connexion"); setPaying(false); }
-  }, [paying]);
+  }, [paying, returnUrl]);
 
   if (!open || typeof document === "undefined") return null;
   const p = price.toLocaleString("fr-FR");
