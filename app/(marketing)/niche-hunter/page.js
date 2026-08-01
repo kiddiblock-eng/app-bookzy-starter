@@ -13,12 +13,12 @@ import {
 const GRAIN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`;
 
 const TESTIMONIALS = [
-  { name: "Amadou Sow",    role: "Entrepreneur digital", location: "Dakar",    avatar: "https://sucesspro.io/wp-content/uploads/2025/10/bc04d7c785a05a60584b5edc85860f47.jpg", quote: "J'ai trouvé ma niche en 30 secondes. L'ebook s'est vendu à 847 personnes en moins de 2 mois. Jamais j'aurais pensé à 'Élevage de poulets'." },
-  { name: "Aïcha Koné",    role: "Créatrice Food",       location: "Abidjan",  avatar: "https://sucesspro.io/wp-content/uploads/2025/10/IMG_4306.jpg",                          quote: "ROI de fou. Je ne savais pas quoi vendre. Niche Hunter m'a tout dit. J'ai lancé ma pub le soir même, 1 234 ventes en 2 mois." },
-  { name: "Jean-Marc T.",  role: "Formateur",             location: "Douala",   avatar: "https://sucesspro.io/wp-content/uploads/2025/10/ef7c836ef8bee61bfcb4d5ff4bde5702.jpg",  quote: "Niche Hunter + Bookzy = la combinaison parfaite. 9 180€ de revenus en partant de zéro. Je cherchais une niche depuis 6 mois." },
-  { name: "Clara Martin",  role: "Coach Business",        location: "Paris",    avatar: "https://sucesspro.io/wp-content/uploads/2025/10/7fef677cbafd1e0f1f474ad0fa14a341.jpg",  quote: "Le score de rentabilité ne ment pas. J'ai choisi la niche à 92/100 et eu mes 3 premières ventes la semaine même." },
-  { name: "Kofi Mensah",   role: "Digital Marketer",      location: "Accra",    avatar: "https://sucesspro.io/wp-content/uploads/2025/10/bc04d7c785a05a60584b5edc85860f47.jpg",  quote: "Avant je passais 3 jours sur Google Trends pour rien. Maintenant 30 secondes et j'ai 10 niches notées avec la concurrence." },
-  { name: "Fatou Diallo",  role: "Entrepreneuse",         location: "Bamako",   avatar: "https://sucesspro.io/wp-content/uploads/2025/10/IMG_4306.jpg",                          quote: "Les données TikTok intégrées sont incroyables. J'ai choisi une niche trending et mon ebook a explosé dès le premier jour." },
+  { name: "Amadou Sow",    role: "Entrepreneur digital", location: "Dakar",    avatar: "/T4.jpg", quote: "J'ai trouvé ma niche en 30 secondes. L'ebook s'est vendu à 847 personnes en moins de 2 mois. Jamais j'aurais pensé à 'Élevage de poulets'." },
+  { name: "Aïcha Koné",    role: "Créatrice Food",       location: "Abidjan",  avatar: "/T5.jpg",                          quote: "ROI de fou. Je ne savais pas quoi vendre. Niche Hunter m'a tout dit. J'ai lancé ma pub le soir même, 1 234 ventes en 2 mois." },
+  { name: "Jean-Marc T.",  role: "Formateur",             location: "Douala",   avatar: "/t1.jpg",  quote: "Niche Hunter + Bookzy = la combinaison parfaite. 9 180€ de revenus en partant de zéro. Je cherchais une niche depuis 6 mois." },
+  { name: "Clara Martin",  role: "Coach Business",        location: "Paris",    avatar: "/T2.jpg",  quote: "Le score de rentabilité ne ment pas. J'ai choisi la niche à 92/100 et eu mes 3 premières ventes la semaine même." },
+  { name: "Kofi Mensah",   role: "Digital Marketer",      location: "Accra",    avatar: "/T4.jpg",  quote: "Avant je passais 3 jours sur Google Trends pour rien. Maintenant 30 secondes et j'ai 10 niches notées avec la concurrence." },
+  { name: "Fatou Diallo",  role: "Entrepreneuse",         location: "Bamako",   avatar: "/T5.jpg",                          quote: "Les données TikTok intégrées sont incroyables. J'ai choisi une niche trending et mon ebook a explosé dès le premier jour." },
 ];
 const DOUBLED = [...TESTIMONIALS, ...TESTIMONIALS];
 
@@ -624,9 +624,9 @@ function Comparatif() {
 // ── RÉSULTATS ─────────────────────────────────────────────────────────────────
 function Results() {
   const stories = [
-    { name: "Amadou S.", country: "🇸🇳 Sénégal", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/bc04d7c785a05a60584b5edc85860f47.jpg", niche: "Élevage de poulets en cage", sales: 847, revenue: "8 470", days: 47, quote: "J'ai trouvé ma niche en 30 secondes. L'ebook s'est vendu à 847 personnes en moins de 2 mois." },
-    { name: "Marie K.", country: "🇨🇮 Côte d'Ivoire", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/IMG_4306.jpg", niche: "Jus Naturels & Détox", sales: 1234, revenue: "6 170", days: 63, quote: "ROI de fou. Je ne savais pas quoi vendre, l'outil m'a tout dit. J'ai lancé ma pub le soir même." },
-    { name: "Jean-Marc T.", country: "🇨🇲 Cameroun", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/ef7c836ef8bee61bfcb4d5ff4bde5702.jpg", niche: "Marketing Digital pour PME", sales: 612, revenue: "9 180", days: 51, quote: "Niche Hunter + Bookzy = la combinaison parfaite. 9 180€ de revenus en partant de zéro." },
+    { name: "Amadou S.", country: "🇸🇳 Sénégal", avatar: "/T4.jpg", niche: "Élevage de poulets en cage", sales: 847, revenue: "8 470", days: 47, quote: "J'ai trouvé ma niche en 30 secondes. L'ebook s'est vendu à 847 personnes en moins de 2 mois." },
+    { name: "Marie K.", country: "🇨🇮 Côte d'Ivoire", avatar: "/T5.jpg", niche: "Jus Naturels & Détox", sales: 1234, revenue: "6 170", days: 63, quote: "ROI de fou. Je ne savais pas quoi vendre, l'outil m'a tout dit. J'ai lancé ma pub le soir même." },
+    { name: "Jean-Marc T.", country: "🇨🇲 Cameroun", avatar: "/t1.jpg", niche: "Marketing Digital pour PME", sales: 612, revenue: "9 180", days: 51, quote: "Niche Hunter + Bookzy = la combinaison parfaite. 9 180€ de revenus en partant de zéro." },
   ];
 
   return (

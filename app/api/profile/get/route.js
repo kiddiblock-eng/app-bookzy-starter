@@ -59,6 +59,7 @@ export async function GET() {
             role: user.role,
             plan: user.plan || "free",
             toolsTier: user.toolsTier || null,
+            trialTier: user.trialTier || false,
             tourDone: user.tourDone || false,
 
             // 🔥 C'EST ICI LA CORRECTION 🔥

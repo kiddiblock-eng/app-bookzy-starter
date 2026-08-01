@@ -5,7 +5,7 @@ import PaymentProviderService from "@/lib/payment/PaymentProviderService";
 import { verifyAuth } from "@/lib/auth";
 import Transaction from "@/models/Transaction";
 import User from "@/models/User";
-import { OFFERS, offerCredits } from "@/lib/plans";
+import { OFFERS, offerCredits, createurPrice, CREDITS_PER_EBOOK } from "@/lib/plans";
 import { isPromoValid, discountedAmount, PROMO_ELIGIBLE_OFFERS } from "@/lib/promo";
 
 const PACKS = {
@@ -51,24 +51,46 @@ export async function POST(req) {
     const user = await verifyAuth(req);
     if (!user) return NextResponse.json({ success: false, message: "Non authentifié" }, { status: 401 });
 
-    const { packId, returnUrl } = await req.json();
+    const { packId, returnUrl, ebooks } = await req.json();
 
     let pack = PACKS[packId] ?? null;
     let isRecharge = false;
     let toolsTier = null;
 
-    // Nouvelles offres "ebooks qui n'expirent jamais" (Découverte / Créateur / Pro)
+    // Essai à 1000 FCFA : une seule fois, réservé aux comptes jamais abonnés.
+    if (packId === "essai") {
+      const already = await Transaction.countDocuments({
+        userId: user.id,
+        status: "completed",
+        packId: { $in: ["essai", "decouverte", "createur", "pro"] },
+      });
+      if (already > 0) {
+        return NextResponse.json({ success: false, message: "Essai déjà utilisé ou compte déjà abonné." }, { status: 403 });
+      }
+    }
+
+    // Nouvelles offres "ebooks qui n'expirent jamais" (Essai / Découverte / Créateur / Pro)
     if (!pack && OFFERS[packId]) {
       const o = OFFERS[packId];
-      const isFirstPurchase = (await Transaction.countDocuments({ userId: user.id, status: "completed" })) === 0;
-      const amount = packId === "decouverte" && isFirstPurchase && o.welcomePriceFcfa ? o.welcomePriceFcfa : o.priceFcfa;
       toolsTier = o.unlocksTools ? packId : null; // "createur" | "pro" | null
-      pack = {
-        credits: offerCredits(packId),
-        amount,
-        plan: null, // on ne touche pas user.plan (ebooks non-expirants)
-        label: `${o.label} · ${o.ebooks} ebook${o.ebooks > 1 ? "s" : ""}`,
-      };
+
+      // Créateur : quantité choisie au curseur (5 ou 10 ebooks).
+      if (packId === "createur" && o.ebookOptions) {
+        const qty = o.ebookOptions.includes(Number(ebooks)) ? Number(ebooks) : o.ebooks;
+        pack = {
+          credits: qty * CREDITS_PER_EBOOK,
+          amount: createurPrice(qty),
+          plan: null,
+          label: `${o.label} · ${qty} ebooks`,
+        };
+      } else {
+        pack = {
+          credits: offerCredits(packId),
+          amount: o.priceFcfa,
+          plan: null, // on ne touche pas user.plan (ebooks non-expirants)
+          label: `${o.label} · ${o.ebooks} ebook${o.ebooks > 1 ? "s" : ""}`,
+        };
+      }
     }
 
     if (!pack) {

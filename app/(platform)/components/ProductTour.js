@@ -35,6 +35,25 @@ const MOBILE = [
   { sel: '[data-tour="plan"]', title: "Ton offre", text: "Passe à Créateur ou Pro pour débloquer tous les outils et créer plus d'ebooks." },
 ];
 
+// Petit "blip" au clic (Web Audio, sans fichier). Joué sur un geste utilisateur → non bloqué.
+function blip() {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    const ctx = new AC();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.value = 660;
+    o.connect(g); g.connect(ctx.destination);
+    const now = ctx.currentTime;
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(0.15, now + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+    o.start(now); o.stop(now + 0.18);
+  } catch { /* ignore */ }
+}
+
 export default function ProductTour() {
   const [active, setActive] = useState(false);
   const [steps, setSteps] = useState([]);
@@ -176,7 +195,7 @@ export default function ProductTour() {
           <div className="flex items-center gap-2">
             {i > 0 && (
               <button
-                onClick={() => setI((v) => v - 1)}
+                onClick={() => { blip(); setI((v) => v - 1); }}
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-200 transition-colors"
               >
                 Précédent
@@ -184,14 +203,14 @@ export default function ProductTour() {
             )}
             {i < steps.length - 1 ? (
               <button
-                onClick={() => setI((v) => v + 1)}
+                onClick={() => { blip(); setI((v) => v + 1); }}
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-neutral-900 hover:bg-neutral-800 transition-colors"
               >
                 Suivant
               </button>
             ) : (
               <button
-                onClick={finish}
+                onClick={() => { blip(); finish(); }}
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
               >
                 Terminer

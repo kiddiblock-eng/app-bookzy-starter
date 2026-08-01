@@ -68,7 +68,7 @@ export async function POST(req) {
       affiliateCode: myAffiliateCode,
       referredBy: sponsorId,
       wallet: { balance: 0, totalEarned: 0 },
-      credits: { balance: 4 } // 4 crédits offerts à l'inscription
+      credits: { balance: 0 } // plus de crédits offerts : entrée via l'Essai à 1000 FCFA
 
     });
 

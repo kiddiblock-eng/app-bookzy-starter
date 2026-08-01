@@ -6,8 +6,11 @@ import DashboardHeader from "@/app/(platform)/components/DashboardHeader";
 import WhatsNewBanner from "@/app/(platform)/components/WhatsNewBanner";
 import { MessageCircle, X, Send } from "lucide-react";
 import UpgradeModalHost from "@/app/(platform)/components/UpgradeModalHost";
-import ProductTour from "@/app/(platform)/components/ProductTour";
 import PromoWheel from "@/app/(platform)/components/PromoWheel";
+import TrialNudge from "@/app/(platform)/components/TrialNudge";
+import TrialConfirm from "@/app/(platform)/components/TrialConfirm";
+import CheckoutConfirm from "@/app/(platform)/components/CheckoutConfirm";
+import BalanceSync from "@/app/(platform)/components/BalanceSync";
 
 function useActiveUserPing() {
   useEffect(() => {
@@ -79,7 +82,7 @@ export default function DashboardLayout({ children }) {
       <div className={`flex-1 flex flex-col ${sidebarWidth} relative max-w-full transition-all duration-200`}>
         <div className={`fixed top-0 left-0 ${headerLeft} right-0 z-30 bg-white/80 dark:bg-neutral-950/80 border-b border-neutral-200 dark:border-neutral-800 backdrop-blur-xl shadow-sm transition-all duration-200`}
           style={{ height: "56px" }}>
-          <DashboardHeader onMenuClick={() => setOpen(true)} />
+          <DashboardHeader onMenuClick={() => setOpen(true)} onSupportClick={() => setChatOpen(true)} />
         </div>
 
         <div className="pt-[56px] lg:ml-0">
@@ -95,8 +98,11 @@ export default function DashboardLayout({ children }) {
 
       <FloatingSupport open={chatOpen} setOpen={setChatOpen} />
       <UpgradeModalHost />
-      <ProductTour />
       <PromoWheel />
+      <TrialNudge />
+      <TrialConfirm />
+      <CheckoutConfirm />
+      <BalanceSync />
     </div>
   );
 }
@@ -143,13 +149,6 @@ function FloatingSupport({ open, setOpen }) {
 
   return (
     <>
-      <button onClick={() => setOpen(!open)}
-        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${
-          open ? "bg-slate-700 text-white" : "bg-slate-900 hover:bg-slate-800 text-white"
-        } ${visible || open ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16 pointer-events-none"}`}>
-        {open ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
-      </button>
-
       {open && (
         <div className="fixed bottom-24 right-6 z-50 w-[360px] max-w-[calc(100vw-48px)] h-[480px] max-h-[70vh] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
           <div className="bg-slate-900 text-white px-4 py-3 flex items-center gap-3 flex-shrink-0">

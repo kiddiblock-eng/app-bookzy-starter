@@ -20,12 +20,12 @@ function BookOpenSVG(props) {
 }
 
 const TESTIMONIALS = [
-  { name: "Amadou K.", role: "Infopreneur", location: "Dakar, SN", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/bc04d7c785a05a60584b5edc85860f47.jpg", quote: "J'avais une idée depuis 3 mois. Le Validateur m'a donné 91/100. J'ai créé l'ebook et vendu 847 fois. Sans le score je n'aurais jamais osé.", result: "847 ventes" },
-  { name: "Aïcha D.", role: "Créatrice Food", location: "Abidjan, CI", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/IMG_4306.jpg", quote: "Score 78/100 avec concurrence faible. J'ai suivi les recommandations et lancé. 1 278 ventes en un mois.", result: "1 278 ventes" },
-  { name: "Jean-Marc T.", role: "Formateur", location: "Douala, CM", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/ef7c836ef8bee61bfcb4d5ff4bde5702.jpg", quote: "Le rapport m'a montré que mon sujet initial avait une saturation de 8/10. J'ai pris l'alternative suggérée. 9 180€ de revenus.", result: "9 180€" },
-  { name: "Clara M.", role: "Coach Business", location: "Paris, FR", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/7fef677cbafd1e0f1f474ad0fa14a341.jpg", quote: "Les pays qui achètent le plus m'ont surprise. Je ciblais la France, le rapport a montré que CI et SN convertissaient 3× mieux.", result: "3× plus de ventes" },
-  { name: "Kofi M.", role: "Digital Marketer", location: "Accra, GH", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/bc04d7c785a05a60584b5edc85860f47.jpg", quote: "L'angle unique suggéré par l'IA était exactement ce qui manquait. 200+ DMs en 24h après le lancement.", result: "200+ DMs en 24h" },
-  { name: "Fatou S.", role: "Entrepreneuse", location: "Bamako, ML", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/IMG_4306.jpg", quote: "Revenus estimés : 180 000 FCFA/mois. Réalité : 210 000 FCFA le premier mois. Le modèle est précis.", result: "210K FCFA/mois" },
+  { name: "Amadou K.", role: "Infopreneur", location: "Dakar, SN", avatar: "/T4.jpg", quote: "J'avais une idée depuis 3 mois. Le Validateur m'a donné 91/100. J'ai créé l'ebook et vendu 847 fois. Sans le score je n'aurais jamais osé.", result: "847 ventes" },
+  { name: "Aïcha D.", role: "Créatrice Food", location: "Abidjan, CI", avatar: "/T5.jpg", quote: "Score 78/100 avec concurrence faible. J'ai suivi les recommandations et lancé. 1 278 ventes en un mois.", result: "1 278 ventes" },
+  { name: "Jean-Marc T.", role: "Formateur", location: "Douala, CM", avatar: "/t1.jpg", quote: "Le rapport m'a montré que mon sujet initial avait une saturation de 8/10. J'ai pris l'alternative suggérée. 9 180€ de revenus.", result: "9 180€" },
+  { name: "Clara M.", role: "Coach Business", location: "Paris, FR", avatar: "/T2.jpg", quote: "Les pays qui achètent le plus m'ont surprise. Je ciblais la France, le rapport a montré que CI et SN convertissaient 3× mieux.", result: "3× plus de ventes" },
+  { name: "Kofi M.", role: "Digital Marketer", location: "Accra, GH", avatar: "/T4.jpg", quote: "L'angle unique suggéré par l'IA était exactement ce qui manquait. 200+ DMs en 24h après le lancement.", result: "200+ DMs en 24h" },
+  { name: "Fatou S.", role: "Entrepreneuse", location: "Bamako, ML", avatar: "/T5.jpg", quote: "Revenus estimés : 180 000 FCFA/mois. Réalité : 210 000 FCFA le premier mois. Le modèle est précis.", result: "210K FCFA/mois" },
 ];
 const DOUBLED = [...TESTIMONIALS, ...TESTIMONIALS];
 

@@ -42,6 +42,7 @@ export default function EbooksPage() {
         template: e.template || "standard",
         createdAt: e.createdAt,
         fileUrl: e.fileUrl || "",
+        coverUrl: e.coverUrl || null,
         isPaid: e.isPaid,
         retryCount: e.retryCount || 0,
         hasMarketing: e.hasMarketing,
@@ -344,15 +345,21 @@ function EbookCard({ ebook, viewMode, onDeleted }) {
     <>
       <div className="bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-slate-300 hover:shadow-sm transition-all flex flex-col">
 
-        {/* Cover sobre */}
-        <div className="relative h-40 bg-slate-50 border-b border-slate-100 flex flex-col justify-between p-4">
-          <div className="absolute inset-0 opacity-[0.035]"
-            style={{ backgroundImage: "radial-gradient(circle, #94a3b8 1px, transparent 1px)", backgroundSize: "18px 18px" }} />
-          <div className="relative z-10 flex justify-between items-start">
-            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Ebook</span>
+        {/* Cover : image de couverture si dispo, sinon fond sobre + titre */}
+        <div className="relative h-44 bg-slate-100 border-b border-slate-100 overflow-hidden">
+          {ebook.coverUrl ? (
+            <img src={ebook.coverUrl} alt={ebook.titre} className="absolute inset-0 w-full h-full object-cover" />
+          ) : (
+            <>
+              <div className="absolute inset-0 opacity-[0.035]"
+                style={{ backgroundImage: "radial-gradient(circle, #94a3b8 1px, transparent 1px)", backgroundSize: "18px 18px" }} />
+              <span className="absolute top-4 left-4 z-10 text-[9px] font-bold text-slate-400 uppercase tracking-widest">Ebook</span>
+              <p className="absolute bottom-4 left-4 right-4 z-10 text-sm font-bold text-slate-800 leading-snug line-clamp-3">{ebook.titre}</p>
+            </>
+          )}
+          <div className="absolute top-3 right-3 z-10">
             <StatusChip status={ebook.statut} />
           </div>
-          <p className="relative z-10 text-sm font-bold text-slate-800 leading-snug line-clamp-3">{ebook.titre}</p>
         </div>
 
         {/* Infos + actions */}

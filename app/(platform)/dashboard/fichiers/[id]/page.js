@@ -99,6 +99,17 @@ export default function EbookDetailPage({ params }) {
           {/* Sidebar */}
           <div className="lg:w-72 flex-shrink-0 space-y-4">
 
+            {/* Couverture */}
+            {ebook.coverUrl && (
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden p-3">
+                <img src={ebook.coverUrl} alt="Couverture" className="w-full rounded-lg border border-slate-100" />
+                <a href={ebook.coverUrl} download
+                  className="mt-3 w-full flex items-center justify-center gap-2 border border-slate-200 hover:bg-slate-50 text-slate-700 py-2 rounded-lg text-xs font-semibold transition-colors">
+                  <Download className="w-3.5 h-3.5" /> Télécharger la couverture
+                </a>
+              </div>
+            )}
+
             {/* PDF card */}
             <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
               <div className="bg-slate-900 p-6 text-white text-center">

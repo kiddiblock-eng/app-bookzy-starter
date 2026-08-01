@@ -57,6 +57,18 @@ export async function POST(req) {
     if (!userId) return NextResponse.json({ success: false, message: "Non authentifié" }, { status: 401 });
 
     const body = await req.json();
+
+    // Blindage Essai : compte en essai (trialTier, sans abonnement) → 30 pages / 3 chapitres max.
+    try {
+      const User = (await import("@/models/User")).default;
+      const { toolsUnlocked } = await import("@/lib/plans");
+      const u = await User.findById(userId).select("trialTier toolsTier credits");
+      if (u?.trialTier && !toolsUnlocked(u)) {
+        body.pages = Math.min(parseInt(body.pages) || 30, 30);
+        body.chapters = Math.min(parseInt(body.chapters) || 3, 3);
+      }
+    } catch { /* ignore */ }
+
     // ✅ langue ajouté
     const { titre, description, tone, audience, pages, chapters, template, outline, projetId, langue } = body;
 

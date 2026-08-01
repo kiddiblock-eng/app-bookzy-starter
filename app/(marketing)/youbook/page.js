@@ -21,12 +21,12 @@ function BookOpenSVG(props) {
 }
 
 const TESTIMONIALS = [
-  { name: "Marc Kouadio", role: "Infopreneur", location: "Abidjan, CI", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/bc04d7c785a05a60584b5edc85860f47.jpg", quote: "J'ai collé le lien d'une vidéo de 47 minutes. L'IA a sorti un ebook de 62 pages. J'ai vendu ça 3 500 FCFA le soir même.", result: "3 500 FCFA la première vente" },
-  { name: "Aïcha Koné", role: "Créatrice Food", location: "Dakar, SN", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/IMG_4306.jpg", quote: "Le titre généré était 10x meilleur que le mien. Le sommaire recommandé par l'IA était parfait, j'ai juste cliqué Générer.", result: "612 ventes en 1 mois" },
-  { name: "Yann Dubois", role: "Formateur", location: "Douala, CM", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/ef7c836ef8bee61bfcb4d5ff4bde5702.jpg", quote: "3 vidéos YouTube converties en 3 ebooks. 13 365 FCFA de revenus passifs en moins d'une semaine.", result: "13 365 FCFA en 7 jours" },
-  { name: "Clara Martin", role: "Coach Business", location: "Paris, FR", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/7fef677cbafd1e0f1f474ad0fa14a341.jpg", quote: "L'analyse du contenu est bluffante. L'IA a détecté exactement les 7 chapitres que j'aurais écrits moi-même.", result: "3 ebooks créés en 1 journée" },
-  { name: "Kofi Mensah", role: "Digital Marketer", location: "Accra, GH", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/bc04d7c785a05a60584b5edc85860f47.jpg", quote: "En 60 secondes j'avais le concept complet. En 3 minutes l'ebook était généré. J'ai partagé le lien sur mon Instagram.", result: "200+ DMs en 24h" },
-  { name: "Fatou Diallo", role: "Entrepreneuse", location: "Bamako, ML", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/IMG_4306.jpg", quote: "La boutique Smart Shop est incroyable. J'ai créé ma page en 10 minutes et partagé le lien sur WhatsApp.", result: "5 ventes le 1er jour" },
+  { name: "Marc Kouadio", role: "Infopreneur", location: "Abidjan, CI", avatar: "/T4.jpg", quote: "J'ai collé le lien d'une vidéo de 47 minutes. L'IA a sorti un ebook de 62 pages. J'ai vendu ça 3 500 FCFA le soir même.", result: "3 500 FCFA la première vente" },
+  { name: "Aïcha Koné", role: "Créatrice Food", location: "Dakar, SN", avatar: "/T5.jpg", quote: "Le titre généré était 10x meilleur que le mien. Le sommaire recommandé par l'IA était parfait, j'ai juste cliqué Générer.", result: "612 ventes en 1 mois" },
+  { name: "Yann Dubois", role: "Formateur", location: "Douala, CM", avatar: "/t1.jpg", quote: "3 vidéos YouTube converties en 3 ebooks. 13 365 FCFA de revenus passifs en moins d'une semaine.", result: "13 365 FCFA en 7 jours" },
+  { name: "Clara Martin", role: "Coach Business", location: "Paris, FR", avatar: "/T2.jpg", quote: "L'analyse du contenu est bluffante. L'IA a détecté exactement les 7 chapitres que j'aurais écrits moi-même.", result: "3 ebooks créés en 1 journée" },
+  { name: "Kofi Mensah", role: "Digital Marketer", location: "Accra, GH", avatar: "/T4.jpg", quote: "En 60 secondes j'avais le concept complet. En 3 minutes l'ebook était généré. J'ai partagé le lien sur mon Instagram.", result: "200+ DMs en 24h" },
+  { name: "Fatou Diallo", role: "Entrepreneuse", location: "Bamako, ML", avatar: "/T5.jpg", quote: "La boutique Smart Shop est incroyable. J'ai créé ma page en 10 minutes et partagé le lien sur WhatsApp.", result: "5 ventes le 1er jour" },
 ];
 const DOUBLED = [...TESTIMONIALS, ...TESTIMONIALS];
 

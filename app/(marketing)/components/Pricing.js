@@ -9,9 +9,24 @@ const ACCENT = "#059669";
 const fmt = (n) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
 const PERKS = {
-  decouverte: ["Chaque ebook : PDF + kit marketing", "Qualité IA premium, prêt à vendre", "Tes ebooks n'expirent jamais"],
-  createur: ["Tous les outils débloqués", "Niche Hunter, Radar, Validateur, Youbook…", "Outils actifs tant qu'il te reste des ebooks"],
-  pro: ["Tous les outils débloqués", "Idéal si tu crées en volume", "Le meilleur prix par ebook"],
+  decouverte: [
+    "1 ebook complet (PDF + Word)",
+    "Couverture 3D + affiche publicitaire",
+    "Textes marketing : Facebook, WhatsApp, page de vente",
+    "Prêt à vendre · n'expire jamais",
+  ],
+  createur: [
+    "Chaque ebook en kit complet, prêt à vendre",
+    "Couverture + affiche en haute résolution",
+    "Textes marketing + copywriting page de vente",
+    "Tous les outils : Niche Hunter, Radar Cash, Validateur, Youbook…",
+  ],
+  pro: [
+    "Le meilleur prix par ebook (volume)",
+    "Chaque ebook en kit complet, haute résolution",
+    "Textes marketing + copywriting page de vente",
+    "Tous les outils débloqués",
+  ],
 };
 
 export default function Pricing() {
@@ -34,7 +49,7 @@ export default function Pricing() {
                 className={`relative rounded-2xl bg-white p-6 flex flex-col ${reco ? "border-2 border-[#059669] shadow-xl" : "border border-neutral-200"}`}>
                 {reco && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full" style={{ background: ACCENT }}>
-                    Le plus populaire
+                    Populaire
                   </span>
                 )}
 
@@ -46,7 +61,9 @@ export default function Pricing() {
                   <span className="text-sm text-neutral-400 ml-1">FCFA</span>
                 </div>
                 <div className="text-xs text-neutral-500 mb-5">
-                  <strong className="text-neutral-900">Crée jusqu'à {o.ebooks} ebook{o.ebooks > 1 ? "s" : ""}</strong>
+                  <strong className="text-neutral-900">
+                    {o.ebookOptions ? `${o.ebookOptions[0]} à ${o.ebookOptions[o.ebookOptions.length - 1]} ebooks` : `${o.ebooks} ebook${o.ebooks > 1 ? "s" : ""}`}
+                  </strong>
                   {disc > 0 && <span className="ml-1.5 font-semibold text-emerald-600">· économise {disc}%</span>}
                 </div>
 

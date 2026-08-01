@@ -22,12 +22,12 @@ const TEMPLATES = [
 ];
 
 const TESTIMONIALS = [
-  { name: "Marc Kouadio", role: "Infopreneur", location: "Abidjan, CI", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/bc04d7c785a05a60584b5edc85860f47.jpg", quote: "J'ai arrêté de payer mon graphiste. Le PDF qui sort de Bookzy est plus propre que ce que je faisais sur Canva en 3h.", result: "12 ebooks vendus en 2 semaines" },
-  { name: "Aïcha Koné", role: "Créatrice Food", location: "Dakar, SN", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/IMG_4306.jpg", quote: "J'ai copié le script WhatsApp généré par l'IA et envoyé à ma liste. Première vente le soir même.", result: "Première vente en 6h" },
-  { name: "Yann Dubois", role: "Formateur", location: "Douala, CM", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/ef7c836ef8bee61bfcb4d5ff4bde5702.jpg", quote: "Le Niche Hunter m'a trouvé une idée de niche que je n'aurais jamais cherchée. 15 ventes dès le premier jour.", result: "15 ventes le jour 1" },
-  { name: "Clara Martin", role: "Coach Business", location: "Paris, FR", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/7fef677cbafd1e0f1f474ad0fa14a341.jpg", quote: "L'ebook de 80 pages est pertinent et bien structuré. Le kit marketing m'a fait économiser des heures.", result: "3 ebooks créés en 1 jour" },
-  { name: "Kofi Mensah", role: "Digital Marketer", location: "Accra, GH", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/bc04d7c785a05a60584b5edc85860f47.jpg", quote: "En 60 secondes j'avais un ebook complet avec cover. J'ai partagé le lien sur mon Instagram et les DMs ont explosé.", result: "200+ DMs en 24h" },
-  { name: "Fatou Diallo", role: "Entrepreneuse", location: "Bamako, ML", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/IMG_4306.jpg", quote: "J'ai mis en page mon Word en 20 secondes. Le PDF est sorti professionnel, j'ai vendu le soir même sur WhatsApp.", result: "5 ventes le 1er jour" },
+  { name: "Marc Kouadio", role: "Infopreneur", location: "Abidjan, CI", avatar: "/T4.jpg", quote: "J'ai arrêté de payer mon graphiste. Le PDF qui sort de Bookzy est plus propre que ce que je faisais sur Canva en 3h.", result: "12 ebooks vendus en 2 semaines" },
+  { name: "Aïcha Koné", role: "Créatrice Food", location: "Dakar, SN", avatar: "/T5.jpg", quote: "J'ai copié le script WhatsApp généré par l'IA et envoyé à ma liste. Première vente le soir même.", result: "Première vente en 6h" },
+  { name: "Yann Dubois", role: "Formateur", location: "Douala, CM", avatar: "/t1.jpg", quote: "Le Niche Hunter m'a trouvé une idée de niche que je n'aurais jamais cherchée. 15 ventes dès le premier jour.", result: "15 ventes le jour 1" },
+  { name: "Clara Martin", role: "Coach Business", location: "Paris, FR", avatar: "/T2.jpg", quote: "L'ebook de 80 pages est pertinent et bien structuré. Le kit marketing m'a fait économiser des heures.", result: "3 ebooks créés en 1 jour" },
+  { name: "Kofi Mensah", role: "Digital Marketer", location: "Accra, GH", avatar: "/T4.jpg", quote: "En 60 secondes j'avais un ebook complet avec cover. J'ai partagé le lien sur mon Instagram et les DMs ont explosé.", result: "200+ DMs en 24h" },
+  { name: "Fatou Diallo", role: "Entrepreneuse", location: "Bamako, ML", avatar: "/T5.jpg", quote: "J'ai mis en page mon Word en 20 secondes. Le PDF est sorti professionnel, j'ai vendu le soir même sur WhatsApp.", result: "5 ventes le 1er jour" },
 ];
 const DOUBLED = [...TESTIMONIALS, ...TESTIMONIALS];
 

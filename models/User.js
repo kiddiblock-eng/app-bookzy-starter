@@ -56,7 +56,7 @@ const userSchema = new mongoose.Schema(
 
     // ─── SYSTÈME DE CRÉDITS ──────────────────────────────────────────────────
     credits: {
-      balance:        { type: Number, default: 4, min: 0 },
+      balance:        { type: Number, default: 0, min: 0 },
       totalPurchased: { type: Number, default: 0 },
       totalSpent:     { type: Number, default: 0 },
      freeProductAnalyses:  { type: Number, default: 0 }, // ← ajouter
@@ -74,6 +74,9 @@ const userSchema = new mongoose.Schema(
     // Statut "outils débloqués" (acheteurs Créateur/Pro) — null sinon.
     // Reverrouillé automatiquement quand le solde d'ebooks tombe à 0.
     toolsTier: { type: String, default: null },
+
+    // Essai à 1000 FCFA activé (1 ebook 30p/3ch, outils = free +1). Retiré dès un vrai abonnement.
+    trialTier: { type: Boolean, default: false },
 
     // Product tour (onboarding guidé) déjà vu ?
     tourDone: { type: Boolean, default: false },

@@ -11,6 +11,7 @@ import { getAIText } from "../../../../lib/ai";
 import { generateStyledHTML } from "../../../../lib/pdf/htmlGenerator"; 
 import { generateDocx } from "../../../../lib/pdf/docxGenerator";
 import { uploadBufferToCloudinary } from "../../../../lib/cloudinary";
+import { buildImageBrief, generateOpenRouterImage, IMG_MODELS } from "../../../../lib/imageKit";
 import {
   getSummaryPrompt,
   getIntroPrompt,
@@ -434,6 +435,65 @@ Intègre naturellement ces éléments dans le contenu pour rester fidèle à la 
     projet.status = "generated_text";
     await projet.save();
     console.log("💾 [PHASE 2] Texte sauvegardé");
+
+    // ============================================================================
+    // 🎨 IMAGES DU KIT (couverture + affiche) selon l'offre — best-effort.
+    //   Essai   → aucune image (ebook seul)
+    //   Payants → GPT Image 2 (medium / 1K) — voir IMG_MODELS pour changer de modèle
+    // Chaque image est écrite dès qu'elle est prête → la case se remplit côté client.
+    // Toute erreur ici n'empêche jamais la livraison de l'ebook (PDF/Word).
+    // ============================================================================
+    try {
+      if (!process.env.OPENROUTER_API_KEY) {
+        console.warn("⚠️ [IMAGES] OPENROUTER_API_KEY absente — étape images ignorée");
+      } else {
+        const userDoc = await User.findById(userId).lean();
+        const tier = userDoc?.toolsTier; // "createur" | "pro" | null
+        const isPremium = tier === "createur" || tier === "pro";
+        const isTrial = !!userDoc?.trialTier && !isPremium;
+        if (isTrial) {
+          console.log("ℹ️ [IMAGES] Essai — pas d'images (ebook seul)");
+        } else {
+          // GPT Image 2 (meilleur texte + layouts). medium/1K pour maîtriser le coût (~0,06 $/image
+          // vs ~0,39 $ en high/2K). Monter en quality:"high" / resolution:"2K" si besoin de finesse.
+          const model = IMG_MODELS.gpt;
+          const resolution = "1K";
+          const quality = "medium";
+          const author = userDoc?.displayName || [userDoc?.firstName, userDoc?.lastName].filter(Boolean).join(" ") || userDoc?.name || "";
+          console.log(`🎨 [IMAGES] Génération kit — modèle=${model} résolution=${resolution}`);
+
+          const brief = await buildImageBrief({
+            titre: projet.titre,
+            description: projet.description,
+            audience: projet.audience,
+            langue: projet.langue,
+            auteur: author,
+            template: projet.template,
+          });
+
+          // Couverture (mockup 3D)
+          let coverUrl = null;
+          try {
+            coverUrl = await generateOpenRouterImage(brief.coverPrompt, { model, resolution, quality, aspectRatio: "3:4" });
+            projet.coverUrl = coverUrl;
+            projet.progress = 85;
+            await projet.save();
+            console.log("✅ [IMAGES] Couverture prête");
+          } catch (e) { console.error("❌ [IMAGES] Couverture:", e.message); }
+
+          // Affiche publicitaire (générée indépendamment — le prompt reprend le même titre + mockup)
+          try {
+            const afficheUrl = await generateOpenRouterImage(brief.affichePrompt, { model, resolution, quality, aspectRatio: "3:4" });
+            projet.adsImages = [afficheUrl];
+            projet.progress = 88;
+            await projet.save();
+            console.log("✅ [IMAGES] Affiche prête");
+          } catch (e) { console.error("❌ [IMAGES] Affiche:", e.message); }
+        }
+      }
+    } catch (imgErr) {
+      console.error("❌ [IMAGES] Étape images échouée (kit livré quand même):", imgErr.message);
+    }
 
     // ============================================================================
     // 🚀 PDF ULTRA-OPTIMISÉ - VERSION CORRIGÉE

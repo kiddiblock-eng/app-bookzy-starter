@@ -79,12 +79,12 @@ const AD_CARDS = [
 ];
 
 const TESTIMONIALS = [
-  { name: "Mamadou K.", role: "Créateur d'ebooks", location: "Sénégal", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/bc04d7c785a05a60584b5edc85860f47.jpg", quote: "Radar Cash m'a montré une pub active depuis 60 jours sur WhatsApp Business. J'ai créé ma version avec Bookzy. 850 000 FCFA en 19 jours.", revenue: "850K FCFA" },
-  { name: "Aïcha D.", role: "Auteure indépendante", location: "Côte d'Ivoire", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/IMG_4306.jpg", quote: "J'ai vu une pub sur les plantes africaines active depuis 2 mois — signe que ça vend. J'ai copié l'angle, créé l'ebook, 1 278 ventes.", revenue: "1,2M FCFA" },
-  { name: "Jean-Marc T.", role: "Formateur en ligne", location: "France", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/ef7c836ef8bee61bfcb4d5ff4bde5702.jpg", quote: "Si quelqu'un paie pour une pub depuis 3 mois, c'est qu'il vend. Radar Cash m'a donné cette info. Je vends 3× plus cher que mes concurrents.", revenue: "2,3M FCFA" },
-  { name: "Clara M.", role: "Consultante digitale", location: "Belgique", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/7fef677cbafd1e0f1f474ad0fa14a341.jpg", quote: "La logique est simple : une pub active depuis longtemps = un produit qui vend. Radar Cash me donne exactement ça.", revenue: "620K FCFA" },
-  { name: "Kofi M.", role: "Entrepreneur numérique", location: "Ghana", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/bc04d7c785a05a60584b5edc85860f47.jpg", quote: "En 1 semaine j'avais 3 ebooks en vente basés sur des pubs actives trouvées avec Radar Cash.", revenue: "490K FCFA" },
-  { name: "Fatou S.", role: "Coach bien-être", location: "Mali", avatar: "https://sucesspro.io/wp-content/uploads/2025/10/IMG_4306.jpg", quote: "Je cherchais une niche. Radar Cash m'a montré que la santé naturelle africaine avait des annonceurs actifs depuis des mois.", revenue: "730K FCFA" },
+  { name: "Mamadou K.", role: "Créateur d'ebooks", location: "Sénégal", avatar: "/T4.jpg", quote: "Radar Cash m'a montré une pub active depuis 60 jours sur WhatsApp Business. J'ai créé ma version avec Bookzy. 850 000 FCFA en 19 jours.", revenue: "850K FCFA" },
+  { name: "Aïcha D.", role: "Auteure indépendante", location: "Côte d'Ivoire", avatar: "/T5.jpg", quote: "J'ai vu une pub sur les plantes africaines active depuis 2 mois — signe que ça vend. J'ai copié l'angle, créé l'ebook, 1 278 ventes.", revenue: "1,2M FCFA" },
+  { name: "Jean-Marc T.", role: "Formateur en ligne", location: "France", avatar: "/t1.jpg", quote: "Si quelqu'un paie pour une pub depuis 3 mois, c'est qu'il vend. Radar Cash m'a donné cette info. Je vends 3× plus cher que mes concurrents.", revenue: "2,3M FCFA" },
+  { name: "Clara M.", role: "Consultante digitale", location: "Belgique", avatar: "/T2.jpg", quote: "La logique est simple : une pub active depuis longtemps = un produit qui vend. Radar Cash me donne exactement ça.", revenue: "620K FCFA" },
+  { name: "Kofi M.", role: "Entrepreneur numérique", location: "Ghana", avatar: "/T4.jpg", quote: "En 1 semaine j'avais 3 ebooks en vente basés sur des pubs actives trouvées avec Radar Cash.", revenue: "490K FCFA" },
+  { name: "Fatou S.", role: "Coach bien-être", location: "Mali", avatar: "/T5.jpg", quote: "Je cherchais une niche. Radar Cash m'a montré que la santé naturelle africaine avait des annonceurs actifs depuis des mois.", revenue: "730K FCFA" },
 ];
 const DOUBLED = [...TESTIMONIALS, ...TESTIMONIALS];
 

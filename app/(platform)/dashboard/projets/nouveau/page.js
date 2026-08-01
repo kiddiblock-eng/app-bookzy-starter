@@ -8,9 +8,11 @@ import {
   CheckCircle2, Loader2, FileText, MessageCircle, PenTool,
   Download, Smartphone, ArrowRight, ArrowLeft, Check, BookOpen,
   X, Lock, FileCheck2, ArrowUpRightFromCircleIcon, CreditCard, Menu,
-  Plus, Target, Radio, Youtube, BarChart2, ArrowUp
+  Plus, Target, Radio, Youtube, BarChart2, ArrowUp, ShieldCheck
 } from "lucide-react";
 import { useCredits } from "@/hooks/useCredits";
+import GenerationResult from "@/app/(platform)/components/GenerationResult";
+import { sfxTick, sfxClick, sfxBack } from "@/lib/sfx";
 
 // ── DONNÉES ────────────────────────────────────────────────────────────────────
 const TEMPLATES = [
@@ -48,7 +50,7 @@ const TOOLS = [
 ];
 
 // ── BOOK 3D ────────────────────────────────────────────────────────────────────
-const Book3D = ({ title, template, size = "md" }) => {
+const Book3D = ({ title, template, auteur, size = "md" }) => {
   const tmpl = TEMPLATES.find((t) => t.id === template) || TEMPLATES[0];
   const displayTitle = title || "Votre titre ici";
   const lg = size === "lg";
@@ -75,7 +77,7 @@ const Book3D = ({ title, template, size = "md" }) => {
             <h3 className="mt-3 font-black leading-tight" style={{ fontSize: lg ? 17 : 13 }}>{displayTitle}</h3>
             <div className="mt-auto">
               <div className="w-full h-px bg-white/20 mb-1.5" />
-              <span className="font-bold uppercase tracking-widest opacity-65" style={{ fontSize: lg ? 7.5 : 6.5 }}>Édition Bookzy</span>
+              <span className="font-bold uppercase tracking-widest opacity-80 block truncate" style={{ fontSize: lg ? 8 : 7 }}>{auteur || "Édition Bookzy"}</span>
             </div>
           </div>
         </div>
@@ -180,10 +182,10 @@ const NumberPicker = ({ label, value, options, onChange }) => (
 
 // ── PILL SELECTOR ──────────────────────────────────────────────────────────────
 const PillSelector = ({ options, value, onChange }) => (
-  <div className="flex flex-wrap gap-2">
+  <div className="flex flex-wrap gap-1.5">
     {options.map(opt => (
-      <button key={opt} type="button" onClick={() => onChange(opt)}
-        className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all ${value===opt?'bg-slate-900 text-white shadow-lg':'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+      <button key={opt} type="button" onClick={() => { onChange(opt); sfxTick(); }}
+        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${value===opt?'bg-slate-900 text-white':'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
         {opt}
       </button>
     ))}
@@ -198,12 +200,12 @@ function CanvaLoading({ titre, template, langue }) {
     { label: "Analyzing the topic", sub: "Understanding the context..." },
     { label: "Creating the outline", sub: "Building ebook structure..." },
     { label: "Writing your ebook", sub: "The magic is happening..." },
-    { label: "Free preview", sub: "Finalizing your preview..." },
+    { label: "Preparing your files", sub: "Getting your deliverables ready..." },
   ] : [
     { label: "Analyse du sujet", sub: "Compréhension du contexte..." },
     { label: "Création du sommaire", sub: "Structure de l'ebook en cours..." },
     { label: "Rédaction de votre ebook", sub: "La magie opère..." },
-    { label: "Aperçu gratuit", sub: "On finalise votre aperçu..." },
+    { label: "Préparation de vos fichiers", sub: "On prépare vos livrables..." },
   ];
 
   useEffect(() => {
@@ -257,8 +259,6 @@ function CanvaLoading({ titre, template, langue }) {
           </div>
         ))}
       </div>
-
-      <p className="text-xs text-slate-400 text-center">{isEn ? "100% free preview · No commitment" : "Aperçu 100% gratuit · Sans engagement"}</p>
 
       <style>{`
         @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
@@ -422,7 +422,7 @@ function OffersModal({ onClose, projetId }) {
                     {buying === id ? <Loader2 className="w-4 h-4 animate-spin ml-auto" /> : (
                       <span className="block">
                         <span className="block text-base font-bold text-neutral-900">{fmt(o.priceFcfa)} F</span>
-                        {disc > 0 && <span className="block text-[10px] font-semibold text-emerald-600">économise {disc}%</span>}
+                        {disc > 0 && id !== "essai" && <span className="block text-[10px] font-semibold text-emerald-600">économise {disc}%</span>}
                       </span>
                     )}
                   </span>
@@ -437,7 +437,7 @@ function OffersModal({ onClose, projetId }) {
                     <span className="block text-[11px] text-neutral-400 mt-1">Niche Hunter · Radar Cash · Validateur · Youbook · Designer · Romans</span>
                   </span>
                 ) : (
-                  <span className="block mt-2 text-[11px] text-neutral-400">Ebooks uniquement — outils non inclus</span>
+                  <span className="block mt-2 text-[11px] text-neutral-400">Ebooks uniquement · outils non inclus</span>
                 )}
               </button>
             );
@@ -455,8 +455,7 @@ function PreviewPage({ kit, previewData, onEdit }) {
   const params = useSearchParams();
   const { balance, mutateBalance } = useCredits();
   const [isGenerating, setIsGenerating] = useState(false);
-  const [genProgress, setGenProgress] = useState(5);
-  const [downloadKit, setDownloadKit] = useState(null);
+  const [resultProjetId, setResultProjetId] = useState(null);
   const [showCreditsModal, setShowCreditsModal] = useState(false);
   const [resuming, setResuming] = useState(false);
 
@@ -506,6 +505,7 @@ function PreviewPage({ kit, previewData, onEdit }) {
           titre: kit.titre, description: kit.description,
           pages: kit.pages, chapters: kit.chapters,
           tone: kit.tone, audience: kit.audience,
+          outputType: kit.outputType,
           template: kit.template, outline: previewData.sommaire, langue: kit.langue,
         }),
       });
@@ -514,22 +514,8 @@ function PreviewPage({ kit, previewData, onEdit }) {
         if (genData.insufficientCredits) { setShowCreditsModal(true); setIsGenerating(false); return; }
         alert(genData.message || "Erreur"); setIsGenerating(false); return;
       }
-      const projetId = genData.projetId || kit.projetId;
-      let attempts = 0;
-      const poll = async () => {
-        if (attempts++ > 120) { alert("Délai dépassé."); setIsGenerating(false); return; }
-        try {
-          const r = await fetch(`/api/ebooks/progress/${projetId}`, { credentials: "include" });
-          const d = await r.json();
-          if (d.progress) setGenProgress(d.progress);
-          if (d.status === "COMPLETED" && d.pdfUrl) {
-            setIsGenerating(false); await mutateBalance?.();
-            setDownloadKit({ pdfUrl: d.pdfUrl, docxUrl: d.docxUrl || null, title: kit.titre, projetId });
-          } else if (d.status === "ERROR") { alert("Erreur lors de la génération."); setIsGenerating(false); }
-          else { setTimeout(poll, 2000); }
-        } catch { setTimeout(poll, 3000); }
-      };
-      setTimeout(poll, 1500);
+      // La génération tourne en arrière-plan → on affiche la page de résultat (cases qui se remplissent).
+      setResultProjetId(genData.projetId || kit.projetId);
     } catch { alert("Erreur technique"); setIsGenerating(false); }
   };
 
@@ -557,9 +543,14 @@ function PreviewPage({ kit, previewData, onEdit }) {
   };
 
 
+  // Génération lancée → page de résultat (cases qui se remplissent au fil de l'eau).
+  if (resultProjetId) {
+    return <GenerationResult projetId={resultProjetId} kit={kit} onClose={() => router.push("/dashboard/fichiers")} />;
+  }
+
   return (
     <div style={{minHeight:"100vh",background:"#f1f5f9",paddingBottom:"120px"}}>
-      {isGenerating && <GeneratingOverlay progress={genProgress} />}
+      {isGenerating && <GeneratingOverlay progress={5} />}
       {resuming && (
         <div className="fixed inset-0 bg-white flex flex-col items-center justify-center z-[200] p-6">
           <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mb-4" />
@@ -567,8 +558,6 @@ function PreviewPage({ kit, previewData, onEdit }) {
           <p className="text-slate-400 text-sm mt-1">On débloque ton ebook, un instant.</p>
         </div>
       )}
-      {downloadKit && <DownloadKitModal kit={downloadKit} router={router} />}
-
       {/* Paywall offres */}
       {showCreditsModal && (
         <OffersModal onClose={() => setShowCreditsModal(false)} projetId={kit.projetId} />
@@ -580,7 +569,7 @@ function PreviewPage({ kit, previewData, onEdit }) {
           <ArrowLeft size={14} /> Modifier
         </button>
         <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
-          <span style={{background:"#dcfce7",color:"#166534",padding:"5px 12px",borderRadius:"20px",fontSize:"11px",fontWeight:"700"}}>Aperçu gratuit</span>
+          <span style={{background:"#dcfce7",color:"#166534",padding:"5px 12px",borderRadius:"20px",fontSize:"11px",fontWeight:"700"}}>Aperçu</span>
           {balance !== null && <span style={{background:"#f1f5f9",color:"#64748b",padding:"5px 12px",borderRadius:"20px",fontSize:"11px"}}>{ebooksFromCredits(balance)} ebook{ebooksFromCredits(balance) > 1 ? "s" : ""}</span>}
         </div>
       </div>
@@ -726,11 +715,13 @@ function PreviewPage({ kit, previewData, onEdit }) {
 
 function NouveauProjetPageContent() {
   const params = useSearchParams();
-  const { balance } = useCredits();
+  const router = useRouter();
   const bookRef = useRef(null);
 
   const [titre, setTitre] = useState("");
   const [description, setDescription] = useState("");
+  const [auteur, setAuteur] = useState("");
+  const [outputType, setOutputType] = useState("kit"); // "kit" | "ebook"
   const [pages, setPages] = useState("30");
   const [chapters, setChapters] = useState("6");
   const [tone, setTone] = useState("Professionnel");
@@ -743,10 +734,14 @@ function NouveauProjetPageContent() {
   const [kitData, setKitData] = useState(null);
   const [improvingTitle, setImprovingTitle] = useState(false);
   const [improvingDescription, setImprovingDescription] = useState(false);
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(1); // formulaire premium en 2 étapes (1 = contenu, 2 = style)
   const [menuOpen, setMenuOpen] = useState(false);
   const [userName, setUserName] = useState("");
   const [toolsOpen, setToolsOpen] = useState(false);
+  const [trial, setTrial] = useState(null);   // { subscribed, trialActive, eligible }
+  const [paywall, setPaywall] = useState(false);
+  const [generating, setGenerating] = useState(false);        // page de cases affichée (dès le clic Générer)
+  const [resultProjetId, setResultProjetId] = useState(null); // id du projet à poller (une fois la génération lancée)
 
   // URL params + resume depuis sessionStorage
   useEffect(() => {
@@ -802,9 +797,31 @@ function NouveauProjetPageContent() {
   useEffect(() => {
     fetch("/api/profile/get", { credentials: "include" })
       .then(r => r.json())
-      .then(d => { const u = d?.user || d; setUserName(u?.firstName || u?.displayName || (u?.name ? u.name.split(" ")[0] : "") || ""); })
+      .then(d => {
+        const u = d?.user || d;
+        const first = u?.firstName || u?.displayName || (u?.name ? u.name.split(" ")[0] : "") || "";
+        setUserName(first);
+        const full = u?.displayName || u?.name || [u?.firstName, u?.lastName].filter(Boolean).join(" ") || first;
+        setAuteur((prev) => prev || full);
+      })
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    fetch("/api/trial/status", { credentials: "include" })
+      .then((r) => r.json())
+      .then((d) => { if (d?.success) setTrial(d); })
+      .catch(() => {});
+  }, []);
+
+  // En essai seul : on cale les valeurs sous les limites (défaut chapitres=6 > 3) et on force l'ebook seul.
+  useEffect(() => {
+    if (trial?.trialActive && !trial?.subscribed) {
+      setPages((p) => String(Math.min(parseInt(p) || 30, 30)));
+      setChapters((c) => String(Math.min(parseInt(c) || 3, 3)));
+      setOutputType("ebook");
+    }
+  }, [trial]);
 
   const handleImproveTitle = async () => {
     if (!titre || improvingTitle) return;
@@ -830,44 +847,75 @@ function NouveauProjetPageContent() {
   };
 
 
+  // Palier de l'utilisateur pour la génération
+  const canGenerate = !!(trial?.subscribed || trial?.trialActive); // a payé (essai ou abonnement)
+  const trialOnly = !!(trial?.trialActive && !trial?.subscribed);  // essai seul → limites 30p/3ch, ebook only
+
+  // Lance la génération : generate CRÉE lui-même le projet (pas de draft-preview) puis alimente la page de cases.
+  const startGeneration = async (kit) => {
+    try {
+      const genRes = await fetch("/api/ebooks/generate", {
+        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+        body: JSON.stringify({
+          titre: kit.titre, description: kit.description,
+          pages: kit.pages, chapters: kit.chapters,
+          tone: kit.tone, audience: kit.audience,
+          outputType: kit.outputType,
+          template: kit.template, langue: kit.langue,
+        }),
+      });
+      const genData = await genRes.json();
+      if (!genRes.ok || !genData.success) {
+        if (genData.insufficientCredits) {
+          // A déjà payé (essai/abo) mais épuisé → acheter plus. Jamais payé → petit aperçu des cases puis paywall essai.
+          if (canGenerate) { setGenerating(false); router.push("/dashboard/tarifs"); }
+          else { setTimeout(() => { setGenerating(false); setPaywall(true); }, 1600); }
+          return;
+        }
+        setGenerating(false);
+        alert(genData.message || "Erreur");
+        return;
+      }
+      setResultProjetId(genData.projetId); // → démarre le polling dans la page de cases
+    } catch { setGenerating(false); alert("Erreur technique"); }
+  };
+
   const handleSubmit = async (e) => {
     if (e?.preventDefault) e.preventDefault();
     if (!isFormValid) return;
+
+    // Même expérience pour tout le monde : on affiche la page de cases, puis generate décide
+    // (crédits OK → ça se remplit ; jamais payé → paywall). Plus de loader-livre ni de branche séparée.
+    const finalPages = trialOnly ? Math.min(parseInt(pages), 30) : parseInt(pages);
+    const finalChapters = trialOnly ? Math.min(parseInt(chapters), 3) : parseInt(chapters);
+    const finalOutput = trialOnly ? "ebook" : outputType;
     const finalDescription = description.trim() || `Un guide pratique et complet sur : ${titre}.`;
-    setIsLoading(true);
-    try {
-      const res = await fetch("/api/ebooks/draft-preview", {
-        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
-        body: JSON.stringify({ titre, description: finalDescription, tone, audience, pages: parseInt(pages), chapters: parseInt(chapters), template, langue }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setKitData({ projetId: data.projetId, titre, description: finalDescription, tone, audience, pages, chapters, template, langue });
-        setPreviewData(data.preview);
-      } else {
-        alert(data.message || "Erreur");
-        setIsLoading(false);
-      }
-    } catch (e) {
-      alert("Erreur de connexion");
-      setIsLoading(false);
-    }
+
+    const kitBase = { titre, description: finalDescription, auteur, outputType: finalOutput, tone, audience, pages: finalPages, chapters: finalChapters, template, langue };
+    setKitData(kitBase);
+    setGenerating(true);
+    await startGeneration(kitBase);
+  };
+
+  const buyEssai = () => {
+    setPaywall(false);
+    window.dispatchEvent(new CustomEvent("bookzy:trial-confirm", { detail: { price: 1000 } }));
   };
 
   const isFormValid = titre.trim().length > 3;
   const selTmpl = TEMPLATES.find((t) => t.id === template) || TEMPLATES[0];
 
+  // Génération lancée → page de cases tout de suite (squelettes), plus d'aperçu ni de loader-livre.
+  if (generating && kitData) return <GenerationResult projetId={resultProjetId} kit={kitData} onClose={() => router.push("/dashboard/fichiers")} />;
+
   // Afficher le Canva loading pendant l'appel
   if (isLoading && !previewData) return <CanvaLoading titre={titre} template={template} langue={langue} />;
 
-  // Afficher la preview après succès
+  // Aperçu (uniquement pour la reprise après paiement — bookzy_resume_projetId)
   if (previewData && kitData) return <PreviewPage kit={kitData} previewData={previewData} onEdit={() => { setPreviewData(null); setKitData(null); setIsLoading(false); }} />;
 
   return (
     <div className="bz-create-bg relative -m-4 md:-m-6 lg:-m-8 min-h-[calc(100dvh-56px)] flex flex-col overflow-x-hidden">
-      {/* Halo vert diffus en bas (desktop uniquement — sur mobile le bas reste blanc) */}
-      <div className="hidden lg:block pointer-events-none absolute inset-x-0 bottom-0 h-2/3"
-        style={{ background: "radial-gradient(65% 85% at 50% 100%, rgba(16,185,129,0.28), transparent 72%)" }} />
 
       {/* Drawer menu */}
       {menuOpen && (
@@ -904,161 +952,195 @@ function NouveauProjetPageContent() {
         </div>
       )}
 
-      {step === 0 ? (
-        /* ── FOCUS (accueil Claude) — centré verticalement, rien d'autre ── */
-        <div className="flex-1 flex flex-col items-center justify-center px-5 pb-32">
-          <div className="w-full max-w-3xl text-center">
-            <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 mb-2 leading-tight">Quel ebook veux-tu créer aujourd'hui{userName ? `, ${userName}` : ""} ?</h1>
-            <p className="text-slate-500 text-sm sm:text-base mb-8">On s'occupe de la rédaction et de la mise en page complète de ton ebook</p>
-            <div className="relative">
-              {/* Carte de saisie façon Lovable : zone de texte + barre d'outils en bas */}
-              <div className="bg-white border border-slate-200 rounded-3xl shadow-lg p-2 text-left transition-all focus-within:ring-2 focus-within:ring-indigo-500/40 focus-within:border-transparent">
-                <textarea value={titre} onChange={e => setTitre(e.target.value)} autoFocus rows={1}
-                  onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (titre.trim().length > 3) setStep(1); } }}
-                  onFocus={e => { const el = e.target; setTimeout(() => el.scrollIntoView({ block: "center", behavior: "smooth" }), 300); }}
-                  placeholder="Tape ici le titre de ton ebook…"
-                  className="w-full resize-none bg-transparent px-3 pt-1.5 pb-0.5 text-slate-900 text-base placeholder:text-slate-400 focus:outline-none" />
+      {/* ── FORMULAIRE PREMIUM (crème, sobre) EN 2 ÉTAPES ── */}
+      <div className={`w-full mx-auto px-5 py-5 relative z-10 ${step === 1 ? "max-w-5xl" : "max-w-xl"}`}>
 
-                <div className="flex items-center gap-1.5 px-1 pt-1">
-                  {/* Lanceur d'outils */}
-                  <button type="button" onClick={() => setToolsOpen((v) => !v)} aria-label="Autres outils"
-                    className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 transition-all">
-                    <Plus className="w-5 h-5" />
-                  </button>
-
-                  {/* Améliorer le sujet */}
-                  <button type="button" onClick={handleImproveTitle} disabled={!titre || improvingTitle}
-                    className="flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-50 disabled:opacity-30 px-2.5 py-1.5 rounded-full transition-all">
-                    {improvingTitle ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowUpRightFromCircleIcon className="w-3.5 h-3.5" />}
-                    <span className="hidden sm:inline">{improvingTitle ? "..." : "Améliorer"}</span>
-                  </button>
-
-                  <div className="flex-1" />
-
-                  {/* Sélecteur de langue compact */}
-                  {[{ value: "français", label: "FR" }, { value: "anglais", label: "EN" }].map(opt => (
-                    <button key={opt.value} type="button" onClick={() => setLangue(opt.value)}
-                      className={`px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all ${langue === opt.value ? "bg-slate-900 text-white" : "text-slate-400 hover:bg-slate-100"}`}>
-                      {opt.label}
-                    </button>
-                  ))}
-
-                  {/* Envoyer — vert dès qu'un sujet est saisi */}
-                  <button type="button" disabled={titre.trim().length <= 3} onClick={() => setStep(1)} aria-label="Continuer"
-                    className="w-10 h-10 shrink-0 flex items-center justify-center rounded-full bg-emerald-600 text-white disabled:bg-slate-200 disabled:text-slate-400 hover:bg-emerald-700 transition-all">
-                    <ArrowUp className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-
-
-              {toolsOpen && (
-                <>
-                  <div className="fixed inset-0 z-10" onClick={() => setToolsOpen(false)} />
-                  <div className="absolute left-0 bottom-full mb-2 w-80 max-w-[calc(100vw-40px)] bg-white border border-slate-200 rounded-2xl shadow-xl p-2 z-20 text-left">
-                    {TOOLS.map((t) => (
-                      <Link key={t.href} href={t.href} onClick={() => setToolsOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 transition-colors">
-                        <t.icon className="w-5 h-5 text-slate-600 shrink-0" />
-                        <span className="min-w-0">
-                          <span className="block text-sm font-medium text-slate-900">{t.label}</span>
-                          <span className="block text-xs text-slate-500 truncate">{t.desc}</span>
-                        </span>
-                      </Link>
-                    ))}
-                  </div>
-                </>
-              )}
+        {/* En-tête clair (étape 1 uniquement) */}
+        {step === 1 && (
+          <div className="mb-4 flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-[28px] font-semibold tracking-tight text-slate-900">
+                Crée ton ebook{userName ? `, ${userName}` : ""}
+              </h1>
+              <p className="mt-1.5 text-sm text-slate-500 max-w-md">
+                Décris ton idée. L'IA rédige, structure et met en page un ebook professionnel en quelques minutes.
+              </p>
             </div>
+            <span className="hidden lg:inline-flex items-center shrink-0 rounded-full bg-slate-100 text-slate-600 px-3 py-1.5 text-xs font-medium">
+              Moins de 2 minutes
+            </span>
+          </div>
+        )}
+        <div className="mb-5">
+          <div className="flex items-center justify-between mb-2 text-xs font-medium text-slate-400">
+            <span>{step === 1 ? "Le contenu" : "Le style & le format"}</span>
+            <span className="tabular-nums">{step} / 2</span>
+          </div>
+          <div className="h-1 rounded-full bg-slate-100 overflow-hidden">
+            <div className="h-full bg-slate-900 transition-all duration-300" style={{ width: step === 1 ? "50%" : "100%" }} />
           </div>
         </div>
-      ) : (
-      <div className="max-w-2xl mx-auto w-full px-5 py-8">
 
         <div key={step} className="bz-step">
 
-          {/* ── ÉTAPE 1 — DÉTAILS (optionnel) ── */}
+          {/* ── ÉTAPE 1 · CONTENU ── */}
           {step === 1 && (
-            <div className="text-center">
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Veux-tu préciser un peu ?</h1>
-              <p className="text-slate-500 text-sm mb-8">Optionnel : quelques mots sur ce que le lecteur va apprendre (100 mots max). Tu peux passer.</p>
-              <div className="relative">
-                <textarea rows={4} value={description}
-                  onChange={e => {
-                    const words = e.target.value.split(/\s+/).filter(Boolean);
-                    setDescription(words.length <= 100 ? e.target.value : words.slice(0, 100).join(" "));
-                  }}
-                  autoFocus
-                  placeholder="Ex: les techniques concrètes pour trouver des clients et vendre sur WhatsApp..."
-                  className="w-full px-5 py-4 pr-28 bg-white border border-slate-200 rounded-2xl text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none shadow-sm transition-all" />
-                <button type="button" onClick={handleImproveDescription} disabled={!description || improvingDescription}
-                  className="absolute right-2.5 top-3 px-3 py-2 text-xs font-semibold text-indigo-600 hover:bg-indigo-50 disabled:opacity-30 rounded-lg flex items-center gap-1.5 transition-all">
-                  {improvingDescription ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowUpRightFromCircleIcon className="w-3.5 h-3.5" />}
-                  {improvingDescription ? "..." : "Améliorer"}
-                </button>
+            <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-6 lg:items-start">
+            {/* Colonne formulaire */}
+            <div>
+            <div className="bz-card p-6 sm:p-7 space-y-5 text-left">
+              {/* Titre */}
+              <div>
+                <div className="flex items-baseline justify-between mb-2">
+                  <label className="bz-label">Titre de l'ebook</label>
+                  <span className="text-[11px] text-slate-400 tabular-nums">{titre.trim() ? titre.trim().split(/\s+/).length : 0} / 25</span>
+                </div>
+                <div className="relative">
+                  <input type="text" value={titre} autoFocus
+                    onChange={e => { const w = e.target.value.split(/\s+/).filter(Boolean); setTitre(w.length <= 25 ? e.target.value : w.slice(0, 25).join(" ")); }}
+                    onKeyDown={e => { if (e.key === "Enter" && isFormValid) setStep(2); }}
+                    placeholder="Vendre sur WhatsApp en 2026"
+                    className="bz-input pr-24" />
+                  <button type="button" onClick={handleImproveTitle} disabled={!titre || improvingTitle}
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-100 disabled:opacity-30 rounded-lg flex items-center gap-1.5 transition-all">
+                    {improvingTitle ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowUpRightFromCircleIcon className="w-3.5 h-3.5" />}
+                    <span className="hidden sm:inline">Améliorer</span>
+                  </button>
+                </div>
               </div>
-              <div className="mt-2 text-right text-xs text-slate-400">
-                {description.split(/\s+/).filter(Boolean).length}/100 mots
+
+              {/* Description */}
+              <div>
+                <div className="flex items-baseline justify-between mb-2">
+                  <label className="bz-label">Description <span className="text-slate-400">(optionnel)</span></label>
+                  <span className="text-[11px] text-slate-400 tabular-nums">{description.trim() ? description.trim().split(/\s+/).length : 0} / 100</span>
+                </div>
+                <textarea rows={3} value={description}
+                  onChange={e => { const w = e.target.value.split(/\s+/).filter(Boolean); setDescription(w.length <= 100 ? e.target.value : w.slice(0, 100).join(" ")); }}
+                  placeholder="Ce que le lecteur va apprendre, l'angle, les points clés."
+                  className="bz-input resize-none" />
               </div>
+
+              {/* Auteur */}
+              <div>
+                <label className="bz-label mb-2">Auteur</label>
+                <input type="text" value={auteur} onChange={e => setAuteur(e.target.value)}
+                  placeholder="Ton nom (affiché sur la couverture)"
+                  className="bz-input" />
+              </div>
+
+              {/* Langue */}
+              <div>
+                <label className="bz-label mb-2">Langue</label>
+                <div className="flex bg-[#F0F0EF] rounded-xl p-1 gap-1">
+                  {[{ value: "français", label: "Français" }, { value: "anglais", label: "English" }].map(opt => (
+                    <button key={opt.value} type="button" onClick={() => { setLangue(opt.value); sfxTick(); }}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${langue === opt.value ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-800"}`}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            {/* Continuer (aligné sur le formulaire) */}
+            <button type="button" disabled={!isFormValid} onClick={() => { sfxClick(); setStep(2); }}
+              className="mt-5 w-full py-3.5 bg-slate-900 hover:bg-black disabled:bg-slate-200 disabled:text-slate-400 text-white font-medium rounded-xl transition-all flex items-center justify-center gap-2">
+              Continuer <ArrowRight className="w-4 h-4" />
+            </button>
+            </div>
+
+            {/* Colonne aperçu — desktop uniquement */}
+            <div className="hidden lg:block lg:sticky lg:top-4">
+              <p className="bz-label mb-3">Aperçu de ton ebook</p>
+              <div className="bz-card p-8 flex items-center justify-center min-h-[360px]">
+                <Book3D title={titre} auteur={auteur} template={template} size="lg" />
+              </div>
+              <div className="mt-3 bz-soft p-3.5 flex items-start gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-[13px] font-medium text-slate-700">Tes données sont sécurisées</p>
+                  <p className="text-[11px] text-slate-400 leading-snug">Aucune donnée n'est partagée avec des tiers.</p>
+                </div>
+              </div>
+            </div>
             </div>
           )}
 
-          {/* ── ÉTAPE 2 — TON + PUBLIC ── */}
+          {/* ── ÉTAPE 2 · STYLE & FORMAT ── */}
           {step === 2 && (
-            <div>
-              <div className="text-center mb-8">
-                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Le ton et le public</h1>
-                <p className="text-slate-500 text-sm">Pour adapter l'écriture à tes lecteurs.</p>
+            <div className="space-y-3 text-left">
+              {/* Aperçu (vignette) + Design fusionnés, sur une ligne */}
+              <div className="bz-card p-3 flex items-center gap-3">
+                <div ref={bookRef} className="shrink-0 h-[120px] w-[98px] flex items-center justify-center overflow-hidden">
+                  <div className="scale-[0.52] origin-center"><Book3D title={titre} auteur={auteur} template={template} /></div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <label className="block text-xs font-semibold text-slate-500 mb-1.5">Design de la couverture</label>
+                  <select value={template} onChange={(e) => { setTemplate(e.target.value); sfxTick(); }}
+                    className="w-full px-3 py-2.5 bg-[#F5F5F4] border border-transparent rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:border-black/10 focus:ring-4 focus:ring-black/[0.04]">
+                    {TEMPLATES.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+                  </select>
+                  <p className="mt-1.5 text-[11px] text-slate-400">Aperçu en direct de ta couverture</p>
+                </div>
               </div>
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-6">
+
+              {/* Réglages */}
+              <div className="bz-card p-4 space-y-2.5">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-3">Ton</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Ton</label>
                   <PillSelector options={TONES} value={tone} onChange={setTone} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-3">Public</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Public</label>
                   <PillSelector options={AUDIENCES} value={audience} onChange={setAudience} />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ── ÉTAPE 3 — DESIGN + GÉNÉRATION ── */}
-          {step === 3 && (
-            <div>
-              <div className="text-center mb-4">
-                <h1 className="text-xl sm:text-2xl font-semibold text-slate-900">Choisis ton design</h1>
-              </div>
-              <div className="rounded-2xl px-6 py-8 mb-5 flex flex-col items-center"
-                style={{ background: `linear-gradient(135deg, ${selTmpl.primaryColor}1a, ${selTmpl.accentColor}33)` }}>
-                <div ref={bookRef}>
-                  <Book3D title={titre} template={template} />
-                </div>
-                <span className="mt-5 text-[11px] font-bold uppercase tracking-wider text-slate-700 bg-white/80 px-3 py-1 rounded-full">{selTmpl.label}</span>
-              </div>
-              <div className="bg-white rounded-2xl p-5 border border-slate-100 max-w-md mx-auto space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Template</label>
-                  <select value={template} onChange={(e) => setTemplate(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                    {TEMPLATES.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
-                  </select>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Pages</label>
-                    <select value={pages} onChange={(e) => setPages(e.target.value)}
-                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                      {PAGES_OPTIONS.map((p) => <option key={p} value={p}>{p} pages</option>)}
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">Pages</label>
+                    <select value={pages} onChange={(e) => { setPages(e.target.value); sfxTick(); }}
+                      className="w-full px-3 py-2 bg-[#F5F5F4] border border-transparent rounded-xl text-sm text-slate-900 focus:bg-white focus:border-black/10 focus:ring-4 focus:ring-black/[0.04]">
+                      {PAGES_OPTIONS.map((p) => <option key={p} value={p} disabled={trialOnly && p > 30}>{p} pages</option>)}
                     </select>
+                    {trialOnly && <p className="mt-1 text-[11px] text-amber-600">En essai : 30 pages max</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Chapitres</label>
-                    <select value={chapters} onChange={(e) => setChapters(e.target.value)}
-                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                      {CHAPTERS_OPTIONS.map((c) => <option key={c} value={c}>{c} chapitres</option>)}
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">Chapitres</label>
+                    <select value={chapters} onChange={(e) => { setChapters(e.target.value); sfxTick(); }}
+                      className="w-full px-3 py-2 bg-[#F5F5F4] border border-transparent rounded-xl text-sm text-slate-900 focus:bg-white focus:border-black/10 focus:ring-4 focus:ring-black/[0.04]">
+                      {CHAPTERS_OPTIONS.map((c) => <option key={c} value={c} disabled={trialOnly && c > 3}>{c} chapitres</option>)}
                     </select>
+                    {trialOnly && <p className="mt-1 text-[11px] text-amber-600">En essai : 3 chapitres max</p>}
                   </div>
+                </div>
+              </div>
+
+              {/* Format de livraison */}
+              <div className="bz-card p-4">
+                <label className="block text-xs font-semibold text-slate-700 mb-2">Que veux-tu obtenir ?</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: "kit", title: "Kit complet", desc: "Ebook + mockup + affiches" },
+                    { id: "ebook", title: "Ebook seul", desc: "PDF + Word" },
+                  ].map(o => {
+                    const on = outputType === o.id;
+                    const locked = trialOnly && o.id === "kit"; // Kit réservé à l'abonnement en essai
+                    return (
+                      <button key={o.id} type="button" disabled={locked}
+                        onClick={() => { if (!locked) { setOutputType(o.id); sfxTick(); } }}
+                        className={`text-left rounded-xl border p-2.5 transition-all ${
+                          locked ? "border-black/[0.07] bg-[#F5F5F4] opacity-50 cursor-not-allowed"
+                          : on ? "border-slate-900 bg-slate-50 ring-1 ring-slate-900"
+                          : "border-black/[0.07] bg-[#F5F5F4] hover:border-slate-300"}`}>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-bold text-slate-900">{o.title}</span>
+                          <span className={`w-4 h-4 shrink-0 rounded-full flex items-center justify-center ${on && !locked ? "bg-slate-900" : "border border-slate-300"}`}>
+                            {on && !locked && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">{locked ? "Réservé à l'abonnement" : o.desc}</p>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -1066,38 +1148,61 @@ function NouveauProjetPageContent() {
 
         </div>
 
-        {/* Navigation */}
-        <div className="flex gap-3 mt-8">
-          <button type="button" onClick={() => setStep(s => s - 1)}
-            className="px-5 py-4 bg-white border border-slate-200 text-slate-500 rounded-xl font-medium hover:border-slate-300 transition-all flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4" /> Retour
-          </button>
-          {step < 3 ? (
-            <button type="button" onClick={() => setStep(s => s + 1)}
-              className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
-              {step === 1 && description.trim().length === 0 ? "Passer" : "Continuer"} <ArrowRight className="w-4 h-4" />
+        {/* Navigation — étape 2 (l'étape 1 a son propre bouton Continuer) */}
+        {step === 2 && (
+          <div className="flex gap-3 mt-5">
+            <button type="button" onClick={() => { sfxBack(); setStep(s => s - 1); }}
+              className="px-5 py-3.5 bz-soft text-slate-600 font-medium hover:bg-slate-50 transition-all flex items-center gap-2">
+              <ArrowLeft className="w-4 h-4" /> Retour
             </button>
-          ) : (
-            <button type="button" onClick={handleSubmit}
-              className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
+            <button type="button" onClick={() => { sfxClick(); handleSubmit(); }}
+              className="flex-1 py-3.5 bg-slate-900 hover:bg-black text-white font-medium rounded-xl transition-all flex items-center justify-center gap-2">
               Générer mon ebook <ArrowRight className="w-4 h-4" />
             </button>
-          )}
-        </div>
-        {step === 3 && <p className="text-xs text-slate-400 text-center mt-3">Aperçu 100% gratuit · Sans engagement</p>}
+          </div>
+        )}
 
       </div>
+
+      {/* Paywall : ni essai ni abonnement → activer pour générer */}
+      {paywall && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4"
+          style={{ background: "rgba(15,23,42,0.55)", backdropFilter: "blur(3px)" }}>
+          <div className="w-full max-w-sm rounded-3xl bg-white shadow-2xl p-6 text-center">
+            <div className="mx-auto w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
+              style={{ background: "linear-gradient(160deg,#10b981,#047857)" }}>
+              <Lock className="w-7 h-7 text-white" />
+            </div>
+            <h3 className="text-lg font-black text-slate-900">Débloque ta génération</h3>
+            <p className="mt-2 text-sm text-slate-500 leading-snug">
+              Active un abonnement ou l'essai à 1 000 FCFA pour générer ton premier ebook.
+            </p>
+            <button onClick={buyEssai}
+              className="mt-5 w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-colors">
+              Activer l'essai · 1 000 FCFA
+            </button>
+            <button onClick={() => { window.location.href = "/dashboard/tarifs"; }}
+              className="mt-2 w-full py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-semibold transition-colors">
+              Voir les abonnements
+            </button>
+            <button onClick={() => setPaywall(false)} className="mt-3 text-xs text-slate-400 hover:text-slate-600 underline">
+              Plus tard
+            </button>
+          </div>
+        </div>
       )}
 
       <style>{`
-        .bz-step { animation: bzfade .28s ease; min-height: 320px; }
-        @keyframes bzfade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-        /* Desktop : dégradé vert soutenu en bas */
-        .bz-create-bg { background: linear-gradient(to bottom, #ffffff 0%, #f4fdf7 38%, #d9f7e5 74%, #a7f3d0 100%); }
-        /* Mobile : vert au centre, mais on revient au blanc tout en bas */
-        @media (max-width: 1023px) {
-          .bz-create-bg { background: linear-gradient(to bottom, #ffffff 0%, #eafaf1 34%, #c9f2da 60%, #eafaf1 82%, #ffffff 100%); }
-        }
+        .bz-step { animation: bzfade .28s ease; }
+        @keyframes bzfade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+        /* Premium mono — Apple / Notion / Whop, sans dégradé */
+        .bz-create-bg { background: #ffffff; }
+        .bz-card { background:#fff; border:1px solid rgba(15,23,42,.07); border-radius:20px; box-shadow:0 1px 2px rgba(15,23,42,.03), 0 16px 40px -22px rgba(15,23,42,.22); }
+        .bz-soft { background:#fff; border:1px solid rgba(15,23,42,.07); border-radius:16px; }
+        .bz-input { width:100%; background:#F5F5F4; border:1px solid transparent; border-radius:12px; padding:13px 15px; font-size:15px; line-height:1.4; color:#0f172a; transition:background .16s, border-color .16s, box-shadow .16s; }
+        .bz-input::placeholder { color:#9aa3af; }
+        .bz-input:focus { outline:none; background:#fff; border-color:rgba(15,23,42,.14); box-shadow:0 0 0 4px rgba(15,23,42,.04); }
+        .bz-label { display:block; font-size:13px; font-weight:500; color:#6b7280; letter-spacing:.01em; }
       `}</style>
     </div>
   );

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useSWR, { useSWRConfig } from "swr";
-import { ChevronDown, LogOut, UserCircle2, Settings, Menu, Lightbulb, Users, CreditCard, BookOpen } from "lucide-react";
+import { ChevronDown, LogOut, UserCircle2, Settings, Menu, Lightbulb, Users, CreditCard, BookOpen, LifeBuoy } from "lucide-react";
 import Link from "next/link";
 import { ebooksFromCredits } from "@/lib/plans";
 
@@ -17,7 +17,7 @@ function avatarUrl(user) {
   return `https://api.dicebear.com/9.x/${AVATAR_STYLE}/svg?seed=${encodeURIComponent(seed)}`;
 }
 
-export default function DashboardHeader({ onMenuClick }) {
+export default function DashboardHeader({ onMenuClick, onSupportClick }) {
   const router = useRouter();
   const { mutate } = useSWRConfig();
   const [showMenu, setShowMenu] = useState(false);
@@ -38,7 +38,7 @@ export default function DashboardHeader({ onMenuClick }) {
     (user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() : "Invité");
 
   const tier = user?.toolsTier; // "createur" | "pro" | null
-  const planLabel = tier === "pro" ? "Pro" : tier === "createur" ? "Créateur" : "Gratuit";
+  const planLabel = tier === "pro" ? "Business" : tier === "createur" ? "Créateur" : "Gratuit";
 
   const handleLogout = async () => {
     try {
@@ -66,11 +66,19 @@ export default function DashboardHeader({ onMenuClick }) {
         >
           <Menu className="w-5 h-5" />
         </button>
-        <PlanSwitcher tier={user?.toolsTier} />
+        <PlanSwitcher tier={user?.toolsTier} trialTier={user?.trialTier} />
       </div>
 
       {/* Right — crédits + profil */}
       <div className="flex items-center gap-2">
+        <button
+          onClick={onSupportClick}
+          title="Support"
+          aria-label="Support"
+          className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-500 hover:bg-neutral-100 transition-colors"
+        >
+          <LifeBuoy className="w-5 h-5" />
+        </button>
         <Link
           href="/dashboard/tarifs"
           data-tour="ebooks"
@@ -148,12 +156,20 @@ function MenuItem({ onClick, icon: Icon, label }) {
   );
 }
 
-function PlanSwitcher({ tier }) {
+function PlanSwitcher({ tier, trialTier }) {
   const [open, setOpen] = useState(false);
-  const current = tier === "pro" ? "Pro" : tier === "createur" ? "Créateur" : "Gratuit";
+  const ref = useRef(null);
+  const current = tier === "pro" ? "Business" : tier === "createur" ? "Créateur" : trialTier ? "Essai" : "Gratuit";
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [open]);
 
   return (
-    <div className="relative">
+    <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
         data-tour="plan"
@@ -164,8 +180,6 @@ function PlanSwitcher({ tier }) {
       </button>
 
       {open && (
-        <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
           <div className="absolute left-0 mt-2 w-72 bg-white border border-neutral-200 rounded-2xl shadow-xl p-2 z-50">
             {tier ? (
               <>
@@ -179,7 +193,7 @@ function PlanSwitcher({ tier }) {
                 {tier === "createur" && (
                   <Link href="/dashboard/tarifs" onClick={() => setOpen(false)}
                     className="mt-1 flex items-center justify-between p-2 rounded-xl hover:bg-neutral-50 transition-colors">
-                    <span className="text-sm text-neutral-700">Passer à Pro (15 ebooks)</span>
+                    <span className="text-sm text-neutral-700">Passer à Business (15 ebooks)</span>
                     <span className="text-sm font-semibold text-neutral-900">→</span>
                   </Link>
                 )}
@@ -213,10 +227,18 @@ function PlanSwitcher({ tier }) {
                     <p className="text-xs text-neutral-500">Ton offre en cours</p>
                   </div>
                 </div>
+
+                {!trialTier && (
+                  <button
+                    onClick={() => { setOpen(false); window.dispatchEvent(new CustomEvent("bookzy:trial-confirm", { detail: { price: 1000 } })); }}
+                    className="mt-1 w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-colors"
+                  >
+                    Activer l'essai · 1 000 FCFA
+                  </button>
+                )}
               </>
             )}
           </div>
-        </>
       )}
     </div>
   );

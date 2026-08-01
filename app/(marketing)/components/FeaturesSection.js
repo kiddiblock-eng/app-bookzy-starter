@@ -123,9 +123,9 @@ export default function HeroAndFeatures() {
           {/* Social proof */}
           <div className="flex items-center gap-3 px-4 py-2 bg-white/80 backdrop-blur-sm border border-white/50 rounded-full mb-8 shadow-sm">
             <div className="flex -space-x-2">
-              <img src="https://sucesspro.io/wp-content/uploads/2025/10/bc04d7c785a05a60584b5edc85860f47.jpg" className="w-7 h-7 rounded-full border-2 border-white object-cover" alt="" />
-              <img src="https://sucesspro.io/wp-content/uploads/2025/10/IMG_4306.jpg" className="w-7 h-7 rounded-full border-2 border-white object-cover" alt="" />
-              <img src="https://sucesspro.io/wp-content/uploads/2025/10/ef7c836ef8bee61bfcb4d5ff4bde5702.jpg" className="w-7 h-7 rounded-full border-2 border-white object-cover" alt="" />
+              <img src="/T4.jpg" className="w-7 h-7 rounded-full border-2 border-white object-cover" alt="" />
+              <img src="/T5.jpg" className="w-7 h-7 rounded-full border-2 border-white object-cover" alt="" />
+              <img src="/t1.jpg" className="w-7 h-7 rounded-full border-2 border-white object-cover" alt="" />
             </div>
             <span className="text-sm text-slate-700">
               <span className="font-semibold text-slate-900">3,500+</span> créateurs nous font confiance

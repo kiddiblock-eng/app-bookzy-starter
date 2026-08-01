@@ -154,8 +154,10 @@ export async function POST(req) {
         plan       = null;
         isRecharge = true;
       } else if (OFFERS[tx.packId]) {
-        // Nouvelle offre ebooks qui n'expirent jamais (Découverte / Créateur / Pro)
-        credits   = offerCredits(tx.packId);
+        // Nouvelle offre ebooks qui n'expirent jamais (Découverte / Créateur / Pro).
+        // Pour Créateur, la quantité choisie au curseur est portée par metadata.credits.
+        const metaCredits = Number(metadata.credits);
+        credits   = Number.isFinite(metaCredits) && metaCredits > 0 ? metaCredits : offerCredits(tx.packId);
         plan      = null;
         isOffer   = true;
         toolsTier = OFFERS[tx.packId].unlocksTools ? tx.packId : null;
@@ -180,7 +182,8 @@ export async function POST(req) {
         console.log(`✅ [Recharge] +${credits} crédits (plan inchangé) — User: ${tx.userId}`);
       } else if (isOffer) {
         await user.addCredits(credits); // ebooks non-expirants, plan inchangé
-        if (toolsTier) { user.toolsTier = toolsTier; }
+        if (toolsTier) { user.toolsTier = toolsTier; user.trialTier = false; } // vrai abonnement → fin de l'essai
+        if (tx.packId === "essai") { user.trialTier = true; } // essai activé (outils free +1)
         // 🎡 Consomme le code promo si ce paiement en utilisait un.
         if (metadata.promoCode && user.promo?.code === metadata.promoCode && !user.promo.used) {
           user.promo.used = true;

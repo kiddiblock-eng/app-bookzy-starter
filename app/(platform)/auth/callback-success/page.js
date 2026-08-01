@@ -6,7 +6,8 @@ export default function CallbackSuccess() {
   const router = useRouter();
 
   useEffect(() => {
-    router.push("/dashboard");
+    // Nouveaux comptes (notamment Google) → onboarding "Par où commencer ?"
+    router.push("/setup/step1");
   }, [router]);
 
   return (

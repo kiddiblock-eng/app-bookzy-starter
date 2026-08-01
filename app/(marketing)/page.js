@@ -7,6 +7,7 @@ import Hero from "@/app/(marketing)/components/Hero";
 import Outils from "@/app/(marketing)/components/Outils";
 import HowitWork from "@/app/(marketing)/components/HowitWork";
 import Pricing from "@/app/(marketing)/components/Pricing";
+import Testimonials from "@/app/(marketing)/components/Testimonials";
 import FAQ from "@/app/(marketing)/components/FAQ";
 import CTA from "@/app/(marketing)/components/CTA";
 
@@ -38,6 +39,7 @@ export default function HomePage() {
       <Hero />
       <HowitWork />
       <Outils />
+      <Testimonials />
       <Pricing />
       <FAQ />
       <CTA />

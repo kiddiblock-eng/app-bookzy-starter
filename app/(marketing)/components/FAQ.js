@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { Reveal } from "./Reveal";
 
 const ACCENT = "#059669";
@@ -26,32 +26,35 @@ export default function FAQ() {
           <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-neutral-900">Questions fréquentes.</h2>
         </Reveal>
 
-        <div className="space-y-3">
+        <div className="border-t border-neutral-200">
           {QA.map((item, i) => {
             const isOpen = open === i;
             return (
-              <Reveal key={i} delay={i * 0.04}>
-                <div className="rounded-2xl border border-neutral-200 bg-white overflow-hidden">
-                  <button onClick={() => setOpen(isOpen ? -1 : i)} className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left">
-                    <span className="text-[15px] font-semibold text-neutral-900">{item.q}</span>
-                    <span className={`shrink-0 transition-transform duration-300 ${isOpen ? "rotate-45" : ""}`}>
-                      <Plus size={18} className="text-neutral-400" />
-                    </span>
-                  </button>
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                      >
-                        <p className="px-5 pb-5 text-sm text-neutral-500 leading-relaxed">{item.a}</p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </Reveal>
+              <div key={i} className="border-b border-neutral-200">
+                <button
+                  onClick={() => setOpen(isOpen ? -1 : i)}
+                  className="w-full flex items-center justify-between gap-4 py-5 text-left"
+                >
+                  <span className="text-[15px] sm:text-base font-semibold text-neutral-900">{item.q}</span>
+                  <ChevronDown
+                    size={18}
+                    className={`shrink-0 text-neutral-400 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <p className="pb-5 pr-8 text-sm text-neutral-500 leading-relaxed">{item.a}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             );
           })}
         </div>
