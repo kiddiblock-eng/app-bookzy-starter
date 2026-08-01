@@ -58,8 +58,8 @@ export default function RefundPolicy() {
             <span className="text-blue-500">nos remboursements.</span>
           </h1>
           <p className="text-lg text-slate-500 leading-relaxed max-w-xl">
-            Notre priorité est votre succès. Bookzy fonctionne avec un système de crédits.
-            En cas de problème avéré, nous remboursons les <strong className="text-slate-900">crédits utilisés</strong> directement sur votre compte , pas l'argent de votre achat initial.
+            Notre priorité est votre succès. Chez Bookzy, tu paies tes ebooks une fois et ils n'expirent jamais.
+            En cas de problème avéré, nous te restituons l'<strong className="text-slate-900">ebook concerné</strong> directement sur ton solde, pas l'argent de ton achat.
           </p>
         </div>
 
@@ -95,9 +95,9 @@ export default function RefundPolicy() {
                   </div>
                   <div className="bg-white/5 border border-white/10 rounded-xl p-4">
                     <p className="text-white/60 text-sm leading-relaxed">
-                      Exemple : vous avez acheté 330 crédits pour 19 125 FCFA et utilisé 20 crédits pour générer un ebook défectueux.
-                      Après enquête favorable, nous restituons les <strong className="text-white">20 crédits</strong> sur votre solde.
-                      L'argent des 19 125 FCFA ne fait pas l'objet d'un remboursement monétaire.
+                      Exemple : vous avez pris l'offre Créateur (5 ebooks) à 7 500 FCFA et généré un ebook défectueux.
+                      Après enquête favorable, nous restituons <strong className="text-white">1 ebook</strong> sur votre solde.
+                      L'argent payé pour l'offre ne fait pas l'objet d'un remboursement monétaire.
                     </p>
                   </div>
                 </div>
@@ -246,7 +246,7 @@ export default function RefundPolicy() {
                 <Coins className="w-5 h-5 text-amber-600 mb-3" />
                 <p className="text-xs font-black text-amber-900 uppercase tracking-widest mb-2">Rappel</p>
                 <p className="text-xs text-amber-800 leading-relaxed">
-                  Nous remboursons les <strong>crédits</strong>, pas l'argent. Les crédits n'expirent jamais.
+                  Nous restituons l'<strong>ebook</strong> concerné, pas l'argent. Tes ebooks n'expirent jamais.
                 </p>
               </div>
             </div>
